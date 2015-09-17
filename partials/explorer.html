@@ -173,100 +173,8 @@
 		</div>
 		
 		<!-- Erweiterte Optionen im Viewport -->
-		<div class="vpPanelContainer">
-			<div class="expandContainerBtn" ng-click="expandPanelContainer($event)">
-				<span class="glyphicon glyphicon-chevron-left"></span>
-				<div class="expandContainerLabel">Erweiterte Optionen</div>
-			</div>
-			
-			<!-- Optionen für Unsicheres Wissen -->
-			<div id="vpCtrlUnsafe" class="ctrlPanel">
-				<div class="ctrlPanel-heading">
-					<div class="expandButton">
-						<span class="glyphicon glyphicon-chevron-up" ng-click="expandVpCtrlPanel($event)"></span>
-					</div>
-					Optionen für Unsicheres Wissen
-				</div>
-				<div class="ctrlPanel-body">
-					<div class="optionGroup">
-						<span>Deckkraft</span>
-						<slider floor="0" ceiling="100" step="5" ng-model="unsafeSettings.opacity"></slider>
-						<span>{{unsafeSettings.opacity}}</span>
-					</div>
-					<div class="optionGroup checkbox">
-						<label>
-							<input type="checkbox" ng-model="unsafeSettings.edges"/> Kanten ein/aus
-						</label>
-						<label>
-							<input type="checkbox" ng-model="unsafeSettings.autoTransparent"/> Transparenz abhängig von Blickwinkel
-						</label>
-					</div>
-				</div>
-			</div>
-			
-			<!-- Optionen für Schnitte -->
-			<div id="vpCtrlSlice" class="ctrlPanel">
-				<div class="ctrlPanel-heading">
-					<div class="expandButton">
-						<span class="glyphicon glyphicon-chevron-up" ng-click="expandVpCtrlPanel($event)"></span>
-					</div>
-					Querschnitt
-				</div>
-				<div class="ctrlPanel-body">
-					<div class="mainOptionGroup checkbox">
-						<label>
-							<input type="checkbox" ng-model="sliceSettings.enabled"/> Querschnitt aktivieren
-						</label>
-					</div>
-					<div class="optionGroup radio">
-						<span class="groupHeader">Ausrichtung</span>
-						<label>
-							<input type="radio" name="sliceRadios" ng-model="sliceSettings.axisAlign" value="x-axis"/> X-Achse
-						</label>
-						<label>
-							<input type="radio" name="sliceRadios" ng-model="sliceSettings.axisAlign" value="y-axis"/> Y-Achse
-						</label>
-						<label>
-							<input type="radio" name="sliceRadios" ng-model="sliceSettings.axisAlign" value="z-axis"/> Z-Achse
-						</label>
-					</div>
-					<div class="optionGroup">
-						<span class="groupHeader">Position</span>
-						<span>Versatz</span>
-						<slider floor="0" ceiling="100" step="1" ng-model="sliceSettings.planePosition"></slider>
-						<span>{{sliceSettings.planePosition}}</span>
-						
-					</div>
-					<div class="optionGroup checkbox">
-						<span class="groupHeader">Anzeige</span>
-						<label>
-							<input type="checkbox" ng-model="sliceSettings.showPlane"/> Schnittebene anzeigen
-						</label>
-						<label>
-							<input type="checkbox" ng-model="sliceSettings.showSliceFaces"/> Schnittflächen schließen
-						</label>
-					</div>
-				</div>
-			</div>
-			
-			<!-- Messwerkzeug -->
-			<div id="vpCtrlMeasure" class="ctrlPanel">
-				<div class="ctrlPanel-heading">
-					<div class="expandButton">
-						<span class="glyphicon glyphicon-chevron-up" ng-click="expandVpCtrlPanel($event)"></span>
-					</div>
-					Messwerkzeug
-				</div>
-				<div class="ctrlPanel-body">
-					<div class="optionGroup">
-						<span class="groupHeader">Messungstypen</span>
-						<button title="Measurement Tool" class="ctrlBtn" ng-class="(activeBtn == 'measure') ? 'active' : ''" ng-click="ctrlBtnClick('measure')"><img src="img/icons/measure.png"/></button>
-					</div>
-				</div>
-			</div>
-			
-		</div>
-		
+		<div ng-include="'partials/enhanced_options.html'" class="vpPanelContainer"></div>
+		<div ng-include="'partials/enhanced_options_horizontal.html'" class="vpPanelContainerHorizontal"></div>
 	
 		
 	</div>
@@ -591,7 +499,6 @@
 
 <!-- insertForm -->
 <div ng-include="overlayParams.url" class="overlayPanel" ></div>
-</div>
 
 <!-- alert -->
 <div ng-if="alert.showing" alert="alert" class="alert alert-warning" role="alert"></div>

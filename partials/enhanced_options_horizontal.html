@@ -1,0 +1,44 @@
+<!-- Horizontaler Container -->
+<div class="expandContainerBtnHorizontal" ng-click="expandPanelContainerHorizontal($event)" > 
+		<span class= "glyphicon glyphicon-chevron-up"></span>
+</div>	
+
+
+<p class = "labelTable" >Sicher</p> 
+
+<div class = "labelComplete" >
+	<p  class = "labelText">BP1</p>
+	<div class = "labelColorSecure"></div>  
+</div>
+
+
+<div class="expandContainerBtnPhases" ng-click="expandPanelContainerPhases($event)" > 
+	<span class= "glyphicon glyphicon-chevron-down"></span>
+</div>	
+
+
+<div class = "row2">
+	<p class = "labelTable2">Unsicher</p>
+	<div class = "labelColorUnsecure" style="border-width: {{lineThickness.value}}px; border-color: {{lineColor.value}}"></div>
+	<p>{{lineColor.value}}</p>
+</div>
+
+		
+<div class = "timeSlider">	
+	<slider floor="1250" ceiling = "1750" ng-model= "position.minAge" ></slider> <!--ng-model-high = "position.maxAge"-->
+	<p style = "position: absolute; top: 45px; left: {{(position.minAge-1250) * 950/500 +20}}px;">{{position.minAge}}</p>
+	<!--<p style = "position: absolute; top: 45px; left: {{-(1750-position.maxAge) * 950/500 +970}}px;">{{position.maxAge}}</p>	-->
+	
+	<div class = "timeNumbers">
+		<p style = "position: absolute;  left: 20px;">1250</p>
+		<p style = "position: absolute;  left: {{20 + (50*(950/500))}}px;  ">1300</p>
+		<p style = "position: absolute;  left: {{20 + (150*(950/500))}}px; ">1400</p>
+		<p style = "position: absolute;  left: {{20 + (250*(950/500))}}px; ">1500</p>
+		<p style = "position: absolute;  left: {{20 + (350*(950/500))}}px; ">1600</p>
+		<p style = "position: absolute;  left: {{20 + (450*(950/500))}}px; ">1700</p>
+		<p style = "position: absolute;  left: {{20 + (500*(950/500))}}px; ">1750</p>
+	</div>
+</div>		
+
+
+

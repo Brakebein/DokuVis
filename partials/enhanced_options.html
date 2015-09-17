@@ -1,0 +1,235 @@
+<div class="expandContainerBtn" ng-click="expandPanelContainer($event)">
+	<span class="glyphicon glyphicon-chevron-left"></span>
+	<div class="expandContainerLabel">Erweiterte Optionen</div>
+</div>
+
+<!-- Optionen für Bauphasendarstellung -->
+<div id="vpCtrlBuild" class="ctrlPanel">
+	<div class="ctrlPanel-heading">
+		<div class="expandButton">
+			<span class="glyphicon glyphicon-chevron-down" ng-click="expandVpCtrlPanel($event)"></span>
+		</div>
+		Darstellungsoptionen
+	</div>
+	<div class="ctrlPanel-body">			
+			<div class="optionGroup">
+				<span class="groupHeader">Bauphasenfärbung</span>
+				<select name="phaseColouring" > 
+				  <option>Hell-Dunkel-Verlauf(braun)</option> 		  <!--Color Picker!!!!!-->
+				  <option></option>
+				</select>
+				<br>
+					<div id = "ramp" ng-style="{'background-image': 'linear-gradient(to right, rgb({{ramp.start[0]}},{{ramp.start[1]}},{{ramp.start[2]}}), rgb({{ramp.end[0]}},{{ramp.end[1]}},{{ramp.end[2]}}))'}" ng-click= "addSlider($event)">
+						<div class="marker" ng-repeat="m in colorMarkerArray" ng-style="{left: m.position}"></div>
+						
+					</div>
+					
+					
+					<div id = "colorField" style = "background: {{colorMarkerArray[colorMarkerArray.length - 1].color}};"></div>
+				<br>
+			</div>
+		
+		
+		<div class="optionGroup">
+			<span class="groupHeader"> unsicheres Wissen </span>
+			
+			<input type="checkbox" ng-model="unsafeSettings.edges"/> gesonderte Darstellung		<!-- controller-->
+			<br><span>Flächendarstellung</span>
+			<br><select name="transparency" > 
+					  <option>Transparenz</option>  <!--Bild einfügen, Kreuz, Farben-->
+					  <option></option>
+			</select> 
+			
+			<div>
+				<span>Transp.</span>
+				<slider floor="0" ceiling="100" step="5" ng-model="unsafeSettings.opacity"></slider>
+				<span>{{unsafeSettings.opacity}}</span>
+			</div>
+
+			<label>
+				<input type="checkbox" ng-model="unsafeSettings.autoTransparent"/> Transparenz abhängig von Blickwinkel
+			</label>
+		
+			<br><span>Konturdarstellung</span>
+			
+			<label>
+				<input type="checkbox" ng-model="unsafeSettings.edgesOn/Off"/> Kanten ein/aus
+			</label>
+			
+			<select name = "">
+				<option></option>
+			</select>
+								
+			<table class = "tableoptions"> 
+				<tr>
+					<td>Linienstärke</td>
+					<td><input type="number" ng-model="lineThickness.value" size="5"></td>
+					<td>{{lineThickness.value}}</td>
+				</tr>
+				<tr>
+					<td>Linienfarbe</td>
+					<td><input type="color" ng-model="lineColor.value"></td>
+					
+				</tr>
+				
+			</table>
+		</div>
+	</div>
+</div>
+
+
+<!-- Optionen für Markierungen -->
+<div id = "vpCtrlMarkers" class = "ctrlPanel">
+	<div class = "ctrlPanel-heading">
+		<div class = "expandButton">
+			<span class="glyphicon glyphicon-chevron-down" ng-click="expandVpCtrlPanel($event)"></span>
+		</div>
+		Optionen für Markierungen
+	</div>
+	
+	<div class="ctrlPanel-body">				
+			<span>Transparenz</span> 
+			<slider floor="0" ceiling="100" step="5" ng-model="marksOpacity"></slider> <!--controller einfügen -->
+			<span>{{marks.opacity}}</span>
+		
+		<label>
+				<input type="checkbox" ng-model="unsafeSettings.autoTransparent"/> Transparenz abhängig von Blickwinkel <!--controller einfügen-->
+		</label>
+		
+		<div class = "optionGroup checkbox">
+			<span class="groupHeader">Steinmetzzeichen</span>
+				
+				<label>
+					<input type="checkbox" ng-model="signs.showSelected"/> Alle Marker anschalten <!--controller einfügen-->
+				</label>
+				
+				<label>
+					<input type="checkbox" ng-model="signs.showymbols"/> Symbole anschalten <!--controller einfügen-->
+				</label>
+				
+				<div style = "width : 200px; height : 200px; background-color: #ffffff"></div>
+				
+									
+			</span>
+		</div>
+
+		<div class = "optionGroup checkbox">
+			
+			
+		</div>
+	</div>
+</div>
+
+<!-- Optionen für Unsicheres Wissen -->
+<div id="vpCtrlUnsafe" class="ctrlPanel">
+	<div class="ctrlPanel-heading">
+		<div class="expandButton">
+			<span class="glyphicon glyphicon-chevron-down" ng-click="expandVpCtrlPanel($event)"></span>
+		</div>
+		Optionen für Dendrochronologische Daten
+	</div>
+	<div class="ctrlPanel-body">
+		
+			<br>
+			<button title = "focusRoof" class="ctrlBtn" ng-class="(activeBtn == 'focusRoof') ? 'active' : ''" ng-click="ctrlBtnClick('focusRoof')"> Fokus auf das Dach</button> <!--controller einfügen -->
+			
+			<br><span>Fälljahr</span>
+					<slider style = "width: 200px; left: 10px" floor="1250" ceiling="1750" ng-model-low = "baulk.minAge" ng-model-high = "baulk.maxAge"></slider>
+					<p style = "position: absolute ; left: {{(baulk.minAge-1250) * 200/500+60}}px">{{baulk.minAge}}</p>
+					<p style = "position: absolute ; left: {{-(1750-baulk.maxAge) * 200/500 +240}}px;">{{baulk.maxAge}}</p>
+					 <!--controller einfügen-->				
+		
+			
+
+			<table class = "baulk">
+			<br>
+			<br>
+			  <th>
+				Balkenart
+			  </th>
+			  <tr>
+				<td><input type="checkbox" ng-model=""/> Zerrbalken</th>
+				<td><input type="checkbox" ng-model=""/> Kehlbalken</th>
+			  </tr>
+			  <tr>
+				<td><input type="checkbox" ng-model=""/> Sparren</td>
+				<td><input type="checkbox" ng-model=""/> Stuhlpfosten</td>
+			  </tr>
+			  <tr>
+				<td><input type="checkbox" ng-model=""/> Kreuzstrebe</td>
+				<td><input type="checkbox" ng-model=""/> Stuhlrähm</td>
+			  </tr>
+			  <tr>
+				<td><input type="checkbox" ng-model=""/> Fußband</td>
+				<td><input type="checkbox" ng-model=""/> Mauerlatte</td>
+			  </tr>
+			  <tr>
+				<td><input type="checkbox" ng-model=""/> Sparrenknecht</td>
+				<td><input type="checkbox" ng-model=""/> Sattelbalken</td>
+			  </tr>
+			</table>
+		
+	</div>
+</div>
+
+<!-- Optionen für Schnitte -->
+<div id="vpCtrlSlice" class="ctrlPanel">
+	<div class="ctrlPanel-heading">
+		<div class="expandButton">
+			<span class="glyphicon glyphicon-chevron-down" ng-click="expandVpCtrlPanel($event)"></span>
+		</div>
+		Querschnitt
+	</div>
+	<div class="ctrlPanel-body">
+		<div class="mainOptionGroup checkbox">
+			<label>
+				<input type="checkbox" ng-model="sliceSettings.enabled"/> Querschnitt aktivieren
+			</label>
+		</div>
+		<div class="optionGroup radio">
+			<span class="groupHeader">Ausrichtung</span>
+			<label>
+				<input type="radio" name="sliceRadios" ng-model="sliceSettings.axisAlign" value="x-axis"/> X-Achse
+			</label>
+			<label>
+				<input type="radio" name="sliceRadios" ng-model="sliceSettings.axisAlign" value="y-axis"/> Y-Achse
+			</label>
+			<label>
+				<input type="radio" name="sliceRadios" ng-model="sliceSettings.axisAlign" value="z-axis"/> Z-Achse
+			</label>
+		</div>
+		<div class="optionGroup">
+			<span class="groupHeader">Position</span>
+			<span>Versatz</span>
+			<slider floor="0" ceiling="100" step="1" ng-model="sliceSettings.planePosition"></slider>
+			<span>{{sliceSettings.planePosition}}</span>
+			
+		</div>
+		<div class="optionGroup checkbox">
+			<span class="groupHeader">Anzeige</span>
+			<label>
+				<input type="checkbox" ng-model="sliceSettings.showPlane"/> Schnittebene anzeigen
+			</label>
+			<label>
+				<input type="checkbox" ng-model="sliceSettings.showSliceFaces"/> Schnittflächen schließen
+			</label>
+		</div>
+	</div>
+</div>
+
+<!-- Messwerkzeug -->
+<div id="vpCtrlMeasure" class="ctrlPanel">
+	<div class="ctrlPanel-heading">
+		<div class="expandButton">
+			<span class="glyphicon glyphicon-chevron-down" ng-click="expandVpCtrlPanel($event)"></span>
+		</div>
+		Messwerkzeug
+	</div>
+	<div class="ctrlPanel-body">
+		<div class="optionGroup">
+			<span class="groupHeader">Messungstypen</span>
+			<button title="Measurement Tool" class="ctrlBtn" ng-class="(activeBtn == 'measure') ? 'active' : ''" ng-click="ctrlBtnClick('measure')"><img src="img/icons/measure.png"/></button>
+		</div>
+	</div>
+</div>
+

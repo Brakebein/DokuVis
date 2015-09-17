@@ -102,7 +102,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			$scope.setVisible = {id: id, visible: bool};
 		}*/
 		
-		
+			
 		// Initialisierung von Variablen
 		$scope.project = $routeParams.project;
 		
@@ -154,10 +154,51 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		$scope.sliceSettings.showPlane = true;
 		$scope.sliceSettings.showSliceFaces = true;
 		
+		
 		$scope.coords = new Object();
 		$scope.coords.x = $scope.coords.y = $scope.coords.z = 0;
 		$scope.coords.xError = $scope.coords.yError = $scope.coords.zError = false;
 		$scope.coords.enabled = false;
+		
+		$scope.constructionPhases = new Object();
+		$scope.constructionPhases.select = 0;
+		
+		$scope.fellYear = new Object();
+		$scope.fellYear = 0;
+		
+		$scope.position = new Object();
+		$scope.position.minAge = 1250;
+		$scope.position.maxAge = 1750;
+		
+		//Balken
+		$scope.baulk = new Object();
+		$scope.baulk.minAge = 1250;
+		$scope.baulk.maxAge = 1750;
+		
+		//controls slider
+		/*$scope.top = 35;
+		$scope.left = 20;
+		$scope.step = 50;
+		$scope.width = 950;
+		$scope.range = $scope.position.maxAge - $scope.position.minAge;*/
+		
+		$scope.colorMarkerArray = [];
+		$scope.ramp = {
+			start: [49,29,5],
+			end: [249,226,189]
+		};
+		
+		$scope.markerID = 0;
+		
+		$scope.lineThickness = {
+			value : 5
+			};
+		
+		$scope.lineColor = {
+			value: "#ff0000"	
+		};
+		
+		$scope.marksOpacity = 50;
 		
 		phpRequest.getSvgContent('img/plus-sign.svg').success(function(data, status) {
 			console.log(data);
@@ -212,10 +253,14 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			$scope.overlayParams.url = 'partials/screenshot_detail.html';
 		};
 		
+		$scope.openChooseSign = function() {
+			$scope.overlayParams.url = 'partials/chooseSign.html';
+		};
+		
 		// close overlayPanel
 		$scope.closeOverlayPanel = function(update) {
 			var doUpdate = update || false;
-			if(doUpdate && ['picture', 'plan', 'source'].indexOf($scope.overlayParams.type) > -1)
+			if(doUpdate && ['picture', 'plan', 'source', 'chooseSign'].indexOf($scope.overlayParams.type) > -1)
 				$scope.getAllDocuments();
 			if(doUpdate && $scope.overlayParams.url == 'partials/screenshot_detail.html')
 				$scope.getScreenshots();
@@ -507,6 +552,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		
 		$scope.callDirFunc = {};
 		
+		//Ein- und Ausklappen des COnatiners am rechten Rand
 		$scope.expandPanelContainer = function(e) {
 			var btn = $(e.delegateTarget);
 			//console.log(btn.parent().css('right'));
@@ -520,7 +566,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			}
 		};
 		
-		// Ein- und Ausklappen der ViewportControlPanels
+		// Ein- und Ausklappen der ViewportControlPanels (rechter Rand)
 		$scope.expandVpCtrlPanel = function(e) {
 			var btn = $(e.target);
 			var body = btn.parent().parent().parent().find('.ctrlPanel-body');
@@ -529,14 +575,48 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			}
 			else {
 				btn.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-				//btn.parent().parent().removeClass('hiddenBody');
+				btn.parent().parent().removeClass('hiddenBody');
 			}
 			
 			body.slideToggle(300, function() {
-				//if(body.is(':hidden'))
-					//btn.parent().parent().addClass('hiddenBody');
 			});
 		};
+		
+		//ein- und ausklappen des unteren Containers
+		$scope.expandPanelContainerHorizontal = function(e) {
+			var btn = $(e.delegateTarget);
+			//console.log(btn.parent().css('right'));
+			if(btn.parent().css('bottom') == '-85px') {
+				btn.children('span').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+				btn.parent().animate({ bottom: '0px' }, 500);
+			}
+			else {
+				btn.children('span').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+				btn.parent().animate({ bottom: '-85px' }, 500);
+			}
+		};
+		
+		//ein- und ausklappen des unsicheren Wissens
+		$scope.expandPanelContainerPhases = function(e) {
+			var btn = $(e.delegateTarget);
+			console.log(btn.siblings(".timeSlider").css('top'));
+			
+			if(btn.siblings(".timeSlider").css('top') == '20px') {
+				btn.children('span').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+				console.log(btn.siblings(".row2").css('visibility'));
+				btn.siblings(".timeSlider").animate({ top: '43px' }, 500);
+				btn.siblings(".row2").animate({opacity: '1.0'},500) ;
+				
+			}
+			else {
+				btn.children('span').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+				btn.siblings(".timeSlider").animate({ top: '20px' }, 500);
+				btn.siblings(".row2").css({opacity: '0.0'},500);
+				
+			}
+		};
+		
+		
 		
 		$scope.enterMenuItem = function(event) {
 			var li = $(event.target);
@@ -548,6 +628,20 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			});
 		};
 		
+		$scope.addSlider = function(event){
+				//console.log(event);
+								
+				var t = event.offsetX / event.delegateTarget.offsetWidth;
+				var newR = Math.round((1-t) * $scope.ramp.start[0] + t * $scope.ramp.end[0]);
+				var newG = Math.round((1-t) * $scope.ramp.start[1] + t * $scope.ramp.end[1]);
+				var newB = Math.round((1-t) * $scope.ramp.start[2] + t * $scope.ramp.end[2]);
+				
+				$scope.colorMarkerArray.push({
+					position: event.offsetX,
+					color: "rgb(" + newR + "," + newG + "," + newB + ")"
+				});
+				}
+				
 		$scope.onEnterField = function(event) {
 			event.target.select();
 		};
@@ -602,7 +696,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 				case 'slice_cut':
 					$scope.toggleCut = !$scope.toggleCut;
 					$scope.callDirFunc.ctrlBtnHandler(btn);
-					break;
+					break;	
+				
 				default:
 					if($scope.activeBtn == btn) {
 						$scope.activeBtn = '';
@@ -659,7 +754,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		$timeout(function() {
 			$scope.getAllDocuments();
 			$scope.getScreenshots();
-			$scope.loadModelsWithChildren();
+			//$scope.loadModelsWithChildren();
 		}, 500);
 		
 	}]);
@@ -699,6 +794,11 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$routeParams', 'File
 				$scope.insert.phpurl = 'php/processDAE.php';
 				$scope.insert.uploadType = 'model';
 				$scope.insert.formTitle = '3D-Modell hochladen';
+				$scope.insert.type = $scope.insert.params.type;
+				break;
+			case 'chooseSign':
+				$scope.insert.phpurl = 'php/getSigns.php';
+				$scope.insert.formTitle = 'Steinmetzzeichen auswählen';
 				$scope.insert.type = $scope.insert.params.type;
 				break;
 			case 'plans/model':
@@ -1204,3 +1304,4 @@ function getElementInHierarchy(node, content) {
 	}
 	return undefined;
 }
+
