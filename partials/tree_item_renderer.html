@@ -1,0 +1,10 @@
+<div class="listItem">
+	<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="data.visible ? 'listCheck' : 'listUncheck'" ng-click="data.visible=!data.visible; callDirFunc.toggleObject(data);"></span>
+	<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
+		<div class="listExpand"><span ng-class="(data.children.length > 0) ? (data.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus') : ''" ng-click="data.expand = !data.expand;"></span></div>
+		<span ng-click="callDirFunc.selectObjectById(data.id);">{{data.title}} ({{data.id}}) {{depth}}</span>
+	</div>
+</div>
+<div ng-if="data.expand && data.children.length > 0" class="listChildren">
+	<div ng-repeat="data in data.children | orderBy: 'name'" ng-init="depth=depth+1" ng-include="'partials/tree_item_renderer.html'"></div>
+</div>

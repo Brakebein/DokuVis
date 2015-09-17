@@ -1,0 +1,619 @@
+﻿<div class="explorerSidemenu">
+	
+	<div class="smLogo">
+		<img src="img/dokuvis_logo-mini.png"/>
+	</div>
+	
+	<div title="Projektübersicht" class="smBtn" ng-class="views.activeMain=='3dview'?'active':''" ng-click="views.activeMain = '3dview'">
+		<span class="glyphicon glyphicon-picture"></span>
+	</div>
+	<div class="smBtn" title="Aufgaben">
+		<span class="glyphicon glyphicon-tasks"></span>
+	</div>
+	<div class="smBtn" title="sonstiges">
+		<span class="glyphicon glyphicon-list-alt"></span>
+	</div>
+	<div class="smBtn" title="Hilfe">
+		<span class="glyphicon glyphicon-question-sign"></span>
+	</div>
+	
+	
+</div>
+<div class="explorerMainContainer">
+<!--<div class="explorerMenu">
+	<img src="img/logo_menu.png"/>
+	<ul class="menuMain">
+		<li>PROJEKT</li>
+		<li>QUELLE</li>
+		<li ng-click="enterMenuItem($event)">ANSICHT
+			<ul>
+				<li>Ansicht 1</li>
+				<li>Ansicht 2</li>
+				<li>Ansicht 3</li>
+				<li>Ansicht 4</li>
+			</ul>
+		</li>
+		<li ng-click="enterMenuItem($event)">HILFE
+			<ul>
+				<li>Hilfeseite</li>
+				<li>Tutorials</li>
+				<li>noch ein Eintrag</li>
+				<li>Über DokuTool</li>
+			</ul>
+		</li>
+	</ul>
+</div>
+
+<div class="explorerCenter">-->
+<!-- obere Hälfte -->
+<div class="explorerUpperHalf">
+
+<!-- linke Spalte -->
+<div class="viewportColumn">
+	
+	<!-- Kontrollleiste über Viewport -->
+	<!--<div class="viewportCtrls">
+		
+		<!-- Buttons -> auf Objekt fokusieren --
+		<div class="ctrlGroup">
+			<button title="Focus All" class="ctrlBtn" ng-class="(activeBtn == 'zoom_all') ? 'active' : ''" ng-click="callDirFunc.focusAll()" ng-mousedown="activeBtn = 'zoom_all'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_all.png"/></button>
+			<button title="Focus Selection" class="ctrlBtn" ng-class="(activeBtn == 'zoom_sel') ? 'active' : ''"  ng-click="callDirFunc.focusSelected()" ng-mousedown="activeBtn = 'zoom_sel'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_sel.png"/></button>
+		</div>
+		
+		<!-- Dropdown-Liste Rendermode und Kamera --
+		<div class="ctrlGroup form-inline">
+			<select class="form-control input-sm" ng-model="shadingOption" ng-init="shadingOption = 'color+edges'">
+				<option value="color+edges">color + edges</option>
+				<option value="color-edges">color without edges</option>
+				<option value="grey+edges">grey + edges</option>
+				<option value="transparent+edges">transparent + edges</option>
+				<option value="edges">only edges</option>
+				<!--<option value="color+wireframe">color + wireframe</option>--
+				<option value="wireframe">only wireframe</option>
+			</select>
+			<select class="form-control input-sm" ng-model="cameraOption" ng-init="cameraOption = 'perspective'">
+				<option value="perspective">Perspective</option>
+				<option value="top">Top</option>
+				<option value="front">Front</option>
+				<option value="left">Left</option>
+			</select>
+		</div>
+		
+		<!-- MessTool-Button --
+		<div class="ctrlGroup">
+			<button title="Measurement Tool" class="ctrlBtn" ng-class="(activeBtn == 'measure') ? 'active' : ''" ng-click="ctrlBtnClick('measure')"><img src="img/icons/measure.png"/></button>
+		</div>
+		
+		<!-- Slice-Buttons --
+		<div class="ctrlGroup">
+			<button title="Toggle Slice" class="ctrlBtn" ng-class="(toggleSlice) ? 'active' : ''" ng-click="ctrlBtnClick('slice_toggle')" ><img src="img/icons/slice_toggle.png"/></button>
+			<button title="Slice Move" class="ctrlBtn" ng-class="(activeBtn == 'slice_move') ? 'active' : ''" ng-click="ctrlBtnClick('slice_move')" ng-disabled="!toggleSlice"><img src="img/icons/slice_move.png"/></button>
+			<button title="Slice Rotate" class="ctrlBtn" ng-class="(activeBtn == 'slice_rotate') ? 'active' : ''" ng-click="ctrlBtnClick('slice_rotate')" ng-disabled="!toggleSlice"><img src="img/icons/slice_rotate.png"/></button>
+			<button title="Slice Cut" class="ctrlBtn" ng-class="(toggleCut) ? 'active' : ''" ng-click="ctrlBtnClick('slice_cut')" ng-disabled="!toggleSlice"><img src="img/icons/slice_cut.png"/></button>
+		</div>
+		
+		<!-- Koordinaten-Inputs --
+		<div class="ctrlGroup form-inline">
+			<label>X</label> <input class="form-control input-sm" type="text" name="inputXCoord" ng-class="(coords.xError)?'error':''" ng-model="coords.x" ng-model-options="{updateOn:blur}" ng-blur="validateCoord('x', coords.x);" ng-disabled="!coords.enabled" ng-keyup="validateCoord('x', coords.x, $event);" ng-click="onEnterField($event);" />
+			<label>Y</label> <input class="form-control input-sm" type="text" name="inputYCoord" ng-class="(coords.yError)?'error':''" ng-model="coords.y" ng-model-options="{updateOn:blur}" ng-blur="validateCoord('y', coords.y);" ng-disabled="!coords.enabled" ng-keyup="validateCoord('y', coords.y, $event);" ng-click="onEnterField($event);" />
+			<label>Z</label> <input class="form-control input-sm" type="text" name="inputZCoord" ng-class="(coords.zError)?'error':''" ng-model="coords.z" ng-model-options="{updateOn:blur}" ng-blur="validateCoord('z', coords.z);" ng-disabled="!coords.enabled" ng-keyup="validateCoord('z', coords.z, $event);" ng-click="onEnterField($event);" />
+		</div>
+	</div>-->
+	
+	<!-- 3D-Viewport -->
+	<div id="webglViewport" ng-class="{cursor_orbit: navigation.rotate, cursor_pan: navigation.pan, cursor_zoom: navigation.zoom}"
+		webgl-view 
+		obj-models="models" 
+		plan-models="plans" 
+		marks-models="marks" 
+		hierarch-list="hierarchList"
+		layer-list="layerList"
+		selected-models="selected" 
+		highlighted-models="highlighted" 
+		unsafe-settings="unsafeSettings"
+		viewport-settings="viewportSettings"
+		shading="shadingOption"
+		camera="cameraOption"
+		call-func="callDirFunc"
+		gizmo-Coords="coords"
+		navigation="navigation">
+		
+		<!-- Achsen-Viewport -->
+		<div id="axis"></div>
+		<!-- Ladebalken und Schrift -->
+		<div id="loadprogressitem"></div>
+		<div id="loadprogressbar"></div>
+		
+		<!-- Kontrollleiste -->
+		<div class="vpNaviContainer">
+			<!-- Buttons -> auf Objekt fokusieren -->
+			<div class="ctrlGroup">
+				<button title="Focus All" class="ctrlBtn" ng-class="(activeBtn == 'zoom_all') ? 'active' : ''" ng-click="callDirFunc.focusAll()" ng-mousedown="activeBtn = 'zoom_all'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_all_w.png"/></button>
+				<button title="Focus Selection" class="ctrlBtn" ng-class="(activeBtn == 'zoom_sel') ? 'active' : ''"  ng-click="callDirFunc.focusSelected()" ng-mousedown="activeBtn = 'zoom_sel'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_sel_w.png"/></button>
+			</div>
+			
+			<!-- Buttons -> navigieren -->
+			<div class="ctrlGroup">
+				<button title="Auswahl-Werkzeug" class="ctrlBtn" ng-class="(navigation.select) ? 'active' : ''"  ng-click="callDirFunc.setNavigationMode('select')"><img src="img/icons/cursor80_w.svg" width="24"/></button>
+				<button title="Ansicht drehen" class="ctrlBtn" ng-class="(navigation.rotate) ? 'active' : ''"  ng-click="callDirFunc.setNavigationMode('rotate')"><img src="img/icons/orbit_w.svg" width="24"/></button>
+				<button title="Ansicht verschieben" class="ctrlBtn" ng-class="(navigation.pan) ? 'active' : ''"  ng-click="callDirFunc.setNavigationMode('pan')"><img src="img/icons/move_w.svg" width="24"/></button>
+				<button title="Ansicht zoomen" class="ctrlBtn" ng-class="(navigation.zoom) ? 'active' : ''" ng-click="callDirFunc.setNavigationMode('zoom')"><img src="img/icons/zoom2_w.svg" width="24"/></button>
+			</div>
+			
+			<!-- Dropdown-Liste Rendermode und Kamera -->
+			<div class="ctrlGroup form-inline">
+				<select class="form-control input-sm" ng-model="viewportSettings.shading" ng-init="viewportSettings.shading = 'color+edges'">
+					<option value="color+edges">color + edges</option>
+					<!--<option value="color-edges">color without edges</option>-->
+					<option value="grey+edges">grey + edges</option>
+					<option value="transparent+edges">transparent + edges</option>
+					<!--<option value="edges">only edges</option>
+					<!--<option value="color+wireframe">color + wireframe</option>-->
+					<option value="wireframe">only wireframe</option>
+					<option value="xray">xray</option>
+				</select>
+				<!--<select class="form-control input-sm" ng-model="viewportSettings.camera" ng-init="viewportSettings.camera = 'perspective'">
+					<option value="perspective">Perspective</option>
+					<option value="top">Top</option>
+					<option value="front">Front</option>
+					<option value="left">Left</option>
+				</select>-->
+			</div>
+			
+			<div class="ctrlGroup">
+				<div class="btn-group btn-group-xs">
+					<button type="button" class="btn" ng-class="viewportSettings.ssao == 'ssao' ? 'btn-primary' : 'btn-default'" ng-init="viewportSettings.ssao = 'ssao'" ng-click="viewportSettings.ssao = 'ssao'">SSAO</button>
+					<button type="button" class="btn" ng-class="viewportSettings.ssao == 'aa' ? 'btn-primary' : 'btn-default'" ng-click="viewportSettings.ssao = 'aa'">AA</button>
+				</div>
+			</div>
+			
+			<!--<div class="ctrlGroup">
+				<button title="Viewport settings" class="ctrlBtn" ng-class="(activeBtn == 'vpsettings') ? 'active' : ''" ng-click="callDirFunc.focusAll()" ng-mousedown="activeBtn = 'vpsettings'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><span class="glyphicon glyphicon-cog"></span></button>
+			</div>-->
+		</div>
+		
+		<!-- Erweiterte Optionen im Viewport -->
+		<div class="vpPanelContainer">
+			<div class="expandContainerBtn" ng-click="expandPanelContainer($event)">
+				<span class="glyphicon glyphicon-chevron-left"></span>
+				<div class="expandContainerLabel">Erweiterte Optionen</div>
+			</div>
+			
+			<!-- Optionen für Unsicheres Wissen -->
+			<div id="vpCtrlUnsafe" class="ctrlPanel">
+				<div class="ctrlPanel-heading">
+					<div class="expandButton">
+						<span class="glyphicon glyphicon-chevron-up" ng-click="expandVpCtrlPanel($event)"></span>
+					</div>
+					Optionen für Unsicheres Wissen
+				</div>
+				<div class="ctrlPanel-body">
+					<div class="optionGroup">
+						<span>Deckkraft</span>
+						<slider floor="0" ceiling="100" step="5" ng-model="unsafeSettings.opacity"></slider>
+						<span>{{unsafeSettings.opacity}}</span>
+					</div>
+					<div class="optionGroup checkbox">
+						<label>
+							<input type="checkbox" ng-model="unsafeSettings.edges"/> Kanten ein/aus
+						</label>
+						<label>
+							<input type="checkbox" ng-model="unsafeSettings.autoTransparent"/> Transparenz abhängig von Blickwinkel
+						</label>
+					</div>
+				</div>
+			</div>
+			
+			<!-- Optionen für Schnitte -->
+			<div id="vpCtrlSlice" class="ctrlPanel">
+				<div class="ctrlPanel-heading">
+					<div class="expandButton">
+						<span class="glyphicon glyphicon-chevron-up" ng-click="expandVpCtrlPanel($event)"></span>
+					</div>
+					Querschnitt
+				</div>
+				<div class="ctrlPanel-body">
+					<div class="mainOptionGroup checkbox">
+						<label>
+							<input type="checkbox" ng-model="sliceSettings.enabled"/> Querschnitt aktivieren
+						</label>
+					</div>
+					<div class="optionGroup radio">
+						<span class="groupHeader">Ausrichtung</span>
+						<label>
+							<input type="radio" name="sliceRadios" ng-model="sliceSettings.axisAlign" value="x-axis"/> X-Achse
+						</label>
+						<label>
+							<input type="radio" name="sliceRadios" ng-model="sliceSettings.axisAlign" value="y-axis"/> Y-Achse
+						</label>
+						<label>
+							<input type="radio" name="sliceRadios" ng-model="sliceSettings.axisAlign" value="z-axis"/> Z-Achse
+						</label>
+					</div>
+					<div class="optionGroup">
+						<span class="groupHeader">Position</span>
+						<span>Versatz</span>
+						<slider floor="0" ceiling="100" step="1" ng-model="sliceSettings.planePosition"></slider>
+						<span>{{sliceSettings.planePosition}}</span>
+						
+					</div>
+					<div class="optionGroup checkbox">
+						<span class="groupHeader">Anzeige</span>
+						<label>
+							<input type="checkbox" ng-model="sliceSettings.showPlane"/> Schnittebene anzeigen
+						</label>
+						<label>
+							<input type="checkbox" ng-model="sliceSettings.showSliceFaces"/> Schnittflächen schließen
+						</label>
+					</div>
+				</div>
+			</div>
+			
+			<!-- Messwerkzeug -->
+			<div id="vpCtrlMeasure" class="ctrlPanel">
+				<div class="ctrlPanel-heading">
+					<div class="expandButton">
+						<span class="glyphicon glyphicon-chevron-up" ng-click="expandVpCtrlPanel($event)"></span>
+					</div>
+					Messwerkzeug
+				</div>
+				<div class="ctrlPanel-body">
+					<div class="optionGroup">
+						<span class="groupHeader">Messungstypen</span>
+						<button title="Measurement Tool" class="ctrlBtn" ng-class="(activeBtn == 'measure') ? 'active' : ''" ng-click="ctrlBtnClick('measure')"><img src="img/icons/measure.png"/></button>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+	
+		
+	</div>
+</div>
+
+<!-- Seitenspalte -->
+<div class="sideColumn">
+	
+	
+	<div class="sideColumnSidemenu">
+	
+		<div title="Objekte" class="smBtn" ng-class="views.activeSide=='objlist'?'active':''" ng-click="views.activeSide = 'objlist'">
+			<span class="glyphicon glyphicon-list"></span>
+		</div>
+		<div title="Kommentare" class="smBtn" ng-class="views.activeSide=='comments'?'active':''" ng-click="views.activeSide = 'comments'">
+			<span class="glyphicon glyphicon-comment"></span>
+		</div>
+		
+	</div>
+	
+	<div ng-if="views.activeSide == 'objlist'" class="sideContainer">
+		
+		<div class="sideHeader">
+			<h4>Objekte</h4>
+			<hr/>
+			
+			<div class="btn-group btn-group-xs">
+				<button type="button" class="btn" ng-class="listSettings == 'hierarchy' ? 'btn-primary' : 'btn-default'" ng-click="listSettings = 'hierarchy'">Hierarchie</button>
+				<button type="button" class="btn" ng-class="listSettings == 'layers' ? 'btn-primary' : 'btn-default'" ng-click="listSettings = 'layers'">Layer</button>
+			</div>
+		</div>
+		
+		<div class="sideContent">
+	<!--<div class="sideCtrls">
+	</div>	
+		<!--<ul class="nav nav-tabs" role="tablist">
+			<li class="cursor_pointer" ng-class="(listTabs == 'objects') ? 'active' : ''" ng-click="listTabs = 'objects'"><a>Objekte</a></li>
+			<li class="cursor_pointer" ng-class="(listTabs == 'plans') ? 'active' : ''" ng-click="listTabs = 'plans'"><a>Quellen</a></li>
+			<li class="cursor_pointer" ng-class="(listTabs == 'marks') ? 'active' : ''" ng-click="listTabs = 'marks'"><a>Steinmetzzeichen</a></li>
+		</ul>-->
+		
+		<!--<div class="tab-content">
+		
+		<!--<div class="tab-content-header">
+			<span ng-if="listTabs == 'objects'">{{models.length}} Objekte</span>
+			<span ng-if="listTabs == 'plans'">{{plans.length}} Objekte</span>
+			<span ng-if="listTabs == 'marks'">{{marks.length}} Objekte</span>
+			<input ng-model="searchObjectList" type="text" placeholder="Suche"/>
+		</div>-->
+		
+		
+		
+		<!--<div class="tab-content-container">-->
+			<!--<div id="listScroll" class="listGroup overflowauto">-->
+				
+				
+				<div ng-if="listSettings=='hierarchy'" ng-repeat="data in hierarchList | orderBy: 'name'" ng-init="depth=0" ng-include="'partials/tree_item_renderer.html'"></div>
+				
+				<div ng-if="listSettings=='layers'" ng-repeat="layer in layers | orderBy: 'name'" ng-init="depth=0">
+					<div class="listItem">
+						<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="layer.visible ? 'listCheck' : 'listUncheck'" ng-click="layer.visible=!layer.visible; callDirFunc.toggleObject(layer);"></span>
+						<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
+							<div class="listExpand"><span ng-class="layer.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus'" ng-click="layer.expand = !layer.expand;"></span></div>
+							<span ng-click="callDirFunc.selectObjectById(layer);">{{(layer.name=='')?'0':layer.name}}</span>
+						</div>
+					</div>
+					<div ng-if="layer.expand" class="listChildren">
+					<div ng-repeat="data in layerList | filter: {layer: layer.name} | orderBy: 'name'" ng-init="depth=1">
+					<div class="listItem">
+						<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="data.visible ? 'listCheck' : 'listUncheck'" ng-click="data.visible=!data.visible; callDirFunc.toggleObject(data);"></span>
+						<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
+							<div class="listExpand"><span></span></div>
+							<span ng-click="callDirFunc.selectObjectById(data.id);">{{data.title}} ({{data.id}})</span>
+						</div>
+					</div>
+					</div>
+					</div>
+				</div>
+				
+				<!--
+				<div class="listItem" ng-if="listTabs == 'objects'" ng-repeat="m in models | filter: searchObjectList | orderBy: 'name'" id="{{m.name}}">
+					<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="m.visible ? 'listCheck' : 'listUncheck'" ng-click="m.visible=!m.visible; callDirFunc.showhideObject(m.id, m.visible);"></span>
+					<div class="listString" ng-click="callDirFunc.selectObjectById(m.id);" ng-class="(m.name == selected.name) ? 'listSelected' : ''"> {{m.name}} ({{m.id}})</div>
+				</div>
+				
+				<div class="listItem"  ng-if="listTabs == 'plans'" ng-repeat="m in plans | filter: searchObjectList | orderBy: 'name'" id="{{m.name}}">
+					<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="m.visible ? 'listCheck' : 'listUncheck'" ng-click="m.visible=!m.visible; callDirFunc.showhidePlan(m.id, m.visible);"></span>
+					<div class="listString" ng-click="callDirFunc.selectObjectById(m.id);" ng-class="(m.name == selected.name) ? 'listSelected' : ''"> {{m.name}} ({{m.id}})</div>
+				</div>
+				
+				<div class="listItem"  ng-if="listTabs == 'marks'" ng-repeat="m in marks | filter: searchObjectList | orderBy: 'name'" id="{{m.name}}">
+					<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="m.visible ? 'listCheck' : 'listUncheck'" ng-click="m.visible=!m.visible; callDirFunc.showhidePlan(m.id, m.visible);"></span>
+					<div class="listString" ng-click="callDirFunc.selectObjectById(m.id);" ng-class="(m.name == selected.name) ? 'listSelected' : ''"> {{m.name}} ({{m.id}})</div>
+				</div>
+			
+			<!--</div>
+		</div>-->
+		</div>
+		
+		<div class="sideFooter">
+			
+		</div>
+		
+	</div>
+
+	<!-- Screenshots und Kommentare -->
+	<div ng-if="views.activeSide == 'comments'" class="sideContainer">
+		
+		<div class="sideHeader">
+			<h4>Screenshots & Kommentare</h4>
+			<hr/>
+			
+			<div class="dropArea screenshot" ng-click="makeScreenshot()">
+			<div class="plus" ng-bind-html="plusSign"></div> <div>Screenshot erstellen</div>
+		</div>
+			
+		</div>
+		
+		<div class="sideContent">
+		
+		
+			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s.path, s.file, {markers: s.markers, id: s.id, width: s.width, height: s.height})">
+				<div class="media-left pull-left">
+					<img class="media-object" ng-src="{{s.path + '_thumbs/t_' + s.file}}"/>
+				</div>
+				<div class="media-body">
+					<h4 class="media-heading">Screenshot</h4>
+					<ol>
+						<li ng-repeat="m in s.markers">{{m.comment | characters:90:false }}</li>
+					</ol>
+				</div>
+			</div>
+		</div>
+		
+		<div class="sideFooter">
+			<!--<button class="btn btn-default" ng-click="makeScreenshot()">Screenshot erstellen</button>-->
+		</div>
+		
+	</div>
+	
+</div>
+
+	
+</div>
+
+<!-- untere Hälfte -->
+<div class="explorerLowerHalf">
+
+<!-- linke Spalte -->
+<div class="sourcesColumn">
+	
+	<div class="sourcesColumnTop">
+		<!-- Anzeigeoptionen und Suche -->
+		<div class="sourcesCtrls">
+			<div class="ctrlGroup resGroup">
+				<a title="Große Kacheln" class="iconBtn" ng-class="(sourcesSettings.listSize == 'large') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'large'"><span class="glyphicon glyphicon-th-large"></span></a>
+				<a title="Kleine Kacheln" class="iconBtn" ng-class="(sourcesSettings.listSize == 'normal') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'normal'"><span class="glyphicon glyphicon-th"></span></a>
+				<a title="Liste" class="iconBtn" ng-class="(sourcesSettings.listSize == 'list') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'list'"><span class="glyphicon glyphicon-th-list"></span></a>
+			</div>
+			<div class="ctrlGroup resGroup">
+				<a title="Aufsteigend sortieren" class="iconBtn" ng-class="(!sourcesSettings.reverse) ? 'active' : ''" ng-click="sourcesSettings.reverse = false"><span class="glyphicon glyphicon-sort-by-attributes"></span></a>
+				<a title="Absteigend sortieren" class="iconBtn" ng-class="(sourcesSettings.reverse) ? 'active' : ''" ng-click="sourcesSettings.reverse = true"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span></a>
+			</div>
+			<div class="ctrlGroup resGroup form-inline">
+				<span>Sortieren nach</span>
+				<select class="form-control input-sm" ng-model="sourcesSettings.orderBy">
+					<option value="title">Titel</option>
+					<option value="date">Jahr</option>
+					<option value="author">Autor</option>
+				</select>
+			</div>
+			<div class="ctrlGroup resGroup form-inline">
+				<input ng-model="sourcesSettings.filterBy" type="search" placeholder="Suche"/>
+			</div>
+			<!-- <div class="ctrlGroup resGroup">
+				<div class="dropdown">
+					<button class="btn btn-xs btn-default dropdown-toggle" type="button" id="dropdownSources" data-toggle="dropdown">
+						Quelle einfügen
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownSources">
+						<li role="presentation" class="dropdown-header">Harte Quellen</li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Ausgrabung</a></li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Literatur</a></li>
+						<li role="representation"><a role="menuitem" class="pointer" tabindex="-1" ng-click="openInsertForm('plan')">Pläne</a></li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Vermessungen</a></li>
+						<li role="presentation" class="divider"></li>
+						<li role="presentation" class="dropdown-header">Weiche Quellen</li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Vergleichsbauten</a></li>
+						<li role="representation"><a role="menuitem" class="pointer" tabindex="-1" ng-click="openInsertForm('picture')">Bilder</a></li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Skizzen</a></li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Internet</a></li>
+					</ul>
+				</div>
+			</div> -->
+			<!-- <div class="ctrlGroup resGroup">
+				<div class="dropdown">
+					<button class="btn btn-xs btn-default dropdown-toggle" type="button" id="dropdownSources" data-toggle="dropdown">
+						3D-Modell hochladen
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownSources">
+						<li role="representation"><a role="menuitem" class="pointer" tabindex="-1" ng-click="openInsertForm('model')">3D-Modell</a></li>
+					</ul>
+				</div>
+			</div> -->
+		</div>
+		
+		<!-- Tabs der einzelnen Quellenarten -->
+		<ul class="tabs" role="tablist">
+			<li ng-class="(sourcesSettings.activeTab == '') ? 'active' : ''" ng-click="sourcesSettings.activeTab = ''"><a>Alle</a></li>
+			<li ng-class="(sourcesSettings.activeTab == 'plan') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'plan'"><a>Pläne</a></li>
+			<li ng-class="(sourcesSettings.activeTab == 'picture') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'picture'"><a>Bilder</a></li>
+			<li ng-class="(sourcesSettings.activeTab == 'text') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'text'"><a>Texte</a></li>
+		</ul>
+	</div>
+	
+	<div class="sourcesColumnContent">
+		<!--<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 resultItem" ng-repeat="p in sourceResults | filter: {type: 'plan'} | filter: sourcesSettings.filterBy | orderBy: [sourcesSettings.orderBy,'title']:sourcesSettings.reverse as filteredSourceResults" ng-click="selectResultItem($event, p)">-->
+		
+		<div class="blindSource">
+		<div class="resultItem">
+			<div class="thumbnail">
+				<div class="dropArea" uploader="sourcesUploader" nv-file-drop="" nv-file-over="" ng-click="openInsertForm('source')">
+					<div>Quellen einfügen</div>
+					<div class="plus" ng-bind-html="plusSign"></div>
+					<div>Klicken oder hier ablegen</div>
+				</div>
+				<!--<div class="caption">
+					<span>Quellen einfügen</span>
+					<p>Quellen einfügen</p>
+				</div>-->
+			</div>
+		</div>
+		</div>
+		
+		<div class="sources" horizontal-scroll>
+		<div class="resultItem" ng-repeat="p in sourceResults | filter: {type: sourcesSettings.activeTab} | filter: sourcesSettings.filterBy | orderBy: [sourcesSettings.orderBy,'title']:sourcesSettings.reverse as filteredSourceResults" ng-click="selectResultItem($event, p)">
+			<div class="thumbnail" ng-class="(p.selected) ? 'selected' : ''" title="{{p.title}}" ng-dblclick="openSourceDetail($index)">
+				<img ng-src="{{p.file.path}}_thumbs/t_{{p.file.name}}"/>
+				<div class="caption">
+					<span>{{ p.title | characters:23:true }}</span>
+					<p>{{p.author || 'unbekannt'}} &ensp; {{p.date}}</p>
+				</div>
+				
+				<div class="btnBar">
+					<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>
+					<a ng-if="p.type == 'plan' && p.plan3d" title="In 3D-View laden" ng-click="open3DPlan(p.eid, p.plan3d)"><span class="glyphicon glyphicon-open"></span></a>
+					<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('plans/model', p)"><span class="glyphicon glyphicon-import"></span></a>
+					<!--<button ng-click="callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', p.obj);">load</button>
+					<button ng-click="highlightObj(p.eid)">highlight</button>
+					<a ng-href="data/Proj_Muristan/plans/{{p.jpg}}" target="_blank">open</a>-->
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+
+</div>
+
+<!-- rechte Spalte (Vorschaufenster -->
+<div class="previewColumn">
+	
+	<img src="img/navigation_legend200.png"/>
+	
+	<div class="debugBtns">
+		<button ng-click="loadModelsWithChildren()">load MWC</button>
+		<button ng-click="openInsertForm('model')">upload model</button>
+	</div>
+	
+	
+	<!--
+	<button ng-click="callDirFunc.saveSelected(); clickdebug();">Save selection</button>
+	-->
+	<!-- <p>Ansicht drehen: Alt + linke Maustaste<br/>
+	Ansicht verschieben: mittlere Maustaste<br/>
+	Zoomen: Mausrad
+	</p> -->
+	
+	<!--<p>
+	<button ng-click="callDirFunc.loadScene('muristan')">Muristan</button>
+	<button ng-click="callDirFunc.loadScene('rekonstr')">Rekonstruktion</button>
+	<button ng-click="callDirFunc.loadScene('fribourg')">Fribourg</button>
+	<!--<select ng-model="project" ng-init="project = 'Proj_Muristan'">
+		<option>Proj_Muristan</option>
+		<option>Proj_Zwinger</option>
+		<option>Proj_Fribourg</option>
+	</select>
+	</p>-->
+
+	<!--<p>
+	<button disabled ng-click="insertObjects()">insert Objects</button>
+	<button disabled ng-click="insertPlans()">insert Plans</button>
+	<button disabled ng-click="connectObjPlan()">connect Obj Plan</button>
+	</p>-->
+	<p>
+	<!--<button ng-click="loadMuristan()">Load Muristan</button>
+	<button ng-click="loadPlans()">Load Plans</button>
+	<button ng-click="loadModels()">Load Models</button>-->
+	<!--<button ng-click="loadModelsWithChildren()">Load ModelsWChildren</button>-->
+	</p>
+	<!--<p>
+	<button ng-click="getAllPlans()">getAllPlans</button>
+	<button ng-click="getPlansForObj()">getPlansForObj</button>
+	<button ng-click="getAllDocuments()">getAllDocuments</button>-->
+	
+	</p>
+	<p>
+	<!--<button ng-click="loadZwinger()">loadZwinger</button>-->
+	<!--<button ng-click="logModels()">log models</button>-->
+	<!-- <button ng-click="openInsertForm('model')">upload 3D model</button> -->
+	</p>
+
+	
+</div>
+</div>
+<!--</div>
+
+<div class="explorerFooter">
+	Footer
+</div>-->
+
+<!-- insertForm -->
+<div ng-include="overlayParams.url" class="overlayPanel" ></div>
+</div>
+
+<!-- alert -->
+<div ng-if="alert.showing" alert="alert" class="alert alert-warning" role="alert"></div>
+
+
+<!--<script type="text/javascript" src="js/Gizmo.js"></script>-->
+
+<!--<div id="selectedOBJS">
+	<p data-ng-repeat="selectedModel in selected">{{selectedModel}}</p>
+</div>-->
+<!--
+<div class="media" data-ng-click="highlightModels($index)" data-ng-repeat="document in plans">
+	<div class="pull-left " style="width:150px; height:80px;overflow:hidden;">
+	<a href="{{document.uri}}" target="_blank" class="thumbnail">
+		<img class="media-object" style="max-height:70px;" ng-src="{{document.uri}}"/>
+	</a>
+	</div>
+	<div class="media-body">
+		<h4>{{document.content}}</h4>
+		<span data-ng-repeat="refdoc in document.refdocs">
+			<span class="label label-default">{{refdoc.content}}</span>&nbsp;
+		</span>
+	</div>
+</div>
+-->

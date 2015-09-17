@@ -1,0 +1,31 @@
+#viewport {
+	border: 1px solid #bbb;
+	width: 100%;
+	height: 576px;
+	position: relative;
+	overflow: hidden;
+}
+
+#loadprogress {
+	position: absolute;
+	top: 277px;
+	left: 398px;
+	width: 250px;
+	height: auto;
+	padding: 3px 10px 5px;
+	background-color: #333;
+	border: 1px solid #ddd;
+	font-size: 8pt;
+	color: #ddd;
+	text-align: center;
+	/*visibility: hidden;*/
+}
+
+#loadprogressbar {
+	position: absolute;
+	width: 0%;
+	height: 5px;
+	bottom: 0px;
+	/*margin-top: 2px;*/
+	background-color: #b00;
+}

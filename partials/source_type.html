@@ -1,0 +1,19 @@
+<div class="dialogPanel sourceType" ng-controller="sourceTypeCtrl">
+	
+	<div class="closeXBtn" ng-click="$parent.closeOverlayPanel()">
+		 <span class="glyphicon glyphicon-remove"></span>
+	</div>
+	
+	<h4>Wähle die Art der Quelle:</h4>
+	
+	<div class="btn-group-vertical btn-block">
+		<button class="btn btn-default" ng-click="$parent.openInsertForm('plan')">Plan</button>
+		<button class="btn btn-default" ng-click="$parent.openInsertForm('picture')">Bild</button>
+		<!--<button class="btn btn-default" ng-click="$parent.openInsertForm('text')">Text</button>-->
+	</div>
+	
+	<div class="lowerBtns">
+		<button class="btn btn-default" ng-click="$parent.closeOverlayPanel()">Abbrechen</button>
+	</div>
+	
+</div>
