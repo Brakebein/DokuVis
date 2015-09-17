@@ -148,10 +148,12 @@
 	border-left: 1px solid #999;
 }
 .ctrlBtn {
+	color: #ffffff;
+
 	height: 100%;
 	/*width: 26px;*/
-	/*border: 1px solid #fff;*/
-	border: 1px solid rgba(0,0,0,0);
+	border: 1px solid #fff;
+	
 	margin: 0 1px;
 	padding: 0;
 	/*display: inline-block;*/
@@ -163,8 +165,8 @@
 	/*border-right: 1px solid #bbb;
 	border-bottom: 1px solid #bbb;
 	border-left: 1px solid #ddd;
-	border-top: 1px solid #ddd;*/
-	border: 1px solid #999;
+	border-top: 1px solid #ddd;
+	border: 1px solid #999;*/
 	
 }
 .ctrlBtn:focus {
@@ -278,113 +280,6 @@
 	margin-top: 2px;;
 }
 
-.vpPanelContainer {
-	position: absolute;
-	width: 280px;
-	top: 0;
-	right: -280px;
-	background-color: rgba(51,51,51,0.8);
-	font-size: 8pt;
-	color: #fafafa;
-	border-left: 1px solid #999;
-}
-.vpPanelContainer .expandContainerBtn {
-	position: absolute;
-	width: 19px;
-	height: 19px;
-	top: 0;
-	left: -20px;
-	background-color: rgba(51,51,51,0.8);
-	font-size: 8pt;
-	padding: 6px 4px 0;
-	color: #999;
-	cursor: pointer;
-}
-.vpPanelContainer .expandContainerBtn:hover {
-	color: #fafafa;
-}
-.vpPanelContainer .expandContainerBtn .expandContainerLabel {
-	-webkit-transform: rotate(-90deg);	
-	-moz-transform: rotate(-90deg);
-	-ms-transform: rotate(-90deg);
-	-o-transform: rotate(-90deg);
-	transform: rotate(-90deg);
-	-webkit-transform-origin: 0 0;
-	-moz-transform-origin: 0 0;
-	-ms-transform-origin: 0 0;
-	-o-transform-origin: 0 0;
-	transform-origin: 0 0;
-	
-	position: absolute;
-	width: 120px;
-	height: 19px;
-	top: 139px;
-	left: 0;
-	padding: 2px 5px;
-	text-align: center;
-	background-color: rgba(51,51,51,0.8);
-	border-top-left-radius: 5px;
-}
-.vpPanelContainer .ctrlPanel {
-	position: relative;
-	width: 100%;
-	border-bottom: 1px solid #999;
-}
-.vpPanelContainer .ctrlPanel .ctrlPanel-heading {
-	background-color: rgba(100,100,100,0.8);
-	font-weight: bold;
-	padding: 5px 15px;
-}
-.vpPanelContainer .ctrlPanel .ctrlPanel-heading .expandButton {
-	float: right;
-	cursor: pointer;
-	padding-top: 1px;
-	height: 14px;
-}
-.vpPanelContainer .ctrlPanel .ctrlPanel-body {
-	padding: 0 15px;
-	border-top: 1px solid #999;
-	/*display: none;*/
-}
-
-.vpPanelContainer .ctrlPanel .ctrlPanel-body .mainOptionGroup {
-	position: relative;
-	margin: 5px 0;
-	padding: 0 10px;
-}
-.vpPanelContainer .ctrlPanel .ctrlPanel-body .mainOptionGroup + .optionGroup {
-	margin-top: 8px;
-}
-.vpPanelContainer .ctrlPanel .ctrlPanel-body .optionGroup {
-	position: relative;
-	margin: 13px 0 8px;
-	padding: 10px 10px 4px;
-	border: 1px solid #333;
-	border-radius: 3px;
-}
-.vpPanelContainer .ctrlPanel .ctrlPanel-body .optionGroup .groupHeader {
-	position: absolute;
-	top: -7px;
-	left: 4px;
-	padding: 0px 5px;
-	background-color: #333;
-	border-radius: 3px;
-	color: #ddd;
-	font-size: 7pt;
-}
-.vpPanelContainer .ctrlPanel .ctrlPanel-body slider {
-	width: 140px;
-	margin: 5px;
-}
-.vpPanelContainer .ctrlPanel .ctrlPanel-body label {
-	display: block;
-	padding: 2px 0;
-}
-.vpPanelContainer .ctrlPanel .ctrlPanel-body input[type='radio'],
-.vpPanelContainer .ctrlPanel .ctrlPanel-body input[type='checkbox'] {
-	margin: 1px 7px 0 0;
-	
-}
 
 .screenshotOverlay {
 	position: absolute;
