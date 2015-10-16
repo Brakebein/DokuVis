@@ -90,8 +90,8 @@ webglControllers.controller('webglCtrl', ['$scope', '$routeParams',
 		
 	}]);
 
-webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'FileUploader', 'Utilities',
-	function($scope, $routeParams, $timeout, $sce, neo4jRequest, phpRequest, FileUploader, Utilities) {
+webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout', '$sce', '$location', 'neo4jRequest', 'phpRequest', 'FileUploader', 'Utilities',
+	function($scope, $routeParams, $timeout, $sce, $location, neo4jRequest, phpRequest, FileUploader, Utilities) {
 
 		//$scope.selected = [];
 		/*$scope.consel = function(id) {
@@ -158,6 +158,10 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		$scope.coords.x = $scope.coords.y = $scope.coords.z = 0;
 		$scope.coords.xError = $scope.coords.yError = $scope.coords.zError = false;
 		$scope.coords.enabled = false;
+		
+		$scope.go = function ( path ) {
+			$location.path( path );
+		};
 		
 		phpRequest.getSvgContent('img/plus-sign.svg').success(function(data, status) {
 			console.log(data);
@@ -1127,7 +1131,25 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$routeParams', '
 		};
 		
 	}]);
-	
+
+webglControllers.controller('screenshotDetailCtrl', ['$scope', '$routeParams', 'phpRequest', 'neo4jRequest',
+	function($scope, $routeParams, phpRequest, neo4jRequest) {
+		
+		/*$scope.tasks =  [
+			{name: 'row1', tasks: [
+				{name: 'task1', from: <date>, to: <date>},
+				{name: 'task2', from: <date>, to: <date>}
+				]
+			},
+			{name: 'row2', tasks: [
+				{name: 'task3', from: <date>, to: <date>},
+				{name: 'task4', from: <date>, to: <date>}
+			  ]
+			}
+		];*/
+		
+	}]);
+
 function extractData(data) {
 	var results = [];
 	for(var i=0; i<data.data.length; i++) {

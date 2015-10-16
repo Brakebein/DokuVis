@@ -15,6 +15,10 @@ webglApp.config(['$routeProvider', '$locationProvider',
 				templateUrl: 'partials/explorer.html',
 				controller: 'explorerCtrl'
 			}).
+			when('/explorer/:project/tasks', {
+				templateUrl: 'partials/tasks.html',
+				controller: 'tasksCtrl'
+			}).
 			when('/explorer', {
 				redirectTo: '/projects'
 			}).
