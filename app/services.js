@@ -469,6 +469,13 @@ webglServices.factory('mysqlRequest',
 			return $http.post('php/mysql/getAllProjects.php', {});
 		};
 		
+		requests.changeProject = function(proj,desc) {
+			return $http.post('php/mysql/changeProjectDescription.php', {
+				proj: proj,
+				description: desc
+			});
+		};
+				
 		return requests;
 		
 	});

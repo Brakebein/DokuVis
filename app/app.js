@@ -1,4 +1,4 @@
-var webglApp = angular.module('webglApp', ['ngRoute', 'webglControllers', 'webglDirectives', 'webglServices', 'autocomplete', 'truncate']);
+var webglApp = angular.module('webglApp', ['ngRoute', 'webglControllers', 'webglDirectives', 'webglServices', 'autocomplete', 'truncate','xeditable']);
 
 webglApp.config(['$routeProvider', '$locationProvider',
 	function($routeProvider, $locationProvider) {

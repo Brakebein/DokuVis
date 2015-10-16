@@ -78,6 +78,42 @@ webglControllers.controller('projectsCtrl', ['$scope', '$http', 'phpRequest', 'm
 			});
 		};
 		
+		$scope.editProject = function(pdesc,e) {
+			
+			/*Tabelleneintrag durch textfeld ersetzen*/
+			var oldField = $(e.target);
+			var newField = $('<textarea id="text" name="text" cols="35" rows="2"></textarea> ');
+			
+			
+			oldField.hide();
+       		oldField.after(newField);
+       		
+       		newField.focus();
+				
+			
+			/*mit description füllen*/
+			newField.val(pdesc);
+			
+			/*eingabe beenden*/
+			newField.keydown(function(e) {
+	            if(e.which == 13)
+	            {       	
+					pdesc = newField.val();
+					/*alert(pdesc); */
+					newField.remove();
+					oldField.show()
+	            } 
+	            
+	            else if(e.which == 27) {
+					alert("test");
+	            }
+       		});	
+					
+			/*projektdescription ändern*/
+						
+			/*daten in db ändern*/
+		}
+		
 		// oninit Funktionsaufrufe
 		$scope.getAllProjects();
 		
