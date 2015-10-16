@@ -6,11 +6,11 @@ webglControllers.controller('introCtrl', ['$scope', '$http',
 	}]);
 	
 webglControllers.controller('projectsCtrl', ['$scope', '$http', 'phpRequest', 'mysqlRequest', 'neo4jRequest', 'Utilities',
-	function($scope, $http, phpRequest, mysqlRequest , neo4jRequest, Utilities) {
+	function($scope, $http, phpRequest, mysqlRequest, neo4jRequest, Utilities) {
 		
 		// Initialisierung von Variablen
 		$scope.projects = [];
-		
+				
 		$scope.newProject = new Object();
 		$scope.newProject.name = '';
 		$scope.newProject.nameError = false;
@@ -114,8 +114,26 @@ webglControllers.controller('projectsCtrl', ['$scope', '$http', 'phpRequest', 'm
 			/*daten in db ändern*/
 		}
 		
+		//zum Testen
+		/*$scope.staff = [];
+		$scope.newStaff = new Object();
+		$scope.newStaff.name = '';
+		$scope.newStaff.surname = '';
+		$scope.newStaff.mail = '';
+		$scope.newStaff.role = '';
+		$scope.newStaff.projects = '';
+		
+		$scope.getAllStaff = function() {
+			mysqlRequest.getAllStaff().success(function(obj, status){
+					console.log(obj);
+					$scope.staff = obj.data;
+			});
+		};*/
+		
+		
 		// oninit Funktionsaufrufe
 		$scope.getAllProjects();
+		
 		
 	}]);
 
@@ -126,8 +144,8 @@ webglControllers.controller('webglCtrl', ['$scope', '$routeParams',
 		
 	}]);
 
-webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'FileUploader', 'Utilities',
-	function($scope, $routeParams, $timeout, $sce, neo4jRequest, phpRequest, FileUploader, Utilities) {
+webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout', '$sce','phpRequest', 'mysqlRequest', 'neo4jRequest',  'FileUploader', 'Utilities',
+	function($scope, $routeParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, FileUploader, Utilities) {
 
 		//$scope.selected = [];
 		/*$scope.consel = function(id) {
@@ -138,7 +156,9 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			$scope.setVisible = {id: id, visible: bool};
 		}*/
 		
-			
+		
+		
+		
 		// Initialisierung von Variablen
 		$scope.project = $routeParams.project;
 		
@@ -147,6 +167,9 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		//$scope.views.activeSide = 'objlist';
 		$scope.views.activeSide = 'comments';
 		
+		//Mitarbeiter
+		$scope.staff = [];
+						
 		$scope.overlayParams = {url: '', params: {}};
 		
 		$scope.alert = new Object();
@@ -241,6 +264,17 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			$scope.plusSign = $sce.trustAsHtml(data);
 		});
 		
+		//Mitarbeiter
+		$scope.getAllStaff = function() {
+			mysqlRequest.getAllStaff().success(function(obj, status){
+					console.log(obj);
+					$scope.staff = obj.data;
+			});
+		};
+		
+		
+		
+		
 		// Uploader für Quellen
 		$scope.sourcesUploader = new FileUploader();
 		
@@ -289,17 +323,19 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			$scope.overlayParams.url = 'partials/screenshot_detail.html';
 		};
 		
-		$scope.openChooseSign = function() {
-			$scope.overlayParams.url = 'partials/chooseSign.html';
+		$scope.openAddStaff = function(type) {
+			$scope.overlayParams.url = 'partials/addStaff.html';
 		};
 		
 		// close overlayPanel
 		$scope.closeOverlayPanel = function(update) {
 			var doUpdate = update || false;
-			if(doUpdate && ['picture', 'plan', 'source', 'chooseSign'].indexOf($scope.overlayParams.type) > -1)
+			if(doUpdate && ['picture', 'plan', 'source'].indexOf($scope.overlayParams.type) > -1)
 				$scope.getAllDocuments();
 			if(doUpdate && $scope.overlayParams.url == 'partials/screenshot_detail.html')
 				$scope.getScreenshots();
+			if(doUpdate && ['staff'].indexOf($scope.overlayParams.type) > -1)
+				$scope.getAllStaff();
 			
 			$scope.overlayParams.params = {}
 			$scope.overlayParams.url = '';
@@ -793,8 +829,23 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			//$scope.loadModelsWithChildren();
 		}, 500);
 		
+		$scope.getAllStaff();
+		
 	}]);
 
+webglControllers.controller('addStaffCtrl', ['$scope', '$routeParams', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$timeout',
+	function($scope, $routeParams, FileUploader, neo4jRequest, $timeout) {
+		
+		$scope.newStaff = new Object();
+		$scope.newStaff.name = '';
+		$scope.newStaff.surname = '';
+		$scope.newStaff.mail = '';
+		$scope.newStaff.role = '';
+		$scope.newStaff.projects = '';
+		
+		
+		
+		}]);
 webglControllers.controller('insertSourceCtrl', ['$scope', '$routeParams', 'FileUploader', 'neo4jRequest', '$timeout',
 	function($scope, $routeParams, FileUploader, neo4jRequest, $timeout) {
 		

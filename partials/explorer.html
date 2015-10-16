@@ -192,9 +192,13 @@
 		<div title="Kommentare" class="smBtn" ng-class="views.activeSide=='comments'?'active':''" ng-click="views.activeSide = 'comments'">
 			<span class="glyphicon glyphicon-comment"></span>
 		</div>
+		<div title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
+			<span class="glyphicon glyphicon-user"></span>
+		</div>
 		
 	</div>
 	
+	<!--Objekthierarchie-->
 	<div ng-if="views.activeSide == 'objlist'" class="sideContainer">
 		
 		<div class="sideHeader">
@@ -314,6 +318,49 @@
 		</div>
 		
 	</div>
+
+	<!--Mitarbeitertabelle-->
+	<div ng-if="views.activeSide == 'staff'" class="sideContainer">
+		<div class="sideHeader">
+		<h4>Mitarbeiter</h4>
+		<hr/>
+		<span ng-if="staff.length < 1">Keine Mitarbeiter vorhanden</span>
+		
+		</div>
+		
+		
+			<table ng-if="staff.length > 0" class="table table-striped"> 
+			
+			<thead>
+				<tr>
+					<th width="15">Vorname</th>
+					<th width="15">Nachname</th>
+					<th width="15">Mail</th>
+					<th width="15">Role</th>
+					<th width="15">Projects</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="s in staff | orderBy: 'name'">
+					<td>{{s.name}}</td>
+					<td>{{s.surname}}</td>
+					<td>{{s.mail}}</td>
+					<td>{{s.role}}</td>
+					<td>{{s.projects}}</td>
+					<td><button type="button" class="btn btn-default">Löschen</button></td>
+					
+				</tr>
+				
+			</tbody>
+			</table>
+		
+		<div class="btn-group btn-group-s">
+				<button type="button" class="btn btn-default" ng-click="openAddStaff('staff')" >Hinzufügen</button>
+				
+			</div>
+		
+	</div>
+	
 	
 </div>
 
