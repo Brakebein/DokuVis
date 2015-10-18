@@ -272,9 +272,21 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			});
 		};
 		
+		$scope.removeStaff = function(name,surname) {
+			mysqlRequest.removeStaff(name,surname).success(function(answer, status){
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+						console.error('Mitwarbeiter gelöscht');
+						$scope.getAllStaff();
+					});
+		};
 		
 		
 		
+		
+	
 		// Uploader für Quellen
 		$scope.sourcesUploader = new FileUploader();
 		
@@ -833,15 +845,29 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		
 	}]);
 
-webglControllers.controller('addStaffCtrl', ['$scope', '$routeParams', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$timeout',
-	function($scope, $routeParams, FileUploader, neo4jRequest, $timeout) {
+webglControllers.controller('addNewStaffCtrl', ['$scope', '$routeParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 
+	function($scope, $routeParams, $timeout, $sce, phpRequest, mysqlRequest, $timeout) {
 		
 		$scope.newStaff = new Object();
+		
 		$scope.newStaff.name = '';
 		$scope.newStaff.surname = '';
 		$scope.newStaff.mail = '';
 		$scope.newStaff.role = '';
 		$scope.newStaff.projects = '';
+		
+		$scope.addNewStaff = function() {
+						
+			mysqlRequest.addNewStaff($scope.newStaff.name, $scope.newStaff.surname, $scope.newStaff.mail, $scope.newStaff.role).success(function(answer, status){
+					//alert(answer);
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+			});
+		$scope.getAllStaff();
+		
+		}
 		
 		
 		

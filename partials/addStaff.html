@@ -1,0 +1,57 @@
+<div class="container addStaff" ng-controller="addNewStaffCtrl"> <!--uploader="uploader" nv-file-drop="" nv-file-over="">-->
+	
+	<div class="closeXBtn" ng-click="$parent.closeOverlayPanel(true)">
+		 <span class="glyphicon glyphicon-remove"></span>
+	</div>
+	
+	<div class="insert-header">
+		
+		<h3>Mitarbeiter hinzufügen</h3>
+		<hr/>
+	
+	</div>
+		
+		
+		<form class="form-horizontal">
+			
+			<div class="form-group">
+				<label for="nameStaff" class="control-label col-sm-3">Vorname</label>
+					<div class="col-sm-3">
+						<input type="text" class="form-control" id = "nameStaff" placeholder="Vorname" ng-model = "newStaff.name">
+					</div>
+			</div>
+				
+				
+			<div class="form-group">
+				<label for="surnameStaff" class="control-label col-sm-3">Nachname</label>
+					<div class="col-sm-3">
+						<input type="text" class="form-control" id = "surnameStaff" placeholder="Nachname" ng-model = "newStaff.surname">
+					</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="inputEmail" class="control-label col-sm-3">E-Mail</label>
+					<div class="col-sm-3">
+						<input type="email" class="form-control" id="inputEmail" placeholder="Email" ng-model = "newStaff.email"
+			</div>
+			
+			<!--<div class="form-group">
+				<label for="test" class="control-label col-sm-3">test</label>
+					<div class="col-sm-3">
+						<input type="email" class="form-control" id="test" placeholder="Email" ng-model = "newStaff.email"
+			</div>-->
+			
+			<div class="form-group">
+				<label for="role" class="control-label col-sm-2">Rolle</label>
+					<div class="col-sm-3">
+						<input type="text" class="form-control" id = "role" placeholder="Rolle" ng-model = "newStaff.role">
+					</div>
+			</div>
+						
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+				      <button type="submit" class="btn btn-default" ng-click = "addNewStaff()">Hinzufügen</button>
+				</div>
+			</div>
+	</form>
+</div>
