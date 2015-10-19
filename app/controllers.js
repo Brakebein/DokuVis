@@ -6,11 +6,11 @@ webglControllers.controller('introCtrl', ['$scope', '$http',
 	}]);
 	
 webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest', 'mysqlRequest', 'neo4jRequest', 'Utilities',
-	function($scope, $http, phpRequest, mysqlRequest , neo4jRequest, Utilities) {
+	function($scope, $http, phpRequest, mysqlRequest, neo4jRequest, Utilities) {
 		
 		// Initialisierung von Variablen
 		$scope.projects = [];
-		
+				
 		$scope.newProject = new Object();
 		$scope.newProject.name = '';
 		$scope.newProject.nameError = false;
@@ -113,8 +113,26 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest',
 			/*daten in db ändern*/
 		}
 		
+		//zum Testen
+		/*$scope.staff = [];
+		$scope.newStaff = new Object();
+		$scope.newStaff.name = '';
+		$scope.newStaff.surname = '';
+		$scope.newStaff.mail = '';
+		$scope.newStaff.role = '';
+		$scope.newStaff.projects = '';
+		
+		$scope.getAllStaff = function() {
+			mysqlRequest.getAllStaff().success(function(obj, status){
+					console.log(obj);
+					$scope.staff = obj.data;
+			});
+		};*/
+		
+		
 		// oninit Funktionsaufrufe
 		$scope.getAllProjects();
+		
 		
 	}]);
 
@@ -128,8 +146,8 @@ webglControllers.controller('projectCtrl', ['$scope', '$stateParams',
 		
 	}]);
 	
-webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'FileUploader', 'Utilities', 'webglInterface',
-	function($scope, $stateParams, $timeout, $sce, neo4jRequest, phpRequest, FileUploader, Utilities, webglInterface) {
+webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface',
+	function($scope, $stateParams, $timeout, $sce, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface) {
 
 		//$scope.selected = [];
 		/*$scope.consel = function(id) {
@@ -140,7 +158,9 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			$scope.setVisible = {id: id, visible: bool};
 		}*/
 		
-			
+		
+		
+		
 		// Initialisierung von Variablen
 		$scope.project = $stateParams.project;
 		
@@ -151,6 +171,9 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		//$scope.views.activeSide = 'objlist';
 		$scope.views.activeSide = 'comments';
 		
+		//Mitarbeiter
+		$scope.staff = [];
+						
 		$scope.overlayParams = {url: '', params: {}};
 		
 		$scope.alert = new Object();
@@ -243,6 +266,29 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			$scope.plusSign = $sce.trustAsHtml(data);
 		});
 		
+		//Mitarbeiter
+		$scope.getAllStaff = function() {
+			mysqlRequest.getAllStaff().success(function(obj, status){
+					console.log(obj);
+					$scope.staff = obj.data;
+			});
+		};
+		
+		$scope.removeStaff = function(name,surname) {
+			mysqlRequest.removeStaff(name,surname).success(function(answer, status){
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+						console.error('Mitwarbeiter gelöscht');
+						$scope.getAllStaff();
+					});
+		};
+		
+		
+		
+		
+	
 		// Uploader für Quellen
 		$scope.sourcesUploader = new FileUploader();
 		
@@ -291,17 +337,19 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			$scope.overlayParams.url = 'partials/screenshot_detail.html';
 		};
 		
-		$scope.openChooseSign = function() {
-			$scope.overlayParams.url = 'partials/chooseSign.html';
+		$scope.openAddStaff = function(type) {
+			$scope.overlayParams.url = 'partials/addStaff.html';
 		};
 		
 		// close overlayPanel
 		$scope.closeOverlayPanel = function(update) {
 			var doUpdate = update || false;
-			if(doUpdate && ['picture', 'plan', 'source', 'chooseSign'].indexOf($scope.overlayParams.type) > -1)
+			if(doUpdate && ['picture', 'plan', 'source'].indexOf($scope.overlayParams.type) > -1)
 				$scope.getAllDocuments();
 			if(doUpdate && $scope.overlayParams.url == 'partials/screenshot_detail.html')
 				$scope.getScreenshots();
+			if(doUpdate && ['staff'].indexOf($scope.overlayParams.type) > -1)
+				$scope.getAllStaff();
 			
 			$scope.overlayParams.params = {}
 			$scope.overlayParams.url = '';
@@ -779,6 +827,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			//$scope.loadModelsWithChildren();
 		}, 500);
 		
+		$scope.getAllStaff();
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function(event) {
 			webglInterface.clearLists();
@@ -786,6 +835,33 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 	}]);
 
+webglControllers.controller('addNewStaffCtrl', ['$scope', '$routeParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 
+	function($scope, $routeParams, $timeout, $sce, phpRequest, mysqlRequest, $timeout) {
+		
+		$scope.newStaff = new Object();
+		
+		$scope.newStaff.name = '';
+		$scope.newStaff.surname = '';
+		$scope.newStaff.mail = '';
+		$scope.newStaff.role = '';
+		$scope.newStaff.projects = '';
+		
+		$scope.addNewStaff = function() {
+						
+			mysqlRequest.addNewStaff($scope.newStaff.name, $scope.newStaff.surname, $scope.newStaff.mail, $scope.newStaff.role).success(function(answer, status){
+					//alert(answer);
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+			});
+		$scope.getAllStaff();
+		
+		}
+		
+		
+		
+		}]);
 webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4jRequest', '$timeout',
 	function($scope, FileUploader, neo4jRequest, $timeout) {
 		

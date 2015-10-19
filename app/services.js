@@ -475,10 +475,32 @@ webglServices.factory('mysqlRequest',
 				description: desc
 			});
 		};
+		
+		requests.getAllStaff = function() {
+			return $http.post('php/mysql/getAllStaff.php', {});
+		};
+		
+		requests.addNewStaff = function(name,surname,mail,role) {
+			return $http.post('php/mysql/addNewStaff.php', {
+				name: name,
+				surname:surname,
+				mail:mail,
+				role:role
+			});
+		};
+		
+		requests.removeStaff = function(name,surname) {
+			return $http.post('php/mysql/removeStaff.php', {
+				name: name,
+				surname:surname,
+			});
+		};
 				
 		return requests;
 		
 	});
+	
+	
 
 webglServices.factory('neo4jExtraction',
 	function() {

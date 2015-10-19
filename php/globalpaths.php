@@ -13,4 +13,6 @@ $pImagickMogrify = '\"C:\\ImageMagick\\mogrify.exe\"';
 
 // GhostScript
 
+// PDFtk - pdf toolkit
+
 ?>

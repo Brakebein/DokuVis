@@ -722,6 +722,20 @@
 	box-shadow: 0 0 50px #5cb85c inset;
 }
 
+/*add Staff*/
+.addStaff.container{
+	position: relative;
+	height: 100%;
+	padding: 25px 40px;
+	display: flex;
+	flex-direction: column;
+	background-color: #fff;
+	border: 1px solid #333;
+	border-radius: 4px;
+	transition: box-shadow 0.5s;
+}
+
+
 /* AUTOCOMPLETE */
 .autocomplete{
   width: 100%;
