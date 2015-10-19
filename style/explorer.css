@@ -1,139 +1,24 @@
-/* allgemeiner Seitenaufbau */
-.explorerSidemenu {
-	position: absolute;
-	width: 36px;
-	height: 100%;
-	left: 0;
-	z-index: 50;
-	
-	color: #999;
-	background-color: #333;
-	border-right: 1px solid #000;
-}
-.explorerSidemenu .smLogo {
-	height: 35px;
-	background-color: #fc4e2a;
-}
-.explorerSidemenu .smBtn {
-	height: 35px;
-	border-right: 2px solid rgba(252,78,42,0.5);
-	
-	padding: 7px;
-	transition: border-right-color 0.3s, color 0.3s, background-color 0.3s;
-}
-.explorerSidemenu .smBtn:hover {
-	border-right-color: rgba(252,78,42,1.0);
-	background-color: #444;
-	cursor: pointer;
-	color: #ddd;
-}
-.explorerSidemenu .smBtn.active {
-	border-right-color: rgba(252,78,42,1.0);
-	background-color: rgba(252,78,42,0.5);
-	cursor: pointer;
-	color: #ddd;
-}
-.explorerSidemenu .smBtn span {
-	font-size: 20px;
-}
-.explorerMainContainer {
-	position: absolute;
-	height: 100%;
-	left: 36px;
-	right: 0;
-	z-index: 30;
-	
-}
-.explorerMenu {
-	position: absolute;
-	width: 100%;
-	height: 29px;
-	top: 0;
-	
-	border-bottom: 5px solid #fc4e2a;
-	background-color: #333;
-	color: #eee;
-	z-index: 50;
-}
-.explorerCenter {
-	position: absolute;
-	width: 100%;
-	/*height: 100%;*/
-	top: 29px;
-	bottom: 18px;
-	z-index: 30;
-}
-.explorerFooter {
-	position: absolute;
-	width: 100%;
-	height: 18px;
-	bottom: 0;
-	
-	background-color: #333;
-	color: #eee;
-	font-size: 8pt;
-}
-
-/* Menüleiste */
-.explorerMenu img {
-	position: relative;
-	float: left;
-}
-.menuMain {
-	position: relative;
-	float: left;
-	list-style-type: none;
-	padding: 0;
-	margin: 0;
-}
-.menuMain li {
-	position: relative;
-	float: left;
-	display: inline;
-	padding: 5px 8px 4px;
-	font-size: 8pt;
-	cursor: pointer;
-}
-.menuMain li:hover {
-	background-color: #fc4e2a;
-	/*background-color: #fd8d3c;*/
-}
-.menuMain li ul {
-	position: absolute;
-	top: 24px;
-	left: 0;
-	display: none;
-	list-style-type: none;
-	padding: 0;
-	width: 120px;
-	background-color: rgba(51,51,51,0.9);
-}
-.menuMain li ul li {
-	float: none;
-	display: block;
-}
-
+/* Aufteilung */
 .explorerUpperHalf {
 	position: absolute;
 	width: 100%;
 	top: 0;
-	bottom: 230px;
-	border-bottom: 2px solid #555;
+	bottom: 240px;
+	overflow: hidden;
 }
 .explorerLowerHalf {
 	position: absolute;
 	width: 100%;
-	height: 230px;
+	height: 234px;
 	bottom: 0;
-	border-top: 2px solid #555;
 }
 
 /* Spalte mit Controls und Viewport */
-.viewportColumn {
+.viewportPanel {
+	position: absolute;
+	left: 0;
 	width: 66%;
 	height: 100%;
-	float: left;
-	position: relative;
 }
 
 /* Kontrollleiste */
@@ -208,6 +93,8 @@
 
 /* 3D-Viewport */
 #webglViewport {
+	/*width: 100%;
+	height: 100%;*/
 	border: 1px solid #000;
 	border-left: none;
 	/*height: 600px;*/
@@ -295,49 +182,49 @@
 
 
 /* Seitenspalte */
-.sideColumn {
-	position: relative;
-	width: 34%;
+.sidePanel {
+	position: absolute;
+	left: 66%;
+	right: 0;
 	height: 100%;
-	margin-left: 66%;
-	
-	/*float: right;*/
+	display: flex;
 }
 
-.sideColumnSidemenu {
-	position: absolute;
-	width: 35px;
-	height: 100%;
-	right: 0;
+.sidePanelSidemenu {
+	flex: 0 0 36px;
+	order: 2;
+	width: 36px;
+	/*height: 100%;
+	right: 0;*/
 	z-index: 50;
 	
 	color: #999;
 	background-color: #333;
 	border-left: 1px solid #000;
 }
-.sideColumnSidemenu .smLogo {
+.sidePanelSidemenu .smLogo {
 	height: 35px;
 	background-color: #fc4e2a;
 }
-.sideColumnSidemenu .smBtn {
+.sidePanelSidemenu .smBtn {
 	height: 35px;
 	border-left: 2px solid rgba(252,78,42,0.5);
 	padding: 7px;
 	transition: border-left-color 0.3s, color 0.3s, background-color 0.3s;
 }
-.sideColumnSidemenu .smBtn:hover {
+.sidePanelSidemenu .smBtn:hover {
 	border-left-color: rgba(252,78,42,1.0);
 	background-color: #444;
 	cursor: pointer;
 	color: #ddd;
 }
-.sideColumnSidemenu .smBtn.active {
+.sidePanelSidemenu .smBtn.active {
 	border-left-color: rgba(252,78,42,1.0);
 	background-color: rgba(252,78,42,0.5);
 	cursor: pointer;
 	color: #ddd;
 }
-.sideColumnSidemenu .smBtn span {
+.sidePanelSidemenu .smBtn span {
 	font-size: 20px;
 }
 
@@ -347,10 +234,11 @@
 }
 
 .sideContainer {
-	position: absolute;
-	height: 100%;
-	left: 0;
-	right: 35px;
+	flex: 1;
+	order: 1;
+	/*height: 100%;*/
+	/*left: 0;
+	right: 35px;*/
 	display: flex;
 	flex-direction: column;
 	/*height: 600px;*/
@@ -464,14 +352,13 @@
 }
 
 /* Ergebnisspalte bzw. Quellenspalte */
-.sourcesColumn {
+.sourcesPanel {
+	overflow: auto;
+	/*padding: 5px;*/
+	position: absolute;
+	left: 0;
 	width: 66%;
 	height: 100%;
-	float: left;
-	overflow: auto;
-	border-right: 2px solid #555;
-	/*padding: 5px;*/
-	position: relative;
 }
 .sourcesColumnTop {
 	padding: 5px;
@@ -674,14 +561,12 @@
 
 
 /* Vorschauspalte */
-.previewColumn {
-	position: relative;
-	width: 34%;
-	height: 100%;
-	margin-left: 66%;
-	overflow: auto;
-	border-left: 2px solid #555;
+.previewPanel {
 	padding: 5px;
+	position: absolute;
+	left: 66%;
+	right: 0;
+	height: 100%;
 }
 .debugBtns {
 	position: absolute;

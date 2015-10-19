@@ -20,7 +20,7 @@
 				</select>
 				<br>
 					<div id = "ramp" ng-style="{'background-image': 'linear-gradient(to right, rgb({{ramp.start[0]}},{{ramp.start[1]}},{{ramp.start[2]}}), rgb({{ramp.end[0]}},{{ramp.end[1]}},{{ramp.end[2]}}))'}" ng-click= "addSlider($event)">
-						<div class="marker" ng-repeat="m in colorMarkerArray" ng-style="{left: m.position}"></div>
+						<div class="gradient-marker" ng-repeat="m in colorMarkerArray" ng-style="{left: m.position}"></div>
 						
 					</div>
 					

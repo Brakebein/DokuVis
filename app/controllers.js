@@ -5,7 +5,7 @@ webglControllers.controller('introCtrl', ['$scope', '$http',
 		
 	}]);
 	
-webglControllers.controller('projectsCtrl', ['$scope', '$http', 'phpRequest', 'mysqlRequest', 'neo4jRequest', 'Utilities',
+webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest', 'mysqlRequest', 'neo4jRequest', 'Utilities',
 	function($scope, $http, phpRequest, mysqlRequest , neo4jRequest, Utilities) {
 		
 		// Initialisierung von Variablen
@@ -15,7 +15,6 @@ webglControllers.controller('projectsCtrl', ['$scope', '$http', 'phpRequest', 'm
 		$scope.newProject.name = '';
 		$scope.newProject.nameError = false;
 		$scope.newProject.description = '';
-		
 		
 		$scope.getAllProjects = function() {
 			mysqlRequest.getAllProjects().success(function(obj, status){
@@ -32,7 +31,7 @@ webglControllers.controller('projectsCtrl', ['$scope', '$http', 'phpRequest', 'm
 			else
 				$scope.newProject.nameError = false;
 				
-			var tid = new Utilities.Base62().encode(new Date().getTime());
+			var tid = Utilities.getUniqueId();
 			var prj = 'Proj_' + tid;
 			console.log('create '+prj);
 			
@@ -119,15 +118,18 @@ webglControllers.controller('projectsCtrl', ['$scope', '$http', 'phpRequest', 'm
 		
 	}]);
 
-webglControllers.controller('webglCtrl', ['$scope', '$routeParams',
-	function($scope, $routeParams) {
-
+webglControllers.controller('projectCtrl', ['$scope', '$stateParams',
+	function($scope, $stateParams) {
+	
+		$scope.project = $stateParams.project;
 		
+		// Überprüfen, ob Nutzer Zugriff auf Projekt hat
+		// Zugriffsrechte und Rolle auslesen
 		
 	}]);
-
-webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'FileUploader', 'Utilities',
-	function($scope, $routeParams, $timeout, $sce, neo4jRequest, phpRequest, FileUploader, Utilities) {
+	
+webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'FileUploader', 'Utilities', 'webglInterface',
+	function($scope, $stateParams, $timeout, $sce, neo4jRequest, phpRequest, FileUploader, Utilities, webglInterface) {
 
 		//$scope.selected = [];
 		/*$scope.consel = function(id) {
@@ -140,7 +142,9 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		
 			
 		// Initialisierung von Variablen
-		$scope.project = $routeParams.project;
+		$scope.project = $stateParams.project;
+		
+		$scope.wi = webglInterface;
 		
 		$scope.views = new Object();
 		$scope.views.activeMain = '3dview';
@@ -164,8 +168,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		$scope.sourceResults = [];
 		
 		// Liste mit Objekten (Outliner)
-		$scope.hierarchList = [];
-		$scope.layerList = [];
 		$scope.listTabs = 'objects';
 		$scope.listSettings = 'layers';
 		
@@ -569,22 +571,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			});
 		};
 		
-		$scope.$watch('layerList.length', function(value) {
-			//console.log('watch layers', $scope.layers);
-			$scope.layers = $scope.getLayers($scope.layerList);
-		}, false);
-		
-		$scope.getLayers = function(list) {
-			var layers = [];
-			for(var i=0; i<list.length; i++) {
-				if(layers.indexOf(list[i].layer) === -1)
-					layers.push(list[i].layer);
-			}
-			for(var i=0; i<layers.length; i++) {
-				layers[i] = ({name: layers[i], visible: true, expand: false});
-			}
-			return layers;
-		};
 		
 		$scope.callDirFunc = {};
 		
@@ -793,10 +779,15 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			//$scope.loadModelsWithChildren();
 		}, 500);
 		
+		// wenn Controller zerstört wird
+		$scope.$on('$destroy', function(event) {
+			webglInterface.clearLists();
+		});
+		
 	}]);
 
-webglControllers.controller('insertSourceCtrl', ['$scope', '$routeParams', 'FileUploader', 'neo4jRequest', '$timeout',
-	function($scope, $routeParams, FileUploader, neo4jRequest, $timeout) {
+webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4jRequest', '$timeout',
+	function($scope, FileUploader, neo4jRequest, $timeout) {
 		
 		
 		// init
@@ -1108,8 +1099,8 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$routeParams', 'File
 		
 	}]);
 	
-webglControllers.controller('sourceTypeCtrl', ['$scope', '$routeParams',
-	function($scope, $routeParams) {
+webglControllers.controller('sourceTypeCtrl', ['$scope',
+	function($scope) {
 		
 		console.log('sourceTypeCtrl init');
 		
@@ -1117,8 +1108,8 @@ webglControllers.controller('sourceTypeCtrl', ['$scope', '$routeParams',
 		
 	}]);
 	
-webglControllers.controller('sourceDetailCtrl', ['$scope', '$routeParams',
-	function($scope, $routeParams) {
+webglControllers.controller('sourceDetailCtrl', ['$scope',
+	function($scope) {
 		
 		console.log('sourceDetailCtrl init');
 		
@@ -1145,8 +1136,8 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$routeParams',
 		
 	}]);
 	
-webglControllers.controller('screenshotDetailCtrl', ['$scope', '$routeParams', 'phpRequest', 'neo4jRequest', 'Utilities', '$timeout',
-	function($scope, $routeParams, phpRequest, neo4jRequest, Utilities, $timeout) {
+webglControllers.controller('screenshotDetailCtrl', ['$scope', 'phpRequest', 'neo4jRequest', 'Utilities', '$timeout',
+	function($scope, phpRequest, neo4jRequest, Utilities, $timeout) {
 		
 		console.log('screenshotDetailCtrl init');
 		
@@ -1180,7 +1171,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$routeParams', '
 			//console.log(event);
 			if(event.target != event.delegateTarget || event.button !== 0) return;
 			
-			var tid = new Utilities.Base62().encode(new Date().getTime());
+			var tid = Utilities.getUniqueId();
 			var offsetX = event.offsetX || event.originalEvent.layerX;
 			var offsetY = event.offsetY || event.originalEvent.layerY;
 			
@@ -1264,6 +1255,13 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$routeParams', '
 		
 	}]);
 	
+webglControllers.controller('tasksCtrl', ['$scope',	'neo4jRequest',
+	function($scope, neo4jRequest) {
+	
+		console.log('tasks init');
+	
+	}]);
+
 function extractData(data) {
 	var results = [];
 	for(var i=0; i<data.data.length; i++) {

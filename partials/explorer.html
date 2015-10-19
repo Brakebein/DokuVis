@@ -1,55 +1,8 @@
-﻿<div class="explorerSidemenu">
-	
-	<div class="smLogo">
-		<img src="img/dokuvis_logo-mini.png"/>
-	</div>
-	
-	<div title="Projektübersicht" class="smBtn" ng-class="views.activeMain=='3dview'?'active':''" ng-click="views.activeMain = '3dview'">
-		<span class="glyphicon glyphicon-picture"></span>
-	</div>
-	<div class="smBtn" title="Aufgaben">
-		<span class="glyphicon glyphicon-tasks"></span>
-	</div>
-	<div class="smBtn" title="sonstiges">
-		<span class="glyphicon glyphicon-list-alt"></span>
-	</div>
-	<div class="smBtn" title="Hilfe">
-		<span class="glyphicon glyphicon-question-sign"></span>
-	</div>
-	
-	
-</div>
-<div class="explorerMainContainer">
-<!--<div class="explorerMenu">
-	<img src="img/logo_menu.png"/>
-	<ul class="menuMain">
-		<li>PROJEKT</li>
-		<li>QUELLE</li>
-		<li ng-click="enterMenuItem($event)">ANSICHT
-			<ul>
-				<li>Ansicht 1</li>
-				<li>Ansicht 2</li>
-				<li>Ansicht 3</li>
-				<li>Ansicht 4</li>
-			</ul>
-		</li>
-		<li ng-click="enterMenuItem($event)">HILFE
-			<ul>
-				<li>Hilfeseite</li>
-				<li>Tutorials</li>
-				<li>noch ein Eintrag</li>
-				<li>Über DokuTool</li>
-			</ul>
-		</li>
-	</ul>
-</div>
-
-<div class="explorerCenter">-->
-<!-- obere Hälfte -->
+﻿<!-- obere Hälfte -->
 <div class="explorerUpperHalf">
 
 <!-- linke Spalte -->
-<div class="viewportColumn">
+<div class="viewportPanel">
 	
 	<!-- Kontrollleiste über Viewport -->
 	<!--<div class="viewportCtrls">
@@ -105,15 +58,11 @@
 		webgl-view 
 		obj-models="models" 
 		plan-models="plans" 
-		marks-models="marks" 
-		hierarch-list="hierarchList"
-		layer-list="layerList"
+		marks-models="marks"
 		selected-models="selected" 
 		highlighted-models="highlighted" 
 		unsafe-settings="unsafeSettings"
 		viewport-settings="viewportSettings"
-		shading="shadingOption"
-		camera="cameraOption"
 		call-func="callDirFunc"
 		gizmo-Coords="coords"
 		navigation="navigation">
@@ -128,8 +77,8 @@
 		<div class="vpNaviContainer">
 			<!-- Buttons -> auf Objekt fokusieren -->
 			<div class="ctrlGroup">
-				<button title="Focus All" class="ctrlBtn" ng-class="(activeBtn == 'zoom_all') ? 'active' : ''" ng-click="callDirFunc.focusAll()" ng-mousedown="activeBtn = 'zoom_all'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_all_w.png"/></button>
-				<button title="Focus Selection" class="ctrlBtn" ng-class="(activeBtn == 'zoom_sel') ? 'active' : ''"  ng-click="callDirFunc.focusSelected()" ng-mousedown="activeBtn = 'zoom_sel'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_sel_w.png"/></button>
+				<button title="Focus All" class="ctrlBtn" ng-class="(activeBtn == 'zoom_all') ? 'active' : ''" ng-click="wi.callFunc.focusAll()" ng-mousedown="activeBtn = 'zoom_all'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_all_w.png"/></button>
+				<button title="Focus Selection" class="ctrlBtn" ng-class="(activeBtn == 'zoom_sel') ? 'active' : ''"  ng-click="wi.callFunc.focusSelected()" ng-mousedown="activeBtn = 'zoom_sel'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_sel_w.png"/></button>
 			</div>
 			
 			<!-- Buttons -> navigieren -->
@@ -142,7 +91,7 @@
 			
 			<!-- Dropdown-Liste Rendermode und Kamera -->
 			<div class="ctrlGroup form-inline">
-				<select class="form-control input-sm" ng-model="viewportSettings.shading" ng-init="viewportSettings.shading = 'color+edges'">
+				<select class="form-control input-sm" ng-model="wi.viewportSettings.shading" ng-init="wi.viewportSettings.shading = 'color+edges'">
 					<option value="color+edges">color + edges</option>
 					<!--<option value="color-edges">color without edges</option>-->
 					<option value="grey+edges">grey + edges</option>
@@ -162,8 +111,8 @@
 			
 			<div class="ctrlGroup">
 				<div class="btn-group btn-group-xs">
-					<button type="button" class="btn" ng-class="viewportSettings.ssao == 'ssao' ? 'btn-primary' : 'btn-default'" ng-init="viewportSettings.ssao = 'ssao'" ng-click="viewportSettings.ssao = 'ssao'">SSAO</button>
-					<button type="button" class="btn" ng-class="viewportSettings.ssao == 'aa' ? 'btn-primary' : 'btn-default'" ng-click="viewportSettings.ssao = 'aa'">AA</button>
+					<button type="button" class="btn" ng-class="wi.viewportSettings.ssao == 'ssao' ? 'btn-primary' : 'btn-default'" ng-init="wi.viewportSettings.ssao = 'ssao'" ng-click="wi.viewportSettings.ssao = 'ssao'">SSAO</button>
+					<button type="button" class="btn" ng-class="wi.viewportSettings.ssao == 'aa' ? 'btn-primary' : 'btn-default'" ng-click="wi.viewportSettings.ssao = 'aa'">AA</button>
 				</div>
 			</div>
 			
@@ -181,10 +130,9 @@
 </div>
 
 <!-- Seitenspalte -->
-<div class="sideColumn">
-	
-	
-	<div class="sideColumnSidemenu">
+<div class="sidePanel">
+
+	<div class="sidePanelSidemenu">
 	
 		<div title="Objekte" class="smBtn" ng-class="views.activeSide=='objlist'?'active':''" ng-click="views.activeSide = 'objlist'">
 			<span class="glyphicon glyphicon-list"></span>
@@ -208,32 +156,10 @@
 		</div>
 		
 		<div class="sideContent">
-	<!--<div class="sideCtrls">
-	</div>	
-		<!--<ul class="nav nav-tabs" role="tablist">
-			<li class="cursor_pointer" ng-class="(listTabs == 'objects') ? 'active' : ''" ng-click="listTabs = 'objects'"><a>Objekte</a></li>
-			<li class="cursor_pointer" ng-class="(listTabs == 'plans') ? 'active' : ''" ng-click="listTabs = 'plans'"><a>Quellen</a></li>
-			<li class="cursor_pointer" ng-class="(listTabs == 'marks') ? 'active' : ''" ng-click="listTabs = 'marks'"><a>Steinmetzzeichen</a></li>
-		</ul>-->
-		
-		<!--<div class="tab-content">
-		
-		<!--<div class="tab-content-header">
-			<span ng-if="listTabs == 'objects'">{{models.length}} Objekte</span>
-			<span ng-if="listTabs == 'plans'">{{plans.length}} Objekte</span>
-			<span ng-if="listTabs == 'marks'">{{marks.length}} Objekte</span>
-			<input ng-model="searchObjectList" type="text" placeholder="Suche"/>
-		</div>-->
-		
-		
-		
-		<!--<div class="tab-content-container">-->
-			<!--<div id="listScroll" class="listGroup overflowauto">-->
 				
+				<div ng-if="listSettings=='hierarchy'" ng-repeat="data in wi.hierarchList | orderBy: 'name'" ng-init="depth=0" ng-include="'partials/tree_item_renderer.html'"></div>
 				
-				<div ng-if="listSettings=='hierarchy'" ng-repeat="data in hierarchList | orderBy: 'name'" ng-init="depth=0" ng-include="'partials/tree_item_renderer.html'"></div>
-				
-				<div ng-if="listSettings=='layers'" ng-repeat="layer in layers | orderBy: 'name'" ng-init="depth=0">
+				<div ng-if="listSettings=='layers'" ng-repeat="layer in wi.layers | orderBy: 'name'" ng-init="depth=0">
 					<div class="listItem">
 						<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="layer.visible ? 'listCheck' : 'listUncheck'" ng-click="layer.visible=!layer.visible; callDirFunc.toggleObject(layer);"></span>
 						<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
@@ -242,7 +168,7 @@
 						</div>
 					</div>
 					<div ng-if="layer.expand" class="listChildren">
-					<div ng-repeat="data in layerList | filter: {layer: layer.name} | orderBy: 'name'" ng-init="depth=1">
+					<div ng-repeat="data in wi.layerList | filter: {layer: layer.name} | orderBy: 'name'" ng-init="depth=1">
 					<div class="listItem">
 						<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="data.visible ? 'listCheck' : 'listUncheck'" ng-click="data.visible=!data.visible; callDirFunc.toggleObject(data);"></span>
 						<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
@@ -268,10 +194,8 @@
 				<div class="listItem"  ng-if="listTabs == 'marks'" ng-repeat="m in marks | filter: searchObjectList | orderBy: 'name'" id="{{m.name}}">
 					<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="m.visible ? 'listCheck' : 'listUncheck'" ng-click="m.visible=!m.visible; callDirFunc.showhidePlan(m.id, m.visible);"></span>
 					<div class="listString" ng-click="callDirFunc.selectObjectById(m.id);" ng-class="(m.name == selected.name) ? 'listSelected' : ''"> {{m.name}} ({{m.id}})</div>
-				</div>
+				</div>-->
 			
-			<!--</div>
-		</div>-->
 		</div>
 		
 		<div class="sideFooter">
@@ -315,16 +239,21 @@
 		
 	</div>
 	
+
 </div>
 
-	
+<div class="resizer-v" resizer="vertical" resizer-width="6" resizer-left=".viewportPanel" resizer-left-min="780" resizer-right=".sidePanel" resizer-right-min="380" resizer-end="wi.callFunc.resize"></div>
+
 </div>
+
+<!-- horizontaler Handler --
+<div class="gridHandle-h"></div>
 
 <!-- untere Hälfte -->
 <div class="explorerLowerHalf">
 
 <!-- linke Spalte -->
-<div class="sourcesColumn">
+<div class="sourcesPanel">
 	
 	<div class="sourcesColumnTop">
 		<!-- Anzeigeoptionen und Suche -->
@@ -393,7 +322,7 @@
 	</div>
 	
 	<div class="sourcesColumnContent">
-		<!--<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 resultItem" ng-repeat="p in sourceResults | filter: {type: 'plan'} | filter: sourcesSettings.filterBy | orderBy: [sourcesSettings.orderBy,'title']:sourcesSettings.reverse as filteredSourceResults" ng-click="selectResultItem($event, p)">-->
+		
 		
 		<div class="blindSource">
 		<div class="resultItem">
@@ -436,7 +365,7 @@
 </div>
 
 <!-- rechte Spalte (Vorschaufenster -->
-<div class="previewColumn">
+<div class="previewPanel">
 	
 	<img src="img/navigation_legend200.png"/>
 	
@@ -481,21 +410,22 @@
 	<button ng-click="getPlansForObj()">getPlansForObj</button>
 	<button ng-click="getAllDocuments()">getAllDocuments</button>-->
 	
-	</p>
-	<p>
+	
 	<!--<button ng-click="loadZwinger()">loadZwinger</button>-->
 	<!--<button ng-click="logModels()">log models</button>-->
 	<!-- <button ng-click="openInsertForm('model')">upload 3D model</button> -->
-	</p>
+	
 
 	
 </div>
-</div>
-<!--</div>
 
-<div class="explorerFooter">
-	Footer
-</div>-->
+<div class="resizer-v" resizer="vertical" resizer-width="6" resizer-left=".sourcesPanel" resizer-left-min="780" resizer-right=".previewPanel" resizer-right-min="280"></div>
+
+</div>
+
+<div class="resizer-h" resizer="horizontal" resizer-height="6" resizer-top=".explorerUpperHalf" resizer-top-min="400" resizer-bottom=".explorerLowerHalf" resizer-bottom-min="234" resizer-end="wi.callFunc.resize"></div>
+
+
 
 <!-- insertForm -->
 <div ng-include="overlayParams.url" class="overlayPanel" ></div>

@@ -1,29 +1,40 @@
-var webglApp = angular.module('webglApp', ['ngRoute', 'webglControllers', 'webglDirectives', 'webglServices', 'autocomplete', 'truncate','xeditable']);
+var webglApp = angular.module('webglApp', ['webglControllers', 'webglDirectives', 'webglServices', 'ui.router', 'ui.router.css', 'autocomplete', 'truncate', 'xeditable']);
 
-webglApp.config(['$routeProvider', '$locationProvider',
-	function($routeProvider, $locationProvider) {
-		$routeProvider.
-			when('/intro', {
+webglApp.config(['$stateProvider', '$urlRouterProvider',
+	function($stateProvider, $urlRouterProvider) {
+		
+		$urlRouterProvider.otherwise('/');
+		
+		$stateProvider
+			.state('intro', {
+				url: '/intro',
 				templateUrl: 'partials/intro.html',
 				controller: 'introCtrl'
-			}).
-			when('/webgl', {
-				templateUrl: 'partials/webgl.html',
-				controller: 'webglCtrl'
-			}).
-			when('/explorer/:project', {
-				templateUrl: 'partials/explorer.html',
-				controller: 'explorerCtrl'
-			}).
-			when('/explorer', {
-				redirectTo: '/projects'
-			}).
-			when('/projects', {
+			})
+			.state('projectlist', {
+				url: '/projects',
 				templateUrl: 'partials/projects.html',
-				controller: 'projectsCtrl'
-			}).
-			otherwise({
-				redirectTo: '/intro'
+				controller: 'projectlistCtrl'
+			})
+			.state('project', {
+				url: '/:project',
+				templateUrl: 'partials/project.html',
+				controller: 'projectCtrl',
+				css: 'style/project.css'
+			})
+			.state('project.explorer', {
+				url: '/explorer',
+				templateUrl: 'partials/explorer.html',
+				controller: 'explorerCtrl',
+				css: ['style/explorer.css','style/panelContainer.css']
+					
+			})
+			.state('project.tasks', {
+				url: '/tasks',
+				templateUrl: 'partials/tasks.html',
+				controller: 'tasksCtrl',
+				css: 'style/tasks.css'
+					
 			});
 		
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});

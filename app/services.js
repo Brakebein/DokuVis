@@ -609,7 +609,87 @@ webglServices.factory('Utilities',
 			this.characterSet = arrayOfChars;
 		};
 		
+		/**
+		  * generate unique id from timestamp
+		*/
+		f.getUniqueId = function() {
+			return new f.Base62().encode(new Date().getTime());
+		};
 		
 		return f;
+		
+	});
+
+// Schnittstelle zwischen Three.js-Scope und Seite
+webglServices.factory('webglInterface',
+	function() {
+		
+		var wi = {};
+		
+		// Funktionsaufrufe vom Controller
+		wi.callFunc = {};
+		
+		// Einstellungen
+		wi.viewportSettings = {};
+		//wi.viewportSettings.
+		wi.unsafeSettings = {};
+		
+		// Listen
+		wi.objects = [];
+		wi.layerList = [];
+		wi.layers = [];
+		wi.hierarchList = [];
+		
+		var layerDict = {};
+		
+		wi.insertIntoLists = function(item) {
+			item.children = [];
+			item.visible = true;
+			item.expand = false;
+			insertIntoHierarchList(item);
+			insertIntoLayerList(item);
+		};
+		
+		wi.clearLists = function() {
+			console.log('clearList');
+			wi.layerLists = [];
+			wi.layers = [];
+			wi.hierarchList = [];
+		};
+		
+		function insertIntoHierarchList(item) {
+			var parentItem = findHierarchyObject(wi.hierarchList, item.parent);
+			if(parentItem !== undefined) {
+				item.parent = parentItem;
+				parentItem.children.push(item);
+			}
+			else {
+				item.parent = null;
+				wi.hierarchList.push(item);
+			}
+		}
+		
+		function insertIntoLayerList(item) {
+			wi.layerList.push(item);
+			if(item.layer in layerDict) {
+				layerDict[item.layer].count++;
+			}
+			else {
+				layerDict[item.layer] = {count: 1};
+				wi.layers.push({name: item.layer, visible: true, expand: false});
+			}
+		}
+		
+		function findHierarchyObject(list, id) {
+			for(var i=0, l=list.length; i<l; i++) {
+				var child = list[i];
+				if(child.id === id) return child;
+				var object = findHierarchyObject(child.children, id);
+				if(object !== undefined) return object;
+			}
+			return undefined;
+		}
+		
+		return wi;
 		
 	});
