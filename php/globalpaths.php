@@ -1,18 +1,24 @@
 <?php
 
 // OpenCTM Converter
-$pCTMConverter = '\"C:\\Program Files (x86)\\OpenCTM 1.0.3\\bin\\ctmconv.exe\"';
+$pCTMConverter = '\'C:\\Program Files (x86)\\OpenCTM 1.0.3\\bin\\ctmconv.exe\'';
 
 // ImageMagick
-$pImagickConvert = '\"C:\\ImageMagick\\convert.exe\"';
-$pImagickMogrify = '\"C:\\ImageMagick\\mogrify.exe\"';
+$pImagickConvert = 'C:\\ServerTools\\ImageMagick-6.9.2-4-Q16-x64\\convert.exe';
+$pImagickMogrify = 'C:\\ServerTools\\ImageMagick-6.9.2-4-Q16-x64\\mogrify.exe';
 
 // Tesseract - Texterkennung
-
-// Swish-e - Textindizierung
+$pTesseract = 'C:\\ServerTools\\Tesseract-3.03\\tesseract.exe';
+$pTessData = 'C:\\ServerTools\\Tesseract-3.03\\tessdata';
 
 // GhostScript
+$pGhostscript = 'C:\\ServerTools\\Ghostscript\\bin\\gswin64.exe';
 
 // PDFtk - pdf toolkit
+$pPDFtk = 'C:\\ServerTools\\PDFtk Server\\bin\\pdftk.exe';
+
+// Swish-e - Textindizierung
+$pSwishe = 'C:\\ServerTools\\SWISH-E\\bin\\swish-e.exe';
+$pSwisheConfig = 'C:\\ServerTools\\SWISH-E\\swish.config';
 
 ?>

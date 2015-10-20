@@ -3,7 +3,7 @@ var webglApp = angular.module('webglApp', ['webglControllers', 'webglDirectives'
 webglApp.config(['$stateProvider', '$urlRouterProvider',
 	function($stateProvider, $urlRouterProvider) {
 		
-		$urlRouterProvider.otherwise('/');
+		$urlRouterProvider.otherwise('/intro');
 		
 		$stateProvider
 			.state('intro', {
