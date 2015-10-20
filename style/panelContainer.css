@@ -9,7 +9,7 @@
 	border-left: 1px solid #999;
 }
 
-.marker {
+.gradient-marker {
 	position: absolute;
 	background: #ffffff;
 	width: 2px;

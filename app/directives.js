@@ -1,13 +1,13 @@
 var webglDirectives = angular.module('webglDirectives', ['urish']);
 
-webglDirectives.directive('webglView', ['angularLoad', '$timeout',
-	function(angularLoad, $timeout) {
+webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterface', '$rootScope',
+	function(angularLoad, $timeout, webglInterface, $rootScope) {
 		
 		function link(scope, element, attr) {
 			
 			// Scripts werden nachgeladen, sobald diese directive genutzt wird
 			var scripts = [
-				'lib/webgl/three.min.js',
+				'lib/webgl/three-r73.min.js',
 				'lib/webgl/Projector.js',
 				'lib/webgl/CanvasRenderer.js',
 				'lib/webgl/OrbitControls.js',
@@ -63,8 +63,6 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 			scope.objModels = [];
 			scope.planModels = [];
 			scope.marksModels = [];
-			scope.hierarchList = [];
-			scope.layerList = [];
 			
 			
 			var selected;
@@ -117,16 +115,16 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 			function init() {
 			
 			// default mat
-			materials['defaultMat'] = new THREE.MeshLambertMaterial({ambient: 0xaaaaaa, color: 0xaaaaaa, shading: THREE.SmoothShading, name: 'defaultMat'});
-			materials['defaultDoublesideMat'] = new THREE.MeshLambertMaterial({ambient: 0xdddddd, color: 0xdddddd, shading: THREE.SmoothShading, side: THREE.DoubleSide, name: 'defaultDoublesideMat'});
-			materials['defaultUnsafeMat'] = new THREE.MeshLambertMaterial({ambient: 0xaaaaaa, color: 0xaaaaaa, transparent: true, opacity: 0.5, shading: THREE.SmoothShading, name: 'defaultUnsafeMat'});
+			materials['defaultMat'] = new THREE.MeshLambertMaterial({color: 0xaaaaaa, name: 'defaultMat'});
+			materials['defaultDoublesideMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, side: THREE.DoubleSide, name: 'defaultDoublesideMat'});
+			materials['defaultUnsafeMat'] = new THREE.MeshLambertMaterial({color: 0xaaaaaa, transparent: true, opacity: 0.5, name: 'defaultUnsafeMat'});
 			
 			// selection mat
-			materials['selectionMat'] = new THREE.MeshLambertMaterial({ambient: 0xff4444, color: 0xff4444, shading: THREE.SmoothShading, side: THREE.DoubleSide, name: 'selectionMat'});
+			materials['selectionMat'] = new THREE.MeshLambertMaterial({color: 0xff4444, side: THREE.DoubleSide, name: 'selectionMat'});
 			
 			// transparent mat
-			materials['transparentMat'] = new THREE.MeshLambertMaterial({ambient: 0xcccccc, color: 0xcccccc, transparent: true, opacity: 0.5, shading: THREE.SmoothShading, name: 'transparentMat'});
-			materials['transparentSelectionMat'] = new THREE.MeshLambertMaterial({ambient: 0xff4444, color: 0xff4444, transparent: true, opacity: 0.5, shading: THREE.SmoothShading, name: 'transparentSelectionMat'});
+			materials['transparentMat'] = new THREE.MeshLambertMaterial({color: 0xcccccc, transparent: true, opacity: 0.5, name: 'transparentMat'});
+			materials['transparentSelectionMat'] = new THREE.MeshLambertMaterial({color: 0xff4444, transparent: true, opacity: 0.5, name: 'transparentSelectionMat'});
 			// wireframe mat
 			materials['wireframeMat'] = new THREE.MeshBasicMaterial({color: 0x333333, wireframe: true, name: 'wireframeMat'});
 			materials['wireframeSelectionMat'] = new THREE.MeshBasicMaterial({color: 0xff4444, wireframe: true, name: 'wireframeSelectionMat'});
@@ -238,7 +236,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 						$('#loadprogressbar').delay(2000).fadeOut(2000);
 						$('#loadprogressitem').delay(2000).fadeOut(2000);
 						$timeout(function() {
-							scope.internalCallFunc.focusAll();
+							webglInterface.callFunc.focusAll();
 						}, 100);
 					}
 				};
@@ -428,6 +426,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 			function animate() {
 				requestAnimationFrame(animate);
 				
+				TWEEN.update();
 				controls.update();
 				
 				// Steinmetzzeichen zeigen immer zur Kamera
@@ -1318,7 +1317,18 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 				}
 			}, true);
 			
-			scope.$watch('viewportSettings.ssao', function(value) {
+			/*scope.$watch('viewportSettings.ssao', function(value) {
+				switch(value) {
+					case 'ssao': renderSSAO = true; break;
+					default: renderSSAO = false; break;
+				}
+			});
+			*/
+			
+			$rootScope.$watch(function() {
+				return webglInterface.viewportSettings.ssao;
+			}, function(value) {
+				console.log('watchssao', value);
 				switch(value) {
 					case 'ssao': renderSSAO = true; break;
 					default: renderSSAO = false; break;
@@ -1725,6 +1735,10 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 			
 			
 			function onWindowResize(event) {
+				resizeViewport();
+			}
+			
+			function resizeViewport() {
 				
 				element.height(element.parent().height() - element.position().top - 2*parseInt(element.css('border-top-width'),10));
 				SCREEN_WIDTH = element.width();
@@ -2002,7 +2016,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 					objects[obj.id] = {mesh: obj, edges: null, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true};
 					
 					// Liste für die Anzeige auf der HTML-Seite
-					insertIntoList({ name: obj.name, id: obj.id, title: obj.userData.name, layer: obj.userData.layer, type: obj.userData.type, parent: parentid });
+					webglInterface.insertIntoLists({ name: obj.name, id: obj.id, title: obj.userData.name, layer: obj.userData.layer, type: obj.userData.type, parent: parentid });
 					
 					// if(scope.layers.indexOf(obj.userData.layer) === -1)
 						// scope.layers.push(obj.userData.layer);
@@ -2013,8 +2027,8 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 				
 				function ctmHandler(geo) {
 					geo.computeBoundingBox();
-					geo.computeFaceNormals();
-					geo.computeVertexNormals();
+					//geo.computeFaceNormals();
+					//geo.computeVertexNormals();
 					
 					var isUnsafe = false
 					if(/unsicher/.test(info.name))
@@ -2036,6 +2050,11 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 						mesh.userData.originalMat = 'defaultDoublesideMat';
 					}
 					
+					var edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
+					edges.matrix = mesh.matrixWorld;
+					edges.matrixAutoUpdate = false;
+					//var edges = new THREE.EdgesHelper(mesh, 0x333333, 24.0);
+					
 					//mesh = new THREE.Mesh(geo, materials['xrayMat']);
 					
 					// scale translation and set scale component
@@ -2043,6 +2062,8 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 					s.multiplyScalar(scale);
 					mat.compose(t,q,s);
 					mesh.applyMatrix(mat);
+					//mesh.add(edges);
+					
 					
 					mesh.name = info.content;
 					mesh.userData.name = info.name;
@@ -2057,15 +2078,16 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 						p.add(mesh);
 						parentid = p.id;
 					}
-					else
+					else {
 						scene.add(mesh);
-					
+					}
+					scene.add(edges);
 					
 					// Liste, um zusammengehörige Objekte zu managen
-					objects[mesh.id] = {mesh: mesh, edges: null, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true};
+					objects[mesh.id] = {mesh: mesh, edges: edges, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true};
 					
 					// Liste für die Anzeige auf der HTML-Seite
-					insertIntoList({ name: mesh.name, id: mesh.id, title: mesh.userData.name, layer: mesh.userData.layer, type: mesh.userData.type, parent: parentid });
+					webglInterface.insertIntoLists({ name: mesh.name, id: mesh.id, title: mesh.userData.name, layer: mesh.userData.layer, type: mesh.userData.type, parent: parentid });
 					
 					// if(scope.layers.indexOf(mesh.userData.layer) === -1)
 						// scope.layers.push(mesh.userData.layer);
@@ -2174,35 +2196,6 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 					
 				}, {useWorker: false});
 			};
-			
-			function insertIntoList(params) {
-				var parentItem = getObjectInList(scope.hierarchList, params.parent);
-				var item = params;
-				item.children = [];
-				item.visible = true;
-				item.expand = false;
-				//var item = {name: name, id: id, type: type, parent: null, children: [], visible: true, expand: false};
-				if(parentItem !== undefined) {
-					item.parent = parentItem;
-					parentItem.children.push(item);
-				}
-				else {
-					item.parent = null;
-					scope.hierarchList.push(item);
-				}
-				scope.layerList.push(item);
-				scope.$apply();
-			}
-			
-			function getObjectInList(list, id) {
-				for(var i=0, l=list.length; i<l; i++) {
-					var child = list[i];
-					if(child.id === id) return child;
-					var object = getObjectInList(child.children, id);
-					if(object !== undefined) return object;
-				}
-				return undefined;
-			}
 			
 			scope.internalCallFunc.loadScene = function(sc) {
 				
@@ -2422,8 +2415,12 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 				plans[id].visible = bool;
 			}
 			
+			webglInterface.callFunc.resize = function() {
+				resizeViewport();
+			}
+			
 			// Focus selected object
-			scope.internalCallFunc.focusSelected = function() {
+			webglInterface.callFunc.focusSelected = function() {
 				if(!selected) return;
 				if(selected.userData.type === 'object') {
 					var center = selected.geometry.boundingSphere.center.clone().applyMatrix4(selected.matrixWorld);
@@ -2446,7 +2443,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 			}
 			
 			// Focus all objects
-			scope.internalCallFunc.focusAll = function() {
+			webglInterface.callFunc.focusAll = function() {
 				var cc = [];
 				for(var key in objects) {
 					if(objects[key].mesh.userData.type === 'object') 
@@ -2499,8 +2496,11 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 					var newpos = new THREE.Vector3();
 					newpos.addVectors(M, s.setLength(h));
 					
-					camera.position.copy(newpos);
-					controls.center = M.clone();
+					//camera.position.copy(newpos);
+					//controls.center = M.clone();
+					// animate camera.position and controls.center
+					new TWEEN.Tween(camera.position).to(newpos, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
+					new TWEEN.Tween(controls.center).to(M, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
 				}
 				else {
 					if(scope.camera == 'top')
@@ -2520,14 +2520,10 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout',
 				objModels: '=',
 				planModels: '=',
 				marksModels: '=',
-				hierarchList: '=',
-				layerList: '=',
 				selectedModels: '=',
 				highlightedModels: '=',
 				unsafeSettings: '=',
 				viewportSettings: '=',
-				shading: '=',
-				camera: '=',
 				callFunc: '=',
 				gizmoCoords: '=',
 				navigation: '='
@@ -2641,4 +2637,89 @@ webglDirectives.directive('drag', ['$compile', '$timeout',
 			}	
 		};
 	}]);
-	
+
+// zum Anpassen des Layouts
+webglDirectives.directive('resizer',
+	function($document) {
+		return {
+			scope: {
+				resizerEnd: '='
+			},
+			link: function(scope, element, attrs) {
+				
+				var offset = 0;
+				var space = 0;
+				
+				element.on('mousedown', function(event) {
+					event.preventDefault();
+					
+					if(!(attrs.resizer == 'vertical' || attrs.resizer == 'horizontal')) return;
+					
+					$document.bind('mousemove', rMousemove);
+					$document.bind('mouseup', rMouseup);
+					
+					if(attrs.resizer == 'vertical') {
+						offset = event.pageX - event.offsetX - event.delegateTarget.offsetLeft;
+						space = element.parent()[0].offsetWidth;
+					}
+					else {
+						offset = event.pageY - event.offsetY - event.delegateTarget.offsetTop;
+						space = element.parent()[0].offsetHeight;
+					}
+					console.log(event);
+				});
+				
+				function rMousemove(event) {
+					if(attrs.resizer == 'vertical') {
+						// handle vertical resizer
+						var x = event.pageX - offset;
+						
+						if(attrs.resizerLeftMin && x < attrs.resizerLeftMin) {
+							x = parseInt(attrs.resizerLeftMin);
+						}
+						if(attrs.resizerRightMin && x > space - attrs.resizerRightMin) {
+							x = space - parseInt(attrs.resizerRightMin);
+						}
+						
+						element.css({
+							left: x + 'px'
+						});
+						$(attrs.resizerLeft).css({
+							width: x + 'px'
+						});
+						$(attrs.resizerRight).css({
+							left: (x + parseInt(attrs.resizerWidth)) + 'px'
+						});
+						
+					}
+					else {
+						// handle horizontal resizer
+						var y = space - event.pageY - offset;
+						
+						if(attrs.resizerTopMin && y > space - attrs.resizerTopMin) {
+							y = space - parseInt(attrs.resizerTopMin);
+						}
+						if(attrs.resizerBottomMin && y < attrs.resizerBottomMin) {
+							y = parseInt(attrs.resizerBottomMin);
+						}
+						
+						element.css({
+							bottom: y + 'px'
+						});
+						$(attrs.resizerTop).css({
+							bottom: (y + parseInt(attrs.resizerHeight)) + 'px'
+						});
+						$(attrs.resizerBottom).css({
+							height: y + 'px'
+						});
+					}
+				}	
+				
+				function rMouseup() {
+					$document.unbind('mousemove', rMousemove);
+					$document.unbind('mouseup', rMouseup);
+					if(scope.resizerEnd) scope.resizerEnd();
+				}
+			}
+		};
+	});

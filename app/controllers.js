@@ -5,17 +5,16 @@ webglControllers.controller('introCtrl', ['$scope', '$http',
 		
 	}]);
 	
-webglControllers.controller('projectsCtrl', ['$scope', '$http', 'phpRequest', 'mysqlRequest', 'neo4jRequest', 'Utilities',
-	function($scope, $http, phpRequest, mysqlRequest , neo4jRequest, Utilities) {
+webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest', 'mysqlRequest', 'neo4jRequest', 'Utilities',
+	function($scope, $http, phpRequest, mysqlRequest, neo4jRequest, Utilities) {
 		
 		// Initialisierung von Variablen
 		$scope.projects = [];
-		
+				
 		$scope.newProject = new Object();
 		$scope.newProject.name = '';
 		$scope.newProject.nameError = false;
 		$scope.newProject.description = '';
-		
 		
 		$scope.getAllProjects = function() {
 			mysqlRequest.getAllProjects().success(function(obj, status){
@@ -32,7 +31,7 @@ webglControllers.controller('projectsCtrl', ['$scope', '$http', 'phpRequest', 'm
 			else
 				$scope.newProject.nameError = false;
 				
-			var tid = new Utilities.Base62().encode(new Date().getTime());
+			var tid = Utilities.getUniqueId();
 			var prj = 'Proj_' + tid;
 			console.log('create '+prj);
 			
@@ -78,20 +77,77 @@ webglControllers.controller('projectsCtrl', ['$scope', '$http', 'phpRequest', 'm
 			});
 		};
 		
+		$scope.editProject = function(pdesc,e) {
+			
+			/*Tabelleneintrag durch textfeld ersetzen*/
+			var oldField = $(e.target);
+			var newField = $('<textarea id="text" name="text" cols="35" rows="2"></textarea> ');
+			
+			
+			oldField.hide();
+       		oldField.after(newField);
+       		
+       		newField.focus();
+				
+			
+			/*mit description füllen*/
+			newField.val(pdesc);
+			
+			/*eingabe beenden*/
+			newField.keydown(function(e) {
+	            if(e.which == 13)
+	            {       	
+					pdesc = newField.val();
+					/*alert(pdesc); */
+					newField.remove();
+					oldField.show()
+	            } 
+	            
+	            else if(e.which == 27) {
+					alert("test");
+	            }
+       		});	
+					
+			/*projektdescription ändern*/
+						
+			/*daten in db ändern*/
+		}
+		
+		//zum Testen
+		/*$scope.staff = [];
+		$scope.newStaff = new Object();
+		$scope.newStaff.name = '';
+		$scope.newStaff.surname = '';
+		$scope.newStaff.mail = '';
+		$scope.newStaff.role = '';
+		$scope.newStaff.projects = '';
+		
+		$scope.getAllStaff = function() {
+			mysqlRequest.getAllStaff().success(function(obj, status){
+					console.log(obj);
+					$scope.staff = obj.data;
+			});
+		};*/
+		
+		
 		// oninit Funktionsaufrufe
 		$scope.getAllProjects();
 		
-	}]);
-
-webglControllers.controller('webglCtrl', ['$scope', '$routeParams',
-	function($scope, $routeParams) {
-
-		
 		
 	}]);
 
-webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout', '$sce', '$location', 'neo4jRequest', 'phpRequest', 'FileUploader', 'Utilities',
-	function($scope, $routeParams, $timeout, $sce, $location, neo4jRequest, phpRequest, FileUploader, Utilities) {
+webglControllers.controller('projectCtrl', ['$scope', '$stateParams',
+	function($scope, $stateParams) {
+	
+		$scope.project = $stateParams.project;
+		
+		// Überprüfen, ob Nutzer Zugriff auf Projekt hat
+		// Zugriffsrechte und Rolle auslesen
+		
+	}]);
+	
+webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface',
+	function($scope, $stateParams, $timeout, $sce, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface) {
 
 		//$scope.selected = [];
 		/*$scope.consel = function(id) {
@@ -103,14 +159,21 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		}*/
 		
 		
+		
+		
 		// Initialisierung von Variablen
-		$scope.project = $routeParams.project;
+		$scope.project = $stateParams.project;
+		
+		$scope.wi = webglInterface;
 		
 		$scope.views = new Object();
 		$scope.views.activeMain = '3dview';
 		//$scope.views.activeSide = 'objlist';
 		$scope.views.activeSide = 'comments';
 		
+		//Mitarbeiter
+		$scope.staff = [];
+						
 		$scope.overlayParams = {url: '', params: {}};
 		
 		$scope.alert = new Object();
@@ -128,8 +191,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		$scope.sourceResults = [];
 		
 		// Liste mit Objekten (Outliner)
-		$scope.hierarchList = [];
-		$scope.layerList = [];
 		$scope.listTabs = 'objects';
 		$scope.listSettings = 'layers';
 		
@@ -154,20 +215,80 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		$scope.sliceSettings.showPlane = true;
 		$scope.sliceSettings.showSliceFaces = true;
 		
+		
 		$scope.coords = new Object();
 		$scope.coords.x = $scope.coords.y = $scope.coords.z = 0;
 		$scope.coords.xError = $scope.coords.yError = $scope.coords.zError = false;
 		$scope.coords.enabled = false;
 		
-		$scope.go = function ( path ) {
-			$location.path( path );
+		$scope.constructionPhases = new Object();
+		$scope.constructionPhases.select = 0;
+		
+		$scope.fellYear = new Object();
+		$scope.fellYear = 0;
+		
+		$scope.position = new Object();
+		$scope.position.minAge = 1250;
+		$scope.position.maxAge = 1750;
+		
+		//Balken
+		$scope.baulk = new Object();
+		$scope.baulk.minAge = 1250;
+		$scope.baulk.maxAge = 1750;
+		
+		//controls slider
+		/*$scope.top = 35;
+		$scope.left = 20;
+		$scope.step = 50;
+		$scope.width = 950;
+		$scope.range = $scope.position.maxAge - $scope.position.minAge;*/
+		
+		$scope.colorMarkerArray = [];
+		$scope.ramp = {
+			start: [49,29,5],
+			end: [249,226,189]
 		};
+		
+		$scope.markerID = 0;
+		
+		$scope.lineThickness = {
+			value : 5
+			};
+		
+		$scope.lineColor = {
+			value: "#ff0000"	
+		};
+		
+		$scope.marksOpacity = 50;
 		
 		phpRequest.getSvgContent('img/plus-sign.svg').success(function(data, status) {
 			console.log(data);
 			$scope.plusSign = $sce.trustAsHtml(data);
 		});
 		
+		//Mitarbeiter
+		$scope.getAllStaff = function() {
+			mysqlRequest.getAllStaff().success(function(obj, status){
+					console.log(obj);
+					$scope.staff = obj.data;
+			});
+		};
+		
+		$scope.removeStaff = function(name,surname) {
+			mysqlRequest.removeStaff(name,surname).success(function(answer, status){
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+						console.error('Mitwarbeiter gelöscht');
+						$scope.getAllStaff();
+					});
+		};
+		
+		
+		
+		
+	
 		// Uploader für Quellen
 		$scope.sourcesUploader = new FileUploader();
 		
@@ -216,6 +337,10 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			$scope.overlayParams.url = 'partials/screenshot_detail.html';
 		};
 		
+		$scope.openAddStaff = function(type) {
+			$scope.overlayParams.url = 'partials/addStaff.html';
+		};
+		
 		// close overlayPanel
 		$scope.closeOverlayPanel = function(update) {
 			var doUpdate = update || false;
@@ -223,6 +348,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 				$scope.getAllDocuments();
 			if(doUpdate && $scope.overlayParams.url == 'partials/screenshot_detail.html')
 				$scope.getScreenshots();
+			if(doUpdate && ['staff'].indexOf($scope.overlayParams.type) > -1)
+				$scope.getAllStaff();
 			
 			$scope.overlayParams.params = {}
 			$scope.overlayParams.url = '';
@@ -492,25 +619,10 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			});
 		};
 		
-		$scope.$watch('layerList.length', function(value) {
-			//console.log('watch layers', $scope.layers);
-			$scope.layers = $scope.getLayers($scope.layerList);
-		}, false);
-		
-		$scope.getLayers = function(list) {
-			var layers = [];
-			for(var i=0; i<list.length; i++) {
-				if(layers.indexOf(list[i].layer) === -1)
-					layers.push(list[i].layer);
-			}
-			for(var i=0; i<layers.length; i++) {
-				layers[i] = ({name: layers[i], visible: true, expand: false});
-			}
-			return layers;
-		};
 		
 		$scope.callDirFunc = {};
 		
+		//Ein- und Ausklappen des COnatiners am rechten Rand
 		$scope.expandPanelContainer = function(e) {
 			var btn = $(e.delegateTarget);
 			//console.log(btn.parent().css('right'));
@@ -524,7 +636,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			}
 		};
 		
-		// Ein- und Ausklappen der ViewportControlPanels
+		// Ein- und Ausklappen der ViewportControlPanels (rechter Rand)
 		$scope.expandVpCtrlPanel = function(e) {
 			var btn = $(e.target);
 			var body = btn.parent().parent().parent().find('.ctrlPanel-body');
@@ -533,14 +645,48 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			}
 			else {
 				btn.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-				//btn.parent().parent().removeClass('hiddenBody');
+				btn.parent().parent().removeClass('hiddenBody');
 			}
 			
 			body.slideToggle(300, function() {
-				//if(body.is(':hidden'))
-					//btn.parent().parent().addClass('hiddenBody');
 			});
 		};
+		
+		//ein- und ausklappen des unteren Containers
+		$scope.expandPanelContainerHorizontal = function(e) {
+			var btn = $(e.delegateTarget);
+			//console.log(btn.parent().css('right'));
+			if(btn.parent().css('bottom') == '-85px') {
+				btn.children('span').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+				btn.parent().animate({ bottom: '0px' }, 500);
+			}
+			else {
+				btn.children('span').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+				btn.parent().animate({ bottom: '-85px' }, 500);
+			}
+		};
+		
+		//ein- und ausklappen des unsicheren Wissens
+		$scope.expandPanelContainerPhases = function(e) {
+			var btn = $(e.delegateTarget);
+			console.log(btn.siblings(".timeSlider").css('top'));
+			
+			if(btn.siblings(".timeSlider").css('top') == '20px') {
+				btn.children('span').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+				console.log(btn.siblings(".row2").css('visibility'));
+				btn.siblings(".timeSlider").animate({ top: '43px' }, 500);
+				btn.siblings(".row2").animate({opacity: '1.0'},500) ;
+				
+			}
+			else {
+				btn.children('span').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+				btn.siblings(".timeSlider").animate({ top: '20px' }, 500);
+				btn.siblings(".row2").css({opacity: '0.0'},500);
+				
+			}
+		};
+		
+		
 		
 		$scope.enterMenuItem = function(event) {
 			var li = $(event.target);
@@ -552,6 +698,20 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 			});
 		};
 		
+		$scope.addSlider = function(event){
+				//console.log(event);
+								
+				var t = event.offsetX / event.delegateTarget.offsetWidth;
+				var newR = Math.round((1-t) * $scope.ramp.start[0] + t * $scope.ramp.end[0]);
+				var newG = Math.round((1-t) * $scope.ramp.start[1] + t * $scope.ramp.end[1]);
+				var newB = Math.round((1-t) * $scope.ramp.start[2] + t * $scope.ramp.end[2]);
+				
+				$scope.colorMarkerArray.push({
+					position: event.offsetX,
+					color: "rgb(" + newR + "," + newG + "," + newB + ")"
+				});
+				}
+				
 		$scope.onEnterField = function(event) {
 			event.target.select();
 		};
@@ -606,7 +766,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 				case 'slice_cut':
 					$scope.toggleCut = !$scope.toggleCut;
 					$scope.callDirFunc.ctrlBtnHandler(btn);
-					break;
+					break;	
+				
 				default:
 					if($scope.activeBtn == btn) {
 						$scope.activeBtn = '';
@@ -663,13 +824,46 @@ webglControllers.controller('explorerCtrl', ['$scope', '$routeParams', '$timeout
 		$timeout(function() {
 			$scope.getAllDocuments();
 			$scope.getScreenshots();
-			$scope.loadModelsWithChildren();
+			//$scope.loadModelsWithChildren();
 		}, 500);
+		
+		$scope.getAllStaff();
+		// wenn Controller zerstört wird
+		$scope.$on('$destroy', function(event) {
+			webglInterface.clearLists();
+		});
 		
 	}]);
 
-webglControllers.controller('insertSourceCtrl', ['$scope', '$routeParams', 'FileUploader', 'neo4jRequest', '$timeout',
-	function($scope, $routeParams, FileUploader, neo4jRequest, $timeout) {
+webglControllers.controller('addNewStaffCtrl', ['$scope', '$routeParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 
+	function($scope, $routeParams, $timeout, $sce, phpRequest, mysqlRequest, $timeout) {
+		
+		$scope.newStaff = new Object();
+		
+		$scope.newStaff.name = '';
+		$scope.newStaff.surname = '';
+		$scope.newStaff.mail = '';
+		$scope.newStaff.role = '';
+		$scope.newStaff.projects = '';
+		
+		$scope.addNewStaff = function() {
+						
+			mysqlRequest.addNewStaff($scope.newStaff.name, $scope.newStaff.surname, $scope.newStaff.mail, $scope.newStaff.role).success(function(answer, status){
+					//alert(answer);
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+			});
+		$scope.getAllStaff();
+		
+		}
+		
+		
+		
+		}]);
+webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4jRequest', '$timeout',
+	function($scope, FileUploader, neo4jRequest, $timeout) {
 		
 		
 		// init
@@ -703,6 +897,11 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$routeParams', 'File
 				$scope.insert.phpurl = 'php/processDAE.php';
 				$scope.insert.uploadType = 'model';
 				$scope.insert.formTitle = '3D-Modell hochladen';
+				$scope.insert.type = $scope.insert.params.type;
+				break;
+			case 'chooseSign':
+				$scope.insert.phpurl = 'php/getSigns.php';
+				$scope.insert.formTitle = 'Steinmetzzeichen auswählen';
 				$scope.insert.type = $scope.insert.params.type;
 				break;
 			case 'plans/model':
@@ -976,8 +1175,8 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$routeParams', 'File
 		
 	}]);
 	
-webglControllers.controller('sourceTypeCtrl', ['$scope', '$routeParams',
-	function($scope, $routeParams) {
+webglControllers.controller('sourceTypeCtrl', ['$scope',
+	function($scope) {
 		
 		console.log('sourceTypeCtrl init');
 		
@@ -985,8 +1184,8 @@ webglControllers.controller('sourceTypeCtrl', ['$scope', '$routeParams',
 		
 	}]);
 	
-webglControllers.controller('sourceDetailCtrl', ['$scope', '$routeParams',
-	function($scope, $routeParams) {
+webglControllers.controller('sourceDetailCtrl', ['$scope',
+	function($scope) {
 		
 		console.log('sourceDetailCtrl init');
 		
@@ -1013,8 +1212,8 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$routeParams',
 		
 	}]);
 	
-webglControllers.controller('screenshotDetailCtrl', ['$scope', '$routeParams', 'phpRequest', 'neo4jRequest', 'Utilities', '$timeout',
-	function($scope, $routeParams, phpRequest, neo4jRequest, Utilities, $timeout) {
+webglControllers.controller('screenshotDetailCtrl', ['$scope', 'phpRequest', 'neo4jRequest', 'Utilities', '$timeout',
+	function($scope, phpRequest, neo4jRequest, Utilities, $timeout) {
 		
 		console.log('screenshotDetailCtrl init');
 		
@@ -1048,7 +1247,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$routeParams', '
 			//console.log(event);
 			if(event.target != event.delegateTarget || event.button !== 0) return;
 			
-			var tid = new Utilities.Base62().encode(new Date().getTime());
+			var tid = Utilities.getUniqueId();
 			var offsetX = event.offsetX || event.originalEvent.layerX;
 			var offsetY = event.offsetY || event.originalEvent.layerY;
 			
@@ -1131,23 +1330,12 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$routeParams', '
 		};
 		
 	}]);
-
-webglControllers.controller('screenshotDetailCtrl', ['$scope', '$routeParams', 'phpRequest', 'neo4jRequest',
-	function($scope, $routeParams, phpRequest, neo4jRequest) {
-		
-		/*$scope.tasks =  [
-			{name: 'row1', tasks: [
-				{name: 'task1', from: <date>, to: <date>},
-				{name: 'task2', from: <date>, to: <date>}
-				]
-			},
-			{name: 'row2', tasks: [
-				{name: 'task3', from: <date>, to: <date>},
-				{name: 'task4', from: <date>, to: <date>}
-			  ]
-			}
-		];*/
-		
+	
+webglControllers.controller('tasksCtrl', ['$scope',	'neo4jRequest',
+	function($scope, neo4jRequest) {
+	
+		console.log('tasks init');
+	
 	}]);
 
 function extractData(data) {
@@ -1226,3 +1414,4 @@ function getElementInHierarchy(node, content) {
 	}
 	return undefined;
 }
+

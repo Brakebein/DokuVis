@@ -26,10 +26,12 @@
 			<tbody>
 				<tr ng-repeat="p in projects | orderBy: 'name'">
 					<td>{{p.name}}</td>
-					<td>{{p.description}}</td>
-					<td><a href="#/explorer/{{p.proj}}" target="_blank">öffnen</a></td>
+					<td ng-click="editProject(p.description,$event)">{{p.description}}<!--</a>--></td> <!--<a href="#" editable-textarea="desc" >-->
+					<td><a ui-sref="project({ project: p.proj })" ng-click="" target="_blank">öffnen</a></td>
 					<td><a ng-click="deleteProject(p.proj)">löschen</a></td>
+					<!--<td><a ng-click="editProject(p.name)">editieren</a></td>-->
 				</tr>
+				
 			</tbody>
 			</table>
 			
