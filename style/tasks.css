@@ -1,6 +1,76 @@
-.links {
-
+.tasksLeftHalf {
+position: absolute;
+	left: 0;
+	width: 66%;
+	height: 100%;
 }
-.rechts {
 
+.tasksRightHalf {
+	position: absolute;
+	left: 66%;
+	right: 0;
+	height: 100%;
+	display: flex;
+}
+
+.sidePanelSidemenu {
+	flex: 0 0 36px;
+	order: 1;
+	width: 36px;
+	height: 100%;
+	right: 100%;
+	z-index: 50;
+	
+	color: #999;
+	background-color: #333;
+	border-left: 1px solid #000;
+}
+
+.sidePanelSidemenu .smBtn {
+	height: 35px;
+	border-left: 2px solid rgba(252,78,42,0.5);
+	padding: 7px;
+	transition: border-left-color 0.3s, color 0.3s, background-color 0.3s;
+}
+.sidePanelSidemenu .smBtn:hover {
+	border-left-color: rgba(252,78,42,1.0);
+	background-color: #444;
+	cursor: pointer;
+	color: #ddd;
+}
+.sidePanelSidemenu .smBtn.active {
+	border-left-color: rgba(252,78,42,1.0);
+	background-color: rgba(252,78,42,0.5);
+	cursor: pointer;
+	color: #ddd;
+}
+.sidePanelSidemenu .smBtn span {
+	font-size: 20px;
+}
+
+.sideContainer {
+	flex: 1;
+	order: 1;
+	/*height: 100%;*/
+	/*left: 0;
+	right: 35px;*/
+	display: flex;
+	flex-direction: column;
+	/*height: 600px;*/
+	/*padding: 0 20px;*/
+	overflow: hidden;
+}
+
+.sideContainer .sideHeader {
+	flex: 0 0 auto;
+	width: 100%;
+	padding: 20px;
+}
+
+.sideContainer .sideContent {
+	flex: 1 1 auto;
+	width: 100%;
+	padding: 0 20px;
+	overflow-y: auto;
+	font-size: 8pt;
 }

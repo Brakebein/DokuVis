@@ -1,4 +1,19 @@
-var webglControllers = angular.module('webglControllers', ['uiSlider', 'angularFileUpload']);
+var webglControllers = angular.module('webglControllers', ['uiSlider', 'angularFileUpload','angularMoment',
+	'gantt',
+	'gantt.table',
+	'gantt.movable', 
+	'gantt.tooltips',
+	'gantt.sortable',
+    'gantt.drawtask',
+    'gantt.bounds',
+    'gantt.progress',
+    'gantt.tree',
+    'gantt.groups',
+    'gantt.overlap',
+    'gantt.resizeSensor',
+    'ngAnimate',
+    'mgcrea.ngStrap'
+]);
 
 webglControllers.controller('introCtrl', ['$scope', '$http',
 	function($scope, $http) {
@@ -172,7 +187,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		$scope.views.activeSide = 'comments';
 		
 		//Mitarbeiter
-		$scope.staff = [];
+		/*$scope.staff = [];*/
 						
 		$scope.overlayParams = {url: '', params: {}};
 		
@@ -265,29 +280,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			console.log(data);
 			$scope.plusSign = $sce.trustAsHtml(data);
 		});
-		
-		//Mitarbeiter
-		$scope.getAllStaff = function() {
-			mysqlRequest.getAllStaff().success(function(obj, status){
-					console.log(obj);
-					$scope.staff = obj.data;
-			});
-		};
-		
-		$scope.removeStaff = function(name,surname) {
-			mysqlRequest.removeStaff(name,surname).success(function(answer, status){
-						if(answer != 'SUCCESS') {
-							console.error(answer);
-							return;
-						}
-						console.error('Mitwarbeiter gelöscht');
-						$scope.getAllStaff();
-					});
-		};
-		
-		
-		
-		
 	
 		// Uploader für Quellen
 		$scope.sourcesUploader = new FileUploader();
@@ -827,7 +819,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			//$scope.loadModelsWithChildren();
 		}, 500);
 		
-		$scope.getAllStaff();
+		
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function(event) {
 			webglInterface.clearLists();
@@ -836,7 +828,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 	}]);
 
 webglControllers.controller('addNewStaffCtrl', ['$scope', '$routeParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 
-	function($scope, $routeParams, $timeout, $sce, phpRequest, mysqlRequest, $timeout) {
+	function($scope, $routeParams, $timeout, $sce, phpRequest, mysqlRequest) {
 		
 		$scope.newStaff = new Object();
 		
@@ -1331,10 +1323,88 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', 'phpRequest', 'ne
 		
 	}]);
 	
-webglControllers.controller('tasksCtrl', ['$scope',	'neo4jRequest',
-	function($scope, neo4jRequest) {
+webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$http', 'Utilities',
+	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities) {
 	
-		console.log('tasks init');
+		$scope.project = $stateParams.project;
+		
+		/*Mitarbeiter*/
+		$scope.staff = [];
+		
+		$scope.options = {};
+		$scope.options.fromDate = getFormattedDate(new Date());
+		$scope.options.toDate = getFormattedDate(addDays(new Date(),30));
+		
+		function getFormattedDate(date) {
+    		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
+		    return str;
+		}
+
+		function addDays(date, days) {
+		    var result = new Date(date);
+		    result.setDate(date.getDate() + days);
+		    return result;
+		}
+
+
+		
+		$scope.data = [
+   {name: 'row1', tasks: [
+        {name: 'task1',color: '#93C47D', from: '2013-10-07T09:00:00', to: '2013-10-07T10:00:00'},
+        {name: 'task2',color: '#93C47D', from: '2013-10-08T09:00:00', to: '2013-10-09T10:00:00'}
+        ]
+    },
+]
+		
+		/*Mitarbeiter*/
+		$scope.getAllStaff = function() {
+			mysqlRequest.getAllStaff().success(function(obj, status){
+					
+					$scope.staff = obj.data;
+					console.log($scope.staff);
+			});
+		};
+		
+		$scope.removeStaff = function(name,surname) {
+			mysqlRequest.removeStaff(name,surname).success(function(answer, status){
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+						console.error('Mitarbeiter gelöscht');
+						$scope.getAllStaff();
+					});
+		};
+		
+
+		
+		/*console.log('tasks init');*/
+		
+		
+		/*Tasks*/
+		
+		$scope.addNewTask = function() {
+			$scope.data.push({	name: "test",
+						tasks: [{name: 'task2',color: '#93C47D', from: '2013-10-08T09:00:00', to: '2013-10-09T10:00:00'}]
+					});
+			console.log($scope.data);
+		}
+		
+		$scope.drawTaskFactory = function() {
+		    var newTask = {
+		        id: 5,
+		        name: 'New Task',
+		        color: '#93C47D'
+		        // Other properties
+		    }
+
+   			 return newTask;
+		}
+		
+		
+	
+	//initiiere Staff
+	$scope.getAllStaff();
 	
 	}]);
 
