@@ -1351,7 +1351,21 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		/*Mitarbeiter*/
 		$scope.staff = [];
 		
-		$scope.options = {};
+		$scope.options = {
+			 columns: ['model.priority','model.name', 'from', 'to'],
+			 /*treeTableColumns: ['from', 'to'],*/
+			 columnsHeaders: {'model.priority':'Priorität','model.name' : 'Bearbeiter', 'from': 'Von', 'to': 'Bis'},
+			 /*columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to'},*/
+			 
+			 columnsFormatters: {
+                'from': function(from) {
+                    return from !== undefined ? from.format("MMM Do YY") : undefined;
+                },
+                'to': function(to) {
+                    return to !== undefined ? to.format("MMM Do YY") : undefined;
+                }
+            },
+		};
 		$scope.options.fromDate = getFormattedDate(new Date());
 		$scope.options.toDate = getFormattedDate(addDays(new Date(),30));
 		
@@ -1369,9 +1383,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 
 		
 		$scope.data = [
-   {name: 'row1', tasks: [
-        {name: 'task1',color: '#93C47D', from: '2013-10-07T09:00:00', to: '2013-10-07T10:00:00'},
-        {name: 'task2',color: '#93C47D', from: '2013-10-08T09:00:00', to: '2013-10-09T10:00:00'}
+   {priority: '++', name: 'Jonas', tasks: [
+        {name: 'Fleißig sein!!!',color: '#93C47D', from: '2015-10-29T09:00:00', to: '2015-11-05T10:00:00'}
         ]
     },
 ]
