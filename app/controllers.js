@@ -1,4 +1,4 @@
-var webglControllers = angular.module('webglControllers', ['uiSlider', 'angularFileUpload','angularMoment',
+var webglControllers = angular.module('webglControllers', ['uiSlider', 'angularFileUpload',
 	'gantt',
 	'gantt.table',
 	'gantt.movable', 
@@ -10,9 +10,7 @@ var webglControllers = angular.module('webglControllers', ['uiSlider', 'angularF
     'gantt.tree',
     'gantt.groups',
     'gantt.overlap',
-    'gantt.resizeSensor',
-    'ngAnimate',
-    'mgcrea.ngStrap'
+    'gantt.resizeSensor'
 ]);
 
 webglControllers.controller('introCtrl', ['$scope', '$http',
@@ -154,15 +152,20 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest',
 webglControllers.controller('projectCtrl', ['$scope', '$stateParams',
 	function($scope, $stateParams) {
 	
+		console.log('projectCtrl init');
+	
 		$scope.project = $stateParams.project;
+		
+		
+		//$scope.modalParams
 		
 		// Überprüfen, ob Nutzer Zugriff auf Projekt hat
 		// Zugriffsrechte und Rolle auslesen
 		
 	}]);
 	
-webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface',
-	function($scope, $stateParams, $timeout, $sce, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface) {
+webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface', '$modal',
+	function($scope, $stateParams, $timeout, $sce, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface, $modal) {
 
 		//$scope.selected = [];
 		/*$scope.consel = function(id) {
@@ -276,6 +279,9 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		$scope.marksOpacity = 50;
 		
+		
+		
+		
 		phpRequest.getSvgContent('img/plus-sign.svg').success(function(data, status) {
 			console.log(data);
 			$scope.plusSign = $sce.trustAsHtml(data);
@@ -309,11 +315,22 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
         };
 		
 		// Overlay-Panel öffnen
-		$scope.openInsertForm = function(type, attach) {
-			$scope.overlayParams.params.type = type;
-			$scope.overlayParams.params.attachTo = attach || undefined;
-			$scope.overlayParams.params.queue = $scope.sourcesUploader.queue;
-			$scope.overlayParams.url = 'partials/insert_form.html';
+		$scope.openInsertForm = function(type, attach) {			
+			$scope.modalParams = {
+				size: 'large',
+				type: type,
+				attachTo: attach || undefined,
+				queue: $scope.sourcesUploader.queue
+			};
+			
+			$modal({
+				title: 'Plan einfügen',
+				templateUrl: 'partials/modalTpl.html',
+				contentTemplate: 'partials/insertSourceModal.html',
+				controller: 'insertSourceCtrl',
+				scope: $scope,
+				show: true
+			});
 		};
 		$scope.openSourceTypeDialog = function() {
 			$scope.overlayParams.url = 'partials/source_type.html';
@@ -827,8 +844,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 	}]);
 
-webglControllers.controller('addNewStaffCtrl', ['$scope', '$routeParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 
-	function($scope, $routeParams, $timeout, $sce, phpRequest, mysqlRequest) {
+webglControllers.controller('addNewStaffCtrl', ['$scope', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 
+	function($scope, $timeout, $sce, phpRequest, mysqlRequest) {
 		
 		$scope.newStaff = new Object();
 		
@@ -861,12 +878,15 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 		// init
 		var isInserting = false;
 		
-		$scope.insert = $scope.$parent.overlayParams;
-		$scope.insert.project = $scope.$parent.project;
+		//$scope.insert = $scope.$parent.overlayParams;
+		//$scope.insert.project = $scope.$parent.project;
+		$scope.insert = {params: {type: 'plan', attachTo: undefined}};
 		$scope.insert.phpurl = '';
 		$scope.insert.uploadType = '';
 		$scope.insert.formTitle = '';
-		console.log($scope.insert, $scope.$parent.project);
+		//console.log($scope.insert, $scope.$parent.project);
+		
+		console.log($scope);
 		
 		switch($scope.insert.params.type) {
 			case 'source':
@@ -1086,9 +1106,9 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 		
 		console.info('uploader', uploader);
 		
-		for(var i=0; i<$scope.insert.params.queue.length; i++) {
+		/*for(var i=0; i<$scope.insert.params.queue.length; i++) {
 			uploader.addToQueue($scope.insert.params.queue[i]._file);
-		}
+		}*/
 		
 		$scope.initItem = function(item) {
 			item.sourceType = $scope.insert.type;

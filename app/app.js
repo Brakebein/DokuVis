@@ -1,7 +1,20 @@
-var webglApp = angular.module('webglApp', ['webglControllers', 'webglDirectives', 'webglServices', 'ui.router', 'ui.router.css', 'autocomplete', 'truncate', 'xeditable']);
+var webglApp = angular.module('webglApp', [
+	'webglControllers',
+	'webglDirectives',
+	'webglServices',
+	'ui.router',
+	'ui.router.css',
+	'ngAnimate',
+	//'ngSanitize',
+	'autocomplete',
+	'truncate',
+	'xeditable',
+	'mgcrea.ngStrap',
+	'angularMoment'
+]);
 
-webglApp.config(['$stateProvider', '$urlRouterProvider',
-	function($stateProvider, $urlRouterProvider) {
+webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',
+	function($stateProvider, $urlRouterProvider, $modalProvider) {
 		
 		$urlRouterProvider.otherwise('/intro');
 		
@@ -36,6 +49,11 @@ webglApp.config(['$stateProvider', '$urlRouterProvider',
 				css: 'style/tasks.css'
 					
 			});
+		
+		angular.extend($modalProvider.defaults, {
+			backdrop: 'static',
+			keyboard: false
+		});
 		
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);

@@ -36,3 +36,11 @@ div[ng-view],
     -moz-transition: all 0.5s;
     -o-transition: all 0.5s;
 }*/
+
+.modal {
+	overflow: auto;
+	outline: none;
+}
+.modal-backdrop {
+	opacity: 0.2;
+}

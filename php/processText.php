@@ -3,6 +3,7 @@
 include 'globalpaths.php';
 
 $docPath = dirname(dirname( __FILE__ )). DIRECTORY_SEPARATOR .'data'. DIRECTORY_SEPARATOR .'texts'. DIRECTORY_SEPARATOR;
+$ds = DIRECTORY_SEPARATOR;
 
 $inputFile = 'sponsel_280_neu.pdf';
 $inputFile = 'whbartlett-jerusalem_revisited.pdf';
@@ -12,7 +13,7 @@ $final = 'sponsel_final';
 $lang = 'deu';
 //$lang = 'eng';
 
-$ds = DIRECTORY_SEPARATOR;
+
 
 $res = system('pdftk '.$docPath.$inputFile.' dump_data_utf8');
 echo $res;
