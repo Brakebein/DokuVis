@@ -37,10 +37,33 @@ div[ng-view],
     -o-transition: all 0.5s;
 }*/
 
+/* Modal-Anpassungen */
+.modal-backdrop {
+	opacity: 0.2;
+}
 .modal {
 	overflow: auto;
 	outline: none;
 }
-.modal-backdrop {
-	opacity: 0.2;
+.modal-dialog.large {
+	height: 100%;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 30px;
+}
+.modal-dialog.large > .modal-content {
+	position: relative;
+	height: 100%;
+}
+.modal-dialog.large > .modal-content {
+	display: flex;
+	flex-direction: column;
+}
+.modal-dialog.large > .modal-content > .modal-header,
+.modal-dialog.large > .modal-content > .modal-footer {
+	flex: 0 0 auto;
+}
+.modal-dialog.large > .modal-content > .modal-body {
+	flex: 1 1 auto;
 }

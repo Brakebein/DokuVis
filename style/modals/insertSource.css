@@ -1,0 +1,106 @@
+.insertForm {
+	position: relative;
+	padding: 25px 40px;
+	display: flex;
+	flex-direction: column;
+	transition: box-shadow 0.5s;
+}
+.insertForm .insert-header {
+	flex: 0 0 auto;
+	width: 100%;
+	padding-right: 17px;
+}
+.insertForm .insert-body {
+	position: relative;
+	flex: 1 1 auto;
+	width: 100%;
+}
+.insertForm .insert-footer {
+	flex: 0 0 auto;
+	width: 100%;
+	padding-top: 20px;
+	padding-right: 17px;
+	text-align: center;
+}
+
+.insertForm .dropArea {
+	height: 80px;
+	width: 300px;
+	font-size: 16px;
+}
+.insertForm .dropArea .plus {
+	flex: 0 0 60px;
+	height: 40px;
+	padding: 0 10px;
+}
+.insertForm .dropArea svg {
+	width: 40px;
+}
+
+.insertForm .globalinputs {
+	width: 50%;
+	float: right;
+	margin: 17px 0 7px;
+}
+.insertForm .queueHeader {
+	margin-top: 10px;
+}
+.insertForm .queueHeader table {
+	margin: 0;
+}
+.insertForm .queueBody {
+	/*min-height: 230px;
+	max-height: 450px;
+	/*padding-right: 17px;*/
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	overflow-y: scroll;
+}
+.insertForm canvas {
+	background-color: #f3f3f3;
+	-webkit-box-shadow: 3px 3px 3px 0 #e3e3e3;
+	-moz-box-shadow: 3px 3px 3px 0 #e3e3e3;
+	box-shadow: 3px 3px 3px 0 #e3e3e3;
+	border: 1px solid #c3c3c3;
+	max-width: 280px;
+	max-height: 200px;
+	margin: 6px 0 0 6px;
+}
+.insertForm .form-group {
+	font-size: 12px;
+	margin-bottom: 5px;
+}
+.insertForm .form-group label {
+	padding-top: 5px;
+}
+.insertForm a,
+.insertForm .form-group > span {
+	color: #c3c3c3;
+	padding: 4px 0 0;
+	cursor: pointer;
+}
+.insertForm a:hover,
+.insertForm .form-group > span:hover {
+	color: #888;
+}
+.insertForm .form-group input {
+	height: 22px
+}
+.insertForm .form-group input[type="checkbox"] {
+	margin-top: 4px;
+	height: 13px;
+}
+.insertForm .form-group input,
+.insertForm .form-group textarea {
+	padding: 1px 3px 0;
+	font-size: 12px;
+}
+.insertForm .form-group select {
+	padding: 1px 3px;
+	margin: 2px 0;
+	height: 22px;
+}
+.insertForm.container.nv-file-over {
+	box-shadow: 0 0 50px #5cb85c inset;
+}

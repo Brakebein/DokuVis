@@ -39,8 +39,12 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',
 				url: '/explorer',
 				templateUrl: 'partials/explorer.html',
 				controller: 'explorerCtrl',
-				css: ['style/explorer.css','style/panelContainer.css']
-					
+				css: [
+					'style/explorer.css',
+					'style/panelContainer.css',
+					'style/modals/insertSource.css',
+					'style/modals/sourceDetail.css'
+				]
 			})
 			.state('project.tasks', {
 				url: '/tasks',
