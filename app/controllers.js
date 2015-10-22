@@ -1393,22 +1393,38 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.staff = [];
 		
 		$scope.options = {
-			 columns: ['model.priority','model.name', 'from', 'to'],
-			 /*treeTableColumns: ['from', 'to'],*/
-			 columnsHeaders: {'model.priority':'Priorität','model.name' : 'Bearbeiter', 'from': 'Von', 'to': 'Bis'},
-			 /*columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to'},*/
-			 
-			 columnsFormatters: {
-                'from': function(from) {
-                    return from !== undefined ? from.format("MMM Do YY") : undefined;
-                },
-                'to': function(to) {
-                    return to !== undefined ? to.format("MMM Do YY") : undefined;
-                }
+			allowSideResizing: true,
+			fromDate: getFormattedDate(new Date()),
+			toDate: getFormattedDate(addDays(new Date(),30)),
+			columns: ['from', 'to'],
+			treeTableColumns: ['from', 'to'],
+			columnsHeaders: {'model.name' : 'Bearbeiter', 'from': 'From', 'to': 'To'},
+			columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to'},
+			columnsFormatters: {
+					                'from': function(from) {
+					                    return from !== undefined ? from.format("MMM Do YY") : undefined;
+					                },
+					                'to': function(to) {
+					                    return to !== undefined ? to.format("MMM Do YY") : undefined;
+					                }
+					            },
+            
+            treeHeaderContent: '<i class="fa fa-align-justify"></i> {{getHeader()}}',
+            columnsHeaderContents: {
+                'model.name': '<i class="fa fa-align-justify"></i> {{getHeader()}}',
+                'from': '<i class="fa fa-calendar"></i> {{getHeader()}}',
+                'to': '<i class="fa fa-calendar"></i> {{getHeader()}}'
             },
+            filterTask: '',
+            filterRow: '',
+            scale: 'day',
+            sortMode: undefined,
+            maxHeight: true,
+            width: true,
+            zoom: 1
 		};
-		$scope.options.fromDate = getFormattedDate(new Date());
-		$scope.options.toDate = getFormattedDate(addDays(new Date(),30));
+		
+		
 		
 		function getFormattedDate(date) {
     		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
@@ -1421,13 +1437,55 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		    return result;
 		}
 
+		 $scope.canAutoWidth = function(scale) {
+            if (scale.match(/.*?hour.*?/) || scale.match(/.*?minute.*?/)) {
+                return false;
+            }
+            return true;
+        };
+
+        $scope.getColumnWidth = function(widthEnabled, scale, zoom) {
+            if (!widthEnabled && $scope.canAutoWidth(scale)) {
+                return undefined;
+            }
+
+            if (scale.match(/.*?week.*?/)) {
+                return 150 * zoom;
+            }
+
+            if (scale.match(/.*?month.*?/)) {
+                return 300 * zoom;
+            }
+
+            if (scale.match(/.*?quarter.*?/)) {
+                return 500 * zoom;
+            }
+
+            if (scale.match(/.*?year.*?/)) {
+                return 800 * zoom;
+            }
+
+            return 40 * zoom;
+        };
 
 		
 		$scope.data = [
-   {priority: '++', name: 'Jonas', tasks: [
+		{name: 'Milestones', height: '3em', sortable: false, classes: 'gantt-row-milestone', color: '#98aec7', tasks: []},
+		
+   {name: 'Jonas', tasks: [
         {name: 'Fleißig sein!!!',color: '#93C47D', from: '2015-10-29T09:00:00', to: '2015-11-05T10:00:00'}
         ]
     },
+    
+    {name: 'Martin', children: ['test1','test2']},
+    
+    {name: 'test1', tooltips: false, tasks: [
+                            {name: 'Product list view', color: '#F1C232', from: new Date(2015, 10, 21, 8, 0, 0), to: new Date(2015, 11, 25, 15, 0, 0),
+                                progress: 25}
+                        ]},
+    {name: 'test2', tasks: [
+                            {name: 'Order basket', color: '#F1C232', from: new Date(2015, 10, 28, 8, 0, 0), to: new Date(2015, 11, 1, 15, 0, 0)}
+                        ]}
 ]
 		
 		/*Mitarbeiter*/
@@ -1463,6 +1521,11 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					});
 			console.log($scope.data);
 		}
+		
+		$scope.canDraw = function(event) {
+                var isLeftMouseButton = event.button === 0 || event.button === 1;
+                return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
+            },
 		
 		$scope.drawTaskFactory = function() {
 		    var newTask = {
