@@ -314,19 +314,18 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			$scope.openInsertForm('source');
         };
 		
-		// Overlay-Panel öffnen
+		// Modal öffnen
 		$scope.openInsertForm = function(type, attach) {			
 			$scope.modalParams = {
-				size: 'large',
+				modalType: 'large',
 				type: type,
 				attachTo: attach || undefined,
 				queue: $scope.sourcesUploader.queue
 			};
-			
 			$modal({
 				title: 'Plan einfügen',
-				templateUrl: 'partials/modalTpl.html',
-				contentTemplate: 'partials/insertSourceModal.html',
+				templateUrl: 'partials/modals/_modalTpl.html',
+				contentTemplate: 'partials/modals/insertSourceModal.html',
 				controller: 'insertSourceCtrl',
 				scope: $scope,
 				show: true
@@ -338,6 +337,18 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		$scope.openSourceDetail = function(index) {
 			$scope.overlayParams.params.index = index;
 			$scope.overlayParams.url = 'partials/source_detail.html';
+			$scope.modalParams = {
+				modalType: 'large',
+				index: index
+			};
+			$modal({
+				//title: 'Source Detail',
+				templateUrl: 'partials/modals/_modalTpl.html',
+				contentTemplate: 'partials/modals/sourceDetailModal.html',
+				controller: 'sourceDetailCtrl',
+				scope: $scope,
+				show: true
+			});
 		};
 		$scope.openScreenshotDetail = function(path, filename, data) {
 			$scope.overlayParams.params.path = path;
@@ -1204,7 +1215,7 @@ webglControllers.controller('sourceDetailCtrl', ['$scope',
 		$scope.horizontalImage = false;
 		
 		var items = $scope.$parent.filteredSourceResults;
-		$scope.itemindex = $scope.$parent.overlayParams.params.index;
+		$scope.itemindex = $scope.$parent.modalParams.index;
 		
 		$scope.nextItem = function(incr) {
 			$scope.itemindex = (($scope.itemindex + incr) % items.length + items.length) % items.length;
