@@ -1,0 +1,90 @@
+<div class="modal-content">
+	
+	<div class="modal-header" ng-show="title">
+		<button type="button" class="close" aria-label="Close" ng-click="$hide()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		<h4 class="modal-title" ng-bind="title"></h4>
+	</div>
+	
+	<div class="modal-body screenshotDetail"><div>
+	
+	<div class="upperleftDiv" ng-style="{height: params.data.height, width: params.data.width}">
+		<img data-ng-src="{{params.data.dataUrl}}"/>
+	</div>
+	
+	<!-- Layer mit Markern -->
+	<div class="markerLayer" ng-class="scMode=='marker'?'active':''" ng-mousedown="setMarker($event)" ng-style="{height: params.data.height, width: params.data.width}">
+		<div class="marker" ng-repeat="m in markers" ng-style="m.styleMarker" drag drag-enabled="!m.isInserted" drag-data="m" drag-complete="updateMarker" drag-abort="setFocusOnComment" drag-leave-parent="deleteMarker">
+			<img class="markerSign" src="img/map-marker.svg"/>
+			<span class="badge markerBadge">{{$index+1}}</span>
+		</div>
+	</div>
+	
+	<!-- Layer zum Malen -->
+	<div class="paintLayer" ng-class="scMode=='paint'?'active':''" ng-style="{height: params.data.height, width: params.data.width}">
+		<div pw-canvas options="paintOptions" version="undoVersion">
+		</div>
+	</div>
+
+	
+	<div class="lowerleftDiv" ng-style="{top: params.data.height, width: params.data.width}">
+		<div class="btn-group btn-group-sm">
+			<button type="button" class="btn" ng-class="scMode=='paint'?'btn-primary':'btn-default'" ng-click="scMode = 'paint'"><span class="glyphicon glyphicon-pencil"></span> Malen</button>
+			<button type="button" class="btn" ng-class="scMode=='marker'?'btn-primary':'btn-default'" ng-click="scMode = 'marker'"><span class="glyphicon glyphicon-map-marker"></span> Markierung setzen</button>
+		</div>
+		
+		<div ng-if="scMode == 'paint'" class="settings">
+			<button type="button" class="btn btn-default btn-sm" ng-click="undoPaint()" ng-disabled="undoVersion < 1"><span class="fa fa-undo"></span> Rückgängig ({{undoVersion}})</button>
+			
+			
+			<div class="lineWidth">
+				Linienstärke: {{paintOptions.lineWidth}}
+				<input type="range" min="1" max="10" ng-model="paintOptions.lineWidth"/>
+			</div>
+		</div>
+	</div>
+	
+	<div class="upperrightDiv" ng-style="{left: params.data.width, height: params.data.height}">
+		<div class="heading">
+			<button type="button" class="close" aria-label="Close" ng-click="$hide()">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			
+			<h4>Screenshot kommentieren</h4>
+			<hr/>
+			<ol>
+				<li>Marker setzen</li>
+				<li>Kommentieren</li>
+			</ol>
+		</div>
+		<div class="markerComments">
+			<div class="comment" ng-repeat="m in markers">
+				<div class="commentLeft">
+					<img ng-style="{width: 25, height: 25}" src="img/map-marker.svg"/><br/>
+					<span class="badge">{{$index+1}}</span>
+				</div>
+				<div class="commentRight form-group">
+					<span ng-if="!m.isInserted" class="glyphicon glyphicon-trash commentBtn" ng-click="markers.splice($index,1)"></span>
+					<label>Kommentar</label>
+					<textarea ng-if="!m.isInserted" id="{{'markerComment'+$index}}" class="form-control" ng-model="m.comment" rows="3"></textarea>
+					<p ng-if="m.isInserted">{{m.comment}}</p>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	
+	<div class="lowerrightDiv" ng-style="{top: params.data.height, left: params.data.width}">
+		<button class="btn btn-primary" ng-click="saveScreenshot()">Speichern</button>
+		<button class="btn btn-default" ng-click="$hide()">Abbrechen</button>
+	</div>
+	
+	
+	</div></div>
+	<!--
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" ng-click="$hide()">Abbrechen</button>
+	</div>
+	-->
+</div>

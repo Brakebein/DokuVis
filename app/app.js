@@ -43,7 +43,8 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',
 					'style/explorer.css',
 					'style/panelContainer.css',
 					'style/modals/insertSource.css',
-					'style/modals/sourceDetail.css'
+					'style/modals/sourceDetail.css',
+					'style/modals/screenshotDetail.css'
 				]
 			})
 			.state('project.tasks', {

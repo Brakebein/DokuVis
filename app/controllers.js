@@ -1,4 +1,4 @@
-var webglControllers = angular.module('webglControllers', ['uiSlider', 'angularFileUpload',
+var webglControllers = angular.module('webglControllers', ['uiSlider', 'angularFileUpload', 'pw.canvas-painter',
 	'gantt',
 	'gantt.table',
 	'gantt.movable', 
@@ -335,8 +335,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			$scope.overlayParams.url = 'partials/source_type.html';
 		};
 		$scope.openSourceDetail = function(index) {
-			$scope.overlayParams.params.index = index;
-			$scope.overlayParams.url = 'partials/source_detail.html';
 			$scope.modalParams = {
 				modalType: 'large',
 				index: index
@@ -351,10 +349,20 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			});
 		};
 		$scope.openScreenshotDetail = function(path, filename, data) {
-			$scope.overlayParams.params.path = path;
-			$scope.overlayParams.params.filename = filename;
-			$scope.overlayParams.params.data = data;
-			$scope.overlayParams.url = 'partials/screenshot_detail.html';
+			$scope.modalParams = {
+				modalType: 'xlarge',
+				path: path,
+				filename: filename,
+				data: data
+			};
+			$modal({
+				//title: 'Source Detail',
+				templateUrl: 'partials/modals/_modalTpl.html',
+				contentTemplate: 'partials/modals/screenshotDetailModal.html',
+				controller: 'screenshotDetailCtrl',
+				scope: $scope,
+				show: true
+			});
 		};
 		
 		$scope.openAddStaff = function(type) {
@@ -374,6 +382,12 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			$scope.overlayParams.params = {}
 			$scope.overlayParams.url = '';
 			$scope.sourcesUploader.clearQueue();
+		};
+		$scope.updateList(type) = function {
+			if(type == 'source')
+				$scope.getAllDocuments();
+			if(type == 'screenshot')
+				$scope.getScreenshots();
 		};
 		
 		$scope.loadMuristan = function() {
@@ -1240,8 +1254,20 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', 'phpRequest', 'ne
 		
 		console.log('screenshotDetailCtrl init');
 		
-		$scope.params = $scope.$parent.overlayParams.params;
+		$scope.params = $scope.$parent.modalParams;
 		console.log($scope.params);
+		
+		$scope.scMode = 'marker';
+		
+		$scope.paintOptions = {
+			width: $scope.params.data.width,
+			height: $scope.params.data.height,
+			opacity: 0,
+			color: '#ff0',
+			backgroundColor: 'rgba(255,255,255,0.0)',
+			lineWidth: 3,
+			undo: true
+		};
 		
 		$scope.markers = [];
 		var isExisting = false;
@@ -1324,7 +1350,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', 'phpRequest', 'ne
 							console.error('ERROR: Neo4j SyntaxException');
 						}
 						else
-							$scope.$parent.closeOverlayPanel(true);
+							$scope.$parent.$hide();
 					});
 				});
 			}
@@ -1350,6 +1376,10 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', 'phpRequest', 'ne
 			if(index > -1)
 				$scope.markers.splice(index, 1);
 				$scope.$apply();
+		};
+		
+		$scope.undoPaint = function() {
+			$scope.undoVersion--;
 		};
 		
 	}]);
