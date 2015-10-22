@@ -1,46 +1,124 @@
 <div class = "tasksLeftHalf">
 	
-	      
-	
-	<div gantt data=data
-		 from-date = "options.fromDate"
-         to-date = "options.toDate">
-	  <gantt-table enabled = "true" 
-	  				columns = "options.columns"
-	  				headers="options.columnsHeaders"
-	  				formatters="options.columnsFormatters">
-	  </gantt-table>
-	  			
-	  <gantt-tree enabled="options.sideMode === 'Tree' || options.sideMode === 'TreeTable'"
-                  header-content="options.treeHeaderContent"
-                  keep-ancestor-on-filter-row="true">
-      
-      </gantt-tree>
-      
-       <gantt-groups enabled="options.groupDisplayMode === 'group' || options.groupDisplayMode === 'overview' || options.groupDisplayMode === 'promote'" display="options.groupDisplayMode">
-       </gantt-groups>
-	  
-	  <gantt-bounds></gantt-bounds>
-      <gantt-progress></gantt-progress>
-      <gantt-sortable></gantt-sortable>
-	  <gantt-movable></gantt-movable>
-	  <gantt-tooltips></gantt-tooltips>
-	  <gantt-draw-task enabled="true" task-factory="drawTaskFactory"></gantt-draw-task>
-	  <gantt-overlap></gantt-overlap>
-	  <gantt-resize-sensor></gantt-resize-sensor>
+	<div class = "container-fluid">      
+		<h2>Projektübersicht</h4>
+		<hr/>
 	</div>
-	<hr/>
-	 
-	 <button type="button" class="btn btn-default" ng-click="addNewTask()" >Neue Aufgabe hinzufügen</button>
-    
-    <div class="col-xs-3">
-	    <input type="text" class="form-control" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="From" bs-datepicker>
-	    
-	    <input type="text"  class="form-control" ng-model="options.toDate" min-date="{{options.fromDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="To" bs-datepicker>
-             
-     </div>                          
+
+	<div class = "container">	
+		 <div class="row">
+	        <div class="form-inline">
+	         <!--<div class="col-md-3 col-md-offset-3">-->
+		         <div class="form-group text-center">
+			   		<label class="control-label">Von</label><br>
+					<input type="text" class="form-control" style="width: 6em" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="From" bs-datepicker>
+				</div>
+			<!--</div> -->  
+		        
+		     <!--<div class="col-md-3 col-md-offset-3">	-->    
+					<div class="form-group text-center">
+							<label class="control-label">Bis</label><br>
+							<input type="text"  class="form-control" style="width: 6em" ng-model="options.toDate" min-date="{{options.fromDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="To" bs-datepicker>
+					</div>    
+		   <!--	</div>       -->    
+		   
+		   <div class="form-group text-center">
+				      	<label class="control-label"><i class="fa fa-search"></i> Skalierung</label><br>
+				      	<button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" bs-options="s for s in ['day','week', '2 weeks', 'month', 'quarter', '6 months', 'year']" bs-select></button>
+				      </div>
+				      
+				      <div class="form-group text-center">
+				      	<label class="control-label"><i class="fa fa-sort"></i> Sortieren</label><br>
+				      	<button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.sortMode" bs-options="m.value as m.label for m in [{label: 'disabled', value: undefined}, {label: 'name', value: 'model.name'}, {label: 'from', value: 'from'}, {label: 'to', value: 'to'}]" bs-select></button>
+				     </div>
+
+				    <div class="form-group input-append text-center">
+				    	<label class="control-label"><i class="fa fa-filter"></i> Aufgaben durchsuchen</label><br>
+				    	<input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterTask">
+				    </div>
+				    
+				    <div class="form-group input-append text-center">
+				    	<label class="control-label"><i class="fa fa-filter"></i> Bearbeiter durchsuchen</label><br>
+				        <input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterRow">
+				    </div>	
+				    
+				   
+		   
+		   
+		   			<div class="form-group text-center">
+                    	<label class="control-label"><i class="fa fa-search"></i> Zoom</label><br>
+                    	<input type="number" ng-model="options.zoom" step="0.1" min="0.1" max="5" class="form-control" />
+                    </div>
+			</div>
+		</div>
+	</div>
 	
+	<br />
+
+
+	<div class = "container-fluid">	
+		<!--<div class="row">-->
+			<div gantt 
+				 data=data
+				 filter-task="{'name': options.filterTask}"
+		         filter-row="{'name': options.filterRow}"
+		         column-width="getColumnWidth(options.width, options.scale, options.zoom)"
+				 auto-expand="options.autoExpand"
+				 from-date = "options.fromDate"
+		         to-date = "options.toDate"
+		         sort-mode="options.sortMode"
+		         view-scale="options.scale"
+		         max-height="500"
+		         task-out-of-range="truncate"
+		         auto-expand="both" 
+		         expand-to-fit= "true"
+		         >
+			 
+			 <gantt-tree enabled="true"
+		                  header-content="options.treeHeaderContent"
+		                  keep-ancestor-on-filter-row="true">
+		      
+		      </gantt-tree>
+		      
+			  <gantt-table enabled = "true" 
+			  				columns = "options.columns"
+			  				headers="options.columnsHeaders"
+			  				formatters="options.columnsFormatters">
+			  </gantt-table>
+			  			
+			  
+		      
+		       <gantt-groups enabled="options.groupDisplayMode === 'group' || options.groupDisplayMode === 'overview' || options.groupDisplayMode === 'promote'" display="options.groupDisplayMode">
+		       </gantt-groups>
+			  
+			  <gantt-bounds></gantt-bounds>
+		      <gantt-progress></gantt-progress>
+		      <gantt-sortable></gantt-sortable>
+			  <gantt-movable></gantt-movable>
+			  <gantt-tooltips></gantt-tooltips>
+			  <gantt-draw-task enabled="enabled"
+                                            move-threshold="2" task-factory="drawTaskFactory"></gantt-draw-task>
+			  <gantt-overlap></gantt-overlap>
+			  <gantt-resize-sensor></gantt-resize-sensor>
+			</div>
+			<hr/>
+		<!--</div>-->
+	</div>
+	
+	<div class = "container">
+			<div class="row">
+				<div class="form-inline">
+						<button type="button" class="btn btn-primary" ng-click="addNewTask()" >Neue Aufgabe hinzufügen</button>
+		                  
+					                        
+				
+					</div>
+				</div>	
+			</div>
 </div>
+
+
+
 
 <div class="resizer-v" resizer="vertical" resizer-width="6" resizer-left=".viewportPanel" resizer-left-min="780" resizer-right=".sidePanel" resizer-right-min="380" resizer-end="wi.callFunc.resize"></div>
 
@@ -86,7 +164,7 @@
 				</table>
 			
 				<div class="btn-group btn-group-s">
-					<button type="button" class="btn btn-default" ng-click="openAddStaff('staff')" >Hinzufügen</button>
+					<button type="button" class="btn btn-default" ng-click="$parent.openInsertFortm('source')" >Hinzufügen</button>
 				</div>
 		
 			</div>

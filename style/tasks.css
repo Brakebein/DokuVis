@@ -5,12 +5,25 @@ position: absolute;
 	height: 100%;
 }
 
+.tasksLeftHalf #newTask {
+	position: absolute;
+	
+	
+}
+
 .tasksRightHalf {
 	position: absolute;
 	left: 66%;
 	right: 0;
 	height: 100%;
 	display: flex;
+}
+
+.ganttHeader{
+	position: absolute;
+	left: 0;
+	width: 66%;
+	height: 40%;
 }
 
 .sidePanelSidemenu {
