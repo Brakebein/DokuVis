@@ -383,7 +383,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			$scope.overlayParams.url = '';
 			$scope.sourcesUploader.clearQueue();
 		};
-		$scope.updateList(type) = function {
+		$scope.updateList = function(type) {
 			if(type == 'source')
 				$scope.getAllDocuments();
 			if(type == 'screenshot')
