@@ -106,53 +106,7 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest',
 			$scope.getAllProjects();
 		}
 		
-		/*$scope.editProject = function(pdesc,e) {
-			
-			
-			var oldField = $(e.target);
-			var newField = $('<textarea id="text" name="text" cols="35" rows="2"></textarea> ');
-			
-			
-			oldField.hide();
-       		oldField.after(newField);
-       		
-       		newField.focus();
-				
-			
-			
-			newField.val(pdesc);
-			
-			
-			newField.keydown(function(e) {
-	            if(e.which == 13)
-	            {       	
-					pdesc = newField.val();
-					
-					newField.remove();
-					oldField.show()
-	            } 
-	            
-	            else if(e.which == 27) {
-					alert("test");
-	            }
-       		});	
-		}*/
 		
-		//zum Testen
-		/*$scope.staff = [];
-		$scope.newStaff = new Object();
-		$scope.newStaff.name = '';
-		$scope.newStaff.surname = '';
-		$scope.newStaff.mail = '';
-		$scope.newStaff.role = '';
-		$scope.newStaff.projects = '';
-		
-		$scope.getAllStaff = function() {
-			mysqlRequest.getAllStaff().success(function(obj, status){
-					console.log(obj);
-					$scope.staff = obj.data;
-			});
-		};*/
 		
 		
 		// oninit Funktionsaufrufe
@@ -1431,14 +1385,14 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
     {name: 'test1', parent: 'Martin',  tasks: [
                             {name: 'Product list view', color: '#F1C232', from: new Date(2015, 10, 21, 8, 0, 0), to: new Date(2015, 11, 25, 15, 0, 0), progress: 25}
                         ]},
-    {name: 'test2',parent: 'Martin', tasks: [
+    {name: 'test2',parent: 'test1', tasks: [
                             {name: 'Order basket', color: '#F1C232', from: new Date(2015, 10, 28, 8, 0, 0), to: new Date(2015, 11, 1, 15, 0, 0)}
                         ]},
    
    {name: 'test4',parent: 'Jonas',  tasks: [
                             {name: 'test4', color: '#F1C232', from: new Date(2015, 9, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
                         ]},
-    {name: 'test5',parent: 'Jonas', tasks: [
+    {name: 'test56',parent: 'Jonas', tasks: [
                             {name: 'test5', color: '#F1C232', from: new Date(2015, 9, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
                         ]},
                         {name: 'test6',parent: 'Jonas', tasks: [
@@ -1562,10 +1516,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            /*rowContent: "<a href=\"#\" editable-text =\"row.model.name\">{{row.model.name}}</a>",*/
-            rowContent: '<i class="fa fa-edit" ng-click="scope.editStaffContent(row.model)"></i>{{row.model.name}}',
-            taskContent: '<a href="#" editable-text ="task.model.name" e-style="width: 60px; height: 20px" buttons = "no">{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task.model)"></i>',
-          /*  taskContent : '<i class="fa fa-edit" ng-click="scope.editTaskContent(task.model,row.model)"></i>{{task.model.name}}<i class="fa fa-times" ng-click="scope.deleteTask(task.model)"></i>',*/
+            rowContent: '<i class="fa fa-edit" ng-click="scope.editStaffContent(row)"></i>{{row.model.name}}',
+            taskContent: '<i class="glyphicon glyphicon-ok-sign" ng-click="scope.changeGreen(task)"></i><i class="glyphicon glyphicon-question-sign" ng-click="scope.changeYellow(task)"></i><i class="glyphicon glyphicon-remove-sign" ng-click="scope.changeRed(task)"></i><a href="#" editable-text ="task.model.name" e-style="width: 60px; height: 20px" buttons = "no">{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task)"></i>',
             zoom: 1
 		};
 		
@@ -1621,9 +1573,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		/*Tasks*/
 		
 		$scope.addNewTask = function(newTask) {
-			
-			/*console.log($scope.data[1].name);*/
-			
 			$.each($scope.data,function(index){
 				if(newTask.staff == $scope.data[index].name){
 					
@@ -1657,29 +1606,36 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
    			 return newTask;
 		}
 		
-		$scope.editTaskContent = function(taskModel,rowModel){
-		alert(rowModel.name + ", " + taskModel.name );	
+		$scope.changeGreen = function(task){		
+		task.model.color = 'green';	
 		};
 		
-		$scope.editStaffContent = function(rowModel){
-		alert(rowModel.name);	
+		$scope.changeRed = function(task){		
+		task.model.color = 'red';	
+		};
+		
+		$scope.changeYellow = function(task){		
+		task.model.color = '#F1C232';	
+		};
+		
+		$scope.editStaffContent = function(row){
+		alert(row.model.name);	
 		};
 		
 		
-		$scope.deleteTask = function(taskModel){	
-			
+		$scope.deleteTask = function(task){	
+			console.log(task.model.name);
 			$.each($scope.data,function(index){
 								
-				if(taskModel.name == $scope.data[index].name){
-				/*console.log("taskModel" + taskModel.name);
-				console.log("data" + $scope.data[index].name)*/
+				if(task.model.name == $scope.data[index].name){
+			
 				
 				var arr = [];
 				arr = $scope.data.slice(0,index).concat($scope.data.slice(index+1) );
 				
 				$scope.data = arr;
 				
-				/*delete $scope.data[index];*/
+				
 				console.log($scope.data);
 				
 				}

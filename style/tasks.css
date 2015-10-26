@@ -87,3 +87,19 @@ position: absolute;
 	overflow-y: auto;
 	font-size: 8pt;
 }
+
+.glyphicon-ok-sign:hover{
+	cursor: pointer;
+}
+
+.glyphicon-remove-sign:hover{
+	cursor: pointer;
+}
+
+.glyphicon-question-sign:hover{
+	cursor: pointer;
+}
+
+.fa-times:hover{
+	cursor: pointer;
+}
