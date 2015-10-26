@@ -72,10 +72,13 @@
 		         task-out-of-range="truncate"
 		         auto-expand="both" 
 		         expand-to-fit= "true"
+		         task-content = "options.taskContent"
+             	 row-content = "options.rowContent"
 		         >
 			 
 			 <gantt-tree enabled="true"
 		                  header-content="options.treeHeaderContent"
+		                  content = "options.rowContent"
 		                  keep-ancestor-on-filter-row="true">
 		      
 		      </gantt-tree>
@@ -108,7 +111,34 @@
 	<div class = "container">
 			<div class="row">
 				<div class="form-inline">
-						<button type="button" class="btn btn-primary" ng-click="addNewTask()" >Neue Aufgabe hinzufügen</button>
+				
+						<div class="form-group text-center">
+					   		<label class="control-label">Bearbeiter</label><br>
+							<input type="text" class="form-control" style="width: 8em" ng-model="newTask.staff" placeholder="Bearbeiter">
+						</div>
+						
+						<div class="form-group text-center">
+					   		<label class="control-label">Aufgabe</label><br>
+							<input type="text" class="form-control" style="width: 10em" ng-model="newTask.task" placeholder="Aufgabe">
+						</div>
+						
+						
+					<div class="form-group text-center">
+					   		<label class="control-label">Von</label><br>
+							<input type="text" class="form-control" style="width: 6em" ng-model="newTask.from" placeholder="Von" bs-datepicker>
+						</div>
+						
+						<div class="form-group text-center">
+					   		<label class="control-label">Bis</label><br>
+							<input type="text" class="form-control" style="width: 6em" ng-model="newTask.to" placeholder="Bis" bs-datepicker>
+						</div>
+						
+						
+						<div class="form-group text-center">
+					   		<label class="control-label">Hinzufügen</label><br>
+							<button type="button" class="btn btn-primary" ng-click="addNewTask(newTask)" >Neue Aufgabe hinzufügen</button>
+						</div>
+						
 		                  
 					                        
 				
@@ -123,7 +153,7 @@
 <div class="resizer-v" resizer="vertical" resizer-width="6" resizer-left=".viewportPanel" resizer-left-min="780" resizer-right=".sidePanel" resizer-right-min="380" resizer-end="wi.callFunc.resize"></div>
 
 <div class = "tasksRightHalf">
-	<!--<p>test</p>-->
+	
 	
 	<div title = "staffContainer" class = "sideContainer">
 			<!--Mitarbeitertabelle-->
@@ -135,7 +165,7 @@
 			</div>
 		
 			<div class = "sideContent">
-			<p>test</p>
+			<!--<p>test</p>-->
 				<span ng-if="staff.length < 1">Keine Mitarbeiter vorhanden</span>
 				<table ng-if="staff.length > 0" class="table table-striped"> 
 				
@@ -160,15 +190,51 @@
 						
 					</tr>
 					
+					<!--<tr>
+						<td><input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Vorname"></td>
+						<td><input type="text" class="form-control" style="width: 10em" ng-model="newStaff.surname" placeholder="Nachname"></td>
+						<td><input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" ></td>
+						<td><input type="text" class="form-control" style="width: 6em" ng-model="newStaff.role" placeholder="Rolle" ></td>
+					</tr>-->
+					
 				</tbody>
 				</table>
 			
-				<div class="btn-group btn-group-s">
-					<button type="button" class="btn btn-default" ng-click="$parent.openInsertFortm('source')" >Hinzufügen</button>
-				</div>
-		
+			<div class = "container">
+				<div class="row">
+					<div class="form-inline">
+				
+						<div class="form-group text-center">
+					   		<label class="control-label">Vorname</label><br>
+							<input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Vorname">
+						</div>
+						
+						<div class="form-group text-center">
+					   		<label class="control-label">Nachname</label><br>
+							<input type="text" class="form-control" style="width: 10em" ng-model="newStaff.surname" placeholder="Nachname">
+						</div>
+						
+						
+					<div class="form-group text-center">
+					   		<label class="control-label">Mail</label><br>
+							<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" >
+						</div>
+						
+						<div class="form-group text-center">
+					   		<label class="control-label">Role</label><br>
+							<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.role" placeholder="Rolle" >
+						</div>
+						
+						
+						<div class="form-group text-center">
+					   		<label class="control-label">Hinzufügen</label><br>
+							<button type="button" class="btn btn-primary" ng-click="addNewStaff()" >Hinzufügen</button>
+						</div>
+						
+						</div>
+					</div>	
+				</div>			
 			</div>
-			
 		</div>
 	
 		

@@ -383,7 +383,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			$scope.overlayParams.url = '';
 			$scope.sourcesUploader.clearQueue();
 		};
-		$scope.updateList(type) = function {
+		
+		$scope.updateList(type) = function () {
 			if(type == 'source')
 				$scope.getAllDocuments();
 			if(type == 'screenshot')
@@ -872,7 +873,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 webglControllers.controller('addNewStaffCtrl', ['$scope', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 
 	function($scope, $timeout, $sce, phpRequest, mysqlRequest) {
 		
-		$scope.newStaff = new Object();
+		/*$scope.newStaff = new Object();
 		
 		$scope.newStaff.name = '';
 		$scope.newStaff.surname = '';
@@ -891,7 +892,7 @@ webglControllers.controller('addNewStaffCtrl', ['$scope', '$timeout', '$sce', 'p
 			});
 		$scope.getAllStaff();
 		
-		}
+		}*/
 		
 		
 		
@@ -1390,7 +1391,86 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.project = $stateParams.project;
 		
 		/*Mitarbeiter*/
+		$scope.newStaff = new Object();
+		
+		$scope.newStaff.name = '';
+		$scope.newStaff.surname = '';
+		$scope.newStaff.mail = '';
+		$scope.newStaff.role = '';
+		$scope.newStaff.projects = '';
+		
+		/*Tasks*/
 		$scope.staff = [];
+		$scope.nameFound = false;
+		
+		$scope.newTask = new Object();
+		$scope.newTask.staff = '';
+		$scope.newTask.task = '';
+		$scope.newTask.from = '';
+		$scope.newTask.to = '';
+		
+		$scope.data = [
+		{name: 'Milestones', height: '3em', sortable: false, classes: 'gantt-row-milestone', color: '#98aec7', tasks: []},
+		
+    {name: 'Jonas' },
+    
+    {name: 'Martin'},
+    
+    {name: 'test1', parent: 'Martin',  tasks: [
+                            {name: 'Product list view', color: '#F1C232', from: new Date(2015, 10, 21, 8, 0, 0), to: new Date(2015, 11, 25, 15, 0, 0), progress: 25}
+                        ]},
+    {name: 'test2',parent: 'Martin', tasks: [
+                            {name: 'Order basket', color: '#F1C232', from: new Date(2015, 10, 28, 8, 0, 0), to: new Date(2015, 11, 1, 15, 0, 0)}
+                        ]},
+   
+   {name: 'test4',parent: 'Jonas',  tasks: [
+                            {name: 'test4', color: '#F1C232', from: new Date(2015, 9, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
+                        ]},
+    {name: 'test5',parent: 'Jonas', tasks: [
+                            {name: 'test5', color: '#F1C232', from: new Date(2015, 9, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
+                        ]},
+                        {name: 'test6',parent: 'Jonas', tasks: [
+                            {name: 'test6', color: '#F1C232', from: new Date(2015, 9, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
+                        ]},
+         
+]
+		
+		/*Mitarbeiter*/
+		
+		$scope.getAllStaff = function() {
+			mysqlRequest.getAllStaff().success(function(obj, status){
+					
+					$scope.staff = obj.data;
+					console.log($scope.staff);
+			});
+		};
+		
+		$scope.removeStaff = function(name,surname) {
+			mysqlRequest.removeStaff(name,surname).success(function(answer, status){
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+						console.error('Mitarbeiter gelöscht');
+						$scope.getAllStaff();
+					});
+		};
+		
+	
+		
+		$scope.addNewStaff = function() {
+						
+			mysqlRequest.addNewStaff($scope.newStaff.name, $scope.newStaff.surname, $scope.newStaff.mail, $scope.newStaff.role).success(function(answer, status){
+					//alert(answer);
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+			});
+		$scope.getAllStaff();
+		
+		}
+		
 		
 		$scope.options = {
 			allowSideResizing: true,
@@ -1409,22 +1489,28 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					                }
 					            },
             
-            treeHeaderContent: '<i class="fa fa-align-justify"></i> {{getHeader()}}',
-            columnsHeaderContents: {
+            /*treeHeaderContent: '<i class="fa fa-align-justify"></i> {{getHeader()}}',*/
+           /* columnsHeaderContents: {
                 'model.name': '<i class="fa fa-align-justify"></i> {{getHeader()}}',
                 'from': '<i class="fa fa-calendar"></i> {{getHeader()}}',
                 'to': '<i class="fa fa-calendar"></i> {{getHeader()}}'
-            },
+            },*/
             filterTask: '',
             filterRow: '',
             scale: 'day',
             sortMode: undefined,
             maxHeight: true,
             width: true,
+            rowContent: "<i class=\"fa fa-edit\" ng-click='scope.editStaffContent(row.model)'></i>{{row.model.name}}",
+            taskContent : "<i class=\"fa fa-edit\" ng-click='scope.editTaskContent(task.model,row.model)'></i>{{task.model.name}}<i class=\"fa fa-times\" ng-click='scope.deleteTask(task.model)'></i>",
             zoom: 1
 		};
 		
 		
+		
+		/*$scope.addNode = function(rowModel){
+		alert("test");	
+		};*/
 		
 		function getFormattedDate(date) {
     		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
@@ -1469,77 +1555,74 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
         };
 
 		
-		$scope.data = [
-		{name: 'Milestones', height: '3em', sortable: false, classes: 'gantt-row-milestone', color: '#98aec7', tasks: []},
-		
-   {name: 'Jonas', tasks: [
-        {name: 'Fleißig sein!!!',color: '#93C47D', from: '2015-10-29T09:00:00', to: '2015-11-05T10:00:00'}
-        ]
-    },
-    
-    {name: 'Martin', children: ['test1','test2']},
-    
-    {name: 'test1', tooltips: false, tasks: [
-                            {name: 'Product list view', color: '#F1C232', from: new Date(2015, 10, 21, 8, 0, 0), to: new Date(2015, 11, 25, 15, 0, 0),
-                                progress: 25}
-                        ]},
-    {name: 'test2', tasks: [
-                            {name: 'Order basket', color: '#F1C232', from: new Date(2015, 10, 28, 8, 0, 0), to: new Date(2015, 11, 1, 15, 0, 0)}
-                        ]}
-]
-		
-		/*Mitarbeiter*/
-		$scope.getAllStaff = function() {
-			mysqlRequest.getAllStaff().success(function(obj, status){
-					
-					$scope.staff = obj.data;
-					console.log($scope.staff);
-			});
-		};
-		
-		$scope.removeStaff = function(name,surname) {
-			mysqlRequest.removeStaff(name,surname).success(function(answer, status){
-						if(answer != 'SUCCESS') {
-							console.error(answer);
-							return;
-						}
-						console.error('Mitarbeiter gelöscht');
-						$scope.getAllStaff();
-					});
-		};
-		
-
-		
-		/*console.log('tasks init');*/
-		
-		
 		/*Tasks*/
 		
-		$scope.addNewTask = function() {
-			$scope.data.push({	name: "test",
-						tasks: [{name: 'task2',color: '#93C47D', from: '2013-10-08T09:00:00', to: '2013-10-09T10:00:00'}]
+		$scope.addNewTask = function(newTask) {
+			
+			/*console.log($scope.data[1].name);*/
+			
+			$.each($scope.data,function(index){
+				if(newTask.staff == $scope.data[index].name){
+					
+					
+					$scope.data.push({name: newTask.task, parent: newTask.staff,tasks: [{name: newTask.task, color: '#F1C232', from: newTask.from, to: newTask.to}]});
+					$scope.nameFound = true;
+					return false;
+				}		
+			});
+			
+			if($scope.nameFound == false){
+				$scope.data.push({name: newTask.staff});
+					$scope.data.push({	name: newTask.task, parent: newTask.staff,tasks: [{name: newTask.task, color: '#F1C232', from: newTask.from, to: newTask.to}]
+						
 					});
-			console.log($scope.data);
+					console.log($scope.data);
+			}
+			$scope.nameFound = false;	
+			
+			/*console.log($scope.data);*/
 		}
 		
-		$scope.canDraw = function(event) {
-                var isLeftMouseButton = event.button === 0 || event.button === 1;
-                return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
-            },
-		
 		$scope.drawTaskFactory = function() {
-		    var newTask = {
-		        id: 5,
+		   
+		   var newTask = {
+		      id: 5,
 		        name: 'New Task',
-		        color: '#93C47D'
-		        // Other properties
+		        color: '#F1C232'
 		    }
 
    			 return newTask;
 		}
 		
+		$scope.editTaskContent = function(taskModel,rowModel){
+		alert(rowModel.name + ", " + taskModel.name );	
+		};
 		
-	
+		
+		$scope.deleteTask = function(taskModel){	
+			$.each($scope.data,function(index){
+								
+				if(taskModel.name == $scope.data[index].name){
+				/*console.log("taskModel" + taskModel.name);
+				console.log("data" + $scope.data[index].name)*/
+				
+				var arr = [];
+				arr = $scope.data.slice(0,index).concat($scope.data.slice(index+1) );
+				
+				$scope.data = arr;
+				
+				/*delete $scope.data[index];*/
+				console.log($scope.data);
+				
+				}
+				
+			});
+		};
+		
+		
+		$scope.deleteStaff = function(rowModel){
+		alert(rowModel.name + " gelöscht!");
+		}
 	//initiiere Staff
 	$scope.getAllStaff();
 	
