@@ -1580,7 +1580,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			}
 			$scope.nameFound = false;	
 			
-			/*console.log($scope.data);*/
+		
 		}
 		
 		$scope.drawTaskFactory = function() {
