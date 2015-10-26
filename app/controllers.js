@@ -13,6 +13,10 @@ var webglControllers = angular.module('webglControllers', ['uiSlider', 'angularF
     'gantt.resizeSensor'
 ]);
 
+app.run(function(editableOptions) {
+  editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
+});
+
 webglControllers.controller('introCtrl', ['$scope', '$http',
 	function($scope, $http) {
 		
@@ -1501,8 +1505,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            rowContent: "<i class=\"fa fa-edit\" ng-click='scope.editStaffContent(row.model)'></i>{{row.model.name}}",
-            taskContent : "<i class=\"fa fa-edit\" ng-click='scope.editTaskContent(task.model,row.model)'></i>{{task.model.name}}<i class=\"fa fa-times\" ng-click='scope.deleteTask(task.model)'></i>",
+            /*rowContent: "<a href=\"#\" editable-text =\"row.model.name\">{{row.model.name}}</a>",*/
+            rowContent: '<i class="fa fa-edit" ng-click="scope.editStaffContent(row.model)"></i>{{row.model.name}}',
+            taskContent: '<a href="#" editable-text ="task.model.name">{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task.model)"></i>',
+          /*  taskContent : '<i class="fa fa-edit" ng-click="scope.editTaskContent(task.model,row.model)"></i>{{task.model.name}}<i class="fa fa-times" ng-click="scope.deleteTask(task.model)"></i>',*/
             zoom: 1
 		};
 		
@@ -1598,8 +1604,13 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		alert(rowModel.name + ", " + taskModel.name );	
 		};
 		
+		$scope.editStaffContent = function(rowModel){
+		alert(rowModel.name);	
+		};
+		
 		
 		$scope.deleteTask = function(taskModel){	
+			
 			$.each($scope.data,function(index){
 								
 				if(taskModel.name == $scope.data[index].name){

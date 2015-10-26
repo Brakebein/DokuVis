@@ -181,10 +181,10 @@
 				</thead>
 				<tbody>
 					<tr ng-repeat="s in staff | orderBy: 'name'">
-						<td>{{s.name}}</td>
-						<td>{{s.surname}}</td>
-						<td>{{s.mail}}</td>
-						<td>{{s.role}}</td>
+						<td><a href="#" editable-text ="s.name">{{s.name}}</a></td>
+						<td><a href="#" editable-text ="s.surname">{{s.surname}}</a></td>
+						<td><a href="#" editable-text ="s.mail">{{s.mail}}</a></td>
+						<td><a href="#" editable-text ="s.role">{{s.role}}</a></td>
 						<!--<td>{{s.projects}}</td>-->
 						<td><button type="button" class="btn btn-default" ng-click=removeStaff(s.name,s.surname)>Löschen</button></td>
 						
