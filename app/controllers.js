@@ -94,9 +94,21 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest',
 			});
 		};
 		
-		$scope.editProject = function(pdesc,e) {
+		$scope.updateProjectDescription = function(data,id) {
+			mysqlRequest.updateProjectDescription(data,id).success(function(answer, status){
+				
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+			});
 			
-			/*Tabelleneintrag durch textfeld ersetzen*/
+			$scope.getAllProjects();
+		}
+		
+		/*$scope.editProject = function(pdesc,e) {
+			
+			
 			var oldField = $(e.target);
 			var newField = $('<textarea id="text" name="text" cols="35" rows="2"></textarea> ');
 			
@@ -107,15 +119,15 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest',
        		newField.focus();
 				
 			
-			/*mit description füllen*/
+			
 			newField.val(pdesc);
 			
-			/*eingabe beenden*/
+			
 			newField.keydown(function(e) {
 	            if(e.which == 13)
 	            {       	
 					pdesc = newField.val();
-					/*alert(pdesc); */
+					
 					newField.remove();
 					oldField.show()
 	            } 
@@ -124,11 +136,7 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest',
 					alert("test");
 	            }
        		});	
-					
-			/*projektdescription ändern*/
-						
-			/*daten in db ändern*/
-		}
+		}*/
 		
 		//zum Testen
 		/*$scope.staff = [];
@@ -1396,6 +1404,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		/*Mitarbeiter*/
 		$scope.newStaff = new Object();
 		
+		$scope.newStaff.sid = '';
 		$scope.newStaff.name = '';
 		$scope.newStaff.surname = '';
 		$scope.newStaff.mail = '';
@@ -1448,8 +1457,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			});
 		};
 		
-		$scope.removeStaff = function(name,surname) {
-			mysqlRequest.removeStaff(name,surname).success(function(answer, status){
+		$scope.removeStaff = function(id) {
+			mysqlRequest.removeStaff(id).success(function(answer, status){
 						if(answer != 'SUCCESS') {
 							console.error(answer);
 							return;
@@ -1462,7 +1471,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	
 		
 		$scope.addNewStaff = function() {
-						
 			mysqlRequest.addNewStaff($scope.newStaff.name, $scope.newStaff.surname, $scope.newStaff.mail, $scope.newStaff.role).success(function(answer, status){
 					//alert(answer);
 						if(answer != 'SUCCESS') {
@@ -1470,9 +1478,59 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							return;
 						}
 			});
-		$scope.getAllStaff();
-		
+			$scope.getAllStaff();
 		}
+		
+		$scope.updateName = function(data,id) {
+			mysqlRequest.updateName(data,id).success(function(answer, status){
+				
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+			});
+			
+			$scope.getAllStaff();
+		}
+		
+		$scope.updateSurname = function(data,id) {
+		
+			mysqlRequest.updateSurname(data,id).success(function(answer, status){
+				
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+			});
+			
+			$scope.getAllStaff();
+			
+		}
+				
+		$scope.updateMail = function(data,id) {
+			mysqlRequest.updateMail(data,id).success(function(answer, status){
+				
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+			});
+			
+			$scope.getAllStaff();
+		}
+		
+		$scope.updateRole = function(data,id) {
+			mysqlRequest.updateRole(data,id).success(function(answer, status){
+				
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+			});
+			
+			$scope.getAllStaff();
+		}
+		
 		
 		
 		$scope.options = {
@@ -1506,7 +1564,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             width: true,
             /*rowContent: "<a href=\"#\" editable-text =\"row.model.name\">{{row.model.name}}</a>",*/
             rowContent: '<i class="fa fa-edit" ng-click="scope.editStaffContent(row.model)"></i>{{row.model.name}}',
-            taskContent: '<a href="#" editable-text ="task.model.name">{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task.model)"></i>',
+            taskContent: '<a href="#" editable-text ="task.model.name" e-style="width: 60px; height: 20px" buttons = "no">{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task.model)"></i>',
           /*  taskContent : '<i class="fa fa-edit" ng-click="scope.editTaskContent(task.model,row.model)"></i>{{task.model.name}}<i class="fa fa-times" ng-click="scope.deleteTask(task.model)"></i>',*/
             zoom: 1
 		};

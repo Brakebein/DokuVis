@@ -3,7 +3,7 @@
 	
 	include 'db_connect.php';
 	
-	$result = mysql_query('DELETE FROM staff WHERE name = "'.$json->name.'" and surname = "'.$json->surname.'"');
+	$result = mysql_query('DELETE FROM staff WHERE sid = "'.$json->sid.'";');
 	
 	if($result) {
 		echo 'SUCCESS';

@@ -91,8 +91,8 @@
 			  			
 			  
 		      
-		       <gantt-groups enabled="options.groupDisplayMode === 'group' || options.groupDisplayMode === 'overview' || options.groupDisplayMode === 'promote'" display="options.groupDisplayMode">
-		       </gantt-groups>
+		       <!--<gantt-groups enabled="options.groupDisplayMode === 'group' || options.groupDisplayMode === 'overview' || options.groupDisplayMode === 'promote'" display="options.groupDisplayMode">
+		       </gantt-groups>-->
 			  
 			  <gantt-bounds></gantt-bounds>
 		      <gantt-progress></gantt-progress>
@@ -181,12 +181,13 @@
 				</thead>
 				<tbody>
 					<tr ng-repeat="s in staff | orderBy: 'name'">
-						<td><a href="#" editable-text ="s.name">{{s.name}}</a></td>
-						<td><a href="#" editable-text ="s.surname">{{s.surname}}</a></td>
-						<td><a href="#" editable-text ="s.mail">{{s.mail}}</a></td>
-						<td><a href="#" editable-text ="s.role">{{s.role}}</a></td>
+						<!--<td>{{s.sid}}</td>-->
+						<td><a href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)">{{s.name}}</a></td>
+						<td><a href="#" editable-text ="s.surname" onbeforesave = "updateSurname($data,s.sid)">{{s.surname}}</a></td>
+						<td><a href="#" editable-text ="s.mail" onbeforesave = "updateMail($data,s.sid)">{{s.mail}}</a></td>
+						<td><a href="#" editable-text ="s.role" onbeforesave = "updateRole($data,s.sid)">{{s.role}}</a></td>
 						<!--<td>{{s.projects}}</td>-->
-						<td><button type="button" class="btn btn-default" ng-click=removeStaff(s.name,s.surname)>Löschen</button></td>
+						<td><button type="button" class="btn btn-default" ng-click=removeStaff(s.sid)>Löschen</button></td>
 						
 					</tr>
 					

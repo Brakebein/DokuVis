@@ -469,9 +469,9 @@ webglServices.factory('mysqlRequest',
 			return $http.post('php/mysql/getAllProjects.php', {});
 		};
 		
-		requests.changeProject = function(proj,desc) {
-			return $http.post('php/mysql/changeProjectDescription.php', {
-				proj: proj,
+		requests.updateProjectDescription = function(desc,id) {
+			return $http.post('php/mysql/updateProjectDescription.php', {
+				pid: id,
 				description: desc
 			});
 		};
@@ -489,10 +489,46 @@ webglServices.factory('mysqlRequest',
 			});
 		};
 		
-		requests.removeStaff = function(name,surname) {
-			return $http.post('php/mysql/removeStaff.php', {
+		requests.updateName = function(name,id) {
+			return $http.post('php/mysql/updateName.php', {
 				name: name,
-				surname:surname,
+				sid: id,
+				
+			});
+			
+		};
+		
+		requests.updateSurname = function(surname,id) {
+			return $http.post('php/mysql/updateSurname.php', {
+				surname: surname,
+				sid: id,
+				
+			});
+			
+		};
+		
+		requests.updateMail = function(mail,id) {
+			return $http.post('php/mysql/updateMail.php', {
+				mail: mail,
+				sid: id,
+				
+			});
+			
+		};
+		
+		requests.updateRole = function(role,id) {
+			return $http.post('php/mysql/updateRame.php', {
+				role: role,
+				sid: id,
+				
+			});
+			
+		};
+		
+		
+		requests.removeStaff = function(id) {
+			return $http.post('php/mysql/removeStaff.php', {
+				sid: id
 			});
 		};
 				
