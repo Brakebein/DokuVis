@@ -79,13 +79,15 @@
 			 <gantt-tree enabled="true"
 		                  header-content="options.treeHeaderContent"
 		                  content = "options.rowContent"
-		                  keep-ancestor-on-filter-row="true">
+		                  keep-ancestor-on-filter-row="true"
+		                  >
 		      
 		      </gantt-tree>
 		      
 			  <gantt-table enabled = "true" 
 			  				columns = "options.columns"
 			  				headers="options.columnsHeaders"
+			  				contents="options.columnsContents"
 			  				formatters="options.columnsFormatters">
 			  </gantt-table>
 			  			
@@ -98,13 +100,14 @@
 		      <gantt-progress></gantt-progress>
 		      <gantt-sortable></gantt-sortable>
 			  <gantt-movable></gantt-movable>
-			  <gantt-tooltips></gantt-tooltips>
+			  <gantt-tooltips content = "options.contentTooltips"></gantt-tooltips>
 			  <gantt-draw-task enabled="enabled"
                                             move-threshold="2" task-factory="drawTaskFactory"></gantt-draw-task>
 			  <gantt-overlap></gantt-overlap>
 			  <gantt-resize-sensor></gantt-resize-sensor>
 			</div>
 			<hr/>
+			
 		<!--</div>-->
 	</div>
 	
@@ -145,6 +148,8 @@
 					</div>
 				</div>	
 			</div>
+			
+			<!--<p>{{data[3].tasks[0].data}}</p>-->
 </div>
 
 

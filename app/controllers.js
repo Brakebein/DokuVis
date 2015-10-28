@@ -1382,21 +1382,21 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
     
     {name: 'Martin'},
     
-    {name: 'test1', parent: 'Martin',  tasks: [
-                            {name: 'Product list view', color: '#F1C232', from: new Date(2015, 10, 21, 8, 0, 0), to: new Date(2015, 11, 25, 15, 0, 0), progress: 25}
+    {name: 'test1', parent: 'Martin', status: 'erledigt', children: ['test2'],  tasks: [
+                            {name: 'test1', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0),data: "Lorem Ipsum"}
                         ]},
-    {name: 'test2',parent: 'test1', tasks: [
-                            {name: 'Order basket', color: '#F1C232', from: new Date(2015, 10, 28, 8, 0, 0), to: new Date(2015, 11, 1, 15, 0, 0)}
+    {name: 'test2', status: 'erledigt', tasks: [
+                            {name: 'test2', color: '#F1C232', from: new Date(2015, 09, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
                         ]},
    
-   {name: 'test4',parent: 'Jonas',  tasks: [
-                            {name: 'test4', color: '#F1C232', from: new Date(2015, 9, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
+   {name: 'test4',parent: 'Jonas', status: 'zu bearbeiten', tasks: [
+                            {name: 'test4', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
                         ]},
-    {name: 'test56',parent: 'Jonas', tasks: [
-                            {name: 'test5', color: '#F1C232', from: new Date(2015, 9, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
+    {name: 'test5',parent: 'Jonas', tasks: [
+                            {name: 'test5', color: '#F1C232', from: new Date(2015, 09, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0) }
                         ]},
                         {name: 'test6',parent: 'Jonas', tasks: [
-                            {name: 'test6', color: '#F1C232', from: new Date(2015, 9, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
+                            {name: 'test6', color: '#F1C232', from: new Date(2015, 09, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
                         ]},
          
 ]
@@ -1429,10 +1429,12 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					//alert(answer);
 						if(answer != 'SUCCESS') {
 							console.error(answer);
+							
 							return;
 						}
+						$scope.getAllStaff();
 			});
-			$scope.getAllStaff();
+			
 		}
 		
 		$scope.updateName = function(data,id) {
@@ -1442,9 +1444,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							console.error(answer);
 							return;
 						}
+						$scope.getAllStaff();
 			});
 			
-			$scope.getAllStaff();
+			
 		}
 		
 		$scope.updateSurname = function(data,id) {
@@ -1455,10 +1458,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							console.error(answer);
 							return;
 						}
+							$scope.getAllStaff();
 			});
-			
-			$scope.getAllStaff();
-			
 		}
 				
 		$scope.updateMail = function(data,id) {
@@ -1468,9 +1469,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							console.error(answer);
 							return;
 						}
+					$scope.getAllStaff();	
 			});
-			
-			$scope.getAllStaff();
 		}
 		
 		$scope.updateRole = function(data,id) {
@@ -1480,9 +1480,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							console.error(answer);
 							return;
 						}
+				$scope.getAllStaff();
 			});
-			
-			$scope.getAllStaff();
 		}
 		
 		
@@ -1491,10 +1490,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			allowSideResizing: true,
 			fromDate: getFormattedDate(new Date()),
 			toDate: getFormattedDate(addDays(new Date(),30)),
-			columns: ['from', 'to'],
-			treeTableColumns: ['from', 'to'],
-			columnsHeaders: {'model.name' : 'Bearbeiter', 'from': 'From', 'to': 'To'},
-			columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to'},
+			columns: ['from', 'to', 'model.status'],
+			treeTableColumns: ['from', 'to', 'status'],
+			columnsHeaders: {'from': 'von', 'to': 'bis', 'model.status': 'Status'},
+			columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to', 'model.status': 'gantt-column-status'},
 			columnsFormatters: {
 					                'from': function(from) {
 					                    return from !== undefined ? from.format("MMM Do YY") : undefined;
@@ -1505,27 +1504,22 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					            },
             
             /*treeHeaderContent: '<i class="fa fa-align-justify"></i> {{getHeader()}}',*/
-           /* columnsHeaderContents: {
-                'model.name': '<i class="fa fa-align-justify"></i> {{getHeader()}}',
-                'from': '<i class="fa fa-calendar"></i> {{getHeader()}}',
-                'to': '<i class="fa fa-calendar"></i> {{getHeader()}}'
-            },*/
+          columnsContents: { 'model.status': '{{getValue()}}'
+                
+                /*'model.status': '<i ng-class="getValue() == \'erledigt\' ? \'glyphicon glyphicon-ok\' : \'glyphicon glyphicon-cog\'"></i>',*/
+            },
             filterTask: '',
             filterRow: '',
+            contentTooltips: '{{task.model.data}}',
             scale: 'day',
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            rowContent: '<i class="fa fa-edit" ng-click="scope.editStaffContent(row)"></i>{{row.model.name}}',
-            taskContent: '<i class="glyphicon glyphicon-ok-sign" ng-click="scope.changeGreen(task)"></i><i class="glyphicon glyphicon-question-sign" ng-click="scope.changeYellow(task)"></i><i class="glyphicon glyphicon-remove-sign" ng-click="scope.changeRed(task)"></i><a href="#" editable-text ="task.model.name" e-style="width: 60px; height: 20px" buttons = "no">{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task)"></i>',
+            rowContent: '<i class="fa fa-edit" ng-click="scope.editStaffContent(row.model.name)"></i>{{row.model.name}}',
+            taskContent: '<a href="#" editable-text ="task.model.name" e-style="width: 60px; height: 20px" buttons = "no">{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task)"></i>',
             zoom: 1
 		};
 		
-		
-		
-		/*$scope.addNode = function(rowModel){
-		alert("test");	
-		};*/
 		
 		function getFormattedDate(date) {
     		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
@@ -1606,6 +1600,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
    			 return newTask;
 		}
 		
+
+		
 		$scope.changeGreen = function(task){		
 		task.model.color = 'green';	
 		};
@@ -1618,26 +1614,25 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		task.model.color = '#F1C232';	
 		};
 		
-		$scope.editStaffContent = function(row){
-		alert(row.model.name);	
+		$scope.editStaffContent = function(rowName){
+			/*alert(rowName);*/
+			$.each($scope.data,function(index){
+				if(rowName == $scope.data[index].name){
+					$scope.data[index].status = 'zu bearbeiten'
+					$scope.data[index].tasks[0].color = 'red';
+					console.log(index);
+					}
+				});
 		};
 		
 		
 		$scope.deleteTask = function(task){	
-			console.log(task.model.name);
 			$.each($scope.data,function(index){
 								
 				if(task.model.name == $scope.data[index].name){
 			
-				
-				var arr = [];
-				arr = $scope.data.slice(0,index).concat($scope.data.slice(index+1) );
-				
-				$scope.data = arr;
-				
-				
-				console.log($scope.data);
-				
+				$scope.data.splice(index,1);
+			
 				}
 				
 			});
