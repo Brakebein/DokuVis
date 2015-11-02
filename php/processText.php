@@ -13,10 +13,11 @@ $lang = 'deu';
 //$lang = 'eng';
 
 
-/*
-$res = system($pPDFtk.' '.$docPath.$inputFile.' dump_data_utf8');
-echo $res;
 
+$res = system($pPDFtk.' '.$docPath.$inputFile.' dump_data_utf8');
+$res = system($pPDFtk.' '.$docPath.'sponsel\\final.pdf dump_data_utf8');
+echo $res;
+/*
 mkdir($docPath . 'sponsel')
 	or exit('ERROR: mkdir() failed on'.$prj);
 
@@ -43,12 +44,12 @@ echo "PDFtk\n";
 $res = system($pPDFtk.' '.$docPath.'sponsel'.$DS.'*.pdf cat output '.$docPath.'sponsel'.$DS.'final.pdf');
 echo $res;
 */
-$res = system($pGhostscript.' -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dBATCH  -dQUIET -sOutputFile='.$docPath.'sponsel'.$DS.'final_c.pdf '.$docPath.'sponsel'.$DS.'final.pdf');
+/*$res = system($pGhostscript.' -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dBATCH  -dQUIET -sOutputFile='.$docPath.'sponsel'.$DS.'final_c.pdf '.$docPath.'sponsel'.$DS.'final.pdf');
 
 
 //$res = system($pQPDF.' --linearize '.$docPath.'sponsel'.$DS.'final.pdf '.$docPath.'sponsel'.$DS.'final_c.pdf');
 echo $res;
-
+*/
 /*
 unlink($docPath.$image);
 echo "PDFtk\n";

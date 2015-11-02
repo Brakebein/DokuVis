@@ -10,22 +10,24 @@ webglServices.factory('neo4jRequest',
 		
 		requests.createInitProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
-				query: 'CREATE (root:E22:'+prj+' {content:"e22_root"}),'
-					+' (tplan:E55:'+prj+' {content:"plan"}),'
-					+' (tpic:E55:'+prj+' {content:"picture"}),'
-					+' (ttext:E55:'+prj+' {content:"text"}),'
-					+' (tscreen:E55:'+prj+' {content:"screenshot"}),'
-					+' (tscomment:E55:'+prj+' {content:"screenshotComment"}),'
-					+' (tmodel:E55:'+prj+' {content:"model"})',
+				query: 
+					'CREATE (root:E22:'+prj+' {content:"e22_root"}), \
+					(tplan:E55:'+prj+' {content:"plan"}), \
+					(tpic:E55:'+prj+' {content:"picture"}), \
+					(ttext:E55:'+prj+' {content:"text"}), \
+					(tscreen:E55:'+prj+' {content:"screenshot"}),\
+					(tscomment:E55:'+prj+' {content:"screenshotComment"}), \
+					(tmodel:E55:'+prj+' {content:"model"})',
 				params: {}
 			});
 		};
 		
 		requests.deleteAllProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
-				query: 'MATCH (n:'+prj+')'
-					+' OPTIONAL MATCH (:'+prj+')-[r]-()'
-					+' DELETE r,n',
+				query: 
+					'MATCH (n:'+prj+') \
+					OPTIONAL MATCH (:'+prj+')-[r]-() \
+					DELETE r,n',
 				params: {}
 			});
 		};

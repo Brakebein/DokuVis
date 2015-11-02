@@ -101,9 +101,11 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest',
 							console.error(answer);
 							return;
 						}
+						
+						$scope.getAllProjects();
 			});
 			
-			$scope.getAllProjects();
+			
 		}
 		
 		
@@ -871,7 +873,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 		
 		//$scope.insert = $scope.$parent.overlayParams;
 		//$scope.insert.project = $scope.$parent.project;
-		$scope.insert = {params: {type: 'plan', attachTo: undefined}};
+		$scope.insert = {params: {type: 'text', attachTo: undefined}};
 		$scope.insert.phpurl = '';
 		$scope.insert.uploadType = '';
 		$scope.insert.formTitle = '';
@@ -895,6 +897,11 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				$scope.insert.phpurl = 'php/upload.php';
 				$scope.insert.uploadType = 'image';
 				$scope.insert.formTitle = 'Bilder hinzufügen';
+				break;
+			case 'text':
+				$scope.insert.phpurl = 'php/processText.php';
+				$scope.insert.uploadType = 'text';
+				$scope.insert.formTitle = 'Text hinzufügen';
 				break;
 			case 'model':
 				$scope.insert.phpurl = 'php/processDAE.php';
@@ -959,6 +966,15 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				fn: function(item, options) {
 					var type = '|' + item.name.slice(item.name.lastIndexOf('.') + 1) + '|';
 					return '|zip|ZIP|'.indexOf(type) !== -1;
+				}
+			});
+		}
+		else if($scope.insert.uploadType == 'text') {
+			uploader.filters.push({
+				name: 'textFilter',
+				fn: function(item, options) {
+					var type = '|' + item.name.slice(item.name.lastIndexOf('.') + 1) + '|';
+					return '|pdf|PDF|doc|docx|jpg|png|jpeg|'.indexOf(type) !== -1;
 				}
 			});
 		}
@@ -1625,6 +1641,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		$scope.deleteTask = function(task){	
 			console.log(task.model.name);
+			console.log(task);
 			$.each($scope.data,function(index){
 								
 				if(task.model.name == $scope.data[index].name){
