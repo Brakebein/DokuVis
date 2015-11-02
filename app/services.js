@@ -676,6 +676,83 @@ webglServices.factory('Utilities',
 			return new f.Base62().encode(new Date().getTime());
 		};
 		
+		/**
+		  * extracts data from neo4j response object
+		  * if return values are nodes
+		*/
+		f.extractNeo4jData = function(data) {
+			var results = [];
+			for(var i=0; i<data.data.length; i++) {
+				var object = new Object();
+				for(var j=0; j<data.columns.length; j++) {
+					if(data.data[i][j] == null)
+						//object[data.columns[j]] = 'unbekannt';
+						object[data.columns[j]] = null;
+					else
+						object[data.columns[j]] = data.data[i][j].data;
+						//object[data.columns[j]] = data.data[i][j].data.content;
+				}
+				results.push(object);
+			}
+			return results;
+		};
+		
+		/**
+		  * extracts data from neo4j response object
+		  * if return values are normal values or objects
+		*/
+		f.cleanNeo4jData = function(data, selected) {
+			selected = selected || false;
+			var results = [];
+			for(var i=0; i<data.data.length; i++) {
+				var obj = new Object();
+				for(var j=0; j<data.columns.length; j++) {
+					if(data.data[i][j] == null)
+						//obj[data.columns[j]] = 'unbekannt';
+						obj[data.columns[j]] = null;
+					else
+						obj[data.columns[j]] = data.data[i][j];
+				}
+				if(selected)
+					obj.selected = false;
+				results.push(obj);
+			}
+			return results;
+		};
+		
+		f.createHierarchy = function(data) {
+			var results = [];
+			for(var i=0, l=data.data.length; i<l; i++) {
+				var parent = {};
+				/*parent.file = data.data[i][0].file.data;
+				parent.obj = data.data[i][0].obj.data;*/
+				parent.content = data.data[i][0].parent.data.content;
+				parent.children = [];
+				for(var j=0, m=data.data[i][1].length; j<m; j++) {
+					var child = {};
+					child.file = data.data[i][1][j].file.data;
+					child.obj = data.data[i][1][j].obj.data;
+					child.content = data.data[i][1][j].child.data.content;
+					child.children = [];
+					parent.children.push(child);
+				}
+				results.push(parent);
+			}
+			for(var i=0; i<results.length; i++) {
+				for(var j=0, m=results.length; j<m; j++) {
+					if(i===j) continue;
+					var p = getElementInHierarchy(results[j], results[i].content);
+					if(p !== undefined) {
+						p.children = results[i].children;
+						results.splice(i,1);
+						i--;
+						break;
+					}
+				}
+			}
+			return results;
+		};
+		
 		return f;
 		
 	});

@@ -10,7 +10,8 @@ var webglApp = angular.module('webglApp', [
 	'truncate',
 	'xeditable',
 	'mgcrea.ngStrap',
-	'angularMoment'
+	'angularMoment',
+	'ngScrollbars'
 ]);
 
 webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',

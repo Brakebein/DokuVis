@@ -37,6 +37,15 @@ div[ng-view],
     -o-transition: all 0.5s;
 }*/
 
+
+/* ng-scrollbars Anpassungen */
+.mCSB_inside>.mCSB_container {
+	margin-right: 6px;
+	padding-right: 10px;
+	padding-left: 10px;
+}
+
+
 /* Modal-Anpassungen */
 .modal-backdrop {
 	opacity: 0.2;

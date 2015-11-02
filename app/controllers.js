@@ -156,6 +156,9 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		$scope.views.activeMain = '3dview';
 		//$scope.views.activeSide = 'objlist';
 		$scope.views.activeSide = 'comments';
+		$scope.views.enhancedOptions = {};
+		$scope.views.enhancedOptions.show = false;
+		$scope.views.enhancedOptions.tab = 'display';
 		
 		//Mitarbeiter
 		/*$scope.staff = [];*/
@@ -216,6 +219,14 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		$scope.position = new Object();
 		$scope.position.minAge = 1250;
 		$scope.position.maxAge = 1750;
+		
+		// scroll settings
+		$scope.scrollConfig = {
+			theme: 'dark',
+			axis: 'y',
+			scrollInertia: 500,
+			advanced: { updateOnContentResize: false }
+		};
 		
 		//Balken
 		$scope.baulk = new Object();
@@ -399,19 +410,21 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			});
 		}
 		
+		// lädt alle Dokumente im Quellenbrowser
 		$scope.getAllDocuments = function() {
-			//neo4jRequest.getPlanFromObject('G_marhanna').success(function(data, status){
-			neo4jRequest.getAllDocuments($scope.project).success(function(data, status){
-				
-				//console.log($scope.models);
-				console.log(data, status);
-				if(!data) { console.error('neo4jRequest failed'); return; }
-				$scope.sourceResults = cleanData(data, true);
-				console.log($scope.sourceResults);
-				
-				/*for(var i=0; i<files.length; i++) {
-					$scope.callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', files[i].file);
-				}*/
+			neo4jRequest.getAllDocuments($scope.project).then(function(response){
+				if(!response.data) { console.error('neo4jRequest failed on getAllDocuments()', response); return; }
+				$scope.sourceResults = Utilities.cleanNeo4jData(response.data, true);
+				console.log('Dokumente:', $scope.sourceResults);
+			});
+		};
+		
+		// lädt alle Screenshots in Liste
+		$scope.getScreenshots = function() {
+			neo4jRequest.getScreenshotsWithMarkers($scope.project).then(function(response){
+				if(!response.data) { console.error('neo4jRequest failed on getScreenshots()', response); return; }
+				$scope.screenshots = Utilities.cleanNeo4jData(response.data);
+				console.log('Screenshots:', $scope.screenshots);
 			});
 		};
 		
@@ -613,46 +626,19 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			});*/
 		};
 		
-		$scope.getScreenshots = function() {
-			neo4jRequest.getScreenshotsWithMarkers($scope.project).success(function(data, status){
-				
-				$scope.screenshots = cleanData(data);
-				console.log(data, $scope.screenshots);
-			});
-		};
 		
 		
 		$scope.callDirFunc = {};
 		
-		//Ein- und Ausklappen des COnatiners am rechten Rand
-		$scope.expandPanelContainer = function(e) {
-			var btn = $(e.delegateTarget);
-			//console.log(btn.parent().css('right'));
-			if(btn.parent().css('right') == '0px') {
-				btn.children('span').removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-left');
-				btn.parent().animate({ right: '-280px' }, 500);
-			}
-			else {
-				btn.children('span').removeClass('glyphicon-chevron-left').addClass('glyphicon-chevron-right');
-				btn.parent().animate({ right: '0' }, 500);
-			}
+		// öffne oder schließe Tab im vpPanelContainer
+		$scope.openVpPanelTab = function(tab) {
+			if($scope.views.enhancedOptions.tab == tab)
+				$scope.views.enhancedOptions.tab = '';
+			else
+				$scope.views.enhancedOptions.tab = tab;
 		};
 		
-		// Ein- und Ausklappen der ViewportControlPanels (rechter Rand)
-		$scope.expandVpCtrlPanel = function(e) {
-			var btn = $(e.target);
-			var body = btn.parent().parent().parent().find('.ctrlPanel-body');
-			if(body.is(':visible')) {
-				btn.removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
-			}
-			else {
-				btn.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-				btn.parent().parent().removeClass('hiddenBody');
-			}
-			
-			body.slideToggle(300, function() {
-			});
-		};
+		
 		
 		//ein- und ausklappen des unteren Containers
 		$scope.expandPanelContainerHorizontal = function(e) {
