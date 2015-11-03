@@ -302,7 +302,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				queue: $scope.sourcesUploader.queue
 			};
 			$modal({
-				title: 'Plan einfügen',
+				title: 'Quelle einfügen',
 				templateUrl: 'partials/modals/_modalTpl.html',
 				contentTemplate: 'partials/modals/insertSourceModal.html',
 				controller: 'insertSourceCtrl',
@@ -850,23 +850,27 @@ webglControllers.controller('addNewStaffCtrl', ['$scope', '$timeout', '$sce', 'p
 		
 		
 		}]);
-webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4jRequest', '$timeout',
-	function($scope, FileUploader, neo4jRequest, $timeout) {
+
+webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal',
+	function($scope, FileUploader, neo4jRequest, Utilities, $timeout, $modal) {
 		
 		
 		// init
 		var isInserting = false;
 		
+		var imageTypes = ['jpg','png','jpeg','bmp','gif','tiff'];
+		var textTypes = ['pdf'];
+		
 		//$scope.insert = $scope.$parent.overlayParams;
 		//$scope.insert.project = $scope.$parent.project;
 		$scope.insert = {params: {type: 'text', attachTo: undefined}};
 		$scope.insert.phpurl = '';
-		$scope.insert.uploadType = '';
+		$scope.insert.uploadType = 'source';
 		$scope.insert.formTitle = '';
 		//console.log($scope.insert, $scope.$parent.project);
 		
 		console.log($scope);
-		
+		/*
 		switch($scope.insert.params.type) {
 			case 'source':
 				$scope.insert.phpurl = 'php/upload.php';
@@ -907,7 +911,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				$scope.insert.type = $scope.insert.params.type;
 				break;
 			default: break;
-		}
+		}*/
 		
 		$scope.globals = {};
 		$scope.globals.type = $scope.insert.params.type;
@@ -919,6 +923,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 		$scope.globals.useCreationPlace = false;
 		
 		$scope.suggestions = [];
+		$scope.archives = [];
 		
 		
 		var uploader = $scope.uploader = new FileUploader({
@@ -928,15 +933,16 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 
         // FILTERS
 		
-		if($scope.insert.uploadType == 'image') {
+		if($scope.insert.uploadType == 'source') {
 			uploader.filters.push({
-				name: 'imageFilter',
-				fn: function(item /*{File|FileLikeObject}*/, options) {
-					var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|';
-					return '|jpg|png|jpeg|bmp|gif|tiff|'.indexOf(type) !== -1;
+				name: 'sourceFilter',
+				fn: function(item, options) {
+					var type = item.type.slice(item.type.lastIndexOf('/') + 1);
+					return imageTypes.concat(textTypes).indexOf(type) !== -1;
 				}
 			});
 		}
+		/*
 		else if($scope.insert.uploadType == 'model') {
 			uploader.filters.push({
 				name: 'modelFilter',
@@ -963,7 +969,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 					return '|pdf|PDF|doc|docx|jpg|png|jpeg|'.indexOf(type) !== -1;
 				}
 			});
-		}
+		}*/
 		
 		// CALLBACKS
 
@@ -974,9 +980,9 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
         };
         uploader.onAfterAddingFile = function(fileItem) {
             console.info('onAfterAddingFile', fileItem);
-			fileItem.tid = new Base62().encode(new Date().getTime());
-			fileItem.newFileName = fileItem.tid + '_' + fileItem.file.name.replace(/ /g, "_");
-			sleep(1);
+			// fileItem.tid = new Base62().encode(new Date().getTime());
+			// fileItem.newFileName = fileItem.tid + '_' + fileItem.file.name.replace(/ /g, "_");
+			// Utilities.sleep(1);
         };
         uploader.onAfterAddingAll = function(addedFileItems) {
             console.info('onAfterAddingAll', addedFileItems);
@@ -984,19 +990,27 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
         uploader.onBeforeUploadItem = function(item) {
             console.info('onBeforeUploadItem', item);
 			
+			uploader.url = item.url;
+			
 			var formData = {
+				sourceType: item.sourceType,
+				
 				title: item.title,
-				archive: item.archive,
 				author: ($scope.globals.useAuthor) ? $scope.globals.author : item.author,
 				creationDate: ($scope.globals.useCreationDate) ? $scope.globals.creationDate : item.creationDate,
-				creationPlace: ($scope.globals.useCreationPlace) ? $scope.globals.creationPlace : item.creationPlace,
 				comment: item.comment,
+				
+				archive: item.archive,
+				archiveNr: item.archiveNr,
+				creationPlace: ($scope.globals.useCreationPlace) ? $scope.globals.creationPlace : item.creationPlace,
+				language: item.language,
+				ocr: item.ocr,
+				
 				oldFileName: item.file.name,
 				newFileName: item.newFileName,
 				fileType: item.file.name.split(".").pop(),
 				pureNewFileName: item.newFileName.slice(0, item.newFileName.lastIndexOf(".")),
-				path: 'data/'+$scope.$parent.project+'/'+item.sourceType+'s/',
-				sourceType: item.sourceType,
+				path: $scope.$parent.project+'/'+item.sourceType+'s/',
 				tid: item.tid
 			};
 			item.formData.push(formData);
@@ -1020,7 +1034,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				return;
 			}
 			
-			//neo4jRequest.testInputsForExistingNodes(testObjects).success(function(data, status){*/
+			//neo4jRequest.testInputsForExistingNodes(testObjects).success(function(data, status){
 			if($scope.insert.uploadType == 'image') {
 				waitfor(function(){return isInserting;}, false, 50, {}, function(params) {
 					isInserting = true;
@@ -1081,6 +1095,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 					isInserting = false;
 				});
 			}
+			
         };
         uploader.onErrorItem = function(fileItem, response, status, headers) {
             console.info('onErrorItem', fileItem, response, status, headers);
@@ -1103,21 +1118,41 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 			uploader.addToQueue($scope.insert.params.queue[i]._file);
 		}*/
 		
+		// init metadata of item
 		$scope.initItem = function(item) {
-			item.sourceType = $scope.insert.type;
+			item.tid = new Utilities.Base62().encode(new Date().getTime());
+			item.newFileName = item.tid + '_' + item.file.name.replace(/ /g, "_");
+			
+			var type = item.file.type.slice(item.file.type.lastIndexOf('/') + 1);
+			if(imageTypes.indexOf(type) !== -1) {
+				item.sourceType = 'plan';
+				item.url = 'php/uploadImage.php';
+			}
+			else if(textTypes.indexOf(type) !== -1) {
+				item.sourceType = 'text';
+				item.language = 'de';
+				item.url = 'php/processText.php';
+			}
+			
 			item.title = '';
 			item.titleError = false;
 			item.author = '';
-			item.archive = '';
 			item.creationDate = '';
-			item.creationPlace = '';
 			item.comment = '';
+			item.formExtend = false;
+			item.archive = '';
+			item.archiveNr = '';
+			item.creationPlace = '';
+			item.ocr = false;
+			
 			item.isInputError = false;
 			item.isProcessing = false;
 			item.isInserting = false;
 			item.anzInserting = 0;
 			item.anzInserted = 0;
-		}
+			
+			Utilities.sleep(1);
+		};
 		
 		$scope.checkAndUploadAll = function() {
 			// wait for responses and validate inputs
@@ -1133,6 +1168,61 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				uploader.uploadAll();
 			}, 1000);
 		}
+		
+		function getArchives() {
+			neo4jRequest.getArchives($scope.$parent.project).then(function(response){
+				if(!response.data) { console.error('neo4jRequest failed on getArchives()', response); return; }
+				$scope.archives = Utilities.cleanNeo4jData(response.data);
+				console.log('Archives:', $scope.archives);
+			});
+		}
+		getArchives();
+		
+		$scope.addArchive = function() {
+			var newscope = $scope.$new(true);
+			newscope.modalParams = {
+				modalType: 'small',
+				modalLevel: 'level2'
+			};
+			$modal({
+				title: 'Archiv hinzufügen',
+				templateUrl: 'partials/modals/_modalTpl.html',
+				contentTemplate: 'partials/modals/addArchiveModal.html',
+				controller: 'addArchiveCtrl',
+				scope: newscope,
+				show: true
+			});
+		};
+		
+		// typeahead input callbacks
+		$scope.setTypeaheadArray = function(label, prop) {
+			if(!label) return;
+			neo4jRequest.getAllLabelProps($scope.$parent.project, label, prop).then(function(response){
+				if(!response.data) { console.error('neo4jRequest failed on setTypeaheadArray()', response); return; }
+				$scope.suggestions = Utilities.cleanNeo4jData(response.data);
+				//console.log($scope.suggestions);
+			});
+		};
+		$scope.validateInput2 = function(item, params) {
+			//console.log('blur', item, params);
+			$scope.suggestions = [];
+			
+			if(params) {
+				item.titleError = false;
+				for(var i=0, l=uploader.queue.length; i<l; i++) {
+					if(params.index == i) continue;
+					if(uploader.queue[i][params.prop] == item[params.prop])
+						item.titleError = true;
+				}
+				if(!item.titleError) {
+					neo4jRequest.findNodeWithSpecificContent($scope.$parent.project, params.label, item[params.prop]).success(function(data, status){
+						//console.log(data);
+						if(data.data.length > 0)
+							item.titleError = true;
+					});
+				}
+			}
+		};
 		
 		// autocomplete input callbacks
 		$scope.getSuggestions = function(search, params) {
@@ -1174,7 +1264,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 		
 		$scope.openFileDialog = function(event) {
 			$timeout(function() {
-				angular.element(event.target).find('input').trigger('click');
+				angular.element(event.delegateTarget).find('input').trigger('click');
 			});
 		};
 		
@@ -1185,6 +1275,13 @@ webglControllers.controller('sourceTypeCtrl', ['$scope',
 		
 		console.log('sourceTypeCtrl init');
 		
+		
+		
+	}]);
+webglControllers.controller('addArchiveCtrl', ['$scope',
+	function($scope) {
+		
+		console.log('addArchiveCtrl init', $scope);
 		
 		
 	}]);

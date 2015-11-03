@@ -162,11 +162,33 @@ webglServices.factory('neo4jRequest',
 			});
 		};
 		
+		// alle Institutionen mit Archiven
+		requests.getArchives = function(prj) {
+			return $http.post(phpUrl, {
+				query: 
+					'MATCH (e78:E78:'+prj+')-[:P1]-(e41:E41), \
+					(e78)-[:P52]->(:E40)-[:P131]->(e82:E82) \
+					RETURN e78.content AS collection, e41.content AS collectionName, e82.content AS institutionName',
+				params: {}
+			});
+		};
+		
+		// alte Suchanfrage für autocomplete
 		requests.searchForExistingNodes = function(prj, label, input) {
 			return $http.post(phpUrl, {
 				query: 'MATCH (n:'+label+':'+prj+')'
 					+' WHERE n.content =~ "(?i).*'+input+'.*"'
 					+' RETURN n.content AS content',
+				params: {}
+			});
+		};
+		
+		// neue Suchanfrage für typeahead
+		requests.getAllLabelProps = function(prj, label, prop) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (n:'+label+':'+prj+') \
+					RETURN n.'+prop+' AS content',
 				params: {}
 			});
 		};
@@ -539,7 +561,6 @@ webglServices.factory('mysqlRequest',
 	});
 	
 	
-
 webglServices.factory('neo4jExtraction',
 	function() {
 		
@@ -674,6 +695,18 @@ webglServices.factory('Utilities',
 		*/
 		f.getUniqueId = function() {
 			return new f.Base62().encode(new Date().getTime());
+		};
+		
+		/**
+		  * sleep function - application on hold
+		*/
+		f.sleep = function(milliseconds) {
+			var start = new Date().getTime();
+			for (var i = 0; i < 1e7; i++) {
+				if ((new Date().getTime() - start) > milliseconds){
+					break;
+				}
+			}
 		};
 		
 		/**

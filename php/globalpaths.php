@@ -25,6 +25,9 @@ $pSwishe = 'C:\\ServerTools\\SWISH-E\\bin\\swish-e.exe';
 $pSwisheConfig = 'C:\\ServerTools\\SWISH-E\\swish.config';
 
 
+// Ordner für temporäre Dateien
+$pTemp = 'C:\\xampp\\htdocs\\DokuVis\\tmp';
+
 // Datenordner
 $pData = 'C:\\xampp\\htdocs\\DokuVis\\data';
 

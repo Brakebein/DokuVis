@@ -14,8 +14,8 @@ var webglApp = angular.module('webglApp', [
 	'ngScrollbars'
 ]);
 
-webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',
-	function($stateProvider, $urlRouterProvider, $modalProvider) {
+webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$tooltipProvider',
+	function($stateProvider, $urlRouterProvider, $modalProvider, $tooltipProvider) {
 		
 		$urlRouterProvider.otherwise('/intro');
 		
@@ -56,9 +56,14 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',
 					
 			});
 		
+		// defaults
 		angular.extend($modalProvider.defaults, {
 			backdrop: 'static',
 			keyboard: false
+		});
+		angular.extend($tooltipProvider.defaults, {
+			placement: 'right',
+			delay: {show: 500, hide: 100}
 		});
 		
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
