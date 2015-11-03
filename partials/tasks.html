@@ -73,8 +73,9 @@
 		         auto-expand="both" 
 		         expand-to-fit= "true"
 		         task-content = "options.taskContent"
-             	 row-content = "options.rowContent"
-		         >
+             	 row-content = "options.rowContent">
+             
+		         
 			 
 			 <gantt-tree enabled="true"
 		                  header-content="options.treeHeaderContent"
@@ -101,17 +102,17 @@
 		      <gantt-sortable></gantt-sortable>
 			  <gantt-movable></gantt-movable>
 			  <gantt-tooltips content = "options.contentTooltips"></gantt-tooltips>
-			  <gantt-draw-task enabled="enabled"
-                                            move-threshold="2" task-factory="drawTaskFactory"></gantt-draw-task>
+			 <!-- <gantt-draw-task enabled="enabled"
+                                            move-threshold="2" task-factory="drawTaskFactory"></gantt-draw-task>-->
 			  <gantt-overlap></gantt-overlap>
 			  <gantt-resize-sensor></gantt-resize-sensor>
 			</div>
-			<hr/>
+		<hr/>
 			
 		<!--</div>-->
 	</div>
 	
-	<div class = "container">
+	<!--<div class = "container">
 			<div class="row">
 				<div class="form-inline">
 				
@@ -147,20 +148,16 @@
 				
 					</div>
 				</div>	
-			</div>
+			</div>-->
 			
 			<!--<p>{{data[3].tasks[0].data}}</p>-->
 </div>
 
 
-
-
-<div class="resizer-v" resizer="vertical" resizer-width="6" resizer-left=".viewportPanel" resizer-left-min="780" resizer-right=".sidePanel" resizer-right-min="380" resizer-end="wi.callFunc.resize"></div>
-
 <div class = "tasksRightHalf">
 	
 	
-	<div title = "staffContainer" class = "sideContainer">
+	<div ng-if = "views.activeSide == 'staff'" title = "staffContainer" class = "sideContainer">
 			<!--Mitarbeitertabelle-->
 		<!--<div ng-if="views.activeSide == 'staff'" class="sideContainer">-->
 			<div class="sideHeader">
@@ -171,7 +168,7 @@
 		
 			<div class = "sideContent">
 			<!--<p>test</p>-->
-				<span ng-if="staff.length < 1">Keine Mitarbeiter vorhanden</span>
+				<span ng-if="staff.length < 1" >Keine Mitarbeiter vorhanden</span>
 				<table ng-if="staff.length > 0" class="table table-striped"> 
 				
 				
@@ -185,13 +182,15 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat="s in staff | orderBy: 'name'">
+					<tr draggable="true" ng-repeat="s in staff | orderBy: 'name'">
 						<!--<td>{{s.sid}}</td>-->
-						<td><a href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)">{{s.name}}</a></td>
+						
+						<td><a href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
 						<td><a href="#" editable-text ="s.surname" onbeforesave = "updateSurname($data,s.sid)">{{s.surname}}</a></td>
 						<td><a href="#" editable-text ="s.mail" onbeforesave = "updateMail($data,s.sid)">{{s.mail}}</a></td>
 						<td><a href="#" editable-text ="s.role" onbeforesave = "updateRole($data,s.sid)">{{s.role}}</a></td>
 						<!--<td>{{s.projects}}</td>-->
+						
 						<td><button type="button" class="btn btn-default" ng-click=removeStaff(s.sid)>Löschen</button></td>
 						
 					</tr>
@@ -242,12 +241,29 @@
 				</div>			
 			</div>
 		</div>
+		
+	<div ng-if = "views.activeSide == 'comments'" title = "commentContainer" class = "sideContainer">
+			<div class="sideHeader">
+				<h4>Kommentare</h4>
+				<hr/>
+				
+			</div>
+		
+			<div class = "sideContent">
+			</div>
+	</div>
 	
 		
 	<div class="sidePanelSidemenu">
 		<div title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
 			<span class="glyphicon glyphicon-user"></span>
 		</div>
+		<div title="Kommentare" class="smBtn" ng-class="views.activeSide=='comments'?'active':''" ng-click="views.activeSide = 'comments'">
+			<span class="glyphicon glyphicon-comment"></span>
+		</div>
+		
 	</div>
 	
 </div>
+
+<div class="resizer-v" resizer="vertical" resizer-width="1" resizer-left=".tasksLeftHalf" resizer-left-min="780" resizer-right=".tasksRightHalf" resizer-right-min="100" resizer-end="wi.callFunc.resize"></div>

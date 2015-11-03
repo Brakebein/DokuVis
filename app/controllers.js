@@ -1375,33 +1375,210 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.newTask.from = '';
 		$scope.newTask.to = '';
 		
-		$scope.data = [
-		{name: 'Milestones', height: '3em', sortable: false, classes: 'gantt-row-milestone', color: '#98aec7', tasks: []},
+		/*Views*/
 		
-    {name: 'Jonas' },
+		$scope.views = new Object();
+		$scope.views.activeSide = 'staff';
+		
+		$scope.data = [
+		{name: 'Milestones', sortable: false, classes: 'gantt-row-milestone'},
+		
+    	{name: 'Jonas', isParent: 'true', sortable: false},
     
-    {name: 'Martin'},
+    	{name: 'Martin',sortable: false, classes: 'gantt-row-milestone'},
     
-    {name: 'test1', parent: 'Martin', status: 'erledigt', children: ['test2'],  tasks: [
-                            {name: 'test1', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0),data: "Lorem Ipsum"}
+    	{name: 'test1', isParent: 'false', parent: 'Martin', status: 'erledigt',priority: '2', hasData: 'true', children: ['test2'],  tasks: [
+                            {name: 'test1', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), data: "Lorem Ipsum"}
                         ]},
-    {name: 'test2', status: 'erledigt', tasks: [
+    {name: 'test2', status: 'erledigt',priority: '3', hasData: 'false', tasks: [
                             {name: 'test2', color: '#F1C232', from: new Date(2015, 09, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
                         ]},
    
-   {name: 'test4',parent: 'Jonas', status: 'zu bearbeiten', tasks: [
+   {name: 'test4',parent: 'Jonas', status: 'zu bearbeiten', priority: '1', tasks: [
                             {name: 'test4', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
                         ]},
-    {name: 'test5',parent: 'Jonas', tasks: [
-                            {name: 'test5', color: '#F1C232', from: new Date(2015, 09, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0) }
+    {name: 'test5',parent: 'Jonas', status: 'zu bearbeiten', tasks: [
+                            {name: 'test5', color: '#F1C232', from: new Date(2015, 10, 3, 8, 0, 0), to: new Date(2015, 10, 4, 15, 0, 0) }
                         ]},
-                        {name: 'test6',parent: 'Jonas', tasks: [
-                            {name: 'test6', color: '#F1C232', from: new Date(2015, 09, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
+    {name: 'test6',parent: 'Jonas', status: 'zu bearbeiten', tasks: [
+                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 4, 8, 0, 0), to: new Date(2015, 10, 5, 15, 0, 0)}
                         ]},
          
-]
+]		
+		$scope.options = {
+			allowSideResizing: true,
+			fromDate: getFormattedDate(new Date()),
+			toDate: getFormattedDate(addDays(new Date(),30)),
+			columns: ['model.priority','from', 'to', 'model.status'],
+			treeTableColumns: ['from', 'to', 'status'],
+			columnsHeaders: {'model.priority': 'Priorität', 'from': 'von', 'to': 'bis', 'model.status': 'Status'},
+			columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to', 'model.status': 'gantt-column-status'},
+			columnsFormatters: {
+					                'from': function(from) {
+					                    return from !== undefined ? from.format("DD.MM.YYYY") : undefined;
+					                },
+					                'to': function(to) {
+					                    return to !== undefined ? to.format("DD.MM.YYYY") : undefined;
+					                }
+					            },
+            
+            /*treeHeaderContent: '<i class="fa fa-align-justify"></i> {{getHeader()}}',*/
+          columnsContents: { 
+          'from': '<div bs-datepicker>{{getValue()}}</div>',
+          'model.priority': '{{getValue()}}',
+          'model.status': '<i ng-class="getValue() == \'erledigt\' ? \'glyphicon glyphicon-ok\' : \'glyphicon glyphicon-cog\'" ng-click="scope.changeStatus(row.model.name)"></i>',
+            },
+            filterTask: '',
+            filterRow: '',
+            contentTooltips: '{{task.model.data}}',
+            scale: 'day',
+            sortMode: undefined,
+            maxHeight: true,
+            width: true,
+            rowContent: '<i ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showComments()"></i><a href="#" /*ng-if= "row.model.isParent == \'false\'" ? */ editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" > {{row.model.name}}</a> <i class= "fa fa-plus" ng-click ="scope.addNewTask(row.model)"></i>',
+            taskContent: '<a href="#" editable-text ="task.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,task.model)">{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task.model,row.model)"></i>',
+            zoom: 1           
+		};
 		
-		/*Mitarbeiter*/
+		
+		function getFormattedDate(date) {
+    		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
+		    return str;
+		}
+
+		function addDays(date, days) {
+		    var result = new Date(date);
+		    result.setDate(date.getDate() + days);
+		    return result;
+		}
+
+		 $scope.canAutoWidth = function(scale) {
+            if (scale.match(/.*?hour.*?/) || scale.match(/.*?minute.*?/)) {
+                return false;
+            }
+            return true;
+        };
+
+        $scope.getColumnWidth = function(widthEnabled, scale, zoom) {
+            if (!widthEnabled && $scope.canAutoWidth(scale)) {
+                return undefined;
+            }
+
+            if (scale.match(/.*?week.*?/)) {
+                return 150 * zoom;
+            }
+
+            if (scale.match(/.*?month.*?/)) {
+                return 300 * zoom;
+            }
+
+            if (scale.match(/.*?quarter.*?/)) {
+                return 500 * zoom;
+            }
+
+            if (scale.match(/.*?year.*?/)) {
+                return 800 * zoom;
+            }
+
+            return 40 * zoom;
+        };
+
+		
+		/*Tasks*/
+		
+		$scope.addNewTask = function (rowModel){
+			console.log(rowModel);
+			
+				$scope.data.push({name: 'neue Aufgabe', parent: rowModel.name , priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: 'red', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
+			
+			
+			
+		}
+		
+		/*$scope.addNewTask = function(newTask) {
+			$.each($scope.data,function(index){
+				if(newTask.staff == $scope.data[index].name){
+					
+					
+					$scope.data.push({name: newTask.task, parent: newTask.staff,tasks: [{name: newTask.task, color: '#F1C232', from: newTask.from, to: newTask.to}]});
+					$scope.nameFound = true;
+					return false;
+				}		
+			});
+			
+			if($scope.nameFound == false){
+				$scope.data.push({name: newTask.staff});
+					$scope.data.push({	name: newTask.task, parent: newTask.staff,tasks: [{name: newTask.task, color: '#F1C232', from: newTask.from, to: newTask.to}]
+						
+					});
+					console.log($scope.data);
+			}
+			$scope.nameFound = false;	
+			
+		
+		}*/
+		
+		$scope.drawTaskFactory = function() {
+		   
+		   var newTask = {
+		      id: 5,
+		        name: 'New Task',
+		        color: '#F1C232'
+		    }
+
+   			 return newTask;
+		}
+		
+
+		$scope.editTask = function(data, taskModel){
+			console.log(data);
+			console.log(taskModel);
+		}
+
+		$scope.showComments = function() {
+			$scope.views.activeSide = 'comments';
+		}
+		
+		$scope.changeStatus = function(rowName){
+			
+			$.each($scope.data,function(index){
+				if(rowName == $scope.data[index].name){
+					
+					if($scope.data[index].status == 'zu bearbeiten'){
+						if(confirm("Ist die Aufgabe wirklich erledigt?")){
+							$scope.data[index].status = 'erledigt';
+							$scope.data[index].tasks[0].color = 'green';
+						}
+						else{
+							$scope.data[index].status = 'zu bearbeiten';
+							$scope.data[index].tasks[0].color = 'red';
+						}
+						return false;
+							
+					}
+					
+					if($scope.data[index].status == 'erledigt'){
+						$scope.data[index].status = 'zu bearbeiten';
+						$scope.data[index].tasks[0].color = 'red';
+						return false;				
+					}
+				}
+			});
+		};
+		
+		
+		$scope.deleteTask = function(taskModel,rowModel){	
+			/*console.log(taskModel);
+			console.log(rowModel);*/
+			$.each($scope.data,function(index){		
+			console.log($scope.data[index].name);
+				if(taskModel.name == $scope.data[index].name){
+				$scope.data.splice(index,1);
+				}
+			});
+		};
+				
+	/*Mitarbeiter*/
 		
 		$scope.getAllStaff = function() {
 			mysqlRequest.getAllStaff().success(function(obj, status){
@@ -1483,165 +1660,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				$scope.getAllStaff();
 			});
 		}
-		
-		
-		
-		$scope.options = {
-			allowSideResizing: true,
-			fromDate: getFormattedDate(new Date()),
-			toDate: getFormattedDate(addDays(new Date(),30)),
-			columns: ['from', 'to', 'model.status'],
-			treeTableColumns: ['from', 'to', 'status'],
-			columnsHeaders: {'from': 'von', 'to': 'bis', 'model.status': 'Status'},
-			columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to', 'model.status': 'gantt-column-status'},
-			columnsFormatters: {
-					                'from': function(from) {
-					                    return from !== undefined ? from.format("MMM Do YY") : undefined;
-					                },
-					                'to': function(to) {
-					                    return to !== undefined ? to.format("MMM Do YY") : undefined;
-					                }
-					            },
-            
-            /*treeHeaderContent: '<i class="fa fa-align-justify"></i> {{getHeader()}}',*/
-          columnsContents: { 'model.status': '{{getValue()}}'
-                
-                /*'model.status': '<i ng-class="getValue() == \'erledigt\' ? \'glyphicon glyphicon-ok\' : \'glyphicon glyphicon-cog\'"></i>',*/
-            },
-            filterTask: '',
-            filterRow: '',
-            contentTooltips: '{{task.model.data}}',
-            scale: 'day',
-            sortMode: undefined,
-            maxHeight: true,
-            width: true,
-            rowContent: '<i class="fa fa-edit" ng-click="scope.editStaffContent(row.model.name)"></i>{{row.model.name}}',
-            taskContent: '<a href="#" editable-text ="task.model.name" e-style="width: 60px; height: 20px" buttons = "no">{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task)"></i>',
-            zoom: 1
-		};
-		
-		
-		function getFormattedDate(date) {
-    		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
-		    return str;
-		}
-
-		function addDays(date, days) {
-		    var result = new Date(date);
-		    result.setDate(date.getDate() + days);
-		    return result;
-		}
-
-		 $scope.canAutoWidth = function(scale) {
-            if (scale.match(/.*?hour.*?/) || scale.match(/.*?minute.*?/)) {
-                return false;
-            }
-            return true;
-        };
-
-        $scope.getColumnWidth = function(widthEnabled, scale, zoom) {
-            if (!widthEnabled && $scope.canAutoWidth(scale)) {
-                return undefined;
-            }
-
-            if (scale.match(/.*?week.*?/)) {
-                return 150 * zoom;
-            }
-
-            if (scale.match(/.*?month.*?/)) {
-                return 300 * zoom;
-            }
-
-            if (scale.match(/.*?quarter.*?/)) {
-                return 500 * zoom;
-            }
-
-            if (scale.match(/.*?year.*?/)) {
-                return 800 * zoom;
-            }
-
-            return 40 * zoom;
-        };
-
-		
-		/*Tasks*/
-		
-		$scope.addNewTask = function(newTask) {
-			$.each($scope.data,function(index){
-				if(newTask.staff == $scope.data[index].name){
-					
-					
-					$scope.data.push({name: newTask.task, parent: newTask.staff,tasks: [{name: newTask.task, color: '#F1C232', from: newTask.from, to: newTask.to}]});
-					$scope.nameFound = true;
-					return false;
-				}		
-			});
-			
-			if($scope.nameFound == false){
-				$scope.data.push({name: newTask.staff});
-					$scope.data.push({	name: newTask.task, parent: newTask.staff,tasks: [{name: newTask.task, color: '#F1C232', from: newTask.from, to: newTask.to}]
-						
-					});
-					console.log($scope.data);
-			}
-			$scope.nameFound = false;	
-			
-		
-		}
-		
-		$scope.drawTaskFactory = function() {
-		   
-		   var newTask = {
-		      id: 5,
-		        name: 'New Task',
-		        color: '#F1C232'
-		    }
-
-   			 return newTask;
-		}
-		
-
-		
-		$scope.changeGreen = function(task){		
-		task.model.color = 'green';	
-		};
-		
-		$scope.changeRed = function(task){		
-		task.model.color = 'red';	
-		};
-		
-		$scope.changeYellow = function(task){		
-		task.model.color = '#F1C232';	
-		};
-		
-		$scope.editStaffContent = function(rowName){
-			/*alert(rowName);*/
-			$.each($scope.data,function(index){
-				if(rowName == $scope.data[index].name){
-					$scope.data[index].status = 'zu bearbeiten'
-					$scope.data[index].tasks[0].color = 'red';
-					console.log(index);
-					}
-				});
-		};
-		
-		
-		$scope.deleteTask = function(task){	
-			$.each($scope.data,function(index){
-								
-				if(task.model.name == $scope.data[index].name){
-			
-				$scope.data.splice(index,1);
-			
-				}
-				
-			});
-		};
-		
-		
-		$scope.deleteStaff = function(rowModel){
-		alert(rowModel.name + " gelöscht!");
-		}
+	
 	//initiiere Staff
 	$scope.getAllStaff();
 	

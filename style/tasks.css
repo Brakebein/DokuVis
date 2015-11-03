@@ -88,30 +88,57 @@ position: absolute;
 	font-size: 8pt;
 }
 
-.glyphicon-ok-sign:hover{
-	cursor: pointer;
+
+.fa-plus{
+	opacity: 0.5;
 }
 
-.glyphicon-remove-sign:hover{
+.fa-plus:hover{
 	cursor: pointer;
+	opacity: 1.0;
 }
 
-.glyphicon-question-sign:hover{
-	cursor: pointer;
+.fa-pencil{
+	opacity: 0.5;
 }
 
-.glyphicon-ok:hover{
+.fa-pencil:hover{
 	cursor: pointer;
+	opacity: 1.0;
 }
 
-.glyphicon-cog:hover{
+.fa-commenting-o{
+	opacity: 0.5;
+}
+
+.fa-commenting-o:hover{
 	cursor: pointer;
+	opacity: 1.0;
+}
+
+.fa-times{
+	opacity: 0.5;
 }
 
 .fa-times:hover{
 	cursor: pointer;
+	opacity: 1.0;
 }
 
-.fa-edit:hover{
+.glyphicon-ok{
+	opacity: 0.5;
+}
+
+.glyphicon-ok:hover{
 	cursor: pointer;
+	opacity: 1.0;
+}
+
+.glyphicon-cog{
+	opacity: 0.5;
+}
+
+.glyphicon-cog:hover{
+	cursor: pointer;
+	opacity: 1.0;
 }

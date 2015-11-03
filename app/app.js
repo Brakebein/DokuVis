@@ -51,8 +51,7 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',
 				url: '/tasks',
 				templateUrl: 'partials/tasks.html',
 				controller: 'tasksCtrl',
-				css: 'style/tasks.css'
-					
+				css: 'style/tasks.css'					
 			});
 		
 		angular.extend($modalProvider.defaults, {
