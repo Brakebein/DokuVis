@@ -217,6 +217,7 @@ webglServices.factory('neo4jRequest',
 			});
 		};
 		
+		// Einfügen der Quelle
 		requests.insertDocument = function(prj, formData) {
 			var ts = new Base62().encode(new Date().getTime());
 			var q = '';
@@ -475,6 +476,10 @@ webglServices.factory('mysqlRequest',
 	
 		var requests = {};
 		
+		/**
+		  * Projekte
+		 */
+		// neues Projekt anlegen
 		requests.newProjectEntry = function(proj, name, desc) {
 			return $http.post('php/mysql/newProjectEntry.php', {
 				proj: proj,
@@ -482,17 +487,17 @@ webglServices.factory('mysqlRequest',
 				description: desc
 			});
 		};
-		
+		// Projekt löschen
 		requests.removeProjectEntry = function(proj) {
 			return $http.post('php/mysql/removeProjectEntry.php', {
 				proj: proj
 			});
 		};
-		
+		// alle Projekte auflisten
 		requests.getAllProjects = function() {
 			return $http.post('php/mysql/getAllProjects.php', {});
 		};
-		
+		// Projekt editieren
 		requests.updateProjectDescription = function(desc,id) {
 			return $http.post('php/mysql/updateProjectDescription.php', {
 				pid: id,
@@ -708,6 +713,27 @@ webglServices.factory('Utilities',
 				}
 			}
 		};
+		
+		/**
+		  * @desc wait until condition is met
+		  * @param
+		  *	  test - function that returns a value
+		  *	  expectedValue - value of the test function we are waiting for
+		  *	  msec - delay between the calls to test
+		  *	  callback - function to execute wehen the condition is met
+		  * @return nothing
+		*/
+		 f.waitfor = function(test, expectedValue, msec, params, callback) {
+			// check if condition met. if not, re-check later
+			while(test() !== expectedValue) {
+				setTimeout(function() {
+					waitfor(test, expectedValue, msec, params, callback);
+				}, msec);
+				return;
+			}
+			// condition finally met. callback() can be executed
+			callback(params);
+		}
 		
 		/**
 		  * extracts data from neo4j response object

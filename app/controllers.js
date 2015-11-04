@@ -34,9 +34,10 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', 'phpRequest',
 		$scope.newProject.description = '';
 		
 		$scope.getAllProjects = function() {
-			mysqlRequest.getAllProjects().success(function(obj, status){
-					console.log(obj);
-					$scope.projects = obj.data;
+			mysqlRequest.getAllProjects().then(function(response){
+				if(!response.data) { console.error('neo4jRequest failed on getAllProjects()', response); return; }
+				console.log(response);
+				$scope.projects = response.data;
 			});
 		};
 		
@@ -1034,8 +1035,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				return;
 			}
 			
-			//neo4jRequest.testInputsForExistingNodes(testObjects).success(function(data, status){
-			if($scope.insert.uploadType == 'image') {
+			if($scope.insert.uploadType == 'bla') {
 				waitfor(function(){return isInserting;}, false, 50, {}, function(params) {
 					isInserting = true;
 					neo4jRequest.insertDocument($scope.$parent.project, fileItem.formData[0]).success(function(data, status){
@@ -1154,13 +1154,16 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 			Utilities.sleep(1);
 		};
 		
+		// vor dem Hochladen Pflichtfelder überprüfen
 		$scope.checkAndUploadAll = function() {
 			// wait for responses and validate inputs
-			setTimeout(function() {
-				if($scope.insert.uploadType == 'image') {
+			$timeout(function() {
+				if($scope.insert.uploadType == 'source') {
 					for(var i=0, l=uploader.queue.length; i<l; i++) {
-						if(uploader.queue[i].title == '' || uploader.queue[i].titleError)
+						if(uploader.queue[i].title == '' || uploader.queue[i].titleError) {
 							uploader.queue[i].isInputError = true;
+							uploader.queue[i].titleError = true;
+						}
 						else
 							uploader.queue[i].isInputError = false;
 					}

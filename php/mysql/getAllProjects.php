@@ -4,15 +4,17 @@
 	
 	$result = mysql_query('SELECT * FROM projects');
 	
-	$json = '{ "data": [';
-	$c = 0;
-	while($row = mysql_fetch_object($result)) {
-		if($c != 0) $json .= ',';
-		$c += 1;
-		$json .= '{ "pid":'.$row->pid.',"proj":"'.$row->proj_tstamp.'","name":"'.utf8_encode($row->name).'","description":"'.utf8_encode($row->description).'" }';
-	}
-	$json .= '] }';
+	$data = [];
 	
-	echo $json;
+	while($row = mysql_fetch_object($result)) {
+		$obj = new stdClass();
+		$obj->pid = $row->pid;
+		$obj->proj = $row->proj_tstamp;
+		$obj->name = utf8_encode($row->name);
+		$obj->description = utf8_encode($row->description);
+		array_push($data, $obj);
+	}
+	
+	echo json_encode($data);
 
 ?>
