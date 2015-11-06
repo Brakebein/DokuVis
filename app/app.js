@@ -10,7 +10,8 @@ var webglApp = angular.module('webglApp', [
 	'truncate',
 	'xeditable',
 	'mgcrea.ngStrap',
-	'angularMoment'
+	'angularMoment',
+	'ngDragDrop'
 ]);
 
 webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',
@@ -51,7 +52,7 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',
 				url: '/tasks',
 				templateUrl: 'partials/tasks.html',
 				controller: 'tasksCtrl',
-				css: 'style/tasks.css'					
+				css: 'style/tasks.css'
 			});
 		
 		angular.extend($modalProvider.defaults, {

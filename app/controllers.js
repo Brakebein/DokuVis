@@ -1381,27 +1381,27 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.views.activeSide = 'staff';
 		
 		$scope.data = [
-		{name: 'Milestones', sortable: false, classes: 'gantt-row-milestone'},
+		{name: 'Milestones', isStaff: 'true', classes: 'gantt-row-milestone'},
 		
-    	{name: 'Jonas', isParent: 'true', sortable: false},
+    	{name: 'Jonas', isStaff: 'true'},
     
-    	{name: 'Martin',sortable: false, classes: 'gantt-row-milestone'},
+    	{name: 'Martin', isStaff: 'true'},
     
-    	{name: 'test1', isParent: 'false', parent: 'Martin', status: 'erledigt',priority: '2', hasData: 'true', children: ['test2'],  tasks: [
+    	{name: 'test1', parent: 'Martin', status: 'erledigt',priority: '2', hasData: 'true',  tasks: [
                             {name: 'test1', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), data: "Lorem Ipsum"}
                         ]},
-    {name: 'test2', status: 'erledigt',priority: '3', hasData: 'false', tasks: [
+    {name: 'test2', parent: 'test1', status: 'erledigt',priority: '3', hasData: 'false', tasks: [
                             {name: 'test2', color: '#F1C232', from: new Date(2015, 09, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
                         ]},
    
-   {name: 'test4',parent: 'Jonas', status: 'zu bearbeiten', priority: '1', tasks: [
+   {name: 'test5',parent: 'Jonas', status: 'zu bearbeiten', priority: '1', tasks: [
                             {name: 'test4', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
                         ]},
-    {name: 'test5',parent: 'Jonas', status: 'zu bearbeiten', tasks: [
+    {name: 'test4',parent: 'Jonas', status: 'zu bearbeiten', tasks: [
                             {name: 'test5', color: '#F1C232', from: new Date(2015, 10, 3, 8, 0, 0), to: new Date(2015, 10, 4, 15, 0, 0) }
                         ]},
     {name: 'test6',parent: 'Jonas', status: 'zu bearbeiten', tasks: [
-                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 4, 8, 0, 0), to: new Date(2015, 10, 5, 15, 0, 0)}
+                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 4, 8, 0, 0), to: new Date(2015, 10, 10, 15, 0, 0)}
                         ]},
          
 ]		
@@ -1435,8 +1435,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            rowContent: '<i ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showComments()"></i><a href="#" /*ng-if= "row.model.isParent == \'false\'" ? */ editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" > {{row.model.name}}</a> <i class= "fa fa-plus" ng-click ="scope.addNewTask(row.model)"></i>',
-            taskContent: '<a href="#" editable-text ="task.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,task.model)">{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task.model,row.model)"></i>',
+            rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showComments()"></i><a href="#" /*ng-if= "row.model.isParent == \'false\'" ? */ editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row.model)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click ="scope.addNewTask(row.model)"></i>',
+            taskContent: '{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task.model,row.model)"></i>',
             zoom: 1           
 		};
 		
@@ -1530,9 +1530,12 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		}
 		
 
-		$scope.editTask = function(data, taskModel){
+		$scope.editTask = function(data, rowModel){
 			console.log(data);
-			console.log(taskModel);
+			console.log(rowModel);
+			rowModel.name = data;
+			rowModel.tasks[0].name= data;
+			console.log(rowModel);
 		}
 
 		$scope.showComments = function() {
@@ -1570,12 +1573,25 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.deleteTask = function(taskModel,rowModel){	
 			/*console.log(taskModel);
 			console.log(rowModel);*/
-			$.each($scope.data,function(index){		
-			console.log($scope.data[index].name);
-				if(taskModel.name == $scope.data[index].name){
-				$scope.data.splice(index,1);
-				}
-			});
+			var length = $scope.data.length
+			/*alles children löschen*/
+			
+			if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
+				for (i= 0; i < length-1; i++) {
+					if(taskModel.name == $scope.data[i].parent){
+					console.log("gefunden" + $scope.data[i].name + $scope.data[i].parent);
+					$scope.data.splice(i,1);
+					length--;
+					}
+				};
+				
+				/*parent löschen*/
+				for (j= 0; j < length-1; j++) {				
+					if(taskModel.name == $scope.data[j].name){
+					$scope.data.splice(j,1);
+					}
+				};
+			}
 		};
 				
 	/*Mitarbeiter*/

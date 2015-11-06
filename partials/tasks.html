@@ -5,53 +5,7 @@
 		<hr/>
 	</div>
 
-	<div class = "container">	
-		 <div class="row">
-	        <div class="form-inline">
-	         <!--<div class="col-md-3 col-md-offset-3">-->
-		         <div class="form-group text-center">
-			   		<label class="control-label">Von</label><br>
-					<input type="text" class="form-control" style="width: 6em" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="From" bs-datepicker>
-				</div>
-			<!--</div> -->  
-		        
-		     <!--<div class="col-md-3 col-md-offset-3">	-->    
-					<div class="form-group text-center">
-							<label class="control-label">Bis</label><br>
-							<input type="text"  class="form-control" style="width: 6em" ng-model="options.toDate" min-date="{{options.fromDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="To" bs-datepicker>
-					</div>    
-		   <!--	</div>       -->    
-		   
-		   <div class="form-group text-center">
-				      	<label class="control-label"><i class="fa fa-search"></i> Skalierung</label><br>
-				      	<button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" bs-options="s for s in ['day','week', '2 weeks', 'month', 'quarter', '6 months', 'year']" bs-select></button>
-				      </div>
-				      
-				      <div class="form-group text-center">
-				      	<label class="control-label"><i class="fa fa-sort"></i> Sortieren</label><br>
-				      	<button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.sortMode" bs-options="m.value as m.label for m in [{label: 'disabled', value: undefined}, {label: 'name', value: 'model.name'}, {label: 'from', value: 'from'}, {label: 'to', value: 'to'}]" bs-select></button>
-				     </div>
-
-				    <div class="form-group input-append text-center">
-				    	<label class="control-label"><i class="fa fa-filter"></i> Aufgaben durchsuchen</label><br>
-				    	<input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterTask">
-				    </div>
-				    
-				    <div class="form-group input-append text-center">
-				    	<label class="control-label"><i class="fa fa-filter"></i> Bearbeiter durchsuchen</label><br>
-				        <input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterRow">
-				    </div>	
-				    
-				   
-		   
-		   
-		   			<div class="form-group text-center">
-                    	<label class="control-label"><i class="fa fa-search"></i> Zoom</label><br>
-                    	<input type="number" ng-model="options.zoom" step="0.1" min="0.1" max="5" class="form-control" />
-                    </div>
-			</div>
-		</div>
-	</div>
+	
 	
 	<br />
 
@@ -151,6 +105,72 @@
 			</div>-->
 			
 			<!--<p>{{data[3].tasks[0].data}}</p>-->
+			
+			<div class="panel-group" data-start-collapsed="true" bs-collapse>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href=""  bs-collapse-toggle>Optionen</a>
+                                </h4>
+                            </div>
+                           
+                            <div class="panel-collapse" bs-collapse-target>
+                                <div class="panel-body">
+                                <!--insertcode-->
+                                <div class = "container">	
+										 <div class="row">
+									        <div class="form-inline">
+									         <!--<div class="col-md-3 col-md-offset-3">-->
+										         <div class="form-group text-center">
+											   		<label class="control-label">Von</label><br>
+													<input type="text" class="form-control" style="width: 6em" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="From" bs-datepicker>
+												</div>
+											<!--</div> -->  
+										        
+										     <!--<div class="col-md-3 col-md-offset-3">	-->    
+													<div class="form-group text-center">
+															<label class="control-label">Bis</label><br>
+															<input type="text"  class="form-control" style="width: 6em" ng-model="options.toDate" min-date="{{options.fromDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="To" bs-datepicker>
+													</div>    
+										   <!--	</div>       -->    
+										   
+										   <div class="form-group text-center">
+												      	<label class="control-label"><i class="fa fa-search"></i> Skalierung</label><br>
+												      	<button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" bs-options="s for s in ['day','week', '2 weeks', 'month', 'quarter', '6 months', 'year']" bs-select></button>
+												      </div>
+												      
+												      <div class="form-group text-center">
+												      	<label class="control-label"><i class="fa fa-sort"></i> Sortieren</label><br>
+												      	<button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.sortMode" bs-options="m.value as m.label for m in [{label: 'disabled', value: undefined}, {label: 'name', value: 'model.name'}, {label: 'from', value: 'from'}, {label: 'to', value: 'to'}]" bs-select></button>
+												     </div>
+
+												    <div class="form-group input-append text-center">
+												    	<label class="control-label"><i class="fa fa-filter"></i> Aufgaben durchsuchen</label><br>
+												    	<input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterTask">
+												    </div>
+												    
+												    <div class="form-group input-append text-center">
+												    	<label class="control-label"><i class="fa fa-filter"></i> Bearbeiter durchsuchen</label><br>
+												        <input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterRow">
+												    </div>	
+												    
+												   
+										   
+										   
+										   			<div class="form-group text-center">
+								                    	<label class="control-label"><i class="fa fa-search"></i> Zoom</label><br>
+								                    	<input type="number" ng-model="options.zoom" step="0.1" min="0.1" max="5" class="form-control" />
+								                    </div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+			
+			
+			
 </div>
 
 
@@ -182,10 +202,10 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr draggable="true" ng-repeat="s in staff | orderBy: 'name'">
+					<tr data-drag="true" ng-repeat="s in staff | orderBy: 'name'">
 						<!--<td>{{s.sid}}</td>-->
 						
-						<td><a href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
+						<td><a  href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
 						<td><a href="#" editable-text ="s.surname" onbeforesave = "updateSurname($data,s.sid)">{{s.surname}}</a></td>
 						<td><a href="#" editable-text ="s.mail" onbeforesave = "updateMail($data,s.sid)">{{s.mail}}</a></td>
 						<td><a href="#" editable-text ="s.role" onbeforesave = "updateRole($data,s.sid)">{{s.role}}</a></td>
@@ -205,41 +225,59 @@
 				</tbody>
 				</table>
 			
-			<div class = "container">
-				<div class="row">
-					<div class="form-inline">
+		<div class="panel-group" data-start-collapsed="true" bs-collapse>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href=""  bs-collapse-toggle>Hinzufügen</a>
+                                </h4>
+                            </div>
+                           
+                            <div class="panel-collapse" bs-collapse-target>
+                                <div class="panel-body">
+									<div class = "container">
+										<div class="row">
+											<div class="form-inline">
+										
+												<div class="form-group text-center">
+											   		<label class="control-label">Vorname</label><br>
+													<input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Vorname">
+												</div>
+												
+												<div class="form-group text-center">
+											   		<label class="control-label">Nachname</label><br>
+													<input type="text" class="form-control" style="width: 10em" ng-model="newStaff.surname" placeholder="Nachname">
+												</div>
+												
+												
+											<div class="form-group text-center">
+											   		<label class="control-label">Mail</label><br>
+													<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" >
+												</div>
+												
+												<div class="form-group text-center">
+											   		<label class="control-label">Role</label><br>
+													<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.role" placeholder="Rolle" >
+												</div>
+												
+												
+												<div class="form-group text-center">
+											   		<label class="control-label">Hinzufügen</label><br>
+													<button class="btn btn-primary" ng-click="addNewStaff()" >Hinzufügen</button>
+												</div>
+												
+												</div>
+											</div>	
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 				
-						<div class="form-group text-center">
-					   		<label class="control-label">Vorname</label><br>
-							<input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Vorname">
-						</div>
-						
-						<div class="form-group text-center">
-					   		<label class="control-label">Nachname</label><br>
-							<input type="text" class="form-control" style="width: 10em" ng-model="newStaff.surname" placeholder="Nachname">
-						</div>
-						
-						
-					<div class="form-group text-center">
-					   		<label class="control-label">Mail</label><br>
-							<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" >
-						</div>
-						
-						<div class="form-group text-center">
-					   		<label class="control-label">Role</label><br>
-							<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.role" placeholder="Rolle" >
-						</div>
-						
-						
-						<div class="form-group text-center">
-					   		<label class="control-label">Hinzufügen</label><br>
-							<button type="button" class="btn btn-primary" ng-click="addNewStaff()" >Hinzufügen</button>
-						</div>
-						
-						</div>
-					</div>	
-				</div>			
-			</div>
+				
+				
+							
+			</div>					
 		</div>
 		
 	<div ng-if = "views.activeSide == 'comments'" title = "commentContainer" class = "sideContainer">
