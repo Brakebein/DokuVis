@@ -247,6 +247,10 @@
     background-color: #EFEFEF;
 }
 
+.gantt-row-background {
+	transition: background-color 0.2s;
+}
+
 .gantt-row {
     position: relative;
 }
