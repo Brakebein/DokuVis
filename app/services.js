@@ -1,7 +1,7 @@
 var webglServices = angular.module('webglServices', []);
 
-webglServices.factory('neo4jRequest',
-	function($http) {
+webglServices.factory('neo4jRequest', ['$http', 'Utilities',
+	function($http, Utilities) {
 		
 		var cypherUrl = 'http://localhost:7474/db/data/cypher';
 		var phpUrl = 'php/neo4jrequest.php';
@@ -146,7 +146,7 @@ webglServices.factory('neo4jRequest',
 					+' OPTIONAL MATCH (e31)-[:P48]->(archive:E42)'
 					+' OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36)'
 					+' OPTIONAL MATCH (e31)-[:P3]->(comment:E62)'
-					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path, img1024: file.content1024} AS file, plan3d.content AS plan3d, comment.content AS comment',
+					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, plan3d.content AS plan3d, comment.content AS comment',
 				params: {}
 			});
 		};
@@ -217,35 +217,55 @@ webglServices.factory('neo4jRequest',
 			});
 		};
 		
+		// Einfügen der Quelle
 		requests.insertDocument = function(prj, formData) {
-			var ts = new Base62().encode(new Date().getTime());
+			var ts = new Utilities.Base62().encode(new Date().getTime());
+			
 			var q = '';
 			q += 'MATCH (e55:E55:'+prj+' {content: {sourceType}})';
+			if(formData.archive.length > 0) {
+				q += ', (e78:E78:'+prj+' {content: {archive}})';
+			}
+			
 			q += ' CREATE (e31:E31:'+prj+' {content: "e31_"+{newFileName}})-[:P102]->(e35:E35:'+prj+' {content: {title}})';
 			
-			q += ' CREATE (e31)-[:P1]->(e75:E75:'+prj+' {content: {newFileName}, content1024: {pureNewFileName}+"_1024.jpg", type: {fileType}, original: {oldFileName}, path: {path}})';
+			q += ' CREATE (e31)-[:P1]->(e75:E75:'+prj+' {content: {newFileName}, type: {fileType}, thumb: "t_"+{pureNewFileName}+".jpg", original: {oldFileName}, path: {path}})';
 			
 			q += ' CREATE (e31)-[:P2]->(e55)';
 			
-			q += ' CREATE (e31)<-[:P94]-(e65:E65:'+prj+' {content: "e65_"+{newFileName}})';
+			q += ' CREATE (e31)<-[:P94]-(e65:E65:'+prj+' {content: "e65_e31_"+{newFileName}})';
 			
+			q += ' CREATE (e84:E84'+prj+' {content: "e84_e31_"+{newFileName}})';
+			
+			if(formData.sourceType == 'text') {
+				q += ' CREATE (e31)-[:P70]->(e33:E33:'+prj+' {content: "e33_e31_"+{newFileName}})';
+				q += ' MERGE (e33)-[:P72]->(e56:E56:'+prj+' {content: {language}})';
+				q += ' SET e75.contentDisplay = {pages}';
+			}
+			if(formData.sourceType == 'plan' || formData.sourceType == 'picture') {
+				q += ' CREATE (e31)-[:P70]->(e36:E36:'+prj+' {content: "e36_e31_"+{newFileName}})';
+				q += ' SET e75.contentDisplay = {pureNewFileName}+"_1024.jpg"';
+			}
 			if(formData.archive.length > 0) {
-				q += ' MERGE (e42:E42:'+prj+' {content: {archive}})';
+				q += ' CREATE (e78)-[:P46]->(e84)';
+			}
+			if(formData.archiveNr.length > 0) {
+				q += ' MERGE (e42:E42:'+prj+' {content: {archiveNr}})';
 				q += ' MERGE (e31)-[:P48]->(e42)';
 			}
 			if(formData.author.length > 0) {
 				q += ' MERGE (e82:E82:'+prj+' {content: {author}})<-[:P131]-(e21:E21:'+prj+')';
-				q += ' ON CREATE SET e21.content = "'+'e21_'+ts+'_'+formData.author.replace(/ /g, "_")+'"';
+				q += ' ON CREATE SET e21.content = "e21_'+ts+'_'+formData.author.replace(/ /g, "_")+'"';
 				q += ' CREATE (e65)-[:P14]->(e21)';
 			}
 			if(formData.creationPlace.length > 0) {
 				q += ' MERGE (e48:E48:'+prj+' {content: {creationPlace}})<-[:P87]-(e53:E53:'+prj+')';
-				q += ' ON CREATE SET e53.content = "'+'e53_'+ts+'_'+formData.creationPlace.replace(/ /g, "_")+'"';
+				q += ' ON CREATE SET e53.content = "e53_'+ts+'_'+formData.creationPlace.replace(/ /g, "_")+'"';
 				q += ' CREATE (e65)-[:P7]->(e53)';
 			}
 			if(formData.creationDate.length > 0) {
 				q += ' MERGE (e61:E61:'+prj+' {content: {creationDate}})';
-				q += ' CREATE (e61)<-[:P82]-(e52:E52:'+prj+' {content: "e52_e65_"+{newFileName}})<-[:P4]-(e65)';
+				q += ' CREATE (e61)<-[:P82]-(e52:E52:'+prj+' {content: "e52_e65_e31_"+{newFileName}})<-[:P4]-(e65)';
 			}
 			if(formData.comment.length > 0) {
 				q += ' CREATE (e31)-[:P3]->(e62:E62:'+prj+' {content: {comment}})';
@@ -432,7 +452,7 @@ webglServices.factory('neo4jRequest',
 		
 		return requests;
 		
-	});
+	}]);
 
 webglServices.factory('phpRequest',
 	function($http) {
@@ -475,6 +495,10 @@ webglServices.factory('mysqlRequest',
 	
 		var requests = {};
 		
+		/**
+		  * Projekte
+		 */
+		// neues Projekt anlegen
 		requests.newProjectEntry = function(proj, name, desc) {
 			return $http.post('php/mysql/newProjectEntry.php', {
 				proj: proj,
@@ -482,17 +506,17 @@ webglServices.factory('mysqlRequest',
 				description: desc
 			});
 		};
-		
+		// Projekt löschen
 		requests.removeProjectEntry = function(proj) {
 			return $http.post('php/mysql/removeProjectEntry.php', {
 				proj: proj
 			});
 		};
-		
+		// alle Projekte auflisten
 		requests.getAllProjects = function() {
 			return $http.post('php/mysql/getAllProjects.php', {});
 		};
-		
+		// Projekt editieren
 		requests.updateProjectDescription = function(desc,id) {
 			return $http.post('php/mysql/updateProjectDescription.php', {
 				pid: id,
@@ -708,6 +732,27 @@ webglServices.factory('Utilities',
 				}
 			}
 		};
+		
+		/**
+		  * @desc wait until condition is met
+		  * @param
+		  *	  test - function that returns a value
+		  *	  expectedValue - value of the test function we are waiting for
+		  *	  msec - delay between the calls to test
+		  *	  callback - function to execute wehen the condition is met
+		  * @return nothing
+		*/
+		 f.waitfor = function(test, expectedValue, msec, params, callback) {
+			// check if condition met. if not, re-check later
+			while(test() !== expectedValue) {
+				setTimeout(function() {
+					waitfor(test, expectedValue, msec, params, callback);
+				}, msec);
+				return;
+			}
+			// condition finally met. callback() can be executed
+			callback(params);
+		}
 		
 		/**
 		  * extracts data from neo4j response object

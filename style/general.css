@@ -48,7 +48,7 @@ div[ng-view],
 
 /* Modal-Anpassungen */
 .modal-backdrop {
-	opacity: 0.2;
+	background-color: rgba(0,0,0,0.2);
 }
 .modal-backdrop.level2 {
 	z-index: 1400;
