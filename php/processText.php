@@ -1,6 +1,6 @@
 <?php
 
-ini_set('max_execution_time', 300);
+ini_set('max_execution_time', 1000);
 
 include 'globalpaths.php';
 
@@ -44,6 +44,9 @@ if ( !empty( $_FILES ) ) {
 	$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
     move_uploaded_file( $tempPath, $pTemp.$DS.$newFileName );
 	
+	$pageCount = 0;
+	$pages = [];
+	
 	if($ocr === "true") {
 		
 		// Unterordner im tmp-Ordner anlegen
@@ -51,37 +54,42 @@ if ( !empty( $_FILES ) ) {
 			or exit('ERROR: mkdir() failed on'.$pureNewFileName);
 		
 		// pdf in jpg extrahieren
-		$res = system($pGhostscript.' -dNOPAUSE -dBATCH -sDEVICE=jpeg -sOutputFile="'.$pTemp.$DS.$pureNewFileName.$DS.'page-%04d.jpg" '.$pTemp.$DS.$newFileName);
+		$res = system($pGhostscript.' -dNOPAUSE -dBATCH -sDEVICE=jpeg -sOutputFile="'.$pTemp.$DS.$pureNewFileName.$DS.$newFileName.'-%04d.jpg" '.$pTemp.$DS.$newFileName);
 		echo $res;
 		
 		// Dateien im Ordner durchgehen
 		$files = array_diff(scandir($pTemp.$DS.$pureNewFileName), array('.','..'));
-		$c = 0;
 		foreach($files as $file) {
-			if($c == 0) {
+			if($pageCount === 0) {
 				// thumbnail von erster Seite erstellen
 				$res = system($pImagickConvert." ".$pTemp.$DS.$pureNewFileName.$DS.$file." -resize \"160x90^\" -gravity north -extent 160x90 ".$pTemp.$DS."t_".$pureNewFileName.".jpg");
 				echo $res;
 			}
 			
 			// resample auf 300 dpi für bessere Texterkennung
-			$res = system($pImagickMogrify.' -resample 300 '.$pTemp.$DS.$pureNewFileName.$DS.$file);
-			echo $res;
+			// $res = system($pImagickMogrify.' -resample 300 '.$pTemp.$DS.$pureNewFileName.$DS.$file);
+			// echo $res;
 
 			// Texterkennung -> pdf mit Textlayer
-			$res = system($pTesseract.' --tessdata-dir '.$pTessData.' -l '.$lang.' '.$pTemp.$DS.$pureNewFileName.$DS.$file.' '.$pTemp.$DS.$pureNewFileName.$DS.$file.' pdf');
+			$res = system($pTesseract.' --tessdata-dir '.$pTessData.' -l '.$lang.' '.$pTemp.$DS.$pureNewFileName.$DS.$file.' '.$pTemp.$DS.$pureNewFileName.$DS.$file.' hocr');
 			echo $res;
 			
-			$c++;
+			$pageName = substr($file, 0, strrpos($file, ".")).'.hocr';
+			
+			rename($pTemp.$DS.$pureNewFileName.$DS.$file.'.hocr', $upath.$pageName)
+				or exit('ERROR: rename() failed on '+$pageCount+'.hocr');
+			
+			array_push($pages, $pageName);
+			$pageCount++;
 		}
 		
 		// Zusammenführen der einzelnen pdfs
-		$res = system($pPDFtk.' '.$pTemp.$DS.$pureNewFileName.$DS.'*.pdf cat output '.$pTemp.$DS.$pureNewFileName.$DS.'final.pdf');
-		echo $res;
+		// $res = system($pPDFtk.' '.$pTemp.$DS.$pureNewFileName.$DS.'*.pdf cat output '.$pTemp.$DS.$pureNewFileName.$DS.'final.pdf');
+		// echo $res;
 		
 		// verschiebe pdf in Projektordner
-		rename($pTemp.$DS.$pureNewFileName.$DS.'final.pdf', $upath.$pureNewFileName.'_ocr.pdf')
-			or exit('ERROR: rename() failed on final.pdf');
+		// rename($pTemp.$DS.$pureNewFileName.$DS.'final.pdf', $upath.$pureNewFileName.'_ocr.pdf')
+			// or exit('ERROR: rename() failed on final.pdf');
 		rename($pTemp.$DS.$newFileName, $upath.$newFileName)
 			or exit('ERROR: rename() failed on '.$newFileName);
 		rename($pTemp.$DS.'t_'.$pureNewFileName.'.jpg', $upath.'_thumbs'.$DS.'t_'.$pureNewFileName.'.jpg')
@@ -111,7 +119,10 @@ if ( !empty( $_FILES ) ) {
 		
 	}
 	
-	$answer = array( 'answer' => 'File transfer completed' );
+	$answer = array(
+		'answer' => 'File transfer completed',
+		'data' => array('pages' => $pages)
+	);
     $json = json_encode( $answer );
 
     echo $json;

@@ -18,7 +18,7 @@
 			<div ng-show="uploader.queue.length" class="queueHeader">
 			<table class="table">
 				<thead>
-					<tr ng-if="insert.uploadType == 'image' || insert.uploadType == 'text'">
+					<tr ng-if="insert.uploadType == 'source'">
 						<th width="300">Name</th>
 						<th>Metadaten</th>
 						<th width="100" ng-show="uploader.isHTML5"></th>
@@ -112,6 +112,7 @@
 									<label for="docCollect" class="control-label col-sm-3">Archiv</label>
 									<div class="col-sm-6">
 										<select class="form-control input-sm" ng-model="item.archive" bs-tooltip="{title: 'Archiv, Sammlung oder Kollektion'}">
+											<option value="">Keine Angabe</option>
 											<option ng-repeat="a in archives" value="a.collection">{{a.institutionName}} {{a.collectionName}}</option>
 										</select>
 									</div>
@@ -144,6 +145,8 @@
 						</td>
 						
 						<td width="60" class="text-center">
+							<img ng-show="item.isProcessing" src="img/ajax-loader.gif"/> 
+							<img ng-show="item.isInserting" src="img/db_write.gif"/>
 							<span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
 							<span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
 							<span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>

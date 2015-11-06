@@ -34,3 +34,11 @@
 	max-height: 100%;
 	border: 1px solid #333;
 }
+
+.sourceDetail .displayText {
+	width: 100%;
+	height: 100%;
+	padding: 10px 15px;
+	border: 1px solid #333;
+	overflow-y: scroll;
+}

@@ -1035,8 +1035,11 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				return;
 			}
 			
-			if($scope.insert.uploadType == 'bla') {
-				waitfor(function(){return isInserting;}, false, 50, {}, function(params) {
+			//fileItem.formData[0].processData = {};
+			fileItem.formData[0].pages = response.data.pages;
+			
+			if($scope.insert.uploadType == 'source') {
+				Utilities.waitfor(function(){return isInserting;}, false, 20, {}, function(params) {
 					isInserting = true;
 					neo4jRequest.insertDocument($scope.$parent.project, fileItem.formData[0]).success(function(data, status){
 						//var res = cleanData(data);
@@ -1295,6 +1298,7 @@ webglControllers.controller('sourceDetailCtrl', ['$scope',
 		console.log('sourceDetailCtrl init');
 		
 		$scope.horizontalImage = false;
+		$scope.pageNr = 0;
 		
 		var items = $scope.$parent.filteredSourceResults;
 		$scope.itemindex = $scope.$parent.modalParams.index;
@@ -1302,15 +1306,26 @@ webglControllers.controller('sourceDetailCtrl', ['$scope',
 		$scope.nextItem = function(incr) {
 			$scope.itemindex = (($scope.itemindex + incr) % items.length + items.length) % items.length;
 			$scope.item = items[$scope.itemindex];
-			var img = new Image();
-			img.onload = function() {
-				if(this.width/this.height > 2)
-					$scope.horizontalImage = true;
-				else
-					$scope.horizontalImage = false;
-				$scope.$apply();
+			
+			if($scope.item.type =='picture' || $scope.item.type =='plan') {
+				var img = new Image();
+				img.onload = function() {
+					if(this.width/this.height > 2)
+						$scope.horizontalImage = true;
+					else
+						$scope.horizontalImage = false;
+					$scope.$apply();
+				}
+				img.src = $scope.item.file.path+$scope.item.file.name;
 			}
-			img.src = $scope.item.file.path+$scope.item.file.name;
+			else {
+				$scope.horizontalImage = false;
+				$scope.pageNr = 0;
+			}
+		};
+		
+		$scope.nextPage = function(incr) {
+			$scope.pageNr = (($scope.pageNr + incr) % $scope.item.file.display.length + $scope.item.file.display.length) % $scope.item.file.display.length;
 		};
 		
 		$scope.nextItem(0);

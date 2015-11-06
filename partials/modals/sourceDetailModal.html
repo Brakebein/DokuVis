@@ -10,9 +10,11 @@
 	<div class="modal-body sourceDetail"><div>
 	
 		<div ng-class="horizontalImage ? 'imageHDiv' : 'imageVDiv'">
-			<img ng-src="{{item.file.path + (item.file.img1024 || item.file.name)}}"/>
+			<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="{{item.file.path + (item.file.display || item.file.img1024 || item.file.name)}}"/>
+			<div ng-if="item.type == 'text'" class="displayText" ng-include="'data/' + item.file.path + item.file.display[pageNr]"></div>
 		</div>
 		<div ng-class="horizontalImage ? 'infoHDiv' : 'infoVDiv'">
+			<img ng-if="item.type == 'text'" ng-src="data/{{item.file.path}}_thumbs/{{item.file.thumb}}"/>
 			<h3>{{item.title}}</h3>
 			<hr/>
 			<div>
@@ -34,6 +36,14 @@
 			<div ng-if="item.comment">
 				<strong>Kommentar</strong>
 				<p>{{item.comment}}</p>
+			</div>
+			<div>
+				<p><a ng-href="data/{{item.file.path + item.file.name}}" target="_blank">Originaldatei</a></p>
+			</div>
+			<div ng-if="item.type == 'text'">
+				<button class="btn btn-default btn-sm" ng-click="nextPage(-1)">vorige Seite</button>
+				<button class="btn btn-default btn-sm" ng-click="nextPage(1)">nächste Seite</button>
+				<p>Seite {{pageNr + 1}}</p>
 			</div>
 		</div>
 	

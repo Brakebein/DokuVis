@@ -347,7 +347,7 @@
 		<div class="sources" horizontal-scroll>
 		<div class="resultItem" ng-repeat="p in sourceResults | filter: {type: sourcesSettings.activeTab} | filter: sourcesSettings.filterBy | orderBy: [sourcesSettings.orderBy,'title']:sourcesSettings.reverse as filteredSourceResults" ng-click="selectResultItem($event, p)">
 			<div class="thumbnail" ng-class="(p.selected) ? 'selected' : ''" title="{{p.title}}" ng-dblclick="openSourceDetail($index)">
-				<img ng-src="{{p.file.path}}_thumbs/t_{{p.file.name}}"/>
+				<img ng-src="data/{{p.file.path}}_thumbs/{{p.file.thumb}}"/>
 				<div class="caption">
 					<span>{{ p.title | characters:23:true }}</span>
 					<p>{{p.author || 'unbekannt'}} &ensp; {{p.date}}</p>
