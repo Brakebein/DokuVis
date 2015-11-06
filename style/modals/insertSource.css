@@ -67,11 +67,29 @@
 	max-height: 200px;
 	margin: 6px 0 0 6px;
 }
+.insertForm img {
+	max-width: 100px;
+	max-height: 100px;
+	margin: 6px 0 0 6px;
+}
 .insertForm .form-group {
 	font-size: 12px;
+	max-height: 30px;
 	margin-bottom: 5px;
+	transition: all 0.5s;
 }
-.insertForm .form-group label {
+.insertForm .form-group.large {
+	max-height: 300px;
+}
+.insertForm .form-group.ng-hide {
+	max-height: 0;
+	margin-bottom: 0;
+	opacity: 0;
+}
+/*.insertForm .form-group>div {
+	padding-right: 0;
+}*/
+.insertForm .form-group>label {
 	padding-top: 5px;
 }
 .insertForm a,
@@ -96,11 +114,17 @@
 	padding: 1px 3px 0;
 	font-size: 12px;
 }
-.insertForm .form-group select {
+.insertForm .form-group select,
+.insertForm .form-group button {
 	padding: 1px 3px;
 	margin: 2px 0;
 	height: 22px;
 }
 .insertForm.container.nv-file-over {
 	box-shadow: 0 0 50px #5cb85c inset;
+}
+
+.insertForm .form-extend-btn {
+	cursor: pointer;
+	font-size: 12px;
 }

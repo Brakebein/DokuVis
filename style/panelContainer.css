@@ -2,18 +2,16 @@
 	position: absolute;
 	width: 280px;
 	top: 0;
-	right: -280px;
+	right: 0px;
 	background-color: rgba(51,51,51,0.8);
 	font-size: 8pt;
 	color: #fafafa;
 	border-left: 1px solid #999;
+	transition: right 0.5s;
 }
-
-.gradient-marker {
-	position: absolute;
-	background: #ffffff;
-	width: 2px;
-	height: 20px;
+.vpPanelContainer.ng-hide {
+	display: block!important;
+	right: -280px;
 }
 
 .vpPanelContainer .expandContainerBtn {
@@ -53,6 +51,7 @@
 	background-color: rgba(51,51,51,0.8);
 	border-top-left-radius: 5px;
 }
+
 .vpPanelContainer .ctrlPanel {
 	position: relative;
 	width: 100%;
@@ -62,17 +61,29 @@
 	background-color: rgba(100,100,100,0.8);
 	font-weight: bold;
 	padding: 5px 15px;
+	cursor: pointer;
 }
 .vpPanelContainer .ctrlPanel .ctrlPanel-heading .expandButton {
 	float: right;
-	cursor: pointer;
 	padding-top: 1px;
 	height: 14px;
 }
 .vpPanelContainer .ctrlPanel .ctrlPanel-body {
-	padding: 0 15px;
+	padding: 10px;
 	border-top: 1px solid #999;
-	display: none;
+	max-height: 300px;
+	overflow: hidden;
+	transition: all 0.5s;
+}
+.vpPanelContainer .ctrlPanel .ctrlPanel-body[ng-scrollbars] {
+	padding: 10px 0;
+	height: 300px;
+}
+.vpPanelContainer .ctrlPanel .ctrlPanel-body.ng-hide {
+	max-height: 0;
+	opacity: 0;
+	padding-top: 0;
+	padding-bottom: 0;
 }
 
 .vpPanelContainer .ctrlPanel .ctrlPanel-body .mainOptionGroup {
@@ -101,22 +112,7 @@
 	font-size: 7pt;
 }
 
-.vpPanelContainer .ctrlPanel .ctrlPanel-body .optionGroup #ramp {
-	position: absolute;
-	top: 30px;
-	left: 10px;
-	width: 200px;
-	height: 20px;	
-	
-}
 
-.vpPanelContainer .ctrlPanel .ctrlPanel-body .optionGroup #colorField {
-	position: absolute;
-	top: 30px;
-	left: 215px;
-	width: 20px;
-	height: 20px;
-}
 
 .vpPanelContainer .ctrlPanel .ctrlPanel-body slider {
 	width: 140px;
@@ -124,22 +120,54 @@
 }
 .vpPanelContainer .ctrlPanel .ctrlPanel-body label {
 	display: block;
-	padding: 2px 0;
+	padding-top: 2px;
+	padding-bottom: 2px;
 }
 .vpPanelContainer .ctrlPanel .ctrlPanel-body input[type='radio'],
 .vpPanelContainer .ctrlPanel .ctrlPanel-body input[type='checkbox'] {
-	margin: 1px 7px 0 0;
+	/*margin: 1px 7px 0 0;*/
+	margin-top: 1px;
+	margin-right: 7px;
+}
+.vpPanelContainer .ctrlPanel .ctrlPanel-body select {
+	padding: 0;
+	height: 22px;
 }
 
-.vpPanelContainer .ctrlPanel .ctrlPanel-body table{
-  font-size : 100%;
-  color :  #fafafa
- }
- 
- .vpPanelContainer .ctrlPanel .ctrlPanel-body input[type="number"] {
-   width:44px;
+.vpPanelContainer .ctrlPanel .ctrlPanel-body table td {
+	display: table-cell;
+	padding-right: 6px;
+}
+.vpPanelContainer .ctrlPanel .ctrlPanel-body input[type="number"] {
+	width:44px;
 }
 
+.gradient-marker {
+	position: absolute;
+	background: #ffffff;
+	width: 2px;
+	height: 20px;
+}
+.vpPanelContainer .ctrlPanel .ctrlPanel-body .optionGroup #ramp {
+	/*position: absolute;
+	top: 30px;
+	left: 10px;*/
+	display: inline-block;
+	width: 200px;
+	height: 20px;
+	
+}
+.vpPanelContainer .ctrlPanel .ctrlPanel-body .optionGroup #colorField {
+	/*position: absolute;
+	top: 30px;
+	left: 215px;*/
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+
+
+/* horizontale Leiste */
 .vpPanelContainerHorizontal{
 	position: absolute;
 	height: 100px;

@@ -10,22 +10,24 @@ webglServices.factory('neo4jRequest',
 		
 		requests.createInitProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
-				query: 'CREATE (root:E22:'+prj+' {content:"e22_root"}),'
-					+' (tplan:E55:'+prj+' {content:"plan"}),'
-					+' (tpic:E55:'+prj+' {content:"picture"}),'
-					+' (ttext:E55:'+prj+' {content:"text"}),'
-					+' (tscreen:E55:'+prj+' {content:"screenshot"}),'
-					+' (tscomment:E55:'+prj+' {content:"screenshotComment"}),'
-					+' (tmodel:E55:'+prj+' {content:"model"})',
+				query: 
+					'CREATE (root:E22:'+prj+' {content:"e22_root"}), \
+					(tplan:E55:'+prj+' {content:"plan"}), \
+					(tpic:E55:'+prj+' {content:"picture"}), \
+					(ttext:E55:'+prj+' {content:"text"}), \
+					(tscreen:E55:'+prj+' {content:"screenshot"}),\
+					(tscomment:E55:'+prj+' {content:"screenshotComment"}), \
+					(tmodel:E55:'+prj+' {content:"model"})',
 				params: {}
 			});
 		};
 		
 		requests.deleteAllProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
-				query: 'MATCH (n:'+prj+')'
-					+' OPTIONAL MATCH (:'+prj+')-[r]-()'
-					+' DELETE r,n',
+				query: 
+					'MATCH (n:'+prj+') \
+					OPTIONAL MATCH (:'+prj+')-[r]-() \
+					DELETE r,n',
 				params: {}
 			});
 		};
@@ -160,11 +162,33 @@ webglServices.factory('neo4jRequest',
 			});
 		};
 		
+		// alle Institutionen mit Archiven
+		requests.getArchives = function(prj) {
+			return $http.post(phpUrl, {
+				query: 
+					'MATCH (e78:E78:'+prj+')-[:P1]-(e41:E41), \
+					(e78)-[:P52]->(:E40)-[:P131]->(e82:E82) \
+					RETURN e78.content AS collection, e41.content AS collectionName, e82.content AS institutionName',
+				params: {}
+			});
+		};
+		
+		// alte Suchanfrage für autocomplete
 		requests.searchForExistingNodes = function(prj, label, input) {
 			return $http.post(phpUrl, {
 				query: 'MATCH (n:'+label+':'+prj+')'
 					+' WHERE n.content =~ "(?i).*'+input+'.*"'
 					+' RETURN n.content AS content',
+				params: {}
+			});
+		};
+		
+		// neue Suchanfrage für typeahead
+		requests.getAllLabelProps = function(prj, label, prop) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (n:'+label+':'+prj+') \
+					RETURN n.'+prop+' AS content',
 				params: {}
 			});
 		};
@@ -537,7 +561,6 @@ webglServices.factory('mysqlRequest',
 	});
 	
 	
-
 webglServices.factory('neo4jExtraction',
 	function() {
 		
@@ -672,6 +695,95 @@ webglServices.factory('Utilities',
 		*/
 		f.getUniqueId = function() {
 			return new f.Base62().encode(new Date().getTime());
+		};
+		
+		/**
+		  * sleep function - application on hold
+		*/
+		f.sleep = function(milliseconds) {
+			var start = new Date().getTime();
+			for (var i = 0; i < 1e7; i++) {
+				if ((new Date().getTime() - start) > milliseconds){
+					break;
+				}
+			}
+		};
+		
+		/**
+		  * extracts data from neo4j response object
+		  * if return values are nodes
+		*/
+		f.extractNeo4jData = function(data) {
+			var results = [];
+			for(var i=0; i<data.data.length; i++) {
+				var object = new Object();
+				for(var j=0; j<data.columns.length; j++) {
+					if(data.data[i][j] == null)
+						//object[data.columns[j]] = 'unbekannt';
+						object[data.columns[j]] = null;
+					else
+						object[data.columns[j]] = data.data[i][j].data;
+						//object[data.columns[j]] = data.data[i][j].data.content;
+				}
+				results.push(object);
+			}
+			return results;
+		};
+		
+		/**
+		  * extracts data from neo4j response object
+		  * if return values are normal values or objects
+		*/
+		f.cleanNeo4jData = function(data, selected) {
+			selected = selected || false;
+			var results = [];
+			for(var i=0; i<data.data.length; i++) {
+				var obj = new Object();
+				for(var j=0; j<data.columns.length; j++) {
+					if(data.data[i][j] == null)
+						//obj[data.columns[j]] = 'unbekannt';
+						obj[data.columns[j]] = null;
+					else
+						obj[data.columns[j]] = data.data[i][j];
+				}
+				if(selected)
+					obj.selected = false;
+				results.push(obj);
+			}
+			return results;
+		};
+		
+		f.createHierarchy = function(data) {
+			var results = [];
+			for(var i=0, l=data.data.length; i<l; i++) {
+				var parent = {};
+				/*parent.file = data.data[i][0].file.data;
+				parent.obj = data.data[i][0].obj.data;*/
+				parent.content = data.data[i][0].parent.data.content;
+				parent.children = [];
+				for(var j=0, m=data.data[i][1].length; j<m; j++) {
+					var child = {};
+					child.file = data.data[i][1][j].file.data;
+					child.obj = data.data[i][1][j].obj.data;
+					child.content = data.data[i][1][j].child.data.content;
+					child.children = [];
+					parent.children.push(child);
+				}
+				results.push(parent);
+			}
+			for(var i=0; i<results.length; i++) {
+				for(var j=0, m=results.length; j<m; j++) {
+					if(i===j) continue;
+					var p = getElementInHierarchy(results[j], results[i].content);
+					if(p !== undefined) {
+						p.children = results[i].children;
+						results.splice(i,1);
+						i--;
+						break;
+					}
+				}
+			}
+			return results;
 		};
 		
 		return f;

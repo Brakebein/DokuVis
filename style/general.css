@@ -37,9 +37,21 @@ div[ng-view],
     -o-transition: all 0.5s;
 }*/
 
+
+/* ng-scrollbars Anpassungen */
+.mCSB_inside>.mCSB_container {
+	margin-right: 6px;
+	padding-right: 10px;
+	padding-left: 10px;
+}
+
+
 /* Modal-Anpassungen */
 .modal-backdrop {
 	opacity: 0.2;
+}
+.modal-backdrop.level2 {
+	z-index: 1400;
 }
 .modal {
 	overflow: auto;
@@ -59,7 +71,12 @@ div[ng-view],
 	margin: 0 auto;
 	padding: 30px;
 }
-
+.modal.level2 {
+	z-index: 1500;
+}
+.modal.level2>.modal-dialog {
+	padding: 60px;
+}
 
 .modal-dialog.large > .modal-content,
 .modal-dialog.xlarge > .modal-content {

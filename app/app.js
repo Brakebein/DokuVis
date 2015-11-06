@@ -11,11 +11,12 @@ var webglApp = angular.module('webglApp', [
 	'xeditable',
 	'mgcrea.ngStrap',
 	'angularMoment',
+	'ngScrollbars'
 	'ngDragDrop'
 ]);
 
-webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',
-	function($stateProvider, $urlRouterProvider, $modalProvider) {
+webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$tooltipProvider',
+	function($stateProvider, $urlRouterProvider, $modalProvider, $tooltipProvider) {
 		
 		$urlRouterProvider.otherwise('/intro');
 		
@@ -55,9 +56,14 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider',
 				css: 'style/tasks.css'
 			});
 		
+		// defaults
 		angular.extend($modalProvider.defaults, {
 			backdrop: 'static',
 			keyboard: false
+		});
+		angular.extend($tooltipProvider.defaults, {
+			placement: 'right',
+			delay: {show: 500, hide: 100}
 		});
 		
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});

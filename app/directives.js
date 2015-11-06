@@ -419,6 +419,8 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 				
 				//gizmo.attachToObject(plane);
 				
+				
+				
 				animate();
 			}
 			

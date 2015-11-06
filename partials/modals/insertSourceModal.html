@@ -18,7 +18,7 @@
 			<div ng-show="uploader.queue.length" class="queueHeader">
 			<table class="table">
 				<thead>
-					<tr ng-if="insert.uploadType == 'image'">
+					<tr ng-if="insert.uploadType == 'image' || insert.uploadType == 'text'">
 						<th width="300">Name</th>
 						<th>Metadaten</th>
 						<th width="100" ng-show="uploader.isHTML5"></th>
@@ -41,73 +41,97 @@
 			<div ng-show="uploader.queue.length" class="queueBody">
 			<table class="table">
 				<tbody>
-					<tr ng-if="insert.uploadType == 'image'" ng-repeat="item in uploader.queue" ng-init="initItem(item)">
+					<tr ng-if="insert.uploadType == 'source'" ng-repeat="item in uploader.queue" ng-init="initItem(item)">
 						<td width="300">
 							<strong>{{ item.file.name }}</strong>
 							&emsp; <small>{{ item.file.size/1024/1024|number:2 }} MB</small>
-							<div ng-show="uploader.isHTML5" ng-thumb="{ file: item._file, width: 270 }"></div>
+							<div ng-show="uploader.isHTML5 && item.file.type != 'application/pdf'" ng-thumb="{ file: item._file, width: 270 }"></div>
+							<img ng-show="item.file.type == 'application/pdf'" src="img/pdf-icon.png"/>
 						</td>
 						
 						<td>
+							<!-- Quellenformular -->
 							<form class="form-horizontal">
 								
 								<div class="form-group">
-									<label for="docComment" class="control-label col-sm-3">Typ</label>
-									<div class="col-sm-3">
+									<label for="docType" class="control-label col-sm-3">Typ</label>
+									<div class="col-sm-3" bs-tooltip="{title: 'Art der Quelle'}">
 										<select class="form-control input-sm" ng-model="item.sourceType">
 											<option value="plan">Plan</option>
 											<option value="picture">Fotografie</option>
+											<option value="text">Text</option>
 										</select>
 									</div>
-									<span class="col-sm-1 glyphicon glyphicon-info-sign" title="Art der Quelle"></span>
+									<label ng-if="item.sourceType == 'text'" for="docLang" class="control-label col-sm-2">Sprache</label>
+									<div ng-if="item.sourceType == 'text'" class="col-sm-3" bs-tooltip="{title: 'Sprache'}">
+										<select class="form-control input-sm" ng-model="item.language">
+											<option value="de">Deutsch</option>
+											<option value="en">Englisch</option>
+										</select>
+									</div>
 								</div>
 								
 								<div class="form-group" ng-class="item.titleError ? 'has-error' : ''">
 									<label for="docTitle" class="control-label col-sm-3">Titel</label>
 									<div class="col-sm-8">
-										<autocomplete attr-input-class="form-control" ng-model="item.title" ng-model-options="{debounce: 250}" data="suggestions" on-type="getSuggestions" on-select="selectSuggestion" on-blur="validateInput" pass-item="item" pass-params="{label: 'E35', filterProp: 'content', unique: true, uniqueProp: 'title', index: $index}"></autocomplete>
+										<input class="form-control" ng-model="item.title" ng-focus="setTypeaheadArray('E35','content')" ng-blur="validateInput2(item, {prop: 'title', index: $index, label: 'E35'})" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. Aufriss Ostfassade" bs-tooltip="{title: 'Einzigartiger Titel (*)'}"/>
 									</div>
-									<span class="col-sm-1 glyphicon glyphicon-info-sign" title="Eindeutiger, aussagekräfitger Titel (Plichtfeld)"></span>
-								</div>
-								
-								<div class="form-group">
-									<label for="docArchive" class="control-label col-sm-3">Archivkennung</label>
-									<div class="col-sm-8">
-										<autocomplete attr-input-class="form-control" ng-model="item.archive" ng-model-options="{debounce: 250}" data="suggestions" on-type="getSuggestions" on-select="selectSuggestion" on-blur="validateInput" pass-item="item" pass-params="{label: 'E42', filterProp: 'content'}"></autocomplete>
-									</div>
-									<span class="col-sm-1 glyphicon glyphicon-info-sign" title="Archiv- und Regalnummer (optional)"></span>
 								</div>
 								
 								<div class="form-group" ng-hide="globals.useAuthor">
 									<label for="docAuthor" class="control-label col-sm-3">Autor</label>
 									<div class="col-sm-8">
-										<autocomplete attr-input-class="form-control" ng-model="item.author" ng-model-options="{debounce: 250}" data="suggestions" on-type="getSuggestions" on-select="selectSuggestion" on-blur="validateInput" pass-item="item" pass-params="{label: 'E82', filterProp: 'content'}"></autocomplete>
+										<input class="form-control" ng-model="item.author" ng-focus="setTypeaheadArray('E82','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. Conrad Schick" bs-tooltip="{title: 'Wer hat die Quelle erstellt?'}"/>
 									</div>
-									<span class="col-sm-1 glyphicon glyphicon-info-sign" title="Wer hat die Quelle erstellt? (optional)"></span>
 								</div>
 								
 								<div class="form-group" ng-hide="globals.useCreationDate">
 									<label for="docCreationDate" class="control-label col-sm-3">Datierung</label>
 									<div class="col-sm-8">
-										<autocomplete attr-input-class="form-control" ng-model="item.creationDate" ng-model-options="{debounce: 250}" data="suggestions" on-type="getSuggestions" pass-params="{label: 'E61', filterProp: 'content'}"></autocomplete>
+										<input class="form-control" ng-model="item.creationDate" ng-focus="setTypeaheadArray('E61','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. 1889" bs-tooltip="{title: 'Wann wurde die Quelle erstellt?'}"/>
 									</div>
-									<span class="col-sm-1 glyphicon glyphicon-info-sign" title="Wann wurde die Quelle erstellt? (optional)"></span>
 								</div>
 								
-								<div class="form-group" ng-hide="globals.useCreationPlace">
-									<label for="docCreationPlace" class="control-label col-sm-3">Erstellungsort</label>
-									<div class="col-sm-8">
-										<autocomplete attr-input-class="form-control" ng-model="item.creationPlace" ng-model-options="{debounce: 250}" data="suggestions" on-type="getSuggestions" pass-params="{label: 'E48', filterProp: 'content'}"></autocomplete>
-									</div>
-									<span class="col-sm-1 glyphicon glyphicon-info-sign" title="Wo wurde die Quelle erstellt? (optional)"></span>
-								</div>
-								
-								<div class="form-group">
+								<div class="form-group large">
 									<label for="docComment" class="control-label col-sm-3">Kommentar</label>
 									<div class="col-sm-8">
-										<textarea class="form-control" id="docComment" ng-model="item.comment"></textarea>
+										<textarea class="form-control" id="docComment" ng-model="item.comment" bs-tooltip="{title: 'Wichtige Anmerkungen'}"></textarea>
 									</div>
-									<span class="col-sm-1 glyphicon glyphicon-info-sign" title="Wichtige Bemerkungen etc. (optional)"></span>
+								</div>
+								
+								<div class="form-extend-btn" ng-click="item.formExtend = !item.formExtend"><span class="glyphicon" ng-class="item.formExtend?'glyphicon-chevron-down':'glyphicon-chevron-right'"></span> Erweitert</div>
+								
+								<div class="form-group" ng-show="item.formExtend">
+									<label for="docCreationPlace" class="control-label col-sm-3">Erstellungsort</label>
+									<div class="col-sm-8">
+										<input class="form-control" ng-model="item.creationPlace" ng-focus="setTypeaheadArray('E48','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. Jerusalem" bs-tooltip="{title: 'Wo wurde die Quelle erstellt?'}"/>
+									</div>
+								</div>
+								
+								<div class="form-group" ng-show="item.formExtend">
+									<label for="docCollect" class="control-label col-sm-3">Archiv</label>
+									<div class="col-sm-6">
+										<select class="form-control input-sm" ng-model="item.archive" bs-tooltip="{title: 'Archiv, Sammlung oder Kollektion'}">
+											<option ng-repeat="a in archives" value="a.collection">{{a.institutionName}} {{a.collectionName}}</option>
+										</select>
+									</div>
+									<div class="col-sm-3">
+										<button class="btn btn-default btn-sm" ng-click="addArchive()">Hinzufügen</button>
+									</div>
+								</div>
+								
+								<div class="form-group" ng-show="item.formExtend">
+									<label for="docArchiveNr" class="control-label col-sm-3">Archivkennung</label>
+									<div class="col-sm-8">
+										<input class="form-control" ng-model="item.archiveNr" ng-focus="setTypeaheadArray('E42','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. P.E.F. Schick|202|3" bs-tooltip="{title: 'Archiv- oder Regalnummer'}"/>
+									</div>
+								</div>
+								
+								<div class="form-group" ng-show="item.formExtend && item.sourceType == 'text'">
+									<label for="docOCR" class="control-label col-sm-3">Texterkennung</label>
+									<div class="col-sm-8">
+										<input type="checkbox" ng-model="item.ocr"  bs-tooltip="{title: 'Handelt es sich um einen eingescannten Text, empfiehlt sich eine automatische Texterkennung'}"/>
+									</div>
 								</div>
 								
 							</form>
