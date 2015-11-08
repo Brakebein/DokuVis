@@ -13,6 +13,7 @@ if ( !empty( $_FILES ) ) {
 	
 	(isset($_POST['language'])) ? $lang = $_POST['language'] : $lang = '';
 	(isset($_POST['ocr'])) ? $ocr = $_POST['ocr'] : $ocr = false;
+	(isset($_POST['resample'])) ? $resample = $_POST['resample'] : $resample = false;
 	
 	if(empty($lang)) {
 		$lang = 'deu';
@@ -67,8 +68,10 @@ if ( !empty( $_FILES ) ) {
 			}
 			
 			// resample auf 300 dpi für bessere Texterkennung
-			// $res = system($pImagickMogrify.' -resample 300 '.$pTemp.$DS.$pureNewFileName.$DS.$file);
-			// echo $res;
+			if($resample === "true") {
+				$res = system($pImagickMogrify.' -resample 300 '.$pTemp.$DS.$pureNewFileName.$DS.$file);
+				echo $res;
+			}
 
 			// Texterkennung -> pdf mit Textlayer
 			$res = system($pTesseract.' --tessdata-dir '.$pTessData.' -l '.$lang.' '.$pTemp.$DS.$pureNewFileName.$DS.$file.' '.$pTemp.$DS.$pureNewFileName.$DS.$file.' hocr');

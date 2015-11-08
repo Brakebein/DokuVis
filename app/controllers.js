@@ -1006,6 +1006,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				creationPlace: ($scope.globals.useCreationPlace) ? $scope.globals.creationPlace : item.creationPlace,
 				language: item.language,
 				ocr: item.ocr,
+				resample: item.resample,
 				
 				oldFileName: item.file.name,
 				newFileName: item.newFileName,
@@ -1036,7 +1037,9 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 			}
 			
 			//fileItem.formData[0].processData = {};
-			fileItem.formData[0].pages = response.data.pages;
+			if(response.data && response.data.pages) {
+				fileItem.formData[0].pages = response.data.pages;
+			}
 			
 			if($scope.insert.uploadType == 'source') {
 				Utilities.waitfor(function(){return isInserting;}, false, 20, {}, function(params) {
@@ -1147,6 +1150,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 			item.archiveNr = '';
 			item.creationPlace = '';
 			item.ocr = false;
+			item.resample = false;
 			
 			item.isInputError = false;
 			item.isProcessing = false;
@@ -1316,7 +1320,7 @@ webglControllers.controller('sourceDetailCtrl', ['$scope',
 						$scope.horizontalImage = false;
 					$scope.$apply();
 				}
-				img.src = $scope.item.file.path+$scope.item.file.name;
+				img.src = 'data/'+$scope.item.file.path+$scope.item.file.name;
 			}
 			else {
 				$scope.horizontalImage = false;

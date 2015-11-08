@@ -10,7 +10,7 @@
 	<div class="modal-body sourceDetail"><div>
 	
 		<div ng-class="horizontalImage ? 'imageHDiv' : 'imageVDiv'">
-			<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="{{item.file.path + (item.file.display || item.file.img1024 || item.file.name)}}"/>
+			<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="data/{{item.file.path + (item.file.display || item.file.img1024 || item.file.name)}}"/>
 			<div ng-if="item.type == 'text'" class="displayText" ng-include="'data/' + item.file.path + item.file.display[pageNr]"></div>
 		</div>
 		<div ng-class="horizontalImage ? 'infoHDiv' : 'infoVDiv'">

@@ -11,7 +11,7 @@ var webglApp = angular.module('webglApp', [
 	'xeditable',
 	'mgcrea.ngStrap',
 	'angularMoment',
-	'ngScrollbars'
+	'ngScrollbars',
 	'ngDragDrop'
 ]);
 
