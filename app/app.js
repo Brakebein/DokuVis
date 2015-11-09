@@ -5,14 +5,15 @@ var webglApp = angular.module('webglApp', [
 	'ui.router',
 	'ui.router.css',
 	'ngAnimate',
-	//'ngSanitize',
+	'ngSanitize',
 	'autocomplete',
 	'truncate',
 	'xeditable',
 	'mgcrea.ngStrap',
 	'angularMoment',
 	'ngScrollbars',
-	'ngDragDrop'
+	'ngDragDrop',
+	'textAngular'
 ]);
 
 webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$tooltipProvider',
@@ -36,6 +37,12 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$too
 				templateUrl: 'partials/project.html',
 				controller: 'projectCtrl',
 				css: 'style/project.css'
+			})
+			.state('project.home', {
+				url: '/home',
+				templateUrl: 'partials/projHome.html',
+				controller: 'projHomeCtrl',
+				css: 'style/projHome.css'
 			})
 			.state('project.explorer', {
 				url: '/explorer',
