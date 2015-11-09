@@ -11,9 +11,11 @@ var webglApp = angular.module('webglApp', [
 	'xeditable',
 	'mgcrea.ngStrap',
 	'angularMoment',
-	'ngScrollbars'
-	'ngDragDrop'
-]);
+	'ngScrollbars',
+	'ngDragDrop',
+	'mgcrea.ngStrap.modal',
+	'mgcrea.ngStrap.aside',
+	]);
 
 webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$tooltipProvider',
 	function($stateProvider, $urlRouterProvider, $modalProvider, $tooltipProvider) {
