@@ -130,8 +130,12 @@
 								
 								<div class="form-group" ng-show="item.formExtend && item.sourceType == 'text'">
 									<label for="docOCR" class="control-label col-sm-3">Texterkennung</label>
-									<div class="col-sm-8">
+									<div class="col-sm-1">
 										<input type="checkbox" ng-model="item.ocr"  bs-tooltip="{title: 'Handelt es sich um einen eingescannten Text, empfiehlt sich eine automatische Texterkennung'}"/>
+									</div>
+									<label for="docResample" class="control-label col-sm-2">Resample</label>
+									<div class="col-sm-1">
+										<input type="checkbox" ng-model="item.resample"  bs-tooltip="{title: 'Sollte das Dokument eine schlechte Auflösung besitzen, kann ein Hochskalierung das OCR-Ergebnis verbessern.'}"/>
 									</div>
 								</div>
 								
