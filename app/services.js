@@ -83,6 +83,20 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
+		// allgemeine Info editieren
+		requests.editProjInfo = function(prj, tid, newHtml) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62 {tid: {tid}}) \
+					SET n.content = {html} \
+					RETURN n',
+				params: {
+					proj: prj,
+					tid: tid,
+					html: newHtml
+				}
+			});
+		};
 		// allgemeine Info löschen
 		requests.removeProjInfo = function(prj, tid) {
 			return $http.post(phpUrl, {
@@ -90,7 +104,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62 {tid: {tid}}), \
 					(p)-[r2:P3]->(n2:E62) \
 					WHERE r2.order > r.order \
-					SET r2.order -= 1 \
+					SET r2.order = r2.order-1 \
 					DELETE r,n',
 				params: {
 					proj: prj,

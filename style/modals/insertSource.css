@@ -102,14 +102,14 @@
 .insertForm .form-group > span:hover {
 	color: #888;
 }
-.insertForm .form-group input {
+.insertForm .form-group input[type="text"] {
 	height: 22px
 }
 .insertForm .form-group input[type="checkbox"] {
 	margin-top: 4px;
 	height: 13px;
 }
-.insertForm .form-group input,
+.insertForm .form-group input[type="text"],
 .insertForm .form-group textarea {
 	padding: 1px 3px 0;
 	font-size: 12px;

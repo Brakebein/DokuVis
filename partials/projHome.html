@@ -3,23 +3,23 @@
 		<h1>{{projInfo.name}} <small>{{projInfo.description}}</small></h1>
 	</div>
 	
-	<div class="projInfos" ng-repeat="info in projInfo.notes | orderBy: 'order'">
+	<div class="projInfos" ng-repeat="info in projInfo.notes | orderBy: 'order' as filteredInfos">
 		<div class="infoText" ng-bind-html="info.info"></div>
 		<div class="infoCtrls">
 			<i class="fa fa-sort-asc" ng-hide="$first" ng-click="swapInfoOrder($index, $index-1)"></i>
-			<i class="fa fa-pencil" ng-click="editInfo(info.id)"></i>
-			<i class="fa fa-trash" ng-click="removeInfo(info.id)"></i>
+			<i class="fa fa-pencil" ng-click="openEditor(info.id, info.info)"></i>
+			<i class="fa fa-trash" ng-click="removeProjInfo(info.id)"></i>
 			<i class="fa fa-sort-desc" ng-hide="$last" ng-click="swapInfoOrder($index, $index+1)"></i>
 		</div>
 	</div>
 	
-	<button ng-if="!showEditor" class="btn btn-default btn-sm" ng-click="showEditor='true'">Info hinzufügen</button>
+	<button ng-if="!editor.show" class="btn btn-default btn-sm" ng-click="openEditor()">Info hinzufügen</button>
 	
-	<div ng-if="showEditor" class="editor">
-		<div text-angular ta-toolbar="[['h3','p','quote'],['bold','italics','underline','ul','ol'],['undo','redo'],['html','insertLink']]" ng-model="editorInput"></div>
+	<div ng-if="editor.show" class="editor">
+		<div text-angular ta-toolbar="[['h3','p','quote'],['bold','italics','underline','ul','ol'],['undo','redo'],['html','insertLink']]" ng-model="editor.input"></div>
 		
-		<button class="btn btn-primary btn-sm" ng-click="addProjInfo()">Speichern</button>
-		<button class="btn btn-default btn-sm" ng-click="showEditor=false; editorInput=''">Abbrechen</button>
+		<button class="btn btn-primary btn-sm" ng-click="editor.edit ? editProjInfo() : addProjInfo()">Speichern</button>
+		<button class="btn btn-default btn-sm" ng-click="closeEditor()">Abbrechen</button>
 		<button class="btn btn-default btn-sm" ng-click="outputInput()">Log input</button>
 	</div>
 	
