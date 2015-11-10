@@ -17,6 +17,8 @@ app.run(function(editableOptions) {
   editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
 });
 
+
+
 webglControllers.controller('introCtrl', ['$scope', '$http',
 	function($scope, $http) {
 		
@@ -413,11 +415,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				show: true
 			});
 		};
-		
-		$scope.openAddStaff = function(type) {
-			$scope.overlayParams.url = 'partials/addStaff.html';
-		};
-		
+				
 		// close modal
 		$scope.closeModal = function(update) {
 			if(update === 'source')
@@ -1568,6 +1566,12 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.views = new Object();
 		$scope.views.activeSide = 'staff';
 		
+		/*Aside*/
+		$scope.aside = {
+  "title": "Title",
+  "content": "Hello Aside<br/>This is a multiline message!"
+};
+		
 		$scope.data = [
 		{name: 'Milestones', isStaff: 'true', classes: 'gantt-row-milestone'},
 		
@@ -1582,10 +1586,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
                             {name: 'test2', color: '#F1C232', from: new Date(2015, 09, 28, 8, 0, 0), to: new Date(2015, 10, 1, 15, 0, 0)}
                         ]},
    
-   {name: 'test5',parent: 'Jonas', status: 'zu bearbeiten', priority: '1', tasks: [
+   {name: 'test4',parent: 'Jonas', status: 'zu bearbeiten', priority: '1', tasks: [
                             {name: 'test4', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
                         ]},
-    {name: 'test4',parent: 'Jonas', status: 'zu bearbeiten', tasks: [
+    {name: 'test5',parent: 'Jonas', status: 'zu bearbeiten', tasks: [
                             {name: 'test5', color: '#F1C232', from: new Date(2015, 10, 3, 8, 0, 0), to: new Date(2015, 10, 4, 15, 0, 0) }
                         ]},
     {name: 'test6',parent: 'Jonas', status: 'zu bearbeiten', tasks: [
@@ -1597,37 +1601,43 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			allowSideResizing: true,
 			fromDate: getFormattedDate(new Date()),
 			toDate: getFormattedDate(addDays(new Date(),30)),
-			columns: ['model.priority','from', 'to', 'model.status'],
-			treeTableColumns: ['from', 'to', 'status'],
-			columnsHeaders: {'model.priority': 'Priorität', 'from': 'von', 'to': 'bis', 'model.status': 'Status'},
+			columns: ['model.priority',/*'from', 'to',*/ 'model.status'],
+			treeTableColumns: [/*'from', 'to',*/ 'status'],
+			columnsHeaders: {'model.priority': 'Priorität', /*'from': 'von', 'to': 'bis',*/ 'model.status': 'Status'},
+			
 			columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to', 'model.status': 'gantt-column-status'},
 			columnsFormatters: {
 					                'from': function(from) {
-					                    return from !== undefined ? from.format("DD.MM.YYYY") : undefined;
+					                    return from !== undefined ? from.format("DD.MM") : undefined;
 					                },
 					                'to': function(to) {
-					                    return to !== undefined ? to.format("DD.MM.YYYY") : undefined;
+					                    return to !== undefined ? to.format("DD.MM") : undefined;
 					                }
 					            },
             
-            /*treeHeaderContent: '<i class="fa fa-align-justify"></i> {{getHeader()}}',*/
+            
+            columnsHeaderContents: {
+                'model.priority': '<i class="fa fa-exclamation"></i>',
+                'model.status': '<i class="fa fa-flag"></i>'
+            },
+           labelsEnabled: true,
           columnsContents: { 
-          'from': '<div bs-datepicker>{{getValue()}}</div>',
-          'model.priority': '{{getValue()}}',
+          'from': '{{getValue()}}',
+          'model.priority': '<i ng-switch= "getValue()"><i ng-switch-when="1" class="fa fa-flag" bs-tooltip="{title:\'hohe Priorität\'}"></i></i>',
           'model.status': '<i ng-class="getValue() == \'erledigt\' ? \'glyphicon glyphicon-ok\' : \'glyphicon glyphicon-cog\'" ng-click="scope.changeStatus(row.model.name)"></i>',
             },
             filterTask: '',
             filterRow: '',
-            contentTooltips: '{{task.model.data}}',
+            contentTooltips: 'von: {{task.model.from.format("DD.MM")}}	 bis: {{task.model.to.format("DD.MM")}}',
             scale: 'day',
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showComments()"></i><a href="#" /*ng-if= "row.model.isParent == \'false\'" ? */ editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row.model)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click ="scope.addNewTask(row.model)"></i>',
-            taskContent: '{{task.model.name}}</a><i class="fa fa-times" ng-click="scope.deleteTask(task.model,row.model)"></i>',
+            rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.addComments()"></i><a href="#" /*ng-if= "row.model.isParent == \'false\'" ? */ editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row.model)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click ="scope.addNewTask(row.model)"></i>',
+            taskContent: '{{task.model.name}}<i class="fa fa-times" ng-click="scope.deleteTask(task.model,row.model)"></i>',
             zoom: 1           
 		};
-		
+		/*{{task.model.from.format("DD.MM")}}*/
 		
 		function getFormattedDate(date) {
     		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
