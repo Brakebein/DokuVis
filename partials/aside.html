@@ -20,10 +20,10 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr data-drag="true" ng-repeat="s in staff | orderBy: 'name'">
+					<tr ng-repeat="s in staff" >
 						<!--<td>{{s.sid}}</td>-->
 						
-						<td><a  href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
+						<td><a data-drag="true" ng-model="staff" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep'}" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
 						<td><a href="#" editable-text ="s.surname" onbeforesave = "updateSurname($data,s.sid)">{{s.surname}}</a></td>
 						<td><a href="#" editable-text ="s.mail" onbeforesave = "updateMail($data,s.sid)">{{s.mail}}</a></td>
 						<td><a href="#" editable-text ="s.role" onbeforesave = "updateRole($data,s.sid)">{{s.role}}</a></td>
@@ -98,6 +98,18 @@
 									</div>
 								</div>
 							</div>
+							
+							
+            <ol data-drop="true" ng-model='data' jqyoui-droppable="{multiple:true}">   <!--jqyoui-droppable="{onDrop: 'addNewStaffToGantt'}"-->
+                <li>test</li>
+            </ol>
+            
+        
+        
+        
+        
+   
+							
 						</div>
       	
       </div>
