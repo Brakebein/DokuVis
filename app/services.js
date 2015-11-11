@@ -8,20 +8,41 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		var requests = {};
 		
+		/**
+		  * Projekte
+		*/
+		// alle initialen Knoten anlegen
 		requests.createInitProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
 				query: 
-					'CREATE (root:E22:'+prj+' {content:"e22_root"}), \
+					'CREATE (proj:E7:'+prj+' {content: "'+prj+'"}), \
+					(root:E22:'+prj+' {content:"e22_root"}), \
 					(tplan:E55:'+prj+' {content:"plan"}), \
 					(tpic:E55:'+prj+' {content:"picture"}), \
 					(ttext:E55:'+prj+' {content:"text"}), \
 					(tscreen:E55:'+prj+' {content:"screenshot"}),\
 					(tscomment:E55:'+prj+' {content:"screenshotComment"}), \
-					(tmodel:E55:'+prj+' {content:"model"})',
+					(tmodel:E55:'+prj+' {content:"model"}), \
+					(tproj:E55:'+prj+' {content:"project"}), \
+					(proj)-[:P2]->(tproj)',
 				params: {}
 			});
 		};
-		
+		// constraint anlegen
+		requests.createProjectConstraint = function(prj) {
+			return $http.post(phpUrl, {
+				query: 'CREATE CONSTRAINT ON (p:'+prj+') ASSERT p.content IS UNIQUE',
+				params: {}
+			});
+		};
+		// constraint löschen
+		requests.dropProjectConstraint = function(prj) {
+			return $http.post(phpUrl, {
+				query: 'DROP CONSTRAINT ON (p:'+prj+') ASSERT p.content IS UNIQUE',
+				params: {}
+			});
+		};
+		// alle Knoten und Kanten des Projekts löschen
 		requests.deleteAllProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
 				query: 
@@ -32,6 +53,85 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
+		/**
+		  * allgemeine Infos
+		*/
+		// alle Infos abrufen
+		requests.getProjInfos = function(prj) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62) \
+					RETURN n.content AS info, n.tid AS id, r.order AS order',
+				params: {
+					proj: prj
+				}
+			});
+		};
+		// allgemeine Info hinzufügen
+		requests.addProjInfo = function(prj, info) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (p:E7:'+prj+' {content: {proj}}) \
+					OPTIONAL MATCH (p)-[r:P3]->(:E62) \
+					WITH p, count(r) AS anz \
+					CREATE (p)-[:P3 {order: anz}]->(n:E62:'+prj+' {content: {content}, tid: {tid}}) \
+					RETURN n',
+				params: {
+					proj: prj,
+					tid: new Utilities.Base62().encode(new Date().getTime()),
+					content: info
+				}
+			});
+		};
+		// allgemeine Info editieren
+		requests.editProjInfo = function(prj, tid, newHtml) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62 {tid: {tid}}) \
+					SET n.content = {html} \
+					RETURN n',
+				params: {
+					proj: prj,
+					tid: tid,
+					html: newHtml
+				}
+			});
+		};
+		// allgemeine Info löschen
+		requests.removeProjInfo = function(prj, tid) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62 {tid: {tid}}), \
+					(p)-[r2:P3]->(n2:E62) \
+					WHERE r2.order > r.order \
+					SET r2.order = r2.order-1 \
+					DELETE r,n',
+				params: {
+					proj: prj,
+					tid: tid
+				}
+			});
+		};
+		// Info Reihenfolge tauschen
+		requests.swapProjInfoOrder = function(prj, tid1, tid2) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (p:E7:'+prj+' {content: {proj}}), \
+					(p)-[r1:P3]->(n1:E62 {tid: {tid1}}), \
+					(p)-[r2:P3]->(n2:E62 {tid: {tid2}}) \
+					WITH p, r1, r2, n1, n2, r1.order AS o1, r2.order AS o2 \
+					SET r1.order = o2, r2.order = o1 \
+					RETURN p',
+				params: {
+					proj: prj,
+					tid1: tid1,
+					tid2: tid2
+				}
+			});
+		};
+		
+		
+		//
 		requests.insertObject = function(name) {
 			return $http.post(cypherUrl, {
 				query: 'MERGE (e22:E22 {content:"e22_'+name+'"})'
@@ -504,6 +604,12 @@ webglServices.factory('mysqlRequest',
 				proj: proj,
 				name: name,
 				description: desc
+			});
+		};
+		// Projekt Info
+		requests.getProjectEntry = function(proj) {
+			return $http.post('php/mysql/getProjectEntry.php', {
+				proj: proj
 			});
 		};
 		// Projekt löschen
