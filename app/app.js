@@ -21,6 +21,10 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$too
 		
 		$urlRouterProvider.otherwise('/intro');
 		
+		// TODO: resolve functions
+		//    -> check user login
+		//    -> check if user is part of project
+		
 		$stateProvider
 			.state('intro', {
 				url: '/intro',
@@ -33,10 +37,37 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$too
 				controller: 'projectlistCtrl'
 			})
 			.state('project', {
-				url: '/:project',
+				url: '/:project/:subproject',
 				templateUrl: 'partials/project.html',
 				controller: 'projectCtrl',
-				css: 'style/project.css'
+				css: 'style/project.css',
+				resolve: {
+					checkProject: function($state, $stateParams, $q, mysqlRequest) {
+						return mysqlRequest.getProjectEntry($stateParams.project).then(function(response){
+							console.log(response, $stateParams);
+							if(response.data === 'NO ENTRY') {
+								$state.go('projectlist');
+								return $q.reject();
+							}
+						});
+					},
+					checkSubproject: function($state, $stateParams, $q, neo4jRequest) {
+						if($stateParams.subproject === 'master')
+							return $q.resolve();
+						else {
+							return neo4jRequest.getSubprojectInfo($stateParams.project, $stateParams.subproject).then(function(response){
+								if(response.data.exception) {
+									console.error('neo4jRequest Exception on getSubprojectInfo()', response.data);
+									return $q.reject();
+								}
+								if(response.data.data.length === 0) {
+									$state.go('project.home', {subproject: 'master'});
+									return $q.reject();
+								}
+							});
+						}
+					}
+				}
 			})
 			.state('project.home', {
 				url: '/home',

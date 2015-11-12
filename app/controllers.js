@@ -130,21 +130,24 @@ webglControllers.controller('projectCtrl', ['$scope', '$stateParams',
 	function($scope, $stateParams) {
 	
 		console.log('projectCtrl init');
+		
+		console.log($stateParams);
 	
 		$scope.project = $stateParams.project;
 		
 		
-		//$scope.modalParams
-		
-		// Überprüfen, ob Nutzer Zugriff auf Projekt hat
+		// TODO: Überprüfen, ob Nutzer Zugriff auf Projekt hat
 		// Zugriffsrechte und Rolle auslesen
+		
+		// TODO: test if subproject exists, otherwise redirect to master
 		
 	}]);
 	
 webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlRequest', 'neo4jRequest', 'Utilities',
 	function($scope, $stateParams, mysqlRequest, neo4jRequest, Utilities) {
-	
-		$scope.project = $stateParams.project;
+		
+		$scope.isMaster = $stateParams.subproject === 'master' ? true : false;
+		
 		$scope.projInfo = {};
 		
 		$scope.editor = {};
@@ -153,25 +156,56 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 		$scope.editor.edit = false;
 		$scope.editor.editId = '';
 		
+		$scope.subprojects = [];
+		
+		$scope.newSubproj = {};
+		$scope.newSubproj.title = '';
+		$scope.newSubproj.desc = '';
+		$scope.newSubproj.show = false;
+		
+		// init
+		if($stateParams.subproject === 'master') {
+			getProjectInfoFromTable();
+			getAllSubprojects();
+		}
+		else
+			getSubprojectInfo();
+		getProjectInfoFromNodes();
+		
 		function getProjectInfoFromTable() {
-			mysqlRequest.getProjectEntry($scope.project).then(function(response) {
+			mysqlRequest.getProjectEntry($stateParams.project).then(function(response) {
 				if(!response.data) { console.error('mysqlRequest failed on getProjectEntry()', response); return; }
-				$scope.projInfo = response.data;
+				$scope.projInfo.name = response.data.name;
+				$scope.projInfo.description = response.data.description;
 			});
 		}
 		function getProjectInfoFromNodes() {
-			neo4jRequest.getProjInfos($scope.project).then(function(response) {
+			neo4jRequest.getProjInfos($stateParams.project, $stateParams.subproject).then(function(response) {
 				if(response.data.exception) { console.error('neo4jRequest Exception on getProjInfos()', response.data); return; }
 				$scope.projInfo.notes = Utilities.cleanNeo4jData(response.data);
 				console.log($scope.projInfo);
 			});
 		}
-		getProjectInfoFromTable();
-		getProjectInfoFromNodes();
+		function getSubprojectInfo() {
+			neo4jRequest.getSubprojectInfo($stateParams.project, $stateParams.subproject).then(function(response) {
+				if(response.data.exception) { console.error('neo4jRequest Exception on getSubprojectInfo()', response.data); return; }
+				var cdata = Utilities.cleanNeo4jData(response.data)[0];
+				$scope.projInfo.name = cdata.name;
+				$scope.projInfo.description = cdata.desc;
+				console.log(response.data);
+			});
+		}
+		function getAllSubprojects() {
+			neo4jRequest.getAllSubprojects($stateParams.project).then(function(response) {
+				if(response.data.exception) { console.error('neo4jRequest Exception on getAllSubprojects()', response.data); return; }
+				$scope.subprojects = Utilities.cleanNeo4jData(response.data);
+				console.log($scope.subprojects);
+			});
+		}
 		
 		$scope.addProjInfo = function() {
-			if($scope.editor.input == '') return;
-			neo4jRequest.addProjInfo($scope.project, $scope.editor.input).then(function(response){
+			if($scope.editor.input.length === 0) return;
+			neo4jRequest.addProjInfo($stateParams.project, $stateParams.subproject, $scope.editor.input).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on addProjInfo()', response.data); return; }
 				console.log(response.data);
 				$scope.closeEditor();
@@ -179,7 +213,7 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 			});
 		};
 		$scope.editProjInfo = function() {
-			neo4jRequest.editProjInfo($scope.project, $scope.editor.editId, $scope.editor.input).then(function(response){
+			neo4jRequest.editProjInfo($stateParams.project, $stateParams.subproject, $scope.editor.editId, $scope.editor.input).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on editProjInfo()', response.data); return; }
 				console.log(response.data);
 				$scope.closeEditor();
@@ -187,14 +221,14 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 			});
 		};
 		$scope.removeProjInfo = function(id) {
-			neo4jRequest.removeProjInfo($scope.project, id).then(function(response){
+			neo4jRequest.removeProjInfo($stateParams.project, $stateParams.subproject, id).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on removeProjInfo()', response.data); return; }
 				getProjectInfoFromNodes();
 			});
 		};
 		
 		$scope.swapInfoOrder = function(oldIndex, newIndex) {
-			neo4jRequest.swapProjInfoOrder($scope.project, $scope.filteredInfos[oldIndex].id, $scope.filteredInfos[newIndex].id).then(function(response){
+			neo4jRequest.swapProjInfoOrder($stateParams.project, $stateParams.subproject, $scope.filteredInfos[oldIndex].id, $scope.filteredInfos[newIndex].id).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on swapProjInfoOrder()', response.data); return; }
 				getProjectInfoFromNodes();
 			});
@@ -216,14 +250,31 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 			$scope.editor.editId = '';
 		};
 		
+		$scope.closeNewSubproj = function() {
+			$scope.newSubproj.title = '';
+			$scope.newSubproj.desc = '';
+			$scope.newSubproj.show = false;
+		};
+		
 		$scope.outputInput = function() {
 			console.log($scope.editor.input);
 		};
 		
+		// subprojects
+		$scope.createSubproject = function() {
+			if($scope.newSubproj.title.length === 0) return;
+			neo4jRequest.createSubproject($stateParams.project, $scope.newSubproj.title, $scope.newSubproj.desc).then(function(response){
+				if(response.data.exception) { console.error('neo4jRequest Exception on createSubproject()', response.data); return; }
+				console.log(response.data);
+				$scope.closeNewSubproj();
+				getAllSubprojects();
+			});
+		};
+		
 	}]);
 	
-webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface', '$modal',
-	function($scope, $stateParams, $timeout, $sce, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface, $modal) {
+webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', '$q', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface', '$modal',
+	function($scope, $stateParams, $timeout, $sce, $q, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface, $modal) {
 
 		// Initialisierung von Variablen
 		$scope.project = $stateParams.project;
@@ -655,14 +706,22 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				var root = createHierarchy(data)[0];
 				console.log(root);
 				
-				function getNodes(nodes, parent) {
-					for(var i=0; i<nodes.length; i++) {
-						$scope.callDirFunc.loadCTMIntoScene(nodes[i].obj, nodes[i].file, parent);
-						getNodes(nodes[i].children, nodes[i].obj.content);
-					}
+				function getNodes(nodes, parent, promise) {
+					// for(var i=0; i<nodes.length; i++) {
+						// $scope.callDirFunc.loadCTMIntoScene(nodes[i].obj, nodes[i].file, parent);
+						// getNodes(nodes[i].children, nodes[i].obj.content);
+					// }
+					var cdefer = $q.defer();
+					nodes.reduce(function(cur, next) {
+						return cur.then(function() {
+							var p = $scope.callDirFunc.loadCTMIntoScene(next.obj, next.file, parent);
+							return getNodes(next.children, next.obj.content, p);
+						});
+					}, promise).then(function(){ cdefer.resolve(); });
+					return cdefer.promise;
 				}
 				if(root)
-					getNodes(root.children, 0);
+					getNodes(root.children, 0, $q.resolve());
 				
 			});
 		};
@@ -884,6 +943,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function(event) {
 			webglInterface.clearLists();
+			console.log('destroy explorerCtrl');
 		});
 		
 	}]);

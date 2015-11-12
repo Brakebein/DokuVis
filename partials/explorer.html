@@ -111,7 +111,7 @@
 			
 			<div class="ctrlGroup">
 				<div class="btn-group btn-group-xs">
-					<button type="button" class="btn" ng-class="wi.viewportSettings.ssao == 'ssao' ? 'btn-primary' : 'btn-default'" ng-init="wi.viewportSettings.ssao = 'ssao'" ng-click="wi.viewportSettings.ssao = 'ssao'">SSAO</button>
+					<button type="button" class="btn" ng-class="wi.viewportSettings.ssao == 'ssao' ? 'btn-primary' : 'btn-default'" ng-init="wi.viewportSettings.ssao = 'aa'" ng-click="wi.viewportSettings.ssao = 'ssao'">SSAO</button>
 					<button type="button" class="btn" ng-class="wi.viewportSettings.ssao == 'aa' ? 'btn-primary' : 'btn-default'" ng-click="wi.viewportSettings.ssao = 'aa'">AA</button>
 				</div>
 			</div>
@@ -435,11 +435,6 @@
 <div ng-if="alert.showing" alert="alert" class="alert alert-warning" role="alert"></div>
 
 
-<!--<script type="text/javascript" src="js/Gizmo.js"></script>-->
-
-<!--<div id="selectedOBJS">
-	<p data-ng-repeat="selectedModel in selected">{{selectedModel}}</p>
-</div>-->
 <!--
 <div class="media" data-ng-click="highlightModels($index)" data-ng-repeat="document in plans">
 	<div class="pull-left " style="width:150px; height:80px;overflow:hidden;">

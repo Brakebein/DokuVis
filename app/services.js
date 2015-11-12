@@ -15,8 +15,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		requests.createInitProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
 				query: 
-					'CREATE (proj:E7:'+prj+' {content: "'+prj+'"}), \
-					(root:E22:'+prj+' {content:"e22_root"}), \
+					'CREATE (proj:E7:'+prj+' {content: {master}}), \
+					(root:E22:'+prj+' {content:"e22_root_master"}), \
 					(tplan:E55:'+prj+' {content:"plan"}), \
 					(tpic:E55:'+prj+' {content:"picture"}), \
 					(ttext:E55:'+prj+' {content:"text"}), \
@@ -24,8 +24,14 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					(tscomment:E55:'+prj+' {content:"screenshotComment"}), \
 					(tmodel:E55:'+prj+' {content:"model"}), \
 					(tproj:E55:'+prj+' {content:"project"}), \
-					(proj)-[:P2]->(tproj)',
-				params: {}
+					(tsubproj:E55:'+prj+' {content:"subproject"}), \
+					(tpdesc:E55:'+prj+' {content:"projDesc"}), \
+					(tpinfo:E55:'+prj+' {content:"projInfo"}), \
+					(proj)-[:P2]->(tproj), \
+					(proj)-[:P15]->(root)',
+				params: {
+					master: prj
+				}
 			});
 		};
 		// constraint anlegen
@@ -54,76 +60,129 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		/**
+		  * Unterprojekte
+		*/
+		// alle Unterprojekte abrufen
+		requests.getAllSubprojects = function(prj) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (master:E7:'+prj+' {content: {master}})-[:P9]->(sub:E7)-[:P2]->(:E55 {content: "subproject"}), \
+					(sub)-[:P1]->(title:E35) \
+					OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
+					RETURN sub.content AS subId, title.content AS title, desc.content AS desc',
+				params : {
+					master: prj
+				}
+			});
+		};
+		// Unterprojektinfo abrufen
+		requests.getSubprojectInfo = function(prj, sub) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (sub:E7:'+prj+' {content: {subproj}})-[:P2]->(:E55 {content: "subproject"}), \
+					(sub)-[:P1]->(title:E35) \
+					OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
+					RETURN title.content AS name, desc.content AS desc',
+				params : {
+					subproj: sub
+				}
+			});
+		};
+		// Unterprojekt erstellen
+		requests.createSubproject = function(prj, title, desc) {
+			var q = 'MATCH (master:E7:'+prj+' {content: {master}})-[:P15]->(e22m:E22), \
+					(tsubp:E55:'+prj+' {content: "subproject"}), (tpdesc:E55:'+prj+' {content: "projDesc"}) \
+					CREATE (master)-[:P9]->(sub:E7:'+prj+' {content: {subproj}})-[:P2]->(tsubp), \
+					(sub)-[:P1]->(:E35:'+prj+' {content: {title}}), \
+					(sub)-[:P15]->(e22s:E22:'+prj+' {content: "e22_root_"+{subproj}}), \
+					(e22m)-[:P46]->(e22s)';
+			if(desc.length > 0)
+				q += ', (sub)-[:P3]->(:E62:'+prj+' {content: {desc}})-[:P3_1]->(tpdesc)';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					master: prj,
+					subproj: 'sub' + new Utilities.Base62().encode(new Date().getTime()),
+					title: title,
+					desc: desc
+				}
+			});
+		};
+		// TODO: subproject editieren
+		// TODO: subproject löschen
+		
+		/**
 		  * allgemeine Infos
 		*/
 		// alle Infos abrufen
-		requests.getProjInfos = function(prj) {
+		requests.getProjInfos = function(prj, sub) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62) \
+					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62)-[:P3_1]->(:E55 {content: "projInfo"}) \
 					RETURN n.content AS info, n.tid AS id, r.order AS order',
 				params: {
-					proj: prj
+					subproj: sub === 'master' ? prj : sub
 				}
 			});
 		};
 		// allgemeine Info hinzufügen
-		requests.addProjInfo = function(prj, info) {
+		requests.addProjInfo = function(prj, sub, info) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {proj}}) \
+					'MATCH (p:E7:'+prj+' {content: {subproj}}), (tpinfo:E55:'+prj+' {content: "projInfo"}) \
 					OPTIONAL MATCH (p)-[r:P3]->(:E62) \
-					WITH p, count(r) AS anz \
-					CREATE (p)-[:P3 {order: anz}]->(n:E62:'+prj+' {content: {content}, tid: {tid}}) \
+					WITH p, count(r) AS anz, tpinfo \
+					CREATE (p)-[:P3 {order: anz}]->(n:E62:'+prj+' {content: {content}, tid: {tid}})-[:P3_1]->(tpinfo) \
 					RETURN n',
 				params: {
-					proj: prj,
+					subproj: sub === 'master' ? prj : sub,
 					tid: new Utilities.Base62().encode(new Date().getTime()),
 					content: info
 				}
 			});
 		};
 		// allgemeine Info editieren
-		requests.editProjInfo = function(prj, tid, newHtml) {
+		requests.editProjInfo = function(prj, sub, tid, newHtml) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62 {tid: {tid}}) \
+					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62 {tid: {tid}})-[:P3_1]->(:E55 {content: "projInfo"}) \
 					SET n.content = {html} \
 					RETURN n',
 				params: {
-					proj: prj,
+					subproj: sub === 'master' ? prj : sub,
 					tid: tid,
 					html: newHtml
 				}
 			});
 		};
 		// allgemeine Info löschen
-		requests.removeProjInfo = function(prj, tid) {
+		requests.removeProjInfo = function(prj, sub, tid) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62 {tid: {tid}}), \
+					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62 {tid: {tid}})-[rt:P3_1]->(:E55 {content: "projInfo"}), \
 					(p)-[r2:P3]->(n2:E62) \
 					WHERE r2.order > r.order \
 					SET r2.order = r2.order-1 \
-					DELETE r,n',
+					DELETE r,rt,n',
 				params: {
-					proj: prj,
+					subproj: sub === 'master' ? prj : sub,
 					tid: tid
 				}
 			});
 		};
 		// Info Reihenfolge tauschen
-		requests.swapProjInfoOrder = function(prj, tid1, tid2) {
+		requests.swapProjInfoOrder = function(prj, sub, tid1, tid2) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {proj}}), \
-					(p)-[r1:P3]->(n1:E62 {tid: {tid1}}), \
-					(p)-[r2:P3]->(n2:E62 {tid: {tid2}}) \
+					'MATCH (p:E7:'+prj+' {content: {subproj}}), (tpinfo:E55:'+prj+' {content: "projInfo"}), \
+					(p)-[r1:P3]->(n1:E62 {tid: {tid1}})-[:P3_1]->(tpinfo), \
+					(p)-[r2:P3]->(n2:E62 {tid: {tid2}})-[:P3_1]->(tpinfo) \
 					WITH p, r1, r2, n1, n2, r1.order AS o1, r2.order AS o2 \
 					SET r1.order = o2, r2.order = o1 \
 					RETURN p',
 				params: {
-					proj: prj,
+					subproj: sub === 'master' ? prj : sub,
 					tid1: tid1,
 					tid2: tid2
 				}
@@ -559,14 +618,6 @@ webglServices.factory('phpRequest',
 	
 		var requests = {};
 		
-		requests.saveBase64Image = function(path, filename, base64) {
-			return $http.post('php/saveBase64Image.php', {
-				path: path,
-				filename: filename,
-				imgdata: base64
-			});
-		};
-		
 		requests.createProjectFolders = function(prj) {
 			return $http.post('php/createProjectFolders.php', {
 				project: prj
@@ -582,6 +633,22 @@ webglServices.factory('phpRequest',
 		requests.getSvgContent = function(file) {
 			return $http.post('php/getSvgContent.php', {
 				file: file
+			});
+		};
+		
+		requests.saveBase64Image = function(path, filename, base64) {
+			return $http.post('php/saveBase64Image.php', {
+				path: path,
+				filename: filename,
+				imgdata: base64
+			});
+		};
+		
+		requests.saveGeoToJson = function(path, filename, data) {
+			return $http.post('php/saveGeoToJson.php', {
+				path: path,
+				filename: filename,
+				data: data
 			});
 		};
 		
@@ -819,7 +886,7 @@ webglServices.factory('Utilities',
 
 			this.characterSet = arrayOfChars;
 		};
-		
+				
 		/**
 		  * generate unique id from timestamp
 		*/
