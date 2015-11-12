@@ -1,14 +1,13 @@
-<div class = "tasks">
-	
+<div class="tasksLeft">
 	<div class = "container-fluid">      
-		<h2>Projektübersicht</h4>
+		<h2>Projektübersicht</h2>
 		<hr/>
 	</div>
 
-	<br />
+	<br/>
 
 
-	<div class = "container-fluid" >	
+	<div class = "container-fluid" data-drop="true" jqyoui-droppable="{multiple:true, onDrop: 'addNewStaffToGantt'}">	
 			<div gantt 
 				 data=data
 				 filter-task="{'name': options.filterTask}"
@@ -24,7 +23,8 @@
 		         auto-expand="both" 
 		         expand-to-fit= "true"
 		         task-content = "options.taskContent"
-             	 row-content = "options.rowContent">
+             	 row-content = "options.rowContent"
+             	 api="options.api">
              
 		         
 			 
@@ -52,7 +52,7 @@
 			  <gantt-bounds></gantt-bounds>
 		     <!-- <gantt-progress></gantt-progress>-->
 		      <gantt-sortable></gantt-sortable>
-			  <gantt-movable></gantt-movable>
+			  <gantt-movable allow-row-switching="false"></gantt-movable>
 			  <gantt-tooltips content = "options.contentTooltips"></gantt-tooltips>
 			 <!-- <gantt-draw-task enabled="enabled"
                                             move-threshold="2" task-factory="drawTaskFactory"></gantt-draw-task>-->
@@ -117,10 +117,12 @@
 								                    	<input type="number" ng-model="options.zoom" step="0.1" min="0.1" max="5" class="form-control" />
 								                    </div>
 								                    
-								                    <div class="form-group text-center">
+								                    
+								                      
+								                <!--      <div class="form-group text-center">
 								                    <label class="control-label"> Mitarbeiter hinzufügen</label><br>
-	<button type="button"  class="btn btn-default"  data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container="body" data-template-url="partials/aside.html">Mitarbeiter hinzufügen</button>
-								                      </div>
+													<button type="button"  class="btn btn-default" ng-click="fadeOut=false">Mitarbeiter hinzufügen</button>
+								                      </div>-->
 								                    
 								                    
 											</div>
@@ -130,8 +132,165 @@
 							</div>
 						</div>
 					</div>	
+					
+				<div class="form-group text-center">
+								                    <label class="control-label"> Mitarbeiter hinzufügen</label><br>
+	<button type="button"  class="btn btn-default"  data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" data-template-url= "partials/aside/asideStaff.html" backdrop = "false">Mitarbeiter hinzufügen</button>
+								                      </div>
+								                      
+								                      
+								                     <div class="form-group text-center">
+								                    <label class="control-label"> Kommentare</label><br>
+	<button type="button"  class="btn btn-default"  data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" data-template-url= "partials/aside/asideComments.html" data-backdrop = "false">Kommentare</button>
+								                      </div>	
+					
 </div>
+
+
+
+<!--<div class="tasksRight">	
+	<div class="sidePanelSidemenu">
+	
+		<div title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
+			<span class="glyphicon glyphicon-user"></span>
+		</div>
+		<div title="Kommentare" class="smBtn" ng-class="views.activeSide=='comments'?'active':''" ng-click="views.activeSide = 'comments'">
+			<span class="glyphicon glyphicon-comment"></span>
+		</div>
+		
+		
+	</div>
+	
+
+	<div ng-if="views.activeSide == 'staff'" class="sideContainer">
+		
+		<div class="sideHeader">
+			<h4>Mitarbeiter</h4>
+			<hr/>
+			
+		</div>
+		
+		<div class="sideContent">
+				<span ng-if="staff.length < 1" >Keine Mitarbeiter vorhanden</span>
+				<table ng-if="staff.length > 0" class="table table-striped"> 
 				
-</div>			
+				
+				<thead>
+					<tr>
+						<th width="15">Vorname</th>
+						<th width="15">Nachname</th>
+						<th width="15">Mail</th>
+						<th width="15">Role</th>
+						
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="s in staff" >
+						
+						<td><a data-drag="true" ng-model="staff" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep', onDrag: 'getIndex(s.tableId)'}" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
+						<td><a href="#" editable-text ="s.surname" onbeforesave = "updateSurname($data,s.sid)">{{s.surname}}</a></td>
+						<td><a href="#" editable-text ="s.mail" onbeforesave = "updateMail($data,s.sid)">{{s.mail}}</a></td>
+						<td><a href="#" editable-text ="s.role" onbeforesave = "updateRole($data,s.sid)">{{s.role}}</a></td>
+						
+						
+						<td><button type="button" class="btn btn-default" ng-click=removeStaff(s.sid)>Löschen</button></td>
+						
+					</tr>
+					 <p>{{staffIndex}}</p>
+			
+					
+				</tbody>
+				</table>
+			
+		<div class="panel-group" data-start-collapsed="true" bs-collapse>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href=""  bs-collapse-toggle>Hinzufügen</a>
+                                </h4>
+                            </div>
+                           
+                            <div class="panel-collapse" bs-collapse-target>
+                                <div class="panel-body">
+									
+										<div class="form-inline">
+											
+													<div class="form-group text-center">
+											   		<label class="control-label">Vorname</label><br>
+													<input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Vorname">
+												</div>
+											
+												
+										
+												<div class="form-group text-center">
+											   		<label class="control-label">Nachname</label><br>
+													<input type="text" class="form-control" style="width: 10em" ng-model="newStaff.surname" placeholder="Nachname">
+												</div>
+											
+											
+											
+											
+											<div class="form-group text-center">
+											   		<label class="control-label">Mail</label><br>
+													<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" >
+												</div>
+											
+												
+											
+												<div class="form-group text-center">
+											   		<label class="control-label">Role</label><br>
+													<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.role" placeholder="Rolle" >
+												</div>
+										
+											
+											
+												<div class="form-group text-center">
+											   		<label class="control-label">Hinzufügen</label><br>
+													<button class="btn btn-primary" ng-click="addNewStaff()" >Hinzufügen</button>
+												</div>
+											
+											
+											
+												</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+				
+		</div>
+		
+		<div class="sideFooter">
+		
+		
+			
+		</div>
+	</div>	
+	
+	
+	<div ng-if="views.activeSide == 'comments'" class="sideContainer">
+		
+		<div class="sideHeader">
+			<h4>Kommentare</h4>
+			<hr/>
+			
+		</div>
+		
+		<div class="sideContent">
+				
+				
+		</div>
+		
+		<div class="sideFooter">
+			
+		</div>
+	</div>	
+	
+</div>	
+
+<div class="resizer-vTask" resizer="vertical" resizer-width="6" resizer-left=".tasksLeft" resizer-left-min="780" resizer-right=".tasksRight" resizer-right-min="0"></div>-->
+
+
+	
 			
 		

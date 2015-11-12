@@ -70,10 +70,46 @@
 	width: 6px;
 	cursor: e-resize;
 }
+
 .resizer-h, .resizer-v {
 	background-color: #333;
 }
 .resizer-h:hover, .resizer-v:hover {
+	background-color: #789;
+}
+
+/*resizer tasks*/
+.resizer-vTask {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 66%;
+	width: 6px;
+	cursor: e-resize;
+}
+
+.resizer-vTask.ng-enter {
+  transition:0.5s linear all;
+  left: 99.5;
+ }
+
+.resizer-vTask.ng-enter.ng-enter-active {
+   left: 66%;
+}
+
+/*.resizer-vTask.ng-leave {
+  transition:0.5s linear all;
+  left:66%;
+}
+
+.resizer-vTask.ng-leave.ng-leave-active {
+   left:99.5%;
+}*/
+
+.resizer-vTask {
+	background-color: #333;
+}
+.resizer-vTask:hover {
 	background-color: #789;
 }
 
