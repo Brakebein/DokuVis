@@ -173,7 +173,7 @@
 }
 .modal-backdrop.am-fade,
 .aside-backdrop.am-fade {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0);
   -webkit-animation-duration: 0.15s;
           animation-duration: 0.15s;
 }

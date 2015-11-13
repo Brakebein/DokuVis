@@ -1612,7 +1612,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', 'phpRequest', 'ne
 		
 	}]);
 	
-webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$http', 'Utilities',
+webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$http', 'Utilities', 
 	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities) {
 	
 		$scope.project = $stateParams.project;
@@ -1642,11 +1642,15 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.views = new Object();
 		$scope.views.activeSide = 'staff';
 		
+		
+		
 		/*Aside*/
 		$scope.aside = {
   "title": "Title",
   "content": "Hello Aside<br/>This is a multiline message!"
 };
+
+
 		
 		$scope.data = [
 		{name: 'Milestones', isStaff: 'true', classes: 'gantt-row-milestone'},
@@ -1709,11 +1713,11 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.addComments()"></i><a href="#" /*ng-if= "row.model.isParent == \'false\'" ? */ editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row.model)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click ="scope.addNewTask(row.model)"></i>',
+            rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.addComments()"></i><a href="#" editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row.model)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click ="scope.addNewTask(row.model)"></i>',
             taskContent: '{{task.model.name}}<i class="fa fa-times" ng-click="scope.deleteTask(task.model,row.model)"></i>',
             zoom: 1           
 		};
-		/*{{task.model.from.format("DD.MM")}}*/
+		
 		
 		function getFormattedDate(date) {
     		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
@@ -1757,6 +1761,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             return 40 * zoom;
         };
 
+	
 		
 		/*Tasks*/
 		
@@ -1764,9 +1769,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			console.log(rowModel);
 			
 				$scope.data.push({name: 'neue Aufgabe', parent: rowModel.name , priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: 'red', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
-			
-			
-			
 		}
 		
 		/*$scope.addNewTask = function(newTask) {
@@ -1792,15 +1794,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		}*/
 		
-		$scope.drawTaskFactory = function() {
-		   
-		   var newTask = {
-		      id: 5,
-		        name: 'New Task',
-		        color: '#F1C232'
-		    }
-
-   			 return newTask;
+		$scope.addNewStaffToGantt = function(){
+			/*alert('test');*/
+			$scope.data.push({name: $scope.staff[index], isStaff:'true'});
+			/*console.log($scope.data);*/
 		}
 		
 
@@ -1867,6 +1864,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				};
 			}
 		};
+		
+		
 				
 	/*Mitarbeiter*/
 		

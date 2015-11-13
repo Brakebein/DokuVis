@@ -1,5 +1,6 @@
 .tasks{
 	width : 100%;
+	z-index : 1100;
 }
 
 .sidePanelSidemenu {
@@ -8,7 +9,7 @@
 	width: 36px;
 	height: 100%;
 	right: 100%;
-	z-index: 50;
+	
 	
 	color: #999;
 	background-color: #333;
@@ -41,7 +42,6 @@
 
 .sideHeader {
 	/*flex: 0 0 auto;*/
-	background: yellow;
 	width: 30%;
 	
 }
