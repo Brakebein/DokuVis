@@ -3,11 +3,45 @@
 		<h2>Projektübersicht</h2>
 		<hr/>
 	</div>
+	
+	<div class = "optionsHeader">
+			
+			<div class = "col-md-1" id= "staff">
+			<div class="form-group text-center">
+				<button type="button"  class="btn btn-default"  data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" backdrop = 'false' data-template-url="partials/aside/asideStaff.html">Mitarbeiter hinzufügen</button>
+			</div>
+			</div>
+			<div class = "col-md-2" id= "from">
+				<div class="form-group" >
+					<div class="input-group" >
+		      			<div class="input-group-addon" ><</div>
+							<input type="text" class="form-control" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1"  bs-datepicker>
+					</div>
+				</div>
+			</div>
+			
+			<div class = "col-md-1" id = "zoom">
+				<div class="input-group">
+							<input type="number"ng-model="options.zoom" step="0.1" min="0.1" max="5" class= "form-control"/>
+							<span class="input-group-addon"><span class="fa fa-search-plus"></span></span>
+				</div>
+			</div>
+			
+			
+			<div class = "col-md-2" id = "to">
+				<div class="form-group" >
+					<div class='input-group'>
+				    		<input type="text"  class="form-control" ng-model="options.toDate" min-date="{{options.fromDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" bs-datepicker>
+				        	<div class="input-group-addon">></div>
+				    </div>
+				</div>
+			</div>	
+	  </div>
+					
 
-	<br/>
-
-
-	<div class = "container-fluid" data-drop="true" jqyoui-droppable="{multiple:true, onDrop: 'addNewStaffToGantt'}">	
+<div class = "container-fluid" data-drop="true" jqyoui-droppable="{multiple:true, onDrop: 'addNewStaffToGantt'}">
+		
+			
 			<div gantt 
 				 data=data
 				 filter-task="{'name': options.filterTask}"
@@ -46,7 +80,7 @@
 			  			
 			  
 		      
-		      <!-- <gantt-groups enabled="options.groupDisplayMode === 'group' || options.groupDisplayMode === 'overview' || options.groupDisplayMode === 'promote'" display="options.groupDisplayMode">
+		     <!--  <gantt-groups enabled = "true" display="overview">
 		       </gantt-groups>-->
 			  
 			  <gantt-bounds></gantt-bounds>
@@ -63,35 +97,42 @@
 			
 		<!--</div>-->
 	</div>
+	
+	<div class = "optionsFooter">
+		<div class="row">
+			<div class="form-inline">
+				 <div class="form-group input-append text-center">
+												    	<label class="control-label"><i class="fa fa-filter"></i> Aufgaben durchsuchen</label><br>
+												    	<input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterTask">
+												    </div>
+												    
+												    <div class="form-group input-append text-center">
+												    	<label class="control-label"><i class="fa fa-filter"></i> Bearbeiter durchsuchen</label><br>
+												        <input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterRow">
+												    </div>	
 				
-			<div class="panel-group" data-start-collapsed="true" bs-collapse>
+			</div>
+		</div>
+	</div>
+	
+	
+
+				
+			<!--<div class="panel-group" data-start-collapsed="true" bs-collapse>
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                    <a href=""  bs-collapse-toggle>Optionen</a>
+                                    <a href=""  bs-collapse-toggle>Suchen</a>
                                 </h4>
                             </div>
                            
                             <div class="panel-collapse" bs-collapse-target>
                                 <div class="panel-body">
-                                <!--insertcode-->
-                                <div class = "container-fluid">	
+                                     <div class = "container-fluid">	
 										 <div class="row">
 									        <div class="form-inline">
-									         <!--<div class="col-md-3 col-md-offset-3">-->
+									         
 										         <div class="form-group text-center">
-											   		<label class="control-label">Von</label><br>
-													<input type="text" class="form-control" style="width: 6em" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="From" bs-datepicker>
-												</div>
-											<!--</div> -->  
-										        
-										     <!--<div class="col-md-3 col-md-offset-3">	-->    
-													<div class="form-group text-center">
-															<label class="control-label">Bis</label><br>
-															<input type="text"  class="form-control" style="width: 6em" ng-model="options.toDate" min-date="{{options.fromDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="To" bs-datepicker>
-													</div>    
-										   <!--	</div>       -->    
-										   
 										   <div class="form-group text-center">
 												      	<label class="control-label"><i class="fa fa-search"></i> Skalierung</label><br>
 												      	<button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" bs-options="s for s in ['day','week', '2 weeks', 'month', 'quarter', '6 months', 'year']" bs-select></button>
@@ -111,41 +152,14 @@
 												    	<label class="control-label"><i class="fa fa-filter"></i> Bearbeiter durchsuchen</label><br>
 												        <input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterRow">
 												    </div>	
-												    									   
-										   			<div class="form-group text-center">
-								                    	<label class="control-label"><i class="fa fa-search"></i> Zoom</label><br>
-								                    	<input type="number" ng-model="options.zoom" step="0.1" min="0.1" max="5" class="form-control" />
-								                    </div>
-								                    
-								                    
-								                      
-								                <!--      <div class="form-group text-center">
-								                    <label class="control-label"> Mitarbeiter hinzufügen</label><br>
-													<button type="button"  class="btn btn-default" ng-click="fadeOut=false">Mitarbeiter hinzufügen</button>
-								                      </div>-->
-								                    
-								                    
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>	
-					
-				<div class="form-group text-center">
-								                    <label class="control-label"> Mitarbeiter hinzufügen</label><br>
-	<button type="button"  class="btn btn-default"  data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" data-template-url= "partials/aside/asideStaff.html" backdrop = "false">Mitarbeiter hinzufügen</button>
-								                      </div>
-								                      
-								                      
-								                     <div class="form-group text-center">
-								                    <label class="control-label"> Kommentare</label><br>
-	<button type="button"  class="btn btn-default"  data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" data-template-url= "partials/aside/asideComments.html" data-backdrop = "false">Kommentare</button>
-								                      </div>	
-					
+					</div>				-->
 </div>
-
 
 
 <!--<div class="tasksRight">	

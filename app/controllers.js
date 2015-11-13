@@ -1550,6 +1550,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.newStaff.mail = '';
 		$scope.newStaff.role = '';
 		$scope.newStaff.projects = '';
+		$scope.staffExists= 'false';
 		
 		/*Tasks*/
 		$scope.staff = [];
@@ -1560,6 +1561,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.newTask.task = '';
 		$scope.newTask.from = '';
 		$scope.newTask.to = '';
+		$scope.taskExists = 'false';
 		
 		/*Views*/
 		
@@ -1575,9 +1577,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.indexDnD;
 
 		
-		$scope.data = [
-		/*{name: '', isStaff: 'true'},*/
-		
+		$scope.data = [		
 		{name: 'Jonas', isStaff: 'true'},
     
     	{name: 'Martin', isStaff: 'true'},
@@ -1627,8 +1627,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
           columnsContents: {
           'trash': '<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>', 
           'from': '{{getValue()}}',
-          'model.priority': '<i ng-switch= "getValue()"><i ng-switch-when="1" class="fa fa-flag" id="lowPriority"></i><i ng-switch-when="2" class="fa fa-flag" id="mediumPriority"></i><i ng-switch-when="3" class="fa fa-flag" id="highPriority"></i></i>',
-          'model.status': '<i ng-class="getValue() == \'erledigt\' ? \'glyphicon glyphicon-ok\' : \'glyphicon glyphicon-cog\'" ng-click="scope.changeStatus(row.model.name)"></i>',
+          'model.priority': '<i ng-switch= "getValue()" ng-click="scope.changePriority(row.model)"><i ng-switch-when="1" class="fa fa-flag" id="lowPriority"></i><i ng-switch-when="2" class="fa fa-flag" id="mediumPriority"></i><i ng-switch-when="3" class="fa fa-flag" id="highPriority"></i></i>',
+          'model.status': '<i ng-class="getValue() == \'erledigt\' ? \'glyphicon glyphicon-ok\' : \'glyphicon glyphicon-cog\'" ng-click="scope.changeStatus(row.model)"></i>',
             },
             filterTask: '',
             filterRow: '',
@@ -1640,39 +1640,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showAside()"></i><a href="#" editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row.model)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.addNewTask(row.model)"></i> ', /*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
             taskContent: '{{task.model.name}}', /*deleteTask(task.model,row.model)*/
             zoom: 1,
-            api: function(api) {
-                // API Object is used to control methods and events from angular-gantt.
-                $scope.api = api;
-
-                api.core.on.ready($scope, function() {
-                    // Log various events to console
-                    
-                    api.data.on.change($scope, addEventName('data.on.change', logDataEvent)); 
-                 	
-                 	api.data.on.change($scope, function() {
-                       /* if (dataToRemove === undefined) {
-                            dataToRemove = [
-                                {'id': newData.data[2].id},
-                                {
-                                    'id': newData.data[0].id, 'tasks': [
-                                    {'id': newData.data[0].tasks[0].id},
-                                    {'id': newData.data[0].tasks[3].id}
-                                ]
-                                }, // Remove some Milestones
-                                {
-                                    'id': newData.data[6].id, 'tasks': [
-                                    {'id': newData.data[6].tasks[0].id}
-                                ]
-                                } // Remove order basket from Sprint 2
-                            ];
-                        }*/
-                        
-                        alert('test');
-                        
-                 	});
-                 });
-               }                
-		};
+           };
 		
 		function getFormattedDate(date) {
     		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
@@ -1721,7 +1689,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		/*Tasks*/
 		
 		$scope.addNewTask = function (rowModel){	
-				$scope.data.push({name: 'neue Aufgabe', parent: rowModel.name , priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: 'red', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
+				$scope.data.push({name: 'neue Aufgabe', parent: rowModel.name , priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
 				console.log("new");
 				console.log($scope.data);	
 		}
@@ -1753,22 +1721,32 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.getIndex = function(event, ui, indexStaff){
 			console.log(indexStaff);
 			$scope.indexDnD = indexStaff;
-			/*alert($scope.indexDnD);*/
 		}
 		
 		$scope.addNewStaffToGantt = function(){
-			console.log($scope.staff[$scope.indexDnD]);
-			/*alert('done');*/
-			$scope.data.push({name: $scope.staff[$scope.indexDnD].name, isStaff:'true'});
-			console.log($scope.data);
+			/*Mitarbeiter existiert bereits?*/
+			$.each($scope.data,function(index){
+				if($scope.data[index].name == $scope.staff[$scope.indexDnD].name){
+					$scope.staffExists = 'true';
+					return false;
+				}
+			});	
+			
+			if($scope.staffExists){
+				alert('Nutzer existiert leider schon!');
+				$scope.staffExists = false;
+			}
+			
+			else{
+				$scope.data.push({name: $scope.staff[$scope.indexDnD].name, isStaff:'true'});
+				$scope.staffExists = false;
+			}	
+			
 		}
 		
 		$scope.editTask = function(data, rowModel){
-			console.log(data);
-			console.log(rowModel);
 			rowModel.name = data;
 			rowModel.tasks[0].name= data;
-			console.log(rowModel);
 		}
 
 		$scope.showComments = function() {
@@ -1776,18 +1754,17 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		}
 		
 		$scope.changeStatus = function(rowName){
-			
 			$.each($scope.data,function(index){
-				if(rowName == $scope.data[index].name){
+				if(rowName.id == $scope.data[index].id){
 					
 					if($scope.data[index].status == 'zu bearbeiten'){
 						if(confirm("Ist die Aufgabe wirklich erledigt?")){
 							$scope.data[index].status = 'erledigt';
-							$scope.data[index].tasks[0].color = 'green';
+							$scope.data[index].tasks[0].color = '#24ff6b';
 						}
 						else{
 							$scope.data[index].status = 'zu bearbeiten';
-							$scope.data[index].tasks[0].color = 'red';
+							$scope.data[index].tasks[0].color = '#F1C232';
 						}
 						return false;
 							
@@ -1795,16 +1772,49 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					
 					if($scope.data[index].status == 'erledigt'){
 						$scope.data[index].status = 'zu bearbeiten';
-						$scope.data[index].tasks[0].color = 'red';
+						$scope.data[index].tasks[0].color = '#F1C232';
 						return false;				
 					}
 				}
 			});
 		};
-				
-	 $scope.remove = function() {
-            $scope.api.data.remove(dataToRemove);
-        };
+		
+		$scope.changePriority = function(rowModel){
+			$.each($scope.data,function(index){
+				if(rowModel.id == $scope.data[index].id){
+					
+					if($scope.data[index].priority == '1'){
+						$scope.data[index].priority = 2;
+						return false;
+					}
+					
+					if($scope.data[index].priority == '2'){
+						$scope.data[index].priority = 3;
+						return false;
+					}
+					
+					if($scope.data[index].priority == '3'){
+						$scope.data[index].priority = 1;
+						return false;
+					}
+					
+				/*	switch ($scope.data[index].priority) {
+					    case '1':
+					    	$scope.data[index].priority = 2;
+					    	alert($scope.data[index].priority = 2);
+					        break;
+					    case '2':
+					        $scope.data[index].priority = 3;
+					        break;
+					    case '3':
+					        $scope.data[index].priority = 1;
+					        break;
+					   	}
+					  return false;*/
+				}
+			});
+		};	
+			
 		$scope.deleteTask = function(rowModel){	
 			/*console.log(taskModel);
 			console.log(rowModel);*/
@@ -1826,7 +1836,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					console.log("rowModel "+ rowModel.name);
 					console.log("scope " + $scope.data[j].name);
 					
-					if(rowModel.name == $scope.data[j].name){
+					if(rowModel.id == $scope.data[j].id){
 					$scope.data.splice(j,1);
 					console.log("gelöscht");
 					console.log($scope.data);
@@ -1835,12 +1845,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					
 				};
 			}
-			
-			$scope.api.data.change();
 		};
 		
 		$scope.showAside = function(){
-			var aside = $aside({scope: $scope, templateUrl: 'partials/aside/asideComments.html', placement: 'right', animation: 'am-fade-and-slide-right', container: '.tasksLeft', backdrop: 'false'});
+			var aside = $aside({scope: parent.$scope, templateUrl: 'partials/aside/asideComments.html', placement: 'right', animation: 'am-fade-and-slide-right', container: '.tasksLeft' , backdrop: false});
 			
 			aside.show();
 		}
