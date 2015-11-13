@@ -939,6 +939,21 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			//$scope.loadModelsWithChildren();
 		}, 500);
 		
+		$scope.getIndex = function() {
+			phpRequest.getIndex($stateParams.project).then(function(response){
+				console.log(response.data);
+			});
+		};
+		$scope.indexDocuments = function() {
+			phpRequest.indexDocuments($stateParams.project).then(function(response){
+				console.log(response.data);
+			});
+		};
+		$scope.searchText = function(searchTerm) {
+			phpRequest.searchText($stateParams.project, searchTerm).then(function(response){
+				console.log(response.data);
+			});
+		};
 		
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function(event) {
@@ -1131,6 +1146,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				language: item.language,
 				ocr: item.ocr,
 				resample: item.resample,
+				primary: item.primary,
 				
 				oldFileName: item.file.name,
 				newFileName: item.newFileName,

@@ -17,6 +17,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				query: 
 					'CREATE (proj:E7:'+prj+' {content: {master}}), \
 					(root:E22:'+prj+' {content:"e22_root_master"}), \
+					(tsource:E55:'+prj+' {content:"sourceType"}), \
 					(tplan:E55:'+prj+' {content:"plan"}), \
 					(tpic:E55:'+prj+' {content:"picture"}), \
 					(ttext:E55:'+prj+' {content:"text"}), \
@@ -28,7 +29,10 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					(tpdesc:E55:'+prj+' {content:"projDesc"}), \
 					(tpinfo:E55:'+prj+' {content:"projInfo"}), \
 					(proj)-[:P2]->(tproj), \
-					(proj)-[:P15]->(root)',
+					(proj)-[:P15]->(root), \
+					(tplan)-[:P127]->(tsource), \
+					(tpic)-[:P127]->(tsource), \
+					(ttext)-[:P127]->(tsource)',
 				params: {
 					master: prj
 				}
@@ -295,17 +299,18 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		requests.getAllDocuments = function(prj) {
 			console.log('service getAllDocuments', prj);
 			return $http.post(phpUrl, {
-				query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55),'
+				query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}),'
 					+' (e31)-[:P102]->(title:E35),'
 					+' (e31)-[:P1]->(file:E75),'
 					+' (e31)<-[:P94]-(e65:E65)'
+					+' OPTIONAL MATCH (e31)-[:P2]->(primary:E55 {content:"primarySource"})'
 					+' OPTIONAL MATCH (e65)-[:P14]->(author:E21)-[:P131]->(aname:E82)'
 					+' OPTIONAL MATCH (e65)-[:P7]->(place:E53)-[:P87]->(pname:E48)'
 					+' OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61)'
 					+' OPTIONAL MATCH (e31)-[:P48]->(archive:E42)'
 					+' OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36)'
 					+' OPTIONAL MATCH (e31)-[:P3]->(comment:E62)'
-					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, plan3d.content AS plan3d, comment.content AS comment',
+					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, primary.content AS primary, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, plan3d.content AS plan3d, comment.content AS comment',
 				params: {}
 			});
 		};
@@ -404,6 +409,10 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			if(formData.sourceType == 'plan' || formData.sourceType == 'picture') {
 				q += ' CREATE (e31)-[:P70]->(e36:E36:'+prj+' {content: "e36_e31_"+{newFileName}})';
 				q += ' SET e75.contentDisplay = {pureNewFileName}+"_1024.jpg"';
+				if(formData.primary) {
+					q += ' MERGE (tprime:E55:'+prj+' {content: "primarySource"})';
+					q += ' CREATE (e31)-[:P2]->(tprime)';
+				}
 			}
 			if(formData.archive.length > 0) {
 				q += ' CREATE (e78)-[:P46]->(e84)';
@@ -649,6 +658,24 @@ webglServices.factory('phpRequest',
 				path: path,
 				filename: filename,
 				data: data
+			});
+		};
+		
+		// indexing and searching
+		requests.indexDocuments = function(prj) {
+			return $http.post('php/indexText.php', {
+				project: prj
+			});
+		};
+		requests.getIndex = function(prj) {
+			return $http.post('php/getIndex.php', {
+				project: prj
+			});
+		};
+		requests.searchText = function(prj, search) {
+			return $http.post('php/searchText.php', {
+				project: prj,
+				search: search
 			});
 		};
 		

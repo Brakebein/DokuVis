@@ -1929,7 +1929,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					return defer.promise;
 				}
 				else if(info.type === 'object') {
-					ctmloader.load(file.path+file.content, ctmHandler, {useWorker: true});
+					ctmloader.load(file.path+file.content, ctmHandler, {useWorker: false});
 					defer.resolve();
 					return defer.promise;
 				}

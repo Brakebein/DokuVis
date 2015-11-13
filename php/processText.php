@@ -93,6 +93,7 @@ if ( !empty( $_FILES ) ) {
 		// verschiebe pdf in Projektordner
 		// rename($pTemp.$DS.$pureNewFileName.$DS.'final.pdf', $upath.$pureNewFileName.'_ocr.pdf')
 			// or exit('ERROR: rename() failed on final.pdf');
+		
 		rename($pTemp.$DS.$newFileName, $upath.$newFileName)
 			or exit('ERROR: rename() failed on '.$newFileName);
 		rename($pTemp.$DS.'t_'.$pureNewFileName.'.jpg', $upath.'_thumbs'.$DS.'t_'.$pureNewFileName.'.jpg')
