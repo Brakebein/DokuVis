@@ -17,9 +17,6 @@ $pGhostscript = 'C:\\ServerTools\\Ghostscript\\bin\\gswin64.exe';
 // PDFtk - pdf toolkit
 $pPDFtk = "\"C:\\ServerTools\\PDFtk Server\\bin\\pdftk.exe\"";
 
-// qpdf
-$pQPDF = "C:\\ServerTools\\qpdf-5.1.3\\bin\\qpdf.exe";
-
 // Swish-e - Textindizierung
 $pSwishe = 'C:\\ServerTools\\SWISH-E\\bin\\swish-e.exe';
 $pSwisheConfig = 'C:\\ServerTools\\SWISH-E\\swish.config';

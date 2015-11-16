@@ -296,10 +296,11 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		requests.getAllDocuments = function(prj) {
+		requests.getAllDocuments = function(prj, subprj) {
 			console.log('service getAllDocuments', prj);
 			return $http.post(phpUrl, {
 				query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}),'
+					+' (e31)<-[:P15]-(:E7 {content:{subprj}}),'
 					+' (e31)-[:P102]->(title:E35),'
 					+' (e31)-[:P1]->(file:E75),'
 					+' (e31)<-[:P94]-(e65:E65)'
@@ -311,7 +312,9 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					+' OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36)'
 					+' OPTIONAL MATCH (e31)-[:P3]->(comment:E62)'
 					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, primary.content AS primary, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, plan3d.content AS plan3d, comment.content AS comment',
-				params: {}
+				params: {
+					subprj: subprj === 'master' ? prj : subprj
+				}
 			});
 		};
 		
@@ -382,11 +385,12 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		// Einfügen der Quelle
-		requests.insertDocument = function(prj, formData) {
+		requests.insertDocument = function(prj, subprj, formData) {
 			var ts = new Utilities.Base62().encode(new Date().getTime());
 			
 			var q = '';
 			q += 'MATCH (e55:E55:'+prj+' {content: {sourceType}})';
+			q += ', (esub:E7:'+prj+' {content: {subprj}})';
 			if(formData.archive.length > 0) {
 				q += ', (e78:E78:'+prj+' {content: {archive}})';
 			}
@@ -396,6 +400,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += ' CREATE (e31)-[:P1]->(e75:E75:'+prj+' {content: {newFileName}, type: {fileType}, thumb: "t_"+{pureNewFileName}+".jpg", original: {oldFileName}, path: {path}})';
 			
 			q += ' CREATE (e31)-[:P2]->(e55)';
+			q += ' CREATE (e31)<-[:P15]-(esub)';
 			
 			q += ' CREATE (e31)<-[:P94]-(e65:E65:'+prj+' {content: "e65_e31_"+{newFileName}})';
 			
@@ -441,18 +446,20 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += ' RETURN e31';
 			//console.log(q);
 			
+			formData.subprj = subprj === 'master' ? prj : subprj;
+			
 			return $http.post(phpUrl, {
 				query: q,
 				params: formData
 			});
 		};
 		
-		requests.insertModel = function(prj, formData, objData) {
+		requests.insertModel = function(prj, subprj, formData, objData) {
 			var q = '';
 			if(objData.parentid)
 				q += 'MATCH (parent:E22:'+prj+' {content: {parentid}}) ';
 			else
-				q += 'MATCH (parent:E22:'+prj+' {content: "e22_root"}) ';
+				q += 'MATCH (parent:E22:'+prj+' {content: "e22_root_"+{subprj}}) ';
 			
 			q += ',(tmodel:E55:'+prj+' {content: "model"}) ';
 			
@@ -461,7 +468,9 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			
 			//if(objData.type == 'object') {
 			q += ' CREATE (e22)<-[:P138]-(e36:E36:'+prj+' {content: "e36_"+{contentid}})-[:P2]->(tmodel)';
-			q += ' CREATE (e73:E73:'+prj+' {e73content})-[:P1]->(e75:E75:'+prj+' {e75content})';
+			q += ' MERGE (e75:E75:'+prj+' {content:{e75content}.content})';
+			q += ' ON CREATE SET e75 = {e75content}';
+			q += ' CREATE (e73:E73:'+prj+' {e73content})-[:P1]->(e75)';
 			q += ' CREATE (e36)-[:P106]->(e73)';
 			//}
 			q += ' RETURN e22';
@@ -469,6 +478,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
+					subprj: subprj,
 					contentid: formData.tid + '_' + objData.id.replace(/ /g, "_"),
 					parentid: objData.parentid ? 'e22_' + formData.tid + '_' + objData.parentid.replace(/ /g, "_") : '',
 					e73content: {
@@ -485,7 +495,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 						matrix: objData.matrix
 					},
 					e75content: {
-						content: formData.tid + '_' + objData.geometryUrl.replace(/ /g, "_") + '.ctm',
+						content: objData.geometryUrl.length > 0 ? formData.tid + '_' + objData.geometryUrl.replace(/ /g, "_") + '.ctm' : formData.newFileName ,
 						path: formData.path,
 						type: formData.fileType,
 						original: formData.newFileName,
@@ -505,11 +515,14 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		requests.getModelsWithChildren = function(prj) {
+		requests.getModelsWithChildren = function(prj, subprj) {
 			return $http.post(phpUrl, {
-				query: 'MATCH (p:E22:'+prj+')-[:P46]->(c:E22)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)'
+				query: 
+					'MATCH (p:E22:'+prj+')-[:P46]->(c:E22)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)'
 					+ ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile}) AS children',
-				params: {}
+				params: {
+					esub: 'e22_root_'+subprj
+				}
 			});
 		};
 		
@@ -546,7 +559,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		requests.insertScreenshot = function(prj, objData, markers) {
+		requests.insertScreenshot = function(prj, subprj, objData, markers) {
 			
 			var q = '';
 			q += 'MATCH (e22:E22:'+prj+' {content: {e22id}})';
@@ -566,7 +579,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					e22id: 'e22_root',
+					e22id: 'e22_root_'+subprj,
 					e36content: {
 						content: 'e36_' + objData.filename,
 						cameraCenter: objData.data.cameraCenter,

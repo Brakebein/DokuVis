@@ -1847,12 +1847,12 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 			
 			scope.internalCallFunc.loadCTMPlanIntoScene = function(info, file) {
 				
-				ctmloader.load(file.path+file.content, ctmPlanHandler, {useWorker: false});
+				ctmloader.load('data/'+file.path+file.content, ctmPlanHandler, {useWorker: false});
 				
 				function ctmPlanHandler(geo) {
 					geo.computeBoundingBox();
 					
-					var texture = THREE.ImageUtils.loadTexture(info.materialMapPath + info.materialMap);
+					var texture = THREE.ImageUtils.loadTexture('data/' + info.materialMapPath + info.materialMap);
 					texture.anisotropy = 8;
 					var material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
 					
@@ -1929,13 +1929,13 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					return defer.promise;
 				}
 				else if(info.type === 'object') {
-					ctmloader.load(file.path+file.content, ctmHandler, {useWorker: false});
+					ctmloader.load('data/'+file.path+file.content, ctmHandler, {useWorker: false});
 					defer.resolve();
 					return defer.promise;
 				}
 				
 				function ctmHandler(geo) {
-					defer.resolve();
+					//defer.resolve();
 					
 					geo.computeBoundingBox();
 					//geo.computeFaceNormals();
@@ -1964,7 +1964,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					// edges
 					var edges = null;
 					
-					/*if(file.edges) {
+					/*if(!file.edges) {
 						// wenn noch keine geometry für edges da, berechne und speichere edges
 						edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
 						edges.matrix = mesh.matrixWorld;
@@ -1982,9 +1982,9 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 							// TODO: in DB speichern
 						});
 					}
-					else {
+					else {*/
 						// lade und entpacke geometry für edges
-						JSZipUtils.getBinaryContent(file.path+file.content+'.zip', function(err, data) {
+						JSZipUtils.getBinaryContent('data/'+file.path+file.content+'.zip', function(err, data) {
 							var zip = new JSZip(data);
 							var vobj = JSON.parse(zip.file(file.content+'.json').asText());
 							
@@ -1996,8 +1996,8 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 							edges.matrixAutoUpdate = false;
 							scene.add(edges);
 						});
-					}
-					*/
+					//}
+					
 					//mesh = new THREE.Mesh(geo, materials['xrayMat']);
 					
 					// scale translation and set scale component
