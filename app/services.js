@@ -691,6 +691,32 @@ webglServices.factory('phpRequest',
 				search: search
 			});
 		};
+		requests.setNewBlacklist = function(prj, list) {
+			return $http.post('php/setBlackWhitelist.php', {
+				project: prj,
+				file: 'blacklist.txt',
+				words: list
+			});
+		};
+		requests.setNewWhitelist = function(prj, list) {
+			return $http.post('php/setBlackWhitelist.php', {
+				project: prj,
+				file: 'whitelist.txt',
+				words: list
+			});
+		};
+		requests.getBlacklist = function(prj) {
+			return $http.post('php/getBlackWhitelist.php', {
+				project: prj,
+				file: 'blacklist.txt'
+			});
+		};
+		requests.getWhitelist = function(prj) {
+			return $http.post('php/getBlackWhitelist.php', {
+				project: prj,
+				file: 'whitelist.txt'
+			});
+		};
 		
 		return requests;
 		

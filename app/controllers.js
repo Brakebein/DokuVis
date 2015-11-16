@@ -27,6 +27,8 @@ webglControllers.controller('introCtrl', ['$scope', '$http',
 webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpRequest', 'mysqlRequest', 'neo4jRequest', 'Utilities',
 	function($scope, $http, $q, phpRequest, mysqlRequest, neo4jRequest, Utilities) {
 		
+		// TODO: index.config und blacklist.txt in Projektordner verschieben beim Anlegen
+		
 		// Initialisierung von Variablen
 		$scope.projects = [];
 				
@@ -466,6 +468,19 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				templateUrl: 'partials/modals/_modalTpl.html',
 				contentTemplate: 'partials/modals/screenshotDetailModal.html',
 				controller: 'screenshotDetailCtrl',
+				scope: $scope,
+				show: true
+			});
+		};
+		$scope.openIndexEdit = function() {
+			$scope.modalParams = {
+				modalType: 'large'
+			};
+			$modal({
+				title: 'Index editieren',
+				templateUrl: 'partials/modals/_modalTpl.html',
+				contentTemplate: 'partials/modals/indexEditModal.html',
+				controller: 'indexEditCtrl',
 				scope: $scope,
 				show: true
 			});
@@ -964,6 +979,75 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			webglInterface.clearLists();
 			console.log('destroy explorerCtrl');
 		});
+		
+	}]);
+
+webglControllers.controller('indexEditCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'phpRequest', 
+	function($scope, $stateParams, $timeout, $sce, phpRequest) {
+		
+		$scope.blacklist = [];
+		$scope.whitelist = [];
+		
+		var currBlacklist = [];
+		var currWhitelist = [];
+		
+		function getIndex() {
+			phpRequest.getWhitelist($stateParams.project)
+				.then(function(response){
+					$scope.whitelist = response.data.split(" ");
+					console.log($scope.whitelist);
+					return phpRequest.getIndex($stateParams.project);
+				})
+				.then(function(response){
+					$scope.blacklist = response.data.replace(/(\r\n|\n|\r)/gm,"").split(" ");
+					$scope.blacklist.splice(0,4);
+					console.log($scope.blacklist);
+					for(var i=0; i<$scope.whitelist.length; i++) {
+						var index = $scope.blacklist.indexOf($scope.whitelist[i]);
+						if(index > -1) $scope.blacklist.splice(index, 1);
+					}
+				});
+		}
+		function getBlacklist() {
+			phpRequest.getBlacklist($stateParams.project).then(function(response){
+				console.log(response);
+				currBlacklist = response.data.split(" ");
+				console.log(currBlacklist);
+			});
+		}
+		
+		getIndex();
+		getBlacklist();
+		
+		$scope.addToWhitelist = function(entry) {
+			$scope.blacklist.splice($scope.blacklist.indexOf(entry), 1);
+			$scope.whitelist.push(entry);
+		};
+		
+		$scope.removeFromWhitelist = function(entry) {
+			$scope.whitelist.splice($scope.whitelist.indexOf(entry), 1);
+			$scope.blacklist.push(entry);
+		};
+		
+		$scope.updateIndex = function() {
+			phpRequest.setNewBlacklist($stateParams.project, currBlacklist.concat($scope.blacklist))
+				.then(function(response){
+					if(response.data !== 'SUCCESS') {
+						console.error('setNewBlacklist failed');
+					}
+					return phpRequest.setNewWhitelist($stateParams.project, $scope.whitelist);
+				})
+				.then(function(response){
+					if(response.data !== 'SUCCESS') {
+						console.error('setNewWhitelist failed');
+					}
+					return phpRequest.indexDocuments($stateParams.project);
+				}).then(function(response){
+					console.log(response.data);
+					getIndex();
+					getBlacklist();
+				});
+		};
 		
 	}]);
 
