@@ -27,6 +27,8 @@ webglControllers.controller('introCtrl', ['$scope', '$http',
 webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpRequest', 'mysqlRequest', 'neo4jRequest', 'Utilities',
 	function($scope, $http, $q, phpRequest, mysqlRequest, neo4jRequest, Utilities) {
 		
+		// TODO: index.config und blacklist.txt in Projektordner verschieben beim Anlegen
+		
 		// Initialisierung von Variablen
 		$scope.projects = [];
 				
@@ -130,21 +132,24 @@ webglControllers.controller('projectCtrl', ['$scope', '$stateParams',
 	function($scope, $stateParams) {
 	
 		console.log('projectCtrl init');
+		
+		console.log($stateParams);
 	
 		$scope.project = $stateParams.project;
 		
 		
-		//$scope.modalParams
-		
-		// Überprüfen, ob Nutzer Zugriff auf Projekt hat
+		// TODO: Überprüfen, ob Nutzer Zugriff auf Projekt hat
 		// Zugriffsrechte und Rolle auslesen
+		
+		// TODO: test if subproject exists, otherwise redirect to master
 		
 	}]);
 	
 webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlRequest', 'neo4jRequest', 'Utilities',
 	function($scope, $stateParams, mysqlRequest, neo4jRequest, Utilities) {
-	
-		$scope.project = $stateParams.project;
+		
+		$scope.isMaster = $stateParams.subproject === 'master' ? true : false;
+		
 		$scope.projInfo = {};
 		
 		$scope.editor = {};
@@ -153,25 +158,56 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 		$scope.editor.edit = false;
 		$scope.editor.editId = '';
 		
+		$scope.subprojects = [];
+		
+		$scope.newSubproj = {};
+		$scope.newSubproj.title = '';
+		$scope.newSubproj.desc = '';
+		$scope.newSubproj.show = false;
+		
+		// init
+		if($stateParams.subproject === 'master') {
+			getProjectInfoFromTable();
+			getAllSubprojects();
+		}
+		else
+			getSubprojectInfo();
+		getProjectInfoFromNodes();
+		
 		function getProjectInfoFromTable() {
-			mysqlRequest.getProjectEntry($scope.project).then(function(response) {
+			mysqlRequest.getProjectEntry($stateParams.project).then(function(response) {
 				if(!response.data) { console.error('mysqlRequest failed on getProjectEntry()', response); return; }
-				$scope.projInfo = response.data;
+				$scope.projInfo.name = response.data.name;
+				$scope.projInfo.description = response.data.description;
 			});
 		}
 		function getProjectInfoFromNodes() {
-			neo4jRequest.getProjInfos($scope.project).then(function(response) {
+			neo4jRequest.getProjInfos($stateParams.project, $stateParams.subproject).then(function(response) {
 				if(response.data.exception) { console.error('neo4jRequest Exception on getProjInfos()', response.data); return; }
 				$scope.projInfo.notes = Utilities.cleanNeo4jData(response.data);
 				console.log($scope.projInfo);
 			});
 		}
-		getProjectInfoFromTable();
-		getProjectInfoFromNodes();
+		function getSubprojectInfo() {
+			neo4jRequest.getSubprojectInfo($stateParams.project, $stateParams.subproject).then(function(response) {
+				if(response.data.exception) { console.error('neo4jRequest Exception on getSubprojectInfo()', response.data); return; }
+				var cdata = Utilities.cleanNeo4jData(response.data)[0];
+				$scope.projInfo.name = cdata.name;
+				$scope.projInfo.description = cdata.desc;
+				console.log(response.data);
+			});
+		}
+		function getAllSubprojects() {
+			neo4jRequest.getAllSubprojects($stateParams.project).then(function(response) {
+				if(response.data.exception) { console.error('neo4jRequest Exception on getAllSubprojects()', response.data); return; }
+				$scope.subprojects = Utilities.cleanNeo4jData(response.data);
+				console.log($scope.subprojects);
+			});
+		}
 		
 		$scope.addProjInfo = function() {
-			if($scope.editor.input == '') return;
-			neo4jRequest.addProjInfo($scope.project, $scope.editor.input).then(function(response){
+			if($scope.editor.input.length === 0) return;
+			neo4jRequest.addProjInfo($stateParams.project, $stateParams.subproject, $scope.editor.input).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on addProjInfo()', response.data); return; }
 				console.log(response.data);
 				$scope.closeEditor();
@@ -179,7 +215,7 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 			});
 		};
 		$scope.editProjInfo = function() {
-			neo4jRequest.editProjInfo($scope.project, $scope.editor.editId, $scope.editor.input).then(function(response){
+			neo4jRequest.editProjInfo($stateParams.project, $stateParams.subproject, $scope.editor.editId, $scope.editor.input).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on editProjInfo()', response.data); return; }
 				console.log(response.data);
 				$scope.closeEditor();
@@ -187,14 +223,14 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 			});
 		};
 		$scope.removeProjInfo = function(id) {
-			neo4jRequest.removeProjInfo($scope.project, id).then(function(response){
+			neo4jRequest.removeProjInfo($stateParams.project, $stateParams.subproject, id).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on removeProjInfo()', response.data); return; }
 				getProjectInfoFromNodes();
 			});
 		};
 		
 		$scope.swapInfoOrder = function(oldIndex, newIndex) {
-			neo4jRequest.swapProjInfoOrder($scope.project, $scope.filteredInfos[oldIndex].id, $scope.filteredInfos[newIndex].id).then(function(response){
+			neo4jRequest.swapProjInfoOrder($stateParams.project, $stateParams.subproject, $scope.filteredInfos[oldIndex].id, $scope.filteredInfos[newIndex].id).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on swapProjInfoOrder()', response.data); return; }
 				getProjectInfoFromNodes();
 			});
@@ -216,14 +252,31 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 			$scope.editor.editId = '';
 		};
 		
+		$scope.closeNewSubproj = function() {
+			$scope.newSubproj.title = '';
+			$scope.newSubproj.desc = '';
+			$scope.newSubproj.show = false;
+		};
+		
 		$scope.outputInput = function() {
 			console.log($scope.editor.input);
 		};
 		
+		// subprojects
+		$scope.createSubproject = function() {
+			if($scope.newSubproj.title.length === 0) return;
+			neo4jRequest.createSubproject($stateParams.project, $scope.newSubproj.title, $scope.newSubproj.desc).then(function(response){
+				if(response.data.exception) { console.error('neo4jRequest Exception on createSubproject()', response.data); return; }
+				console.log(response.data);
+				$scope.closeNewSubproj();
+				getAllSubprojects();
+			});
+		};
+		
 	}]);
 	
-webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface', '$modal',
-	function($scope, $stateParams, $timeout, $sce, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface, $modal) {
+webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', '$q', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface', '$modal',
+	function($scope, $stateParams, $timeout, $sce, $q, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface, $modal) {
 
 		// Initialisierung von Variablen
 		$scope.project = $stateParams.project;
@@ -366,7 +419,11 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
         };
 		
 		// Modal öffnen
-		$scope.openInsertForm = function(type, attach) {			
+		$scope.openInsertForm = function(type, attach) {
+			var title;
+			if(type === 'source') title = 'Quelle einfügen';
+			else if(type === 'model') title = 'Modell einfügen';
+			else if(type === 'zip') title = '3D-Plan hinzufügen';
 			$scope.modalParams = {
 				modalType: 'large',
 				type: type,
@@ -374,7 +431,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				queue: $scope.sourcesUploader.queue
 			};
 			$modal({
-				title: 'Quelle einfügen',
+				title: title,
 				templateUrl: 'partials/modals/_modalTpl.html',
 				contentTemplate: 'partials/modals/insertSourceModal.html',
 				controller: 'insertSourceCtrl',
@@ -411,6 +468,19 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				templateUrl: 'partials/modals/_modalTpl.html',
 				contentTemplate: 'partials/modals/screenshotDetailModal.html',
 				controller: 'screenshotDetailCtrl',
+				scope: $scope,
+				show: true
+			});
+		};
+		$scope.openIndexEdit = function() {
+			$scope.modalParams = {
+				modalType: 'large'
+			};
+			$modal({
+				title: 'Index editieren',
+				templateUrl: 'partials/modals/_modalTpl.html',
+				contentTemplate: 'partials/modals/indexEditModal.html',
+				controller: 'indexEditCtrl',
 				scope: $scope,
 				show: true
 			});
@@ -477,8 +547,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		// lädt alle Dokumente im Quellenbrowser
 		$scope.getAllDocuments = function() {
-			neo4jRequest.getAllDocuments($scope.project).then(function(response){
-				if(!response.data) { console.error('neo4jRequest failed on getAllDocuments()', response); return; }
+			neo4jRequest.getAllDocuments($stateParams.project, $stateParams.subproject).then(function(response){
+				if(response.data.exception) { console.error('neo4jRequest failed on getAllDocuments()', response.data); return; }
 				$scope.sourceResults = Utilities.cleanNeo4jData(response.data, true);
 				console.log('Dokumente:', $scope.sourceResults);
 			});
@@ -650,19 +720,27 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		};
 		
 		$scope.loadModelsWithChildren = function() {
-			neo4jRequest.getModelsWithChildren($scope.project).success(function(data, status){
-				//console.log(data);
-				var root = createHierarchy(data)[0];
+			neo4jRequest.getModelsWithChildren($stateParams.project, $stateParams.subproject).then(function(response){
+				if(response.data.exception) { console.log('neo4j failed on getModelsWithChildren()', response.data); return; }
+				var root = Utilities.createHierarchy(response.data)[0];
 				console.log(root);
 				
-				function getNodes(nodes, parent) {
-					for(var i=0; i<nodes.length; i++) {
-						$scope.callDirFunc.loadCTMIntoScene(nodes[i].obj, nodes[i].file, parent);
-						getNodes(nodes[i].children, nodes[i].obj.content);
-					}
+				function getNodes(nodes, parent, promise) {
+					// for(var i=0; i<nodes.length; i++) {
+						// $scope.callDirFunc.loadCTMIntoScene(nodes[i].obj, nodes[i].file, parent);
+						// getNodes(nodes[i].children, nodes[i].obj.content);
+					// }
+					var cdefer = $q.defer();
+					nodes.reduce(function(cur, next) {
+						return cur.then(function() {
+							var p = $scope.callDirFunc.loadCTMIntoScene(next.obj, next.file, parent);
+							return getNodes(next.children, next.obj.content, p);
+						});
+					}, promise).then(function(){ cdefer.resolve(); });
+					return cdefer.promise;
 				}
 				if(root)
-					getNodes(root.children, 0);
+					getNodes(root.children, 0, $q.resolve());
 				
 			});
 		};
@@ -677,7 +755,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		$scope.makeScreenshot = function() {
 			var tid = new Base62().encode(new Date().getTime());
-			var path = 'data/' + $scope.project + '/screenshots/';
+			var path = $stateParams.project + '/screenshots/';
 			var filename = tid + '_screenshot.jpg';
 			
 			var data = $scope.callDirFunc.getScreenshot();
@@ -880,11 +958,96 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			//$scope.loadModelsWithChildren();
 		}, 500);
 		
+		$scope.getIndex = function() {
+			phpRequest.getIndex($stateParams.project).then(function(response){
+				console.log(response.data);
+			});
+		};
+		$scope.indexDocuments = function() {
+			phpRequest.indexDocuments($stateParams.project).then(function(response){
+				console.log(response.data);
+			});
+		};
+		$scope.searchText = function(searchTerm) {
+			phpRequest.searchText($stateParams.project, searchTerm).then(function(response){
+				console.log(response.data);
+			});
+		};
 		
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function(event) {
 			webglInterface.clearLists();
+			console.log('destroy explorerCtrl');
 		});
+		
+	}]);
+
+webglControllers.controller('indexEditCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'phpRequest', 
+	function($scope, $stateParams, $timeout, $sce, phpRequest) {
+		
+		$scope.blacklist = [];
+		$scope.whitelist = [];
+		
+		var currBlacklist = [];
+		var currWhitelist = [];
+		
+		function getIndex() {
+			phpRequest.getWhitelist($stateParams.project)
+				.then(function(response){
+					$scope.whitelist = response.data.split(" ");
+					console.log($scope.whitelist);
+					return phpRequest.getIndex($stateParams.project);
+				})
+				.then(function(response){
+					$scope.blacklist = response.data.replace(/(\r\n|\n|\r)/gm,"").split(" ");
+					$scope.blacklist.splice(0,4);
+					console.log($scope.blacklist);
+					for(var i=0; i<$scope.whitelist.length; i++) {
+						var index = $scope.blacklist.indexOf($scope.whitelist[i]);
+						if(index > -1) $scope.blacklist.splice(index, 1);
+					}
+				});
+		}
+		function getBlacklist() {
+			phpRequest.getBlacklist($stateParams.project).then(function(response){
+				console.log(response);
+				currBlacklist = response.data.split(" ");
+				console.log(currBlacklist);
+			});
+		}
+		
+		getIndex();
+		getBlacklist();
+		
+		$scope.addToWhitelist = function(entry) {
+			$scope.blacklist.splice($scope.blacklist.indexOf(entry), 1);
+			$scope.whitelist.push(entry);
+		};
+		
+		$scope.removeFromWhitelist = function(entry) {
+			$scope.whitelist.splice($scope.whitelist.indexOf(entry), 1);
+			$scope.blacklist.push(entry);
+		};
+		
+		$scope.updateIndex = function() {
+			phpRequest.setNewBlacklist($stateParams.project, currBlacklist.concat($scope.blacklist))
+				.then(function(response){
+					if(response.data !== 'SUCCESS') {
+						console.error('setNewBlacklist failed');
+					}
+					return phpRequest.setNewWhitelist($stateParams.project, $scope.whitelist);
+				})
+				.then(function(response){
+					if(response.data !== 'SUCCESS') {
+						console.error('setNewWhitelist failed');
+					}
+					return phpRequest.indexDocuments($stateParams.project);
+				}).then(function(response){
+					console.log(response.data);
+					getIndex();
+					getBlacklist();
+				});
+		};
 		
 	}]);
 
@@ -916,8 +1079,8 @@ webglControllers.controller('addNewStaffCtrl', ['$scope', '$timeout', '$sce', 'p
 		
 		}]);
 
-webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal',
-	function($scope, FileUploader, neo4jRequest, Utilities, $timeout, $modal) {
+webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'FileUploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal',
+	function($scope, $stateParams, FileUploader, neo4jRequest, Utilities, $timeout, $modal) {
 		
 		
 		// init
@@ -930,7 +1093,12 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 		//$scope.insert.project = $scope.$parent.project;
 		$scope.insert = {params: {type: 'text', attachTo: undefined}};
 		$scope.insert.phpurl = '';
-		$scope.insert.uploadType = $scope.$parent.$parent.modalParams.type;
+		
+		$scope.uploadType = $scope.$parent.$parent.modalParams.type;
+		$scope.attachTo = $scope.$parent.$parent.modalParams.attachTo;
+		
+		console.log('attach', $scope.attachTo);
+		
 		$scope.insert.formTitle = '';
 		//console.log($scope.insert, $scope.$parent.project);
 		
@@ -998,7 +1166,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 
         // FILTERS
 		
-		if($scope.insert.uploadType == 'source') {
+		if($scope.uploadType == 'source') {
 			uploader.filters.push({
 				name: 'sourceFilter',
 				fn: function(item, options) {
@@ -1007,8 +1175,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				}
 			});
 		}
-		/*
-		else if($scope.insert.uploadType == 'model') {
+		else if($scope.uploadType == 'model') {
 			uploader.filters.push({
 				name: 'modelFilter',
 				fn: function(item, options) {
@@ -1017,7 +1184,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				}
 			});
 		}
-		else if($scope.insert.uploadType == 'zip') {
+		else if($scope.uploadType == 'zip') {
 			uploader.filters.push({
 				name: 'zipFilter',
 				fn: function(item, options) {
@@ -1026,6 +1193,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				}
 			});
 		}
+		/*
 		else if($scope.insert.uploadType == 'text') {
 			uploader.filters.push({
 				name: 'textFilter',
@@ -1043,11 +1211,53 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 			$scope.$parent.alert.message = 'Nicht unterstütztes Format!';
 			$scope.$parent.alert.showing = true;
         };
-        uploader.onAfterAddingFile = function(fileItem) {
-            console.info('onAfterAddingFile', fileItem);
-			// fileItem.tid = new Base62().encode(new Date().getTime());
-			// fileItem.newFileName = fileItem.tid + '_' + fileItem.file.name.replace(/ /g, "_");
-			// Utilities.sleep(1);
+        uploader.onAfterAddingFile = function(item) {
+            console.info('onAfterAddingFile', item);
+			
+			item.tid = new Utilities.Base62().encode(new Date().getTime());
+			item.newFileName = item.tid + '_' + item.file.name.replace(/ /g, "_");
+			
+			if($scope.uploadType === 'source') {
+				var type = item.file.type.slice(item.file.type.lastIndexOf('/') + 1);
+				if(imageTypes.indexOf(type) !== -1) {
+					item.sourceType = 'plan';
+					item.url = 'php/uploadImage.php';
+				}
+				else if(textTypes.indexOf(type) !== -1) {
+					item.sourceType = 'text';
+					item.language = 'de';
+					item.url = 'php/processText.php';
+				}
+				
+				item.title = '';
+				item.titleError = false;
+				item.author = '';
+				item.creationDate = '';
+				item.comment = '';
+				item.formExtend = false;
+				item.archive = '';
+				item.archiveNr = '';
+				item.creationPlace = '';
+				item.ocr = false;
+				item.resample = false;
+				item.primary = true;
+			}
+			else if($scope.uploadType === 'model') {
+				item.sourceType = 'model';
+				item.url = 'php/processDAE.php';
+			}
+			else if($scope.uploadType === 'zip') {
+				item.sourceType = 'plans/model';
+				item.url = 'php/planmodelFromZip.php';
+			}
+			
+			item.isInputError = false;
+			item.isProcessing = false;
+			item.isInserting = false;
+			item.anzInserting = 0;
+			item.anzInserted = 0;
+			
+			Utilities.sleep(1);
         };
         uploader.onAfterAddingAll = function(addedFileItems) {
             console.info('onAfterAddingAll', addedFileItems);
@@ -1071,12 +1281,13 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				language: item.language,
 				ocr: item.ocr,
 				resample: item.resample,
+				primary: item.primary,
 				
 				oldFileName: item.file.name,
 				newFileName: item.newFileName,
 				fileType: item.file.name.split(".").pop(),
 				pureNewFileName: item.newFileName.slice(0, item.newFileName.lastIndexOf(".")),
-				path: $scope.$parent.project+'/'+item.sourceType+'s/',
+				path: $stateParams.project+'/'+item.sourceType+'s/',
 				tid: item.tid
 			};
 			item.formData.push(formData);
@@ -1100,29 +1311,29 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				return;
 			}
 			
-			//fileItem.formData[0].processData = {};
+			console.log(response);
 			if(response.data && response.data.pages) {
 				fileItem.formData[0].pages = response.data.pages;
 			}
 			
-			if($scope.insert.uploadType == 'source') {
+			if($scope.uploadType == 'source') {
 				Utilities.waitfor(function(){return isInserting;}, false, 20, {}, function(params) {
 					isInserting = true;
-					neo4jRequest.insertDocument($scope.$parent.project, fileItem.formData[0]).success(function(data, status){
-						//var res = cleanData(data);
-						console.log('insertDocument', data);
+					neo4jRequest.insertDocument($stateParams.project, $stateParams.subproject, fileItem.formData[0]).then(function(response){
+						if(response.data.exception) { console.error('neo4j failed on insertDocument()', response.data); return; }
+						console.log('insertDocument', response.data);
 						isInserting = false;
 					});
 				});
 			}
 			
-			else if($scope.insert.uploadType == 'model') {
+			else if($scope.uploadType == 'model') {
 				
-				function neo4jinsertNode(prj, formData, params) {
+				function neo4jinsertNode(formData, params) {
 					//var obj = $.extend(true, {}, objData);
-					neo4jRequest.insertModel(prj, formData, params.obj).success(function(data, status){
-						//var res = cleanData(data);
-						console.log('insertModel', data);
+					neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, formData, params.obj).then(function(response){
+						if(response.data.exception) { console.error('neo4j failed on insertModel()', response.data); return; }
+						console.log('insertModel', response.data);
 						isInserting = false;
 						
 						insertNodes(params.obj.children);
@@ -1140,10 +1351,10 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 						//if(nodes[i].type != 'object') continue;
 						fileItem.isInserting = true;
 						fileItem.anzInserting++;
-						waitfor(function(){return isInserting;}, false, 50, {obj: nodes[i]}, function(params) {
+						Utilities.waitfor(function(){return isInserting;}, false, 20, {obj: nodes[i]}, function(params) {
 							isInserting = true;
 							//fileItem.isInserting = true;
-							neo4jinsertNode($scope.$parent.project, fileItem.formData[0], params);
+							neo4jinsertNode(fileItem.formData[0], params);
 							/*neo4jRequest.insertModel($scope.$parent.project, fileItem.formData[0], nodes[i]).success(function(data, status){
 								//var res = cleanData(data);
 								console.log('insertModel', data);
@@ -1156,12 +1367,12 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 				insertNodes(response);
 			}
 			
-			else if($scope.insert.uploadType == 'zip') {
+			else if($scope.uploadType == 'zip') {
 				console.log('everythin done - start cypher query');
 				isInserting = true;
-				neo4jRequest.attach3DPlan($scope.$parent.project, fileItem.formData[0], response, $scope.insert.params.attachTo).success(function(data, status){
-					//var res = cleanData(data);
-					console.log('attach3DPlan', data);
+				neo4jRequest.attach3DPlan($stateParams.project, fileItem.formData[0], response, $scope.attachTo).then(function(response){
+					if(response.data.exception) { console.error('neo4j failed on attach3DPlan()', response.data); return; }
+					console.log('attach3DPlan', response.data);
 					isInserting = false;
 				});
 			}
@@ -1188,49 +1399,11 @@ webglControllers.controller('insertSourceCtrl', ['$scope', 'FileUploader', 'neo4
 			uploader.addToQueue($scope.$parent.$parent.modalParams.queue[i]._file);
 		}
 		
-		// init metadata of item
-		$scope.initItem = function(item) {
-			item.tid = new Utilities.Base62().encode(new Date().getTime());
-			item.newFileName = item.tid + '_' + item.file.name.replace(/ /g, "_");
-			
-			var type = item.file.type.slice(item.file.type.lastIndexOf('/') + 1);
-			if(imageTypes.indexOf(type) !== -1) {
-				item.sourceType = 'plan';
-				item.url = 'php/uploadImage.php';
-			}
-			else if(textTypes.indexOf(type) !== -1) {
-				item.sourceType = 'text';
-				item.language = 'de';
-				item.url = 'php/processText.php';
-			}
-			
-			item.title = '';
-			item.titleError = false;
-			item.author = '';
-			item.creationDate = '';
-			item.comment = '';
-			item.formExtend = false;
-			item.archive = '';
-			item.archiveNr = '';
-			item.creationPlace = '';
-			item.ocr = false;
-			item.resample = false;
-			item.primary = true;
-			
-			item.isInputError = false;
-			item.isProcessing = false;
-			item.isInserting = false;
-			item.anzInserting = 0;
-			item.anzInserted = 0;
-			
-			Utilities.sleep(1);
-		};
-		
 		// vor dem Hochladen Pflichtfelder überprüfen
 		$scope.checkAndUploadAll = function() {
 			// wait for responses and validate inputs
 			$timeout(function() {
-				if($scope.insert.uploadType == 'source') {
+				if($scope.uploadType == 'source') {
 					for(var i=0, l=uploader.queue.length; i<l; i++) {
 						if(uploader.queue[i].title == '' || uploader.queue[i].titleError) {
 							uploader.queue[i].isInputError = true;
@@ -1385,7 +1558,7 @@ webglControllers.controller('sourceDetailCtrl', ['$scope',
 						$scope.horizontalImage = false;
 					$scope.$apply();
 				}
-				img.src = 'data/'+$scope.item.file.path+$scope.item.file.name;
+				img.src = 'data/'+$scope.item.file.path+ ($scope.item.file.display || $scope.item.file.name);
 			}
 			else {
 				$scope.horizontalImage = false;
@@ -1401,12 +1574,12 @@ webglControllers.controller('sourceDetailCtrl', ['$scope',
 		
 	}]);
 	
-webglControllers.controller('screenshotDetailCtrl', ['$scope', 'phpRequest', 'neo4jRequest', 'Utilities', '$timeout',
-	function($scope, phpRequest, neo4jRequest, Utilities, $timeout) {
+webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', 'phpRequest', 'neo4jRequest', 'Utilities', '$timeout',
+	function($scope, $stateParams, phpRequest, neo4jRequest, Utilities, $timeout) {
 		
 		console.log('screenshotDetailCtrl init');
 		
-		$scope.params = $scope.$parent.modalParams;
+		$scope.params = $scope.$parent.$parent.modalParams;
 		$scope.showInputfields = 'false';
 		console.log($scope.params);
 		
@@ -1499,7 +1672,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', 'phpRequest', 'ne
 						console.error(answer);
 						return;
 					}
-					neo4jRequest.insertScreenshot($scope.$parent.project, $scope.params, $scope.markers).success(function(data, status){
+					neo4jRequest.insertScreenshot($stateParams.project, $stateParams.subproject, $scope.params, $scope.markers).success(function(data, status){
 						console.log(data, 'neo4j done');
 						if(data.exception == 'SyntaxException') {
 							console.error('ERROR: Neo4j SyntaxException');

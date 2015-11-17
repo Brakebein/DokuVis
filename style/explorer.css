@@ -37,7 +37,7 @@
 
 	height: 100%;
 	/*width: 26px;*/
-	border: 1px solid #fff;
+	border: 1px solid transparent;
 	
 	margin: 0 1px;
 	padding: 0;
@@ -47,6 +47,7 @@
 	border-radius: 3px;
 }
 .ctrlBtn:hover {
+	background-color: #555;
 	/*border-right: 1px solid #bbb;
 	border-bottom: 1px solid #bbb;
 	border-left: 1px solid #ddd;

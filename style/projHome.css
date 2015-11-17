@@ -1,8 +1,17 @@
-.projHomeContainer {
-	width: 1000px;
+.leftHalf {
+	position: absolute;
+	left: 0;
+	width: 66%;
 	height: 100%;
 	padding: 0px 50px;
 	overflow-y: auto;
+}
+.rightHalf {
+	position: absolute;
+	left: 66%;
+	right: 0;
+	height: 100%;
+	padding: 0px 50px;
 }
 
 .projInfos {
@@ -33,4 +42,11 @@
 
 .ta-toolbar>.btn-group {
 	margin-bottom: 5px;
+}
+
+.subproject {
+	cursor: pointer;
+}
+.subproject:hover {
+	background-color: #fafafa;
 }

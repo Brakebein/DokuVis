@@ -1,7 +1,7 @@
 var webglDirectives = angular.module('webglDirectives', ['urish']);
 
-webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterface', '$rootScope',
-	function(angularLoad, $timeout, webglInterface, $rootScope) {
+webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterface', '$rootScope', 'phpRequest', '$http', '$q', 'Utilities',
+	function(angularLoad, $timeout, webglInterface, $rootScope, phpRequest, $http, $q, Utilities) {
 		
 		function link(scope, element, attr) {
 			
@@ -97,7 +97,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 			};
 			
 			var camPerspective = true;
-			var renderSSAO = true;
+			var renderSSAO = false;
 			
 			// für Navigation
 			var mouseDownCoord;
@@ -115,7 +115,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 			function init() {
 			
 			// default mat
-			materials['defaultMat'] = new THREE.MeshLambertMaterial({color: 0xaaaaaa, name: 'defaultMat'});
+			materials['defaultMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, name: 'defaultMat'});
 			materials['defaultDoublesideMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, side: THREE.DoubleSide, name: 'defaultDoublesideMat'});
 			materials['defaultUnsafeMat'] = new THREE.MeshLambertMaterial({color: 0xaaaaaa, transparent: true, opacity: 0.5, name: 'defaultUnsafeMat'});
 			
@@ -218,7 +218,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 				//var alight = new THREE.AmbientLight(0xffffff);
 				scene.add(alight);
 				
-				dlight = new THREE.DirectionalLight(0xaaaaaa, 0.8);
+				dlight = new THREE.DirectionalLight(0xffffff, 0.7);
 				dlight.position.set(-2,8,4);
 				scene.add(dlight);
 				
@@ -235,9 +235,9 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						//$('#loadprogressbar').css('visibility' , 'hidden');
 						$('#loadprogressbar').delay(2000).fadeOut(2000);
 						$('#loadprogressitem').delay(2000).fadeOut(2000);
-						$timeout(function() {
+						/*$timeout(function() {
 							webglInterface.callFunc.focusAll();
-						}, 100);
+						}, 100);*/
 					}
 				};
 				
@@ -285,110 +285,9 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 				
 				// Loader für obj-Dateien
 				objloader = new THREE.OBJMTLLoader(manager);
-				
 				ctmloader = new THREE.CTMLoader(manager);
 				
-				/*ctmloader.load('data/zwinger_all.ctm', function(geo) {
-					
-					console.log(geo);
-					
-					/*var pos = geo.attributes.position.array;
-					var index = geo.attributes.index.array;
-					var normal = geo.attributes.normal.array;
-					var uv = geo.attributes.uv.array;
-					
-					var ngeo = new THREE.Geometry();
-					
-					for(var i=0; i<pos.length; i+=3) {
-						ngeo.vertices.push(new THREE.Vector3(pos[i], pos[i+1], pos[i+2]));
-					}
-					for(var i=0; i<index.length; i+=3) {
-						var normals = [new THREE.Vector3(normal[index[i*3]], normal[index[i*3]+1], normal[index[i*3]+2]),
-									new THREE.Vector3(normal[index[(i+1)*3]], normal[index[(i+1)*3]+1], normal[index[(i+1)*3]+2]),
-									new THREE.Vector3(normal[index[(i+2)*3]], normal[index[(i+2)*3]+1], normal[index[(i+2)*3]+2])];
-						var n = new THREE.Vector3().addVectors(normals[0], normals[1]).add(normals[2]).normalize();
-						ngeo.faces.push(new THREE.Face3(index[i], index[i+1], index[i+2], normals, new THREE.Color(1,1,1), 0));
-					}
-					/*ngeo.computeFaceNormals();
-					ngeo.computeVertexNormals();
-					//ngeo.verticesNeedUpdate = true;
-					ngeo.elementsNeedUpdate = true;
-					ngeo.normalsNeedUpdate = true;*
-					
-					var mesh = new THREE.Mesh(geo, materials['defaultDoublesideMat']);
-					//var edges = new THREE.EdgesHelper(mesh, '#333333');
-					scene.add(mesh);
-					//scene.add(edges);
-					//console.log(mesh);
-					
-				}, {useWorker: true});*/
-				
-				
-				
-				// objloader.load('data/G_marhanna.obj', 'data/models/empty.mtl', loadObjectHandler);
-				//objloader.load('data/komplett.obj', 'data/models/empty.mtl', loadObjectHandler);
-				// objloader.load('data/zwinger_turm.obj', 'data/models/empty.mtl', loadObjectHandler);
-				// objloader.load('data/fassade.obj', 'data/models/empty.mtl', loadObjectHandler);
-				// objloader.load('data/fassade2.obj', 'data/models/empty.mtl', loadObjectHandler);
-				// objloader.load('data/eckturm.obj', 'data/models/empty.mtl', loadObjectHandler);
-				// objloader.load('data/galerie.obj', 'data/models/empty.mtl', loadObjectHandler);
-				// objloader.load('data/galerie2.obj', 'data/models/empty.mtl', loadObjectHandler);
-				// objloader.load('data/dach.obj', 'data/models/empty.mtl', loadObjectHandler);
-				// objloader.load('data/ornamente.obj', 'data/models/empty.mtl', loadObjectHandler);
-				//objloader.load('data/zwinger.obj', 'data/models/empty.mtl', loadObjectHandler);
-				//objloader.load('data/1_Kathedrale_gesamt.obj', 'data/1_Kathedrale_gesamt.mtl', loadObjectHandler);
-				//objloader.load('data/2_Kathedrale_Zusammenbau_unsicher.obj', 'data/2_Kathedrale_Zusammenbau_unsicher.mtl', loadObjectHandler);
-				
-				
-				// objloader.load('data/models/BP1.obj', 'data/models/BP1.mtl', loadObjectHandler);
-				// objloader.load('data/models/BP2.obj', 'data/models/BP2.mtl', loadObjectHandler);
-				// objloader.load('data/models/BP3.obj', 'data/models/BP3.mtl', loadObjectHandler);
-				// objloader.load('data/models/BP4.obj', 'data/models/BP4.mtl', loadObjectHandler);
-				// objloader.load('data/models/komplett.obj', 'data/models/empty.mtl', loadObjectHandler);
-				//objloader.load('data/models/mur_rekonstr.obj', 'data/models/empty.mtl', loadObjectHandler);
-				
 				/*objloader.load('data/steinmetzzeichen/Steinmetzzeichen_auswahl.obj', 'data/steinmetzzeichen/Steinmetzzeichen_auswahl.mtl', loadMasonMarkHandler);
-				
-				var fbfiles = ["BA_I",
-							"BA_I_unsicher",
-							"BA_II",
-							"BA_II_unsicher",
-							"BA_II_unsicher_Turm",
-							"BA_III",
-							"BA_III_unsicher",
-							"BA_III_unsicher-5",
-							"BA_IV",
-							"BA_IV_Dachstuhl",
-							"BA_IV_Dachverkleidung",
-							"BA_IV_unsicher",
-							"BA_IV_unsicher_Dach",
-							"BA_IV_unsicher-5",
-							"BA_V",
-							"BA_V_Dachstuhl",
-							"BA_V_Dachverkleidung",
-							"BA_V_unsicher",
-							"BA_VI",
-							"BA_VI_Dachstuhl",
-							"BA_VI_Dachverkleidung",
-							"BA_VI_Turm",
-							"BA_VII",
-							"BA_VII_Dachstuhl",
-							"BA_VII_Dachverkleidung",
-							"BA_VIII",
-							"BA_VIII_1626_Dachstuhl",
-							"BA_VIII_1626_Dachverkleidung",
-							//"BAI",
-							"Boden"];
-							
-				for(var i=0; i<fbfiles.length; i++) {
-					objloader.load('data/models/fribourg/'+fbfiles[i]+'.obj', 'data/models/fribourg/'+fbfiles[i]+'.mtl', loadObjectHandler);
-				}
-				
-				objloader.load('data/plans/fribourg/Grundriss_Boden.obj', 'data/plans/fribourg/Grundriss_Boden.mtl', loadPlanHandler);
-				objloader.load('data/plans/fribourg/Nordansicht.obj', 'data/plans/fribourg/Nordansicht.mtl', loadPlanHandler);
-				objloader.load('data/plans/fribourg/Ostansicht.obj', 'data/plans/fribourg/Ostansicht.mtl', loadPlanHandler);
-				objloader.load('data/plans/fribourg/Suedansicht.obj', 'data/plans/fribourg/Suedansicht.mtl', loadPlanHandler);
-				objloader.load('data/plans/fribourg/Grundriss_triphorium.obj', 'data/plans/fribourg/Grundriss_triphorium.mtl', loadPlanHandler);
 				*/
 				
 				// Gizmo
@@ -723,6 +622,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					if(!isChild) {
 						selected = obj;
 						console.log(selected);
+						//console.log('json'+selected.geometry.toJSON());
 						scope.selectedModels = {name: selected.name, eid: selected.userData.eid};
 						scope.$apply();
 					}
@@ -1947,12 +1847,12 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 			
 			scope.internalCallFunc.loadCTMPlanIntoScene = function(info, file) {
 				
-				ctmloader.load(file.path+file.content, ctmPlanHandler, {useWorker: false});
+				ctmloader.load('data/'+file.path+file.content, ctmPlanHandler, {useWorker: false});
 				
 				function ctmPlanHandler(geo) {
 					geo.computeBoundingBox();
 					
-					var texture = THREE.ImageUtils.loadTexture(info.materialMapPath + info.materialMap);
+					var texture = THREE.ImageUtils.loadTexture('data/' + info.materialMapPath + info.materialMap);
 					texture.anisotropy = 8;
 					var material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
 					
@@ -1973,6 +1873,8 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 			};
 			
 			scope.internalCallFunc.loadCTMIntoScene = function(info, file, parent) {
+				
+				var defer = $q.defer();
 				
 				var m = info.matrix;
 				var mat = new THREE.Matrix4();
@@ -2022,12 +1924,19 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					
 					// if(scope.layers.indexOf(obj.userData.layer) === -1)
 						// scope.layers.push(obj.userData.layer);
+					
+					defer.resolve();
+					return defer.promise;
 				}
 				else if(info.type === 'object') {
-					ctmloader.load(file.path+file.content, ctmHandler, {useWorker: false});
+					ctmloader.load('data/'+file.path+file.content, ctmHandler, {useWorker: false});
+					defer.resolve();
+					return defer.promise;
 				}
 				
 				function ctmHandler(geo) {
+					//defer.resolve();
+					
 					geo.computeBoundingBox();
 					//geo.computeFaceNormals();
 					//geo.computeVertexNormals();
@@ -2052,10 +1961,42 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						mesh.userData.originalMat = 'defaultDoublesideMat';
 					}
 					
-					var edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
-					edges.matrix = mesh.matrixWorld;
-					edges.matrixAutoUpdate = false;
-					//var edges = new THREE.EdgesHelper(mesh, 0x333333, 24.0);
+					// edges
+					var edges = null;
+					
+					/*if(!file.edges) {
+						// wenn noch keine geometry für edges da, berechne und speichere edges
+						edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
+						edges.matrix = mesh.matrixWorld;
+						edges.matrixAutoUpdate = false;
+						scene.add(edges);
+						
+						var zip = new JSZip();
+						zip.file(file.content+'.json', JSON.stringify(edges.geometry.toJSON()));
+						var zipdata = zip.generate({compression:'DEFLATE'});
+						phpRequest.saveGeoToJson(file.path, file.content, zipdata).then(function(response){
+							if(response.data !== 'SUCCESS') {
+								console.error('phpRequest failed on saveGeoToJson()', response.data);
+								return $q.reject();
+							}
+							// TODO: in DB speichern
+						});
+					}
+					else {*/
+						// lade und entpacke geometry für edges
+						JSZipUtils.getBinaryContent('data/'+file.path+file.content+'.zip', function(err, data) {
+							var zip = new JSZip(data);
+							var vobj = JSON.parse(zip.file(file.content+'.json').asText());
+							
+							var floatarray = new Float32Array(vobj.data.attributes.position.array);
+							var egeo = new THREE.BufferGeometry();
+							egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
+							edges = new THREE.LineSegments(egeo, materials['edgesMat']);
+							edges.matrix = mesh.matrixWorld;
+							edges.matrixAutoUpdate = false;
+							scene.add(edges);
+						});
+					//}
 					
 					//mesh = new THREE.Mesh(geo, materials['xrayMat']);
 					
@@ -2075,6 +2016,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					//mesh.userData.originalMat = origMat;
 					mesh.userData.unsafe = isUnsafe;
 					
+					// mesh in scene einfügen
 					var parentid = null;
 					if(parent && (p = scene.getObjectByName(parent, true))) {
 						p.add(mesh);
@@ -2083,7 +2025,6 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					else {
 						scene.add(mesh);
 					}
-					scene.add(edges);
 					
 					// Liste, um zusammengehörige Objekte zu managen
 					objects[mesh.id] = {mesh: mesh, edges: edges, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true};
@@ -2093,6 +2034,8 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					
 					// if(scope.layers.indexOf(mesh.userData.layer) === -1)
 						// scope.layers.push(mesh.userData.layer);
+					
+					
 				}
 			};
 			

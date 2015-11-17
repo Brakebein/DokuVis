@@ -5,6 +5,8 @@
 	error_reporting(E_ALL);
 	ini_set('max_execution_time', 3600);
 
+	include 'globalpaths.php';
+	
 	// lese POST-Parameter ein
 	(isset($_POST['newFileName'])) ? $newFileName = $_POST['newFileName'] : $newFileName = '';
 	(isset($_POST['path'])) ? $path = $_POST['path'] : $path = '';
@@ -14,9 +16,9 @@
 		exit('ERROR: POST parameter not complete');
 	
 	// Pfade
-	$path = str_replace("/", DIRECTORY_SEPARATOR, $path);
-	$upath = dirname(dirname( __FILE__ )) . DIRECTORY_SEPARATOR . $path;
-	$tmppath = dirname(dirname( __FILE__ )) . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR;
+	$path = str_replace("/", $DS, $path);
+	$upath = $pData . $DS . $path;
+	$tmppath = $pTemp . $DS;
 	
 	// hochgeladene Datei in den tmp Ordner verschieben
 	move_uploaded_file( $_FILES[ 'file' ][ 'tmp_name' ], $tmppath . $newFileName )

@@ -2,20 +2,12 @@
 
 include 'globalpaths.php';
 
-//$docPath = dirname(dirname( __FILE__ )). DIRECTORY_SEPARATOR .'data'. DIRECTORY_SEPARATOR .'texts'. DIRECTORY_SEPARATOR;
-$docPath = $pData . $DS . 'Proj_pt4oj1G' . $DS .'texts'. $DS;
+$postdata = json_decode(file_get_contents("php://input"));
 
-$inputFile = 'sponsel_280_neu.pdf';
-$image = 'sponsel_i.jpg';
-$final = 'sponsel_final';
+$projPath = $pData . $DS . $postdata->project . $DS;
 
-$lang = 'deu';
+$res = system($pSwishe.' -f '.$projPath.'index.swish-e -w '.utf8_decode($postdata->search));
 
-$suche = 'aufwand';
-
-echo "swish-e suche\n";
-//$res = system($pSwishe.' -f '.$docPath.'index.swish-e -w '.$suche);
-$res = exec($pSwishe.' -f '.$docPath.'index.swish-e -k*');
-echo $res;
+echo utf8_encode($res);
 
 ?>

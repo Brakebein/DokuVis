@@ -1,0 +1,54 @@
+.indexEdit {
+	position: relative;
+	display: flex;
+	overflow: hidden;
+}
+.indexEdit .blacklist,
+.indexEdit .whitelist {
+	flex: 1 1 200px;
+	/*height: 100%;*/
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	margin: 10px 15px;
+	overflow-y: scroll;
+}
+
+.indexEdit .swapbtn {
+	flex: 0 0 100px;
+}
+
+.indexEdit ul {
+	list-style-type: none;
+	padding: 0;
+	position: relative;
+}
+.indexEdit ul>li {
+	padding: 0 10px;
+	line-height: 24px;
+	cursor: pointer;
+	transition: background-color 0.1s, opacity linear 0.2s, max-height linear 0.2s;
+}
+.indexEdit ul>li:hover {
+	background-color: #ddd;
+}
+.indexEdit .blacklist ul>li.ng-enter-active,
+.indexEdit .blacklist ul>li.ng-leave {
+	opacity: 1;
+	max-height: 25px;
+}
+.indexEdit .blacklist ul>li.ng-enter,
+.indexEdit .blacklist ul>li.ng-leave-active {
+	opacity: 0;
+	max-height: 0;
+}
+
+.indexEdit .whitelist ul>li.ng-enter,
+.indexEdit .whitelist ul>li.ng-leave-active {
+	opacity: 0;
+	max-height: 0;
+}
+.indexEdit .whitelist ul>li.ng-enter-active,
+.indexEdit .whitelist ul>li.ng-leave {
+	opacity: 1;
+	max-height: 25px;
+}

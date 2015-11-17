@@ -28,7 +28,7 @@
 					<!--<td>{{p.pid}}</td>-->
 					<td>{{p.name}}</td>
 					<td> <a href="#" editable-text ="p.description" onaftersave = "updateProjectDescription($data,p.pid)">{{p.description}}</a></td> <!--ng-click="editProject(p.description,$event)"-->
-					<td><a ui-sref="project.home({ project: p.proj })" target="_blank">öffnen</a></td>
+					<td><a ui-sref="project.home({ project: p.proj, subproject: 'master' })" target="_blank">öffnen</a></td>
 					<td><a ng-click="deleteProject(p.proj)">löschen</a></td>
 					
 				</tr>

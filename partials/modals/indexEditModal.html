@@ -1,0 +1,34 @@
+<div class="modal-content">
+	
+	<div class="modal-header" ng-show="title">
+		<button type="button" class="close" aria-label="Close" ng-click="$hide()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		<h4 class="modal-title" ng-bind="title"></h4>
+	</div>
+	
+	<div class="modal-body indexEdit">
+		
+		<div class="blacklist">
+			<ul>
+				<li ng-repeat="b in blacklist | orderBy: b" ng-click="addToWhitelist(b)">{{b}}</li>
+			</ul>
+		</div>
+		<div class="swapbtn">
+			<button class="btn btn-default btn-sm">hinzufügen</button>
+			<button class="btn btn-default btn-sm">entfernen</button>
+		</div>
+		<div class="whitelist">
+			<ul>
+				<li ng-repeat="w in whitelist | orderBy: w" ng-click="removeFromWhitelist(w)">{{w}}</li>
+			</ul>
+		</div>
+	
+	</div>
+	
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary" ng-click="updateIndex()">Speichern</button>
+		<button type="button" class="btn btn-default" ng-click="$hide()">Abbrechen</button>
+	</div>
+	
+</div>

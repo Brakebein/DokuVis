@@ -15,8 +15,9 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		requests.createInitProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
 				query: 
-					'CREATE (proj:E7:'+prj+' {content: "'+prj+'"}), \
-					(root:E22:'+prj+' {content:"e22_root"}), \
+					'CREATE (proj:E7:'+prj+' {content: {master}}), \
+					(root:E22:'+prj+' {content:"e22_root_master"}), \
+					(tsource:E55:'+prj+' {content:"sourceType"}), \
 					(tplan:E55:'+prj+' {content:"plan"}), \
 					(tpic:E55:'+prj+' {content:"picture"}), \
 					(ttext:E55:'+prj+' {content:"text"}), \
@@ -24,8 +25,17 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					(tscomment:E55:'+prj+' {content:"screenshotComment"}), \
 					(tmodel:E55:'+prj+' {content:"model"}), \
 					(tproj:E55:'+prj+' {content:"project"}), \
-					(proj)-[:P2]->(tproj)',
-				params: {}
+					(tsubproj:E55:'+prj+' {content:"subproject"}), \
+					(tpdesc:E55:'+prj+' {content:"projDesc"}), \
+					(tpinfo:E55:'+prj+' {content:"projInfo"}), \
+					(proj)-[:P2]->(tproj), \
+					(proj)-[:P15]->(root), \
+					(tplan)-[:P127]->(tsource), \
+					(tpic)-[:P127]->(tsource), \
+					(ttext)-[:P127]->(tsource)',
+				params: {
+					master: prj
+				}
 			});
 		};
 		// constraint anlegen
@@ -54,76 +64,129 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		/**
+		  * Unterprojekte
+		*/
+		// alle Unterprojekte abrufen
+		requests.getAllSubprojects = function(prj) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (master:E7:'+prj+' {content: {master}})-[:P9]->(sub:E7)-[:P2]->(:E55 {content: "subproject"}), \
+					(sub)-[:P1]->(title:E35) \
+					OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
+					RETURN sub.content AS subId, title.content AS title, desc.content AS desc',
+				params : {
+					master: prj
+				}
+			});
+		};
+		// Unterprojektinfo abrufen
+		requests.getSubprojectInfo = function(prj, sub) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (sub:E7:'+prj+' {content: {subproj}})-[:P2]->(:E55 {content: "subproject"}), \
+					(sub)-[:P1]->(title:E35) \
+					OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
+					RETURN title.content AS name, desc.content AS desc',
+				params : {
+					subproj: sub
+				}
+			});
+		};
+		// Unterprojekt erstellen
+		requests.createSubproject = function(prj, title, desc) {
+			var q = 'MATCH (master:E7:'+prj+' {content: {master}})-[:P15]->(e22m:E22), \
+					(tsubp:E55:'+prj+' {content: "subproject"}), (tpdesc:E55:'+prj+' {content: "projDesc"}) \
+					CREATE (master)-[:P9]->(sub:E7:'+prj+' {content: {subproj}})-[:P2]->(tsubp), \
+					(sub)-[:P1]->(:E35:'+prj+' {content: {title}}), \
+					(sub)-[:P15]->(e22s:E22:'+prj+' {content: "e22_root_"+{subproj}}), \
+					(e22m)-[:P46]->(e22s)';
+			if(desc.length > 0)
+				q += ', (sub)-[:P3]->(:E62:'+prj+' {content: {desc}})-[:P3_1]->(tpdesc)';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					master: prj,
+					subproj: 'sub' + new Utilities.Base62().encode(new Date().getTime()),
+					title: title,
+					desc: desc
+				}
+			});
+		};
+		// TODO: subproject editieren
+		// TODO: subproject löschen
+		
+		/**
 		  * allgemeine Infos
 		*/
 		// alle Infos abrufen
-		requests.getProjInfos = function(prj) {
+		requests.getProjInfos = function(prj, sub) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62) \
+					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62)-[:P3_1]->(:E55 {content: "projInfo"}) \
 					RETURN n.content AS info, n.tid AS id, r.order AS order',
 				params: {
-					proj: prj
+					subproj: sub === 'master' ? prj : sub
 				}
 			});
 		};
 		// allgemeine Info hinzufügen
-		requests.addProjInfo = function(prj, info) {
+		requests.addProjInfo = function(prj, sub, info) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {proj}}) \
+					'MATCH (p:E7:'+prj+' {content: {subproj}}), (tpinfo:E55:'+prj+' {content: "projInfo"}) \
 					OPTIONAL MATCH (p)-[r:P3]->(:E62) \
-					WITH p, count(r) AS anz \
-					CREATE (p)-[:P3 {order: anz}]->(n:E62:'+prj+' {content: {content}, tid: {tid}}) \
+					WITH p, count(r) AS anz, tpinfo \
+					CREATE (p)-[:P3 {order: anz}]->(n:E62:'+prj+' {content: {content}, tid: {tid}})-[:P3_1]->(tpinfo) \
 					RETURN n',
 				params: {
-					proj: prj,
+					subproj: sub === 'master' ? prj : sub,
 					tid: new Utilities.Base62().encode(new Date().getTime()),
 					content: info
 				}
 			});
 		};
 		// allgemeine Info editieren
-		requests.editProjInfo = function(prj, tid, newHtml) {
+		requests.editProjInfo = function(prj, sub, tid, newHtml) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62 {tid: {tid}}) \
+					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62 {tid: {tid}})-[:P3_1]->(:E55 {content: "projInfo"}) \
 					SET n.content = {html} \
 					RETURN n',
 				params: {
-					proj: prj,
+					subproj: sub === 'master' ? prj : sub,
 					tid: tid,
 					html: newHtml
 				}
 			});
 		};
 		// allgemeine Info löschen
-		requests.removeProjInfo = function(prj, tid) {
+		requests.removeProjInfo = function(prj, sub, tid) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {proj}})-[r:P3]->(n:E62 {tid: {tid}}), \
+					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62 {tid: {tid}})-[rt:P3_1]->(:E55 {content: "projInfo"}), \
 					(p)-[r2:P3]->(n2:E62) \
 					WHERE r2.order > r.order \
 					SET r2.order = r2.order-1 \
-					DELETE r,n',
+					DELETE r,rt,n',
 				params: {
-					proj: prj,
+					subproj: sub === 'master' ? prj : sub,
 					tid: tid
 				}
 			});
 		};
 		// Info Reihenfolge tauschen
-		requests.swapProjInfoOrder = function(prj, tid1, tid2) {
+		requests.swapProjInfoOrder = function(prj, sub, tid1, tid2) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {proj}}), \
-					(p)-[r1:P3]->(n1:E62 {tid: {tid1}}), \
-					(p)-[r2:P3]->(n2:E62 {tid: {tid2}}) \
+					'MATCH (p:E7:'+prj+' {content: {subproj}}), (tpinfo:E55:'+prj+' {content: "projInfo"}), \
+					(p)-[r1:P3]->(n1:E62 {tid: {tid1}})-[:P3_1]->(tpinfo), \
+					(p)-[r2:P3]->(n2:E62 {tid: {tid2}})-[:P3_1]->(tpinfo) \
 					WITH p, r1, r2, n1, n2, r1.order AS o1, r2.order AS o2 \
 					SET r1.order = o2, r2.order = o1 \
 					RETURN p',
 				params: {
-					proj: prj,
+					subproj: sub === 'master' ? prj : sub,
 					tid1: tid1,
 					tid2: tid2
 				}
@@ -233,21 +296,25 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		requests.getAllDocuments = function(prj) {
+		requests.getAllDocuments = function(prj, subprj) {
 			console.log('service getAllDocuments', prj);
 			return $http.post(phpUrl, {
-				query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55),'
+				query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}),'
+					+' (e31)<-[:P15]-(:E7 {content:{subprj}}),'
 					+' (e31)-[:P102]->(title:E35),'
 					+' (e31)-[:P1]->(file:E75),'
 					+' (e31)<-[:P94]-(e65:E65)'
+					+' OPTIONAL MATCH (e31)-[:P2]->(primary:E55 {content:"primarySource"})'
 					+' OPTIONAL MATCH (e65)-[:P14]->(author:E21)-[:P131]->(aname:E82)'
 					+' OPTIONAL MATCH (e65)-[:P7]->(place:E53)-[:P87]->(pname:E48)'
 					+' OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61)'
 					+' OPTIONAL MATCH (e31)-[:P48]->(archive:E42)'
 					+' OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36)'
 					+' OPTIONAL MATCH (e31)-[:P3]->(comment:E62)'
-					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, plan3d.content AS plan3d, comment.content AS comment',
-				params: {}
+					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, primary.content AS primary, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, plan3d.content AS plan3d, comment.content AS comment',
+				params: {
+					subprj: subprj === 'master' ? prj : subprj
+				}
 			});
 		};
 		
@@ -318,11 +385,12 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		// Einfügen der Quelle
-		requests.insertDocument = function(prj, formData) {
+		requests.insertDocument = function(prj, subprj, formData) {
 			var ts = new Utilities.Base62().encode(new Date().getTime());
 			
 			var q = '';
 			q += 'MATCH (e55:E55:'+prj+' {content: {sourceType}})';
+			q += ', (esub:E7:'+prj+' {content: {subprj}})';
 			if(formData.archive.length > 0) {
 				q += ', (e78:E78:'+prj+' {content: {archive}})';
 			}
@@ -332,6 +400,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += ' CREATE (e31)-[:P1]->(e75:E75:'+prj+' {content: {newFileName}, type: {fileType}, thumb: "t_"+{pureNewFileName}+".jpg", original: {oldFileName}, path: {path}})';
 			
 			q += ' CREATE (e31)-[:P2]->(e55)';
+			q += ' CREATE (e31)<-[:P15]-(esub)';
 			
 			q += ' CREATE (e31)<-[:P94]-(e65:E65:'+prj+' {content: "e65_e31_"+{newFileName}})';
 			
@@ -345,6 +414,10 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			if(formData.sourceType == 'plan' || formData.sourceType == 'picture') {
 				q += ' CREATE (e31)-[:P70]->(e36:E36:'+prj+' {content: "e36_e31_"+{newFileName}})';
 				q += ' SET e75.contentDisplay = {pureNewFileName}+"_1024.jpg"';
+				if(formData.primary) {
+					q += ' MERGE (tprime:E55:'+prj+' {content: "primarySource"})';
+					q += ' CREATE (e31)-[:P2]->(tprime)';
+				}
 			}
 			if(formData.archive.length > 0) {
 				q += ' CREATE (e78)-[:P46]->(e84)';
@@ -373,18 +446,20 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += ' RETURN e31';
 			//console.log(q);
 			
+			formData.subprj = subprj === 'master' ? prj : subprj;
+			
 			return $http.post(phpUrl, {
 				query: q,
 				params: formData
 			});
 		};
 		
-		requests.insertModel = function(prj, formData, objData) {
+		requests.insertModel = function(prj, subprj, formData, objData) {
 			var q = '';
 			if(objData.parentid)
 				q += 'MATCH (parent:E22:'+prj+' {content: {parentid}}) ';
 			else
-				q += 'MATCH (parent:E22:'+prj+' {content: "e22_root"}) ';
+				q += 'MATCH (parent:E22:'+prj+' {content: "e22_root_"+{subprj}}) ';
 			
 			q += ',(tmodel:E55:'+prj+' {content: "model"}) ';
 			
@@ -393,7 +468,9 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			
 			//if(objData.type == 'object') {
 			q += ' CREATE (e22)<-[:P138]-(e36:E36:'+prj+' {content: "e36_"+{contentid}})-[:P2]->(tmodel)';
-			q += ' CREATE (e73:E73:'+prj+' {e73content})-[:P1]->(e75:E75:'+prj+' {e75content})';
+			q += ' MERGE (e75:E75:'+prj+' {content:{e75content}.content})';
+			q += ' ON CREATE SET e75 = {e75content}';
+			q += ' CREATE (e73:E73:'+prj+' {e73content})-[:P1]->(e75)';
 			q += ' CREATE (e36)-[:P106]->(e73)';
 			//}
 			q += ' RETURN e22';
@@ -401,6 +478,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
+					subprj: subprj,
 					contentid: formData.tid + '_' + objData.id.replace(/ /g, "_"),
 					parentid: objData.parentid ? 'e22_' + formData.tid + '_' + objData.parentid.replace(/ /g, "_") : '',
 					e73content: {
@@ -417,7 +495,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 						matrix: objData.matrix
 					},
 					e75content: {
-						content: formData.tid + '_' + objData.geometryUrl.replace(/ /g, "_") + '.ctm',
+						content: objData.geometryUrl.length > 0 ? formData.tid + '_' + objData.geometryUrl.replace(/ /g, "_") + '.ctm' : formData.newFileName ,
 						path: formData.path,
 						type: formData.fileType,
 						original: formData.newFileName,
@@ -437,11 +515,14 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		requests.getModelsWithChildren = function(prj) {
+		requests.getModelsWithChildren = function(prj, subprj) {
 			return $http.post(phpUrl, {
-				query: 'MATCH (p:E22:'+prj+')-[:P46]->(c:E22)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)'
+				query: 
+					'MATCH (p:E22:'+prj+')-[:P46]->(c:E22)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)'
 					+ ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile}) AS children',
-				params: {}
+				params: {
+					esub: 'e22_root_'+subprj
+				}
 			});
 		};
 		
@@ -478,7 +559,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		requests.insertScreenshot = function(prj, objData, markers) {
+		requests.insertScreenshot = function(prj, subprj, objData, markers) {
 			
 			var q = '';
 			q += 'MATCH (e22:E22:'+prj+' {content: {e22id}})';
@@ -498,7 +579,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					e22id: 'e22_root',
+					e22id: 'e22_root_'+subprj,
 					e36content: {
 						content: 'e36_' + objData.filename,
 						cameraCenter: objData.data.cameraCenter,
@@ -559,14 +640,6 @@ webglServices.factory('phpRequest',
 	
 		var requests = {};
 		
-		requests.saveBase64Image = function(path, filename, base64) {
-			return $http.post('php/saveBase64Image.php', {
-				path: path,
-				filename: filename,
-				imgdata: base64
-			});
-		};
-		
 		requests.createProjectFolders = function(prj) {
 			return $http.post('php/createProjectFolders.php', {
 				project: prj
@@ -582,6 +655,66 @@ webglServices.factory('phpRequest',
 		requests.getSvgContent = function(file) {
 			return $http.post('php/getSvgContent.php', {
 				file: file
+			});
+		};
+		
+		requests.saveBase64Image = function(path, filename, base64) {
+			return $http.post('php/saveBase64Image.php', {
+				path: path,
+				filename: filename,
+				imgdata: base64
+			});
+		};
+		
+		requests.saveGeoToJson = function(path, filename, data) {
+			return $http.post('php/saveGeoToJson.php', {
+				path: path,
+				filename: filename,
+				data: data
+			});
+		};
+		
+		// indexing and searching
+		requests.indexDocuments = function(prj) {
+			return $http.post('php/indexText.php', {
+				project: prj
+			});
+		};
+		requests.getIndex = function(prj) {
+			return $http.post('php/getIndex.php', {
+				project: prj
+			});
+		};
+		requests.searchText = function(prj, search) {
+			return $http.post('php/searchText.php', {
+				project: prj,
+				search: search
+			});
+		};
+		requests.setNewBlacklist = function(prj, list) {
+			return $http.post('php/setBlackWhitelist.php', {
+				project: prj,
+				file: 'blacklist.txt',
+				words: list
+			});
+		};
+		requests.setNewWhitelist = function(prj, list) {
+			return $http.post('php/setBlackWhitelist.php', {
+				project: prj,
+				file: 'whitelist.txt',
+				words: list
+			});
+		};
+		requests.getBlacklist = function(prj) {
+			return $http.post('php/getBlackWhitelist.php', {
+				project: prj,
+				file: 'blacklist.txt'
+			});
+		};
+		requests.getWhitelist = function(prj) {
+			return $http.post('php/getBlackWhitelist.php', {
+				project: prj,
+				file: 'whitelist.txt'
 			});
 		};
 		
@@ -819,7 +952,7 @@ webglServices.factory('Utilities',
 
 			this.characterSet = arrayOfChars;
 		};
-		
+				
 		/**
 		  * generate unique id from timestamp
 		*/
