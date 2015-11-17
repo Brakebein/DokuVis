@@ -6,9 +6,7 @@
         <h4 class="aside-title" >Kommentare</h4>
       </div>
       <div class="aside-body" ></div>
-	  	<p>test</p>
-	  	<p>{{$scope.data[2].tasks[0].data}}</p>
-	  	<ul ng-repeat ="d in data[2].tasks[0].data track by $index" style="list-style-type:none">
+	  	<ul ng-repeat ="d in data[2].tasks[0].data" style="list-style-type:none">
   			<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.message}}</li>
   			<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.author}}</li>
   			<li><br/></li>

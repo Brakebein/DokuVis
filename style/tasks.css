@@ -210,6 +210,24 @@
 .even {
   color: blue;
 }
+
+.tasksLeft .overview{
+	height: 40px;
+	margin-bottom: 20px;
+}
+
+.tasksLeft .overview #title{
+	display:inline-block;
+	position: absolute;
+}
+
+.tasksLeft .overview #search{
+	display:inline-block;
+	padding-top: 20px;
+	position: absolute;
+	right: 0.5%;
+}
+
 .tasksLeft .optionsHeader{
 	height: 20px;
 	margin-bottom: 20px;
@@ -223,17 +241,18 @@
 .tasksLeft .optionsHeader #to{
 	position: absolute;
 	right: 0.5%;
+	
 }
 
 .tasksLeft .optionsHeader #zoom{
-	position: relative;
+	position: absolute;
 	left: 50%;
 }
 
-.tasksLeft .optionsHeader #staff{
+/*.tasksLeft .optionsHeader #search{
 	position: absolute;
-	left: 1%;
-}
+	left: 0%;
+}*/
 
 .tasksLeft .optionsFooter{
 	height: 20px;
@@ -242,5 +261,11 @@
 
 .tasksLeft .optionsFooter #staff{
 	position: absolute;
+	left: 0.5%;
+}
+
+.tasksLeft .containerGantt{
+	position: absolute;
 	left: 1%;
+	width: 95%;
 }

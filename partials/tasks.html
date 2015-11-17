@@ -1,16 +1,25 @@
 <div class="tasksLeft">
-	<div class = "container-fluid">      
-		<h2>Projektübersicht</h2>
-		<hr/>
+	<div class = "overview">      
+		
+		<h2 id = "title" >Projektübersicht</h2>
+		
+		<div class = "col-md-2" id = "search">
+			<div class="form-group">
+				<div class="input-group" >								    
+					<input type="text" class="form-control"  ng-model="options.filterRow">
+					<div class="input-group-addon"><span class="fa fa-search"></span></div>
+				</div>
+			</div>
+		</div>
+			
+		
+		
 	</div>
-	
+	<hr/>
 	<div class = "optionsHeader">
 			
-			<div class = "col-md-1" id= "staff">
-			<div class="form-group text-center">
-				<button type="button"  class="btn btn-default"  data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" backdrop = 'false' data-template-url="partials/aside/asideStaff.html">Mitarbeiter hinzufügen</button>
-			</div>
-			</div>
+		
+			
 			<div class = "col-md-2" id= "from">
 				<div class="form-group" >
 					<div class="input-group" >
@@ -22,7 +31,7 @@
 			
 			<div class = "col-md-1" id = "zoom">
 				<div class="input-group">
-							<input type="number"ng-model="options.zoom" step="0.1" min="0.1" max="5" class= "form-control"/>
+							<input type="number"ng-model="options.zoom" step="0.1" min="1.3" max="5" class= "form-control"/>
 							<span class="input-group-addon"><span class="fa fa-search-plus"></span></span>
 				</div>
 			</div>
@@ -58,6 +67,7 @@
 		         expand-to-fit= "true"
 		         task-content = "options.taskContent"
              	 row-content = "options.rowContent"
+             	 side-width = "max-width"
              	 api="options.api">
              
 		         
@@ -80,12 +90,12 @@
 			  			
 			  
 		      
-		     <!--  <gantt-groups enabled = "true" display="overview">
-		       </gantt-groups>-->
+		       <gantt-groups enabled = "true" display="overview">
+		       </gantt-groups>
 			  
 			  <gantt-bounds></gantt-bounds>
 		     <!-- <gantt-progress></gantt-progress>-->
-		      <gantt-sortable></gantt-sortable>
+		      <gantt-sortable enabled = "true"></gantt-sortable>
 			  <gantt-movable allow-row-switching="false"></gantt-movable>
 			  <gantt-tooltips content = "options.contentTooltips"></gantt-tooltips>
 			 <!-- <gantt-draw-task enabled="enabled"
@@ -99,20 +109,23 @@
 	</div>
 	
 	<div class = "optionsFooter">
-		<div class="row">
-			<div class="form-inline">
-				 <div class="form-group input-append text-center">
-												    	<label class="control-label"><i class="fa fa-filter"></i> Aufgaben durchsuchen</label><br>
-												    	<input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterTask">
-												    </div>
-												    
-												    <div class="form-group input-append text-center">
-												    	<label class="control-label"><i class="fa fa-filter"></i> Bearbeiter durchsuchen</label><br>
-												        <input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterRow">
-												    </div>	
-				
-			</div>
+		<div class = "row">
+		<div class = "col-md-2" > <!--id= "staff"-->
+			<div class="input-group" >
+				<a href="#" class="btn btn-info btn-md data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" backdrop = 'false' data-template-url="partials/aside/asideStaff.html"">
+    			<span class="fa fa-user-plus"></span> Mitarbeiter hinzufügen
+    			</a>					
+			</div>	
 		</div>
+			
+			<!--<div class = "col-md-2" >
+				<div class="input-group" >
+					<button class = "btn btn-default" ng-click = "scope.changeOrder()">
+    				<span class="fa fa-user-plus"></span> Aufgaben umsortieren
+    				</button>					
+				</div>
+			</div>-->
+			</div>
 	</div>
 	
 	
