@@ -44,7 +44,7 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$too
 				resolve: {
 					checkProject: function($state, $stateParams, $q, mysqlRequest) {
 						return mysqlRequest.getProjectEntry($stateParams.project).then(function(response){
-							console.log(response, $stateParams);
+							//console.log(response, $stateParams);
 							if(response.data === 'NO ENTRY') {
 								$state.go('projectlist');
 								return $q.reject();
@@ -104,6 +104,8 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$too
 			placement: 'right',
 			delay: {show: 500, hide: 100}
 		});
+		
+		
 		
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);

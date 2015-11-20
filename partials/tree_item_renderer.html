@@ -1,4 +1,4 @@
-<div class="listItem">
+<div class="listItem" ng-class="{selected: data.selected}" id="list{{data.id}}">
 	<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="data.visible ? 'listCheck' : 'listUncheck'" ng-click="data.visible=!data.visible; callDirFunc.toggleObject(data);"></span>
 	<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
 		<div class="listExpand"><span ng-class="(data.children.length > 0) ? (data.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus') : ''" ng-click="data.expand = !data.expand;"></span></div>

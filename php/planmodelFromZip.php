@@ -48,7 +48,7 @@
 	
 	// verarbeite OBJ Datei
 	function processObjMtl($objfile) {
-		global $tmppath, $upath, $tid, $zip, $plandata;
+		global $tmppath, $upath, $tid, $zip, $plandata, $pImagickIdentify, $pImagickConvert;
 		
 		// extrahiere OBJ-Datei
 		$zip->extractTo($tmppath, $objfile)
@@ -127,7 +127,7 @@
 		$imgfile = $newimgfile;
 		
 		// Auflösung auslesen
-		$ans = exec("C:\\ImageMagick\\identify.exe -ping ".$tmppath.$imgfile);
+		$ans = exec($pImagickIdentify." -ping ".$tmppath.$imgfile);
 		//print_r($ans);
 		
 		$resolution = preg_split('/x/', preg_split('/\s+/', $ans)[2]);
@@ -151,7 +151,7 @@
 		
 		//print_r($imgname.' '.$imgtype);
 		
-		$ans = exec("C:\\ImageMagick\\convert.exe ".$tmppath.$imgfile." -resize ".$width."x".$height."! ".$tmppath.$imgname.".jpg");
+		$ans = exec($pImagickConvert." ".$tmppath.$imgfile." -resize ".$width."x".$height."! ".$tmppath.$imgname.".jpg");
 		//print_r($ans."\n");
 		
 		// trenne Dateiendung

@@ -73,7 +73,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					'MATCH (master:E7:'+prj+' {content: {master}})-[:P9]->(sub:E7)-[:P2]->(:E55 {content: "subproject"}), \
 					(sub)-[:P1]->(title:E35) \
 					OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
-					RETURN sub.content AS subId, title.content AS title, desc.content AS desc',
+					RETURN sub.content AS subId, title.content AS title, desc.value AS desc',
 				params : {
 					master: prj
 				}
@@ -86,7 +86,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					'MATCH (sub:E7:'+prj+' {content: {subproj}})-[:P2]->(:E55 {content: "subproject"}), \
 					(sub)-[:P1]->(title:E35) \
 					OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
-					RETURN title.content AS name, desc.content AS desc',
+					RETURN title.content AS name, desc.value AS desc',
 				params : {
 					subproj: sub
 				}
@@ -94,6 +94,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		// Unterprojekt erstellen
 		requests.createSubproject = function(prj, title, desc) {
+			var tid = new Utilities.Base62().encode(new Date().getTime());
+			
 			var q = 'MATCH (master:E7:'+prj+' {content: {master}})-[:P15]->(e22m:E22), \
 					(tsubp:E55:'+prj+' {content: "subproject"}), (tpdesc:E55:'+prj+' {content: "projDesc"}) \
 					CREATE (master)-[:P9]->(sub:E7:'+prj+' {content: {subproj}})-[:P2]->(tsubp), \
@@ -101,14 +103,15 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					(sub)-[:P15]->(e22s:E22:'+prj+' {content: "e22_root_"+{subproj}}), \
 					(e22m)-[:P46]->(e22s)';
 			if(desc.length > 0)
-				q += ', (sub)-[:P3]->(:E62:'+prj+' {content: {desc}})-[:P3_1]->(tpdesc)';
+				q += ', (sub)-[:P3]->(:E62:'+prj+' {content: {descId}, value: {desc}})-[:P3_1]->(tpdesc)';
 			
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
 					master: prj,
-					subproj: 'sub' + new Utilities.Base62().encode(new Date().getTime()),
+					subproj: 'sub' + tid,
 					title: title,
+					descId: tid + '_sub' + tid,
 					desc: desc
 				}
 			});
@@ -124,7 +127,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			return $http.post(phpUrl, {
 				query:
 					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62)-[:P3_1]->(:E55 {content: "projInfo"}) \
-					RETURN n.content AS info, n.tid AS id, r.order AS order',
+					RETURN n.value AS info, n.content AS id, r.order AS order',
 				params: {
 					subproj: sub === 'master' ? prj : sub
 				}
@@ -137,12 +140,12 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					'MATCH (p:E7:'+prj+' {content: {subproj}}), (tpinfo:E55:'+prj+' {content: "projInfo"}) \
 					OPTIONAL MATCH (p)-[r:P3]->(:E62) \
 					WITH p, count(r) AS anz, tpinfo \
-					CREATE (p)-[:P3 {order: anz}]->(n:E62:'+prj+' {content: {content}, tid: {tid}})-[:P3_1]->(tpinfo) \
+					CREATE (p)-[:P3 {order: anz}]->(n:E62:'+prj+' {content: {content}, value: {value}})-[:P3_1]->(tpinfo) \
 					RETURN n',
 				params: {
 					subproj: sub === 'master' ? prj : sub,
-					tid: new Utilities.Base62().encode(new Date().getTime()),
-					content: info
+					content: new Utilities.Base62().encode(new Date().getTime()) + '_' + sub,
+					value: info
 				}
 			});
 		};
@@ -150,8 +153,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		requests.editProjInfo = function(prj, sub, tid, newHtml) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62 {tid: {tid}})-[:P3_1]->(:E55 {content: "projInfo"}) \
-					SET n.content = {html} \
+					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62 {content: {tid}})-[:P3_1]->(:E55 {content: "projInfo"}) \
+					SET n.value = {html} \
 					RETURN n',
 				params: {
 					subproj: sub === 'master' ? prj : sub,
@@ -164,7 +167,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		requests.removeProjInfo = function(prj, sub, tid) {
 			return $http.post(phpUrl, {
 				query:
-					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62 {tid: {tid}})-[rt:P3_1]->(:E55 {content: "projInfo"}), \
+					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62 {content: {tid}})-[rt:P3_1]->(:E55 {content: "projInfo"}), \
 					(p)-[r2:P3]->(n2:E62) \
 					WHERE r2.order > r.order \
 					SET r2.order = r2.order-1 \
@@ -180,8 +183,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			return $http.post(phpUrl, {
 				query:
 					'MATCH (p:E7:'+prj+' {content: {subproj}}), (tpinfo:E55:'+prj+' {content: "projInfo"}), \
-					(p)-[r1:P3]->(n1:E62 {tid: {tid1}})-[:P3_1]->(tpinfo), \
-					(p)-[r2:P3]->(n2:E62 {tid: {tid2}})-[:P3_1]->(tpinfo) \
+					(p)-[r1:P3]->(n1:E62 {content: {tid1}})-[:P3_1]->(tpinfo), \
+					(p)-[r2:P3]->(n2:E62 {content: {tid2}})-[:P3_1]->(tpinfo) \
 					WITH p, r1, r2, n1, n2, r1.order AS o1, r2.order AS o2 \
 					SET r1.order = o2, r2.order = o1 \
 					RETURN p',
@@ -308,10 +311,12 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					+' OPTIONAL MATCH (e65)-[:P14]->(author:E21)-[:P131]->(aname:E82)'
 					+' OPTIONAL MATCH (e65)-[:P7]->(place:E53)-[:P87]->(pname:E48)'
 					+' OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61)'
-					+' OPTIONAL MATCH (e31)-[:P48]->(archive:E42)'
+					+' OPTIONAL MATCH (e31)-[:P48]->(archivenr:E42)'
 					+' OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36)'
 					+' OPTIONAL MATCH (e31)-[:P3]->(comment:E62)'
-					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, primary.content AS primary, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, plan3d.content AS plan3d, comment.content AS comment',
+					+' OPTIONAL MATCH (e31)<-[:P128]-(:E84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41),'
+					+' (e78)-[:P52]->(:E40)-[:P131]->(inst:E82)'
+					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, primary.content AS primary, aname.content AS author, pname.content AS place, date.content AS date, {identifier: archivenr.content, collection: coll.content, institution: inst.content, institutionAbbr: inst.abbr} AS archive, {name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, plan3d.content AS plan3d, comment.value AS comment',
 				params: {
 					subprj: subprj === 'master' ? prj : subprj
 				}
@@ -335,8 +340,28 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				query: 
 					'MATCH (e78:E78:'+prj+')-[:P1]-(e41:E41), \
 					(e78)-[:P52]->(:E40)-[:P131]->(e82:E82) \
-					RETURN e78.content AS collection, e41.content AS collectionName, e82.content AS institutionName',
+					RETURN e78.content AS collection, e41.content AS collectionName, e82.content AS institutionName, e82.abbr AS institutionAbbr',
 				params: {}
+			});
+		};
+		
+		// Institution mit Archiv hinzufügen
+		requests.addArchive = function(prj, coll, name, abbr) {
+			var tid = new Utilities.Base62().encode(new Date().getTime());
+			return $http.post(phpUrl, {
+				query:
+					'MERGE (e40:E40:'+prj+')-[:P131]->(e82:E82:'+prj+' {content: {e82name}}) \
+					ON CREATE SET e82.abbr = {e82abbr}, e40.content = {e40cont} \
+					MERGE (e41:E41:'+prj+' {content: {e41name}}) \
+					CREATE (e78:E78:'+prj+' {content: {e78cont}})-[:P1]->(e41), \
+					(e78)-[:P52]->(e40)',
+				params: {
+					e82name: name,
+					e82abbr: abbr,
+					e40cont: 'e40_'+tid+'_'+name.replace(/ /g, "_"),
+					e78cont: 'e78_'+tid+'_'+coll.replace(/ /g, "_"),
+					e41name: coll
+				}
 			});
 		};
 		
@@ -404,7 +429,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			
 			q += ' CREATE (e31)<-[:P94]-(e65:E65:'+prj+' {content: "e65_e31_"+{newFileName}})';
 			
-			q += ' CREATE (e84:E84'+prj+' {content: "e84_e31_"+{newFileName}})';
+			q += ' CREATE (e31)<-[:P128]-(e84:E84:'+prj+' {content: "e84_e31_"+{newFileName}})';
 			
 			if(formData.sourceType == 'text') {
 				q += ' CREATE (e31)-[:P70]->(e33:E33:'+prj+' {content: "e33_e31_"+{newFileName}})';
@@ -441,7 +466,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				q += ' CREATE (e61)<-[:P82]-(e52:E52:'+prj+' {content: "e52_e65_e31_"+{newFileName}})<-[:P4]-(e65)';
 			}
 			if(formData.comment.length > 0) {
-				q += ' CREATE (e31)-[:P3]->(e62:E62:'+prj+' {content: {comment}})';
+				q += ' CREATE (e31)-[:P3]->(e62:E62:'+prj+' {content: "'+ts+'_e31_"+{newFileName}, value: {comment}})';
 			}
 			q += ' RETURN e31';
 			//console.log(q);
@@ -456,7 +481,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		requests.insertModel = function(prj, subprj, formData, objData) {
 			var q = '';
-			if(objData.parentid)
+			/*if(objData.parentid)
 				q += 'MATCH (parent:E22:'+prj+' {content: {parentid}}) ';
 			else
 				q += 'MATCH (parent:E22:'+prj+' {content: "e22_root_"+{subprj}}) ';
@@ -473,6 +498,23 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += ' CREATE (e73:E73:'+prj+' {e73content})-[:P1]->(e75)';
 			q += ' CREATE (e36)-[:P106]->(e73)';
 			//}
+			q += ' RETURN e22';
+			*/
+			q += 'MATCH (tmodel:E55:'+prj+' {content: "model"})';
+			if(!objData.parentid)
+				q += ', (parent:E22:'+prj+' {content: "e22_root_"+{subprj}})';
+			else
+				q += ' MERGE (parent:E22:'+prj+' {content: {parentid}})';
+			
+			q += ' MERGE (e22:E22:'+prj+' {content: "e22_"+{contentid}})';
+			q += ' MERGE (parent)-[:P46]->(e22)';
+			
+			q += ' CREATE (e22)<-[:P138]-(e36:E36:'+prj+' {content: "e36_"+{contentid}})-[:P2]->(tmodel)';
+			q += ' MERGE (e75:E75:'+prj+' {content:{e75content}.content})';
+			q += ' ON CREATE SET e75 = {e75content}';
+			q += ' CREATE (e73:E73:'+prj+' {e73content})-[:P1]->(e75)';
+			q += ' CREATE (e36)-[:P106]->(e73)';
+			
 			q += ' RETURN e22';
 			
 			return $http.post(phpUrl, {
@@ -516,12 +558,36 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		requests.getModelsWithChildren = function(prj, subprj) {
+			
+			var q = 'MATCH (root:E22:'+prj+' {content:{esub}}), (tsp:E55:'+prj+' {content:"subproject"}),';
+			q += ' (p:E22:'+prj+')-[:P46]->(c:E22)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75),';
+			q += ' path = (root)-[:P46*]->(c)';
+			if(subprj === 'master')
+				q += ' WHERE all(n in nodes(path) WHERE NOT (n)<-[:P15]-(:E7)-[:P2]->(tsp))';
+			else		
+				q += ' WHERE all(n in nodes(path) WHERE not n.content = "e22_root_master")';
+			q += ' AND any(n in nodes(path) WHERE n.content = {esub})';
+			
+			q += ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile}) AS children';
+			
 			return $http.post(phpUrl, {
-				query: 
-					'MATCH (p:E22:'+prj+')-[:P46]->(c:E22)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)'
-					+ ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile}) AS children',
+				query: q,
+					/*'MATCH (maxp:E22:'+prj+' {content: {esub}}), (maxp)-[:P46*]->(p:E22)-[:P46]->(c:E22)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)'
+					+ ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile}) AS children',*/
 				params: {
 					esub: 'e22_root_'+subprj
+				}
+			});
+		};
+		
+		requests.addEdgesFile = function(prj, file, edges) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (e75:E75:'+prj+' {content: {file}}) \
+					SET e75.edges = {edges}',
+				params: {
+					file: file,
+					edges: edges
 				}
 			});
 		};
@@ -1085,7 +1151,10 @@ webglServices.factory('webglInterface',
 		
 		// Einstellungen
 		wi.viewportSettings = {};
-		//wi.viewportSettings.
+		wi.viewportSettings.shading = ['color', 'grey', 'transparent', 'onlyEdges', 'xray'];
+		wi.viewportSettings.shadingSel = wi.viewportSettings.shading[0];
+		wi.viewportSettings.edges = true;
+		
 		wi.unsafeSettings = {};
 		
 		// Listen
@@ -1094,12 +1163,15 @@ webglServices.factory('webglInterface',
 		wi.layers = [];
 		wi.hierarchList = [];
 		
+		wi.plans = [];
+		
 		var layerDict = {};
 		
 		wi.insertIntoLists = function(item) {
 			item.children = [];
 			item.visible = true;
 			item.expand = false;
+			item.selected = false;
 			insertIntoHierarchList(item);
 			insertIntoLayerList(item);
 		};
@@ -1109,6 +1181,7 @@ webglServices.factory('webglInterface',
 			wi.layerLists = [];
 			wi.layers = [];
 			wi.hierarchList = [];
+			wi.plans = [];
 		};
 		
 		function insertIntoHierarchList(item) {
@@ -1142,6 +1215,22 @@ webglServices.factory('webglInterface',
 				if(object !== undefined) return object;
 			}
 			return undefined;
+		}
+		
+		wi.selectListEntry = function(id) {
+			var item = findHierarchyObject(wi.hierarchList, id);
+			item.selected = true;
+			if(item.parent) expandParents(item.parent);
+		};
+		
+		wi.deselectListEntry = function(id) {
+			var item = findHierarchyObject(wi.hierarchList, id);
+			item.selected = false;
+		};
+		
+		function expandParents(item) {
+			item.expand = true;
+			if(item.parent) expandParents(item.parent);
 		}
 		
 		return wi;

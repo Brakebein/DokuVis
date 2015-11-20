@@ -1,7 +1,7 @@
 var webglDirectives = angular.module('webglDirectives', ['urish']);
 
-webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterface', '$rootScope', 'phpRequest', '$http', '$q', 'Utilities',
-	function(angularLoad, $timeout, webglInterface, $rootScope, phpRequest, $http, $q, Utilities) {
+webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities',
+	function($stateParams, angularLoad, $timeout, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities) {
 		
 		function link(scope, element, attr) {
 			
@@ -56,10 +56,10 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 			
 			var postprocessing = {};
 			
-			// Listen für die Verwaltung der einzelnen Objekte
+			// Listen fÃ¼r die Verwaltung der einzelnen Objekte
 			var objects = {}, plans = {}, marks = {};
 			var highlighted = [], sliced = [], hidden = [];
-			// Listen für die Schnittstelle mit der HTML-Seite
+			// Listen fÃ¼r die Schnittstelle mit der HTML-Seite
 			scope.objModels = [];
 			scope.planModels = [];
 			scope.marksModels = [];
@@ -95,11 +95,12 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 				WIRE: 'wireframe',
 				XRAY: 'xray'
 			};
+			var currentShading = webglInterface.viewportSettings.shadingSel;
 			
 			var camPerspective = true;
 			var renderSSAO = false;
 			
-			// für Navigation
+			// fÃ¼r Navigation
 			var mouseDownCoord;
 			var isMouseDown = false;
 			var isRotatingView = false;
@@ -123,32 +124,33 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 			materials['selectionMat'] = new THREE.MeshLambertMaterial({color: 0xff4444, side: THREE.DoubleSide, name: 'selectionMat'});
 			
 			// transparent mat
-			materials['transparentMat'] = new THREE.MeshLambertMaterial({color: 0xcccccc, transparent: true, opacity: 0.5, name: 'transparentMat'});
-			materials['transparentSelectionMat'] = new THREE.MeshLambertMaterial({color: 0xff4444, transparent: true, opacity: 0.5, name: 'transparentSelectionMat'});
+			materials['transparentMat'] = new THREE.MeshLambertMaterial({color: 0xcccccc, transparent: true, opacity: 0.5, depthWrite: false, name: 'transparentMat'});
+			materials['transparentSelectionMat'] = new THREE.MeshLambertMaterial({color: 0xff4444, transparent: true, opacity: 0.5, depthWrite: false, name: 'transparentSelectionMat'});
 			// wireframe mat
 			materials['wireframeMat'] = new THREE.MeshBasicMaterial({color: 0x333333, wireframe: true, name: 'wireframeMat'});
 			materials['wireframeSelectionMat'] = new THREE.MeshBasicMaterial({color: 0xff4444, wireframe: true, name: 'wireframeSelectionMat'});
 			
-			materials['invisibleMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, shading: THREE.SmoothShading, visible: false, name: 'invisibleMat'});
+			materials['invisibleMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, visible: false, name: 'invisibleMat'});
 			// highlight mat
-			materials['highlightMat'] = new THREE.MeshLambertMaterial({ambient: 0xffff44, color: 0xffff44, shading: THREE.SmoothShading, name: 'highlightMat'});
-			materials['transparentHighlightMat'] = new THREE.MeshLambertMaterial({ambient: 0xffff44, color: 0xffff44, transparent: true, opacity: 0.5, shading: THREE.SmoothShading, name: 'transparentHighlightMat'});
+			materials['highlightMat'] = new THREE.MeshLambertMaterial({color: 0xffff44, name: 'highlightMat'});
+			materials['transparentHighlightMat'] = new THREE.MeshLambertMaterial({color: 0xffff44, transparent: true, opacity: 0.5, name: 'transparentHighlightMat'});
 			
 			materials['xrayMat'] = new THREE.ShaderMaterial({name: 'xrayMat', side: THREE.DoubleSide, transparent: true, depthWrite: false, depthTest: false, uniforms: {"ambient":{type:"f",value:0.05},"edgefalloff":{type:"f",value:0.1},"intensity":{type:"f",value:1.0},"vColor":{type:"c",value:new THREE.Color(0x000000)}}, vertexShader: THREE.XRayShader.vertexShader, fragmentShader: THREE.XRayShader.fragmentShader});
 			materials['xraySelectionMat'] = new THREE.ShaderMaterial({name: 'xraySelectionMat', side: THREE.DoubleSide, transparent: true, depthWrite: false, depthTest: false, uniforms: {"ambient":{type:"f",value:0.05},"edgefalloff":{type:"f",value:0.3},"intensity":{type:"f",value:1.5},"vColor":{type:"c",value:new THREE.Color(0xff4444)}}, vertexShader: THREE.XRayShader.vertexShader, fragmentShader: THREE.XRayShader.fragmentShader});
 			
 			materials['edgesMat'] = new THREE.LineBasicMaterial({color: 0x333333, name: 'edgesMat'});
+			materials['edgesSelectionMat'] = new THREE.LineBasicMaterial({color: 0xff4444, name: 'edgesMat'});
 			//materials['edgesMat'] = new THREE.LineBasicMaterial({color: 0xcccccc, name: 'edgesMat'});
 			
 			// slice mat
 			materials['sliceMultiMat'] = [ materials['defaultMat'], materials['invisibleMat'], materials['defaultMat'], materials['invisibleMat'] ];
 			materials['sliceLineMat'] = new THREE.LineBasicMaterial({color: 0xff0000, name: 'sliceLineMat'});
 			
-			materials['sliceMultiMat_debug'] = [new THREE.MeshLambertMaterial({ambient: 0xdd4444, color: 0xdd4444, shading: THREE.SmoothShading}),new THREE.MeshLambertMaterial({ambient: 0x44dd44, color: 0x44dd44, shading: THREE.SmoothShading}),new THREE.MeshLambertMaterial({ambient: 0x4444dd, color: 0x4444dd, shading: THREE.SmoothShading}),new THREE.MeshLambertMaterial({ambient: 0x44dddd, color: 0x44dddd, shading: THREE.SmoothShading})];
+			materials['sliceMultiMat_debug'] = [new THREE.MeshLambertMaterial({color: 0xdd4444}),new THREE.MeshLambertMaterial({color: 0x44dd44}),new THREE.MeshLambertMaterial({color: 0x4444dd}),new THREE.MeshLambertMaterial({color: 0x44dddd})];
 			
 			
 			
-				// Auslesen von Höhe und Breite des Fensters
+				// Auslesen von HÃ¶he und Breite des Fensters
 				element.height(element.parent().height() - element.position().top - 2*parseInt(element.css('border-top-width'),10));
 				SCREEN_WIDTH = element.width();
 				SCREEN_HEIGHT = element.height();
@@ -186,10 +188,10 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 				stats.domElement.style.top = '33px';
 				element.append( stats.domElement );
 				
-				// MouseHandler für Viewport
+				// MouseHandler fÃ¼r Viewport
 				addMouseHandler();
 				
-				// Controls (für Navigation)
+				// Controls (fÃ¼r Navigation)
 				controls = new THREE.OrbitControls(camera, canvas);
 				//controls.addEventListener('change', render);
 				controls.center.set(86, 0, -74);
@@ -283,7 +285,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 				postprocessing.composer = composer;
 				console.log(composer);
 				
-				// Loader für obj-Dateien
+				// Loader fÃ¼r obj-Dateien
 				objloader = new THREE.OBJMTLLoader(manager);
 				ctmloader = new THREE.CTMLoader(manager);
 				
@@ -411,7 +413,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 							edges.geometry.lineDistancesNeedUpdate = true;
 						}
 						
-						// Mesh und Kanten der Scene hinzufügen
+						// Mesh und Kanten der Scene hinzufÃ¼gen
 						scene.add(child);
 						scene.add(edges);
 						
@@ -420,10 +422,10 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						child.userData.type = 'object';
 						child.userData.unsafe = isUnsafe;
 						
-						// Liste, um zusammengehörige Objekte zu managen
+						// Liste, um zusammengehÃ¶rige Objekte zu managen
 						objects[child.id] = {mesh: child, edges: edges, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true};
 						
-						// Liste für die Anzeige auf der HTML-Seite
+						// Liste fÃ¼r die Anzeige auf der HTML-Seite
 						scope.layerList.push({name: child.name, id: child.id, visible: child.visible});
 						scope.$apply();
 					}
@@ -431,7 +433,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 				console.log(scene);
 			}
 			
-			// Material für Objekte anpassen
+			// Material fÃ¼r Objekte anpassen
 			function setObjectMaterial(obj, setAmbient, disableColor, disableSpecular, unsafe) {
 				if(obj.material.name in materials) {
 					obj.material = materials[obj.material.name];
@@ -469,24 +471,24 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						// Kanten
 						var edges = new THREE.EdgesHelper(child, '#333333');
 						
-						// Mesh und Kanten der Scene hinzufügen
+						// Mesh und Kanten der Scene hinzufÃ¼gen
 						scene.add(child);
 						scene.add(edges);
 						
 						// userData
 						child.userData.type = 'plan';
 						
-						// Liste, um zusammengehörige Objekte zu managen
+						// Liste, um zusammengehÃ¶rige Objekte zu managen
 						plans[child.id] = {mesh: child, edges: edges, visible: true};
 						
-						// Liste für die Anzeige auf der HTML-Seite
+						// Liste fÃ¼r die Anzeige auf der HTML-Seite
 						scope.planModels.push({name: child.name, id: child.id, visible: child.visible});
 						scope.$apply();
 					}
 				});
 			}
 			
-			// Material für Pläne anpassen
+			// Material fÃ¼r PlÃ¤ne anpassen
 			function setPlanMaterial(obj) {
 				var map = obj.material.map;
 				map.anisotropy = 8;
@@ -510,7 +512,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						
 						for(var i=0; i<anz; i+=8) {
 							var geo = new THREE.PlaneGeometry(0.5,0.5);
-							// Mittelpunkt aus den 8 Eckpunkten des Würfels wird errechnet
+							// Mittelpunkt aus den 8 Eckpunkten des WÃ¼rfels wird errechnet
 							var x = vs[i+0].x+vs[i+1].x+vs[i+2].x+vs[i+3].x+vs[i+4].x+vs[i+5].x+vs[i+6].x+vs[i+7].x;
 							var y = vs[i+0].y+vs[i+1].y+vs[i+2].y+vs[i+3].y+vs[i+4].y+vs[i+5].y+vs[i+6].y+vs[i+7].y;
 							var z = vs[i+0].z+vs[i+1].z+vs[i+2].z+vs[i+3].z+vs[i+4].z+vs[i+5].z+vs[i+6].z+vs[i+7].z;
@@ -526,7 +528,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						
 						marks[child.id] = {mesh: mark, visible: true};
 						
-						// Liste für die Anzeige auf der HTML-Seite
+						// Liste fÃ¼r die Anzeige auf der HTML-Seite
 						scope.marksModels.push({name: child.name, id: child.id, visible: child.visible});
 						scope.$apply();
 					}
@@ -603,12 +605,13 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					for(var i=0, l=o.children.length; i<l; i++) {
 						setSelected(o.children[i], true, false, true);
 					}
-					
+					webglInterface.deselectListEntry(o.id);
 					if(!obj && !isChild) {
 						selected = null;
 						scope.selectedModels = {};
 						scope.$apply();
 					}
+					
 				}
 				// selection
 				if(obj && !onlyDeselect) {
@@ -618,7 +621,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					for(var i=0, l=obj.children.length; i<l; i++) {
 						setSelected(obj.children[i], true, true, false);
 					}
-					
+					webglInterface.selectListEntry(obj.id);
 					if(!isChild) {
 						selected = obj;
 						console.log(selected);
@@ -626,6 +629,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						scope.selectedModels = {name: selected.name, eid: selected.userData.eid};
 						scope.$apply();
 					}
+					
 				}
 			}
 			
@@ -1046,7 +1050,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						var m = new THREE.Matrix4().getInverse(plane.matrix);
 						//objects[key].sliceLine.children[0].geometry.applyMatrix(m);
 						
-						// Schnittflächen
+						// SchnittflÃ¤chen
 						objects[key].sliceFaces = sliceFaces(objects[key].sliceLine, plane);
 						scene.add(objects[key].sliceFaces);
 						
@@ -1093,7 +1097,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 				for(var i=0; i<lines.children.length; i++) {
 					var verts = lines.children[i].geometry.vertices;
 					
-					// wenn Schnittlinie nicht geschlossen, dann keine Fläche erstellen
+					// wenn Schnittlinie nicht geschlossen, dann keine FlÃ¤che erstellen
 					if(verts.length < 3)
 						continue;
 					if(!equalVectors(verts[0], verts[verts.length-1], 8))
@@ -1197,7 +1201,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 				return start.clone().add((end.clone().sub(start)).multiplyScalar(t));
 			}
 			
-			// watch für die Einstellungen für Unsicheres Wissen
+			// watch fÃ¼r die Einstellungen fÃ¼r Unsicheres Wissen
 			scope.$watch('unsafeSettings', function(value) {
 				//console.log('watch unsafe', value);
 				//if(/^-?[\d.]+(?:e-?\d+)?$/.test(value))
@@ -1237,110 +1241,118 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 				}
 			});
 			
-			scope.$watch('viewportSettings.shading', function(value) {
-				console.log('watch shading');
+			$rootScope.$watch(function() {
+				return webglInterface.viewportSettings.edges;
+			}, function(value) {
+				for(var key in objects) {
+					var obj = objects[key];
+					if(obj.visible) {	
+						if(value) scene.add(obj.edges);
+						else scene.remove(obj.edges);
+					}
+				}
+			});
+			
+			//scope.$watch('viewportSettings.shading', function(value) {
+			webglInterface.callFunc.setShading = function(value) {
+				console.log('set shading', value);
 				if(!scene) return;
 				
+				var uncoverObj = ['onlyEdges'].indexOf(currentShading) > -1 ? true : false;
+				var uncoverEdge = webglInterface.viewportSettings.edges ? ['xray'].indexOf(currentShading) > -1 ? true : false : false;
+				currentShading = value;
+				
 				switch(value) {
-					case shading.COLOR_EDGE:
+					case 'color':
 						for(var key in objects) {
-							if(selected == objects[key].mesh) {
-								objects[key].mesh.material = materials['selectionMat'];
-								if(objects[key].edges)
-									objects[key].edges.material.color.setHex(0x333333);
+							var obj = objects[key];
+							if(selected == obj.mesh) {
+								obj.mesh.material = materials['selectionMat'];
+								if(obj.edges)
+									obj.edges.material = materials['edgesMat'];
 							}
 							else
-								objects[key].mesh.material = materials[objects[key].mesh.userData.originalMat];
-							/*if(objects[key].visible) {
-								if(!scene.getObjectById(key))
-									scene.add(objects[key].mesh);
-								if(scope.unsafeSettings.edges) {
-									if(!scene.getObjectById(objects[key].edges.id))
-										scene.add(objects[key].edges);
+								obj.mesh.material = materials[obj.mesh.userData.originalMat];
+							if(obj.visible) {
+								if(uncoverObj) {
+									if(obj.parent) objects[obj.parent].mesh.add(obj.mesh);
+									else scene.add(obj.mesh);
 								}
-								else
-									scene.remove(objects[key].edges);
-							}*/
+								if(uncoverEdge) scene.add(obj.edges);
+							}
 						}
 						break;
-					case shading.GREY_EDGE:
+					case 'grey':
 						for(var key in objects) {
-							if(selected == objects[key].mesh) {
-								objects[key].mesh.material = materials['selectionMat'];
-								objects[key].edges.material.color.setHex(0x333333);
+							var obj = objects[key];
+							if(selected == obj.mesh) {
+								obj.mesh.material = materials['selectionMat'];
+								if(obj.edges)
+									obj.edges.material = materials['edgesMat'];
 							}
-							else if(objects[key].mesh.userData.unsafe)
-								objects[key].mesh.material = materials['defaultUnsafeMat'];
+							//else if(objects[key].mesh.userData.unsafe)
+							//	objects[key].mesh.material = materials['defaultUnsafeMat'];
 							else
-								objects[key].mesh.material = materials['defaultMat'];
-							if(objects[key].visible) {
-								if(!scene.getObjectById(key))
-									scene.add(objects[key].mesh);
-								if(scope.unsafeSettings.edges) {
-									if(!scene.getObjectById(objects[key].edges.id))
-										scene.add(objects[key].edges);
+								obj.mesh.material = materials['defaultDoublesideMat'];
+							if(obj.visible) {
+								if(uncoverObj) {
+									if(obj.parent) objects[obj.parent].mesh.add(obj.mesh);
+									else scene.add(obj.mesh);
 								}
-								else
-									scene.remove(objects[key].edges);
+								if(uncoverEdge) scene.add(obj.edges);
 							}
 						}
 						break;
-					case shading.COLOR:
+					case 'transparent':
 						for(var key in objects) {
-							if(selected == objects[key].mesh) {
-								objects[key].mesh.material = materials['selectionMat'];
-								objects[key].edges.material.color.setHex(0x333333);
+							var obj = objects[key];
+							if(selected == obj.mesh) {
+								obj.mesh.material = materials['transparentSelectionMat'];
+								if(obj.edges)
+									obj.edges.material = materials['edgesMat'];
 							}
 							else
-								objects[key].mesh.material = materials[objects[key].mesh.userData.originalMat];
-							if(objects[key].visible) {
-								if(!scene.getObjectById(key))
-									scene.add(objects[key].mesh);
-								scene.remove(objects[key].edges);
+								obj.mesh.material = materials['transparentMat'];
+							if(obj.visible) {
+								if(uncoverObj) {
+									if(obj.parent) objects[obj.parent].mesh.add(obj.mesh);
+									else scene.add(obj.mesh);
+								}
+								if(uncoverEdge) scene.add(obj.edges);
 							}
 						}
 						break;
-					case shading.EDGE:
+					case 'onlyEdges':
+						uncoverEdge = !webglInterface.viewportSettings.edges || uncoverEdge;
+						webglInterface.viewportSettings.edges = true;
 						for(var key in objects) {
-							if(selected == objects[key].mesh)
-								objects[key].edges.material.color.setHex(0xff4444);
-							if(objects[key].visible) {
-								scene.remove(objects[key].mesh);
-								if(!scene.getObjectById(objects[key].edges))
-									scene.add(objects[key].edges);
+							var obj = objects[key];
+							if(selected == obj.mesh)
+								obj.edges.material = materials['edgesSelectionMat'];
+							if(obj.visible) {
+								if(obj.parent) objects[obj.parent].mesh.remove(obj.mesh);
+								else scene.remove(obj.mesh);
+								if(uncoverEdge)	scene.add(obj.edges)
 							}
 						}
 						break;
-					case shading.TRANSPARENT_EDGE:
+					case 'xray':
 						for(var key in objects) {
-							if(selected == objects[key].mesh) {
-								objects[key].mesh.material = materials['transparentSelectionMat'];
-								if(objects[key].edges)
-									objects[key].edges.material.color.setHex(0x333333);
-							}
+							var obj = objects[key];
+							if(selected == obj.mesh)
+								obj.mesh.material = materials['xraySelectionMat'];
 							else
-								objects[key].mesh.material = materials['transparentMat'];
-							/*if(objects[key].visible) {
-								if(!scene.getObjectById(key))
-									scene.add(objects[key].mesh);
-								if(objects[key].edges)
-									if(!scene.getObjectById(objects[key].edges.id))
-										scene.add(objects[key].edges);
-							}*/
-						}
-						break;
-					/*case shading.COLOR_WIRE:
-						for(var key in objects) {
-							if(selected != objects[key].mesh)
-								objects[key].mesh.material =  materials['shaderMat'];
-							if(objects[key].visible) {
-								if(!scene.getObjectById(key))
-									scene.add(objects[key].mesh);
-								scene.remove(objects[key].edges);
+								obj.mesh.material = materials['xrayMat'];
+							if(obj.visible) {
+								if(uncoverObj) {
+									if(obj.parent) objects[obj.parent].mesh.add(obj.mesh);
+									else scene.add(obj.mesh);
+								}
+								if(webglInterface.viewportSettings.edges) scene.remove(obj.edges);
 							}
 						}
-						break;*/
-					case shading.WIRE:
+						break;
+					/*case shading.WIRE:
 						for(var key in objects) {
 							if(selected == objects[key].mesh) {
 								objects[key].mesh.material = materials['wireframeSelectionMat'];
@@ -1354,14 +1366,9 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 								scene.remove(objects[key].edges);
 							}
 						}
-						break;
-					case shading.XRAY:
-						for(var key in objects) {
-							objects[key].mesh.material = materials['xrayMat'];
-						}
-						break;
+						break;*/
 				}
-			});
+			};
 			
 			scope.$watch('viewportSettings.camera', function(value) {
 				console.log('watch camera');
@@ -1700,7 +1707,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					scope.$apply();
 			}
 			
-			// Funktionen, die auch von außen aufgerufen werden können
+			// Funktionen, die auch von auÃŸen aufgerufen werden kÃ¶nnen
 			scope.internalCallFunc = scope.callFunc || {};
 			
 			scope.internalCallFunc.ctrlBtnHandler = function(btn) {
@@ -1865,8 +1872,9 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					
 					scene.add(mesh);
 					
-					// Liste, um zusammengehörige Objekte zu managen
+					// Liste, um zusammengehÃ¶rige Objekte zu managen
 					plans[mesh.id] = {mesh: mesh, edges: null, visible: true};
+					webglInterface.plans.push({ name: mesh.name, id: mesh.id, title: mesh.userData.name, type: mesh.userData.type });
 				}
 				
 				
@@ -1916,10 +1924,10 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						scene.add(obj);
 					
 					
-					// Liste, um zusammengehörige Objekte zu managen
-					objects[obj.id] = {mesh: obj, edges: null, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true};
+					// Liste, um zusammengehÃ¶rige Objekte zu managen
+					objects[obj.id] = {mesh: obj, edges: null, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true, parent: parentid};
 					
-					// Liste für die Anzeige auf der HTML-Seite
+					// Liste fÃ¼r die Anzeige auf der HTML-Seite
 					webglInterface.insertIntoLists({ name: obj.name, id: obj.id, title: obj.userData.name, layer: obj.userData.layer, type: obj.userData.type, parent: parentid });
 					
 					// if(scope.layers.indexOf(obj.userData.layer) === -1)
@@ -1964,8 +1972,25 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					// edges
 					var edges = null;
 					
-					/*if(!file.edges) {
-						// wenn noch keine geometry für edges da, berechne und speichere edges
+					
+					if(file.edges) {
+						// lade und entpacke geometry fÃ¼r edges
+						JSZipUtils.getBinaryContent('data/'+file.path+file.edges, function(err, data) {
+							var zip = new JSZip(data);
+							var vobj = JSON.parse(zip.file(file.content+'.json').asText());
+							
+							var floatarray = new Float32Array(vobj.data.attributes.position.array);
+							var egeo = new THREE.BufferGeometry();
+							egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
+							edges = new THREE.LineSegments(egeo, materials['edgesMat']);
+							edges.matrix = mesh.matrixWorld;
+							edges.matrixAutoUpdate = false;
+							scene.add(edges);
+							objects[mesh.id].edges = edges;
+						});
+					}
+					else {
+						// wenn noch keine geometry fÃ¼r edges da, berechne und speichere edges
 						edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
 						edges.matrix = mesh.matrixWorld;
 						edges.matrixAutoUpdate = false;
@@ -1979,24 +2004,12 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 								console.error('phpRequest failed on saveGeoToJson()', response.data);
 								return $q.reject();
 							}
-							// TODO: in DB speichern
+							return neo4jRequest.addEdgesFile($stateParams.project, file.content, file.content+'.zip');
+						}).then(function(response){
+							if(response.data.exception) { console.error('neo4j failed on addEdgesFile()', response); return; }
+							file.edges = file.content+'.zip';
 						});
 					}
-					else {*/
-						// lade und entpacke geometry für edges
-						JSZipUtils.getBinaryContent('data/'+file.path+file.content+'.zip', function(err, data) {
-							var zip = new JSZip(data);
-							var vobj = JSON.parse(zip.file(file.content+'.json').asText());
-							
-							var floatarray = new Float32Array(vobj.data.attributes.position.array);
-							var egeo = new THREE.BufferGeometry();
-							egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
-							edges = new THREE.LineSegments(egeo, materials['edgesMat']);
-							edges.matrix = mesh.matrixWorld;
-							edges.matrixAutoUpdate = false;
-							scene.add(edges);
-						});
-					//}
 					
 					//mesh = new THREE.Mesh(geo, materials['xrayMat']);
 					
@@ -2016,7 +2029,7 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 					//mesh.userData.originalMat = origMat;
 					mesh.userData.unsafe = isUnsafe;
 					
-					// mesh in scene einfügen
+					// mesh in scene einfÃ¼gen
 					var parentid = null;
 					if(parent && (p = scene.getObjectByName(parent, true))) {
 						p.add(mesh);
@@ -2026,10 +2039,10 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						scene.add(mesh);
 					}
 					
-					// Liste, um zusammengehörige Objekte zu managen
-					objects[mesh.id] = {mesh: mesh, edges: edges, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true};
+					// Liste, um zusammengehÃ¶rige Objekte zu managen
+					objects[mesh.id] = {mesh: mesh, edges: edges, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true, parent: parentid};
 					
-					// Liste für die Anzeige auf der HTML-Seite
+					// Liste fÃ¼r die Anzeige auf der HTML-Seite
 					webglInterface.insertIntoLists({ name: mesh.name, id: mesh.id, title: mesh.userData.name, layer: mesh.userData.layer, type: mesh.userData.type, parent: parentid });
 					
 					// if(scope.layers.indexOf(mesh.userData.layer) === -1)
@@ -2132,10 +2145,10 @@ webglDirectives.directive('webglView', ['angularLoad', '$timeout', 'webglInterfa
 						scene.add(mesh);
 					//console.log(scene);
 					
-					// Liste, um zusammengehörige Objekte zu managen
+					// Liste, um zusammengehÃ¶rige Objekte zu managen
 					objects[mesh.id] = {mesh: mesh, edges: null, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true};
 					
-					// Liste für die Anzeige auf der HTML-Seite
+					// Liste fÃ¼r die Anzeige auf der HTML-Seite
 					insertIntoList(file, mesh.id, mesh.userData.type, parentid);
 					
 					

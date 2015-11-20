@@ -22,8 +22,9 @@
 				<p>{{item.author || 'unbekannt'}}</p>
 			</div>
 			<div ng-if="item.archive">
-				<strong>Archivnummer</strong>
-				<p>{{item.archive}}</p>
+				<strong>Archiv</strong>
+				<p>{{item.archive.institutionAbbr}} {{item.archive.collection}}<br/>
+				{{item.archive.identifier}}</p>
 			</div>
 			<div ng-if="item.date">
 				<strong>Datierung</strong>
