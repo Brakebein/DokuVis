@@ -1,12 +1,12 @@
 <div class="aside" tabindex="-1" role="dialog">
   <div class="aside-dialog">
     <div class="aside-content">
-      <div class="aside-header">
+      <div class="aside-header" >
         <button type="button" class="close" ng-click="$hide()">&times;</button>
-        <h4 class="aside-title">Mitarbeiter</h4>
+        <h4 class="aside-title" >Mitarbeiter</h4>
       </div>
-      <div class="aside-body">
-      	<span ng-if="staff.length < 1" >Keine Mitarbeiter vorhanden</span>
+      <div class="aside-body" ></div>
+	  <span ng-if="staff.length < 1" >Keine Mitarbeiter vorhanden</span>
 				<table ng-if="staff.length > 0" class="table table-striped"> 
 				
 				
@@ -16,29 +16,23 @@
 						<th width="15">Nachname</th>
 						<th width="15">Mail</th>
 						<th width="15">Role</th>
-						<!--<th width="15">Projects</th>-->
+						
 					</tr>
 				</thead>
 				<tbody>
 					<tr ng-repeat="s in staff" >
-						<!--<td>{{s.sid}}</td>-->
 						
-						<td><a data-drag="true" ng-model="staff" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep'}" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
+						<td><a data-drag="true" ng-model="staff" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep', onStart: 'getIndex($index)'}" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
 						<td><a href="#" editable-text ="s.surname" onbeforesave = "updateSurname($data,s.sid)">{{s.surname}}</a></td>
 						<td><a href="#" editable-text ="s.mail" onbeforesave = "updateMail($data,s.sid)">{{s.mail}}</a></td>
 						<td><a href="#" editable-text ="s.role" onbeforesave = "updateRole($data,s.sid)">{{s.role}}</a></td>
-						<!--<td>{{s.projects}}</td>-->
+						
 						
 						<td><button type="button" class="btn btn-default" ng-click=removeStaff(s.sid)>Löschen</button></td>
 						
 					</tr>
+					 
 					
-					<!--<tr>
-						<td><input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Vorname"></td>
-						<td><input type="text" class="form-control" style="width: 10em" ng-model="newStaff.surname" placeholder="Nachname"></td>
-						<td><input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" ></td>
-						<td><input type="text" class="form-control" style="width: 6em" ng-model="newStaff.role" placeholder="Rolle" ></td>
-					</tr>-->
 					
 				</tbody>
 				</table>
@@ -53,7 +47,6 @@
                            
                             <div class="panel-collapse" bs-collapse-target>
                                 <div class="panel-body">
-									<!--<div class = "container">-->
 										<div class="form-inline">
 											
 													<div class="form-group text-center">
@@ -93,27 +86,15 @@
 											
 											
 												</div>
-											<!--</div>	-->
+											
 										</div>
 									</div>
 								</div>
 							</div>
-							
-							
-            <ol data-drop="true" ng-model='data' jqyoui-droppable="{multiple:true}">   <!--jqyoui-droppable="{onDrop: 'addNewStaffToGantt'}"-->
-                <li>test</li>
-            </ol>
-            
-        
-        
-        
-        
-   
-							
-						</div>
-      	
+	  
+      <div class="aside-footer">
+       
       </div>
-      
     </div>
   </div>
-
+</div>
