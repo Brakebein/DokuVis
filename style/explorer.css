@@ -298,6 +298,9 @@
 .listItem:hover {
 	background-color: #eee;
 }
+.listItem.selected {
+	background-color: #d9f0a3;
+}
 .listCheck {
 	color: #555;
 }
@@ -321,9 +324,6 @@
 	line-height: 13px;
 	height: 13px;
 	cursor: pointer;
-}
-.listSelected {
-	background-color: #d9f0a3;
 }
 
 

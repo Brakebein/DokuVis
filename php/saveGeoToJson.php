@@ -5,8 +5,7 @@ include 'globalpaths.php';
 $postdata = json_decode(file_get_contents("php://input"));
 
 // Pfade
-//$path = str_replace("data/", "", $postdata->path);
-$path = str_replace("/", $DS, $path);
+$path = str_replace("/", $DS, $postdata->path);
 $upath = $pData . $DS . $path;
 
 $fname = $postdata->filename;

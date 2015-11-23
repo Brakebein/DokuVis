@@ -91,16 +91,17 @@
 			
 			<!-- Dropdown-Liste Rendermode und Kamera -->
 			<div class="ctrlGroup form-inline">
-				<select class="form-control input-sm" ng-model="wi.viewportSettings.shading" ng-init="wi.viewportSettings.shading = 'color+edges'">
-					<option value="color+edges">color + edges</option>
-					<!--<option value="color-edges">color without edges</option>-->
+				<select class="form-control input-sm" ng-options="s for s in wi.viewportSettings.shading" ng-model="wi.viewportSettings.shadingSel" ng-change="wi.callFunc.setShading(wi.viewportSettings.shadingSel)">
+					<!--<option value="color+edges">color + edges</option>
+					<!--<option value="color-edges">color without edges</option>--
 					<option value="grey+edges">grey + edges</option>
 					<option value="transparent+edges">transparent + edges</option>
 					<!--<option value="edges">only edges</option>
-					<!--<option value="color+wireframe">color + wireframe</option>-->
+					<!--<option value="color+wireframe">color + wireframe</option>--
 					<option value="wireframe">only wireframe</option>
-					<option value="xray">xray</option>
+					<option value="xray">xray</option>-->
 				</select>
+				<button class="btn btn-default btn-xs" ng-class="{active: wi.viewportSettings.edges}" ng-click="wi.viewportSettings.edges = !wi.viewportSettings.edges">Kanten</button>
 				<!--<select class="form-control input-sm" ng-model="viewportSettings.camera" ng-init="viewportSettings.camera = 'perspective'">
 					<option value="perspective">Perspective</option>
 					<option value="top">Top</option>
@@ -161,6 +162,8 @@
 		
 		<div class="sideContent">
 				
+				<p>Objekte</p>
+				
 				<div ng-if="listSettings=='hierarchy'" ng-repeat="data in wi.hierarchList | orderBy: 'name'" ng-init="depth=0" ng-include="'partials/tree_item_renderer.html'"></div>
 				
 				<div ng-if="listSettings=='layers'" ng-repeat="layer in wi.layers | orderBy: 'name'" ng-init="depth=0">
@@ -182,6 +185,16 @@
 					</div>
 					</div>
 					</div>
+				</div>
+				
+				<p>Plans</p>
+				
+				<div class="listItem" ng-repeat="data in wi.plans">
+					<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="data.visible ? 'listCheck' : 'listUncheck'" ng-click="data.visible=!data.visible; callDirFunc.toggleObject(data);"></span>
+						<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
+							<div class="listExpand"><span></span></div>
+							<span ng-click="callDirFunc.selectObjectById(data.id);">{{data.title}} ({{data.id}})</span>
+						</div>
 				</div>
 				
 				<!--

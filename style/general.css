@@ -98,3 +98,8 @@ div[ng-view],
 .modal-dialog.xlarge > .modal-content > .modal-body {
 	flex: 1 1 auto;
 }
+
+/* Tooltip Anpassungen */
+.tooltip-inner {
+	min-width: 100px;
+}

@@ -113,7 +113,7 @@
 									<div class="col-sm-6">
 										<select class="form-control input-sm" ng-model="item.archive" bs-tooltip="{title: 'Archiv, Sammlung oder Kollektion'}">
 											<option value="">Keine Angabe</option>
-											<option ng-repeat="a in archives" value="a.collection">{{a.institutionName}} {{a.collectionName}}</option>
+											<option ng-repeat="a in archives" value="{{a.collection}}">{{a.institutionAbbr || a.institutionName}} {{a.collectionName}}</option>
 										</select>
 									</div>
 									<div class="col-sm-3">
@@ -139,7 +139,7 @@
 									</div>
 								</div>
 								
-								<div class="form-group" ng-show="item.formExtend && item.sourceType == 'plan'">
+								<div class="form-group" ng-show="item.formExtend && (item.sourceType == 'plan' || item.sourceType == 'picture')">
 									<label for="docPrimary" class="control-label col-sm-3"></label>
 									<div class="col-sm-8" bs-tooltip="{title: 'Primär- oder Sekundärquelle?'}">
 										<label class="radio-inline">
@@ -163,7 +163,7 @@
 						<td width="60" class="text-center">
 							<img ng-show="item.isProcessing" src="img/ajax-loader.gif"/> 
 							<img ng-show="item.isInserting" src="img/db_write.gif"/>
-							<span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+							<span ng-show="item.isSuccess && !item.isInserting"><i class="glyphicon glyphicon-ok"></i></span>
 							<span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
 							<span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
 						</td>
@@ -214,7 +214,7 @@
 			<span class="glyphicon glyphicon-upload"></span> Hochladen
 		</button>
 	
-		<button type="button" class="btn btn-default" ng-click="$parent.$parent.closeModal('source'); $hide()">Abbrechen</button>
+		<button type="button" class="btn btn-default" ng-click="closeModal('source'); $hide()">Abbrechen</button>
 	</div>
 	
 </div>

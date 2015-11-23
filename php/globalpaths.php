@@ -6,6 +6,7 @@ $pCTMConverter = '\'C:\\Program Files (x86)\\OpenCTM 1.0.3\\bin\\ctmconv.exe\'';
 // ImageMagick
 $pImagickConvert = 'C:\\ServerTools\\ImageMagick-6.9.2-4-Q16-x64\\convert.exe';
 $pImagickMogrify = 'C:\\ServerTools\\ImageMagick-6.9.2-4-Q16-x64\\mogrify.exe';
+$pImagickIdentify = 'C:\\ServerTools\\ImageMagick-6.9.2-4-Q16-x64\\identify.exe';
 
 // Tesseract - Texterkennung
 $pTesseract = 'C:\\ServerTools\\Tesseract-3.03\\tesseract.exe';

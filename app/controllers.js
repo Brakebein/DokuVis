@@ -128,8 +128,8 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpReq
 		
 	}]);
 
-webglControllers.controller('projectCtrl', ['$scope', '$stateParams',
-	function($scope, $stateParams) {
+webglControllers.controller('projectCtrl', ['$scope', '$stateParams', '$document', '$timeout',
+	function($scope, $stateParams, $document, $timeout) {
 	
 		console.log('projectCtrl init');
 		
@@ -142,6 +142,13 @@ webglControllers.controller('projectCtrl', ['$scope', '$stateParams',
 		// Zugriffsrechte und Rolle auslesen
 		
 		// TODO: test if subproject exists, otherwise redirect to master
+		
+		$scope.$on('modal.show', function(){
+			console.log('modal show')
+			var zIndex = 1040 + (10 * $('.modal:visible').length);
+			$(this).css('z-index', zIndex);
+			$('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
+		});
 		
 	}]);
 	
@@ -184,7 +191,7 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 		function getProjectInfoFromNodes() {
 			neo4jRequest.getProjInfos($stateParams.project, $stateParams.subproject).then(function(response) {
 				if(response.data.exception) { console.error('neo4jRequest Exception on getProjInfos()', response.data); return; }
-				$scope.projInfo.notes = Utilities.cleanNeo4jData(response.data);
+				if(response.data) $scope.projInfo.notes = Utilities.cleanNeo4jData(response.data);
 				console.log($scope.projInfo);
 			});
 		}
@@ -200,7 +207,7 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 		function getAllSubprojects() {
 			neo4jRequest.getAllSubprojects($stateParams.project).then(function(response) {
 				if(response.data.exception) { console.error('neo4jRequest Exception on getAllSubprojects()', response.data); return; }
-				$scope.subprojects = Utilities.cleanNeo4jData(response.data);
+				if(response.data) $scope.subprojects = Utilities.cleanNeo4jData(response.data);
 				console.log($scope.subprojects);
 			});
 		}
@@ -285,8 +292,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		$scope.views = new Object();
 		$scope.views.activeMain = '3dview';
-		//$scope.views.activeSide = 'objlist';
-		$scope.views.activeSide = 'comments';
+		$scope.views.activeSide = 'objlist';
+		// $scope.views.activeSide = 'comments';
 		$scope.views.enhancedOptions = {};
 		$scope.views.enhancedOptions.show = false;
 		$scope.views.enhancedOptions.tab = 'display';
@@ -312,7 +319,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		// Liste mit Objekten (Outliner)
 		$scope.listTabs = 'objects';
-		$scope.listSettings = 'layers';
+		//$scope.listSettings = 'layers';
+		$scope.listSettings = 'hierarchy';
 		
 		// Screenshots
 		$scope.screenshots = [];
@@ -549,7 +557,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		$scope.getAllDocuments = function() {
 			neo4jRequest.getAllDocuments($stateParams.project, $stateParams.subproject).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest failed on getAllDocuments()', response.data); return; }
-				$scope.sourceResults = Utilities.cleanNeo4jData(response.data, true);
+				if(response.data) $scope.sourceResults = Utilities.cleanNeo4jData(response.data, true);
 				console.log('Dokumente:', $scope.sourceResults);
 			});
 		};
@@ -557,8 +565,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		// lädt alle Screenshots in Liste
 		$scope.getScreenshots = function() {
 			neo4jRequest.getScreenshotsWithMarkers($scope.project).then(function(response){
-				if(!response.data) { console.error('neo4jRequest failed on getScreenshots()', response); return; }
-				$scope.screenshots = Utilities.cleanNeo4jData(response.data);
+				if(response.data.exception) { console.error('neo4jRequest failed on getScreenshots()', response); return; }
+				if(response.data) $scope.screenshots = Utilities.cleanNeo4jData(response.data);
 				console.log('Screenshots:', $scope.screenshots);
 			});
 		};
@@ -721,7 +729,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		$scope.loadModelsWithChildren = function() {
 			neo4jRequest.getModelsWithChildren($stateParams.project, $stateParams.subproject).then(function(response){
-				if(response.data.exception) { console.log('neo4j failed on getModelsWithChildren()', response.data); return; }
+				if(response.data.exception) { console.error('neo4j failed on getModelsWithChildren()', response.data); return; }
+				console.log(response.data);
 				var root = Utilities.createHierarchy(response.data)[0];
 				console.log(root);
 				
@@ -875,12 +884,12 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		$scope.$watch('selected', function(value) {
 			
-			if(value) {
+			/*if(value) {
 				console.log('watch', value);
 				if($.isEmptyObject(value)) return;
-				//$('#listScroll').scrollTo('500px');
-				document.getElementById(value.name).scrollIntoView();
-			}
+				$('.sideContent').scrollTo('500px');
+				//document.getElementById(value.name).scrollIntoView();
+			}*/
 		});
 		
 		$scope.ctrlBtnClick = function(btn) {
@@ -982,8 +991,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 	}]);
 
-webglControllers.controller('indexEditCtrl', ['$scope', '$stateParams', '$timeout', '$sce', 'phpRequest', 
-	function($scope, $stateParams, $timeout, $sce, phpRequest) {
+webglControllers.controller('indexEditCtrl', ['$scope', '$stateParams', 'phpRequest', 
+	function($scope, $stateParams, phpRequest) {
 		
 		$scope.blacklist = [];
 		$scope.whitelist = [];
@@ -1101,50 +1110,6 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 		
 		$scope.insert.formTitle = '';
 		//console.log($scope.insert, $scope.$parent.project);
-		
-		console.log($scope);
-		/*
-		switch($scope.insert.params.type) {
-			case 'source':
-				$scope.insert.phpurl = 'php/upload.php';
-				$scope.insert.uploadType = 'image';
-				$scope.insert.formTitle = 'Quelle hinzufügen';
-				$scope.insert.type = 'plan';
-				break;
-			case 'plan':
-				$scope.insert.phpurl = 'php/upload.php';
-				$scope.insert.uploadType = 'image';
-				$scope.insert.formTitle = 'Pläne hinzufügen';
-				break;
-			case 'picture':
-				$scope.insert.phpurl = 'php/upload.php';
-				$scope.insert.uploadType = 'image';
-				$scope.insert.formTitle = 'Bilder hinzufügen';
-				break;
-			case 'text':
-				$scope.insert.phpurl = 'php/processText.php';
-				$scope.insert.uploadType = 'text';
-				$scope.insert.formTitle = 'Text hinzufügen';
-				break;
-			case 'model':
-				$scope.insert.phpurl = 'php/processDAE.php';
-				$scope.insert.uploadType = 'model';
-				$scope.insert.formTitle = '3D-Modell hochladen';
-				$scope.insert.type = $scope.insert.params.type;
-				break;
-			case 'chooseSign':
-				$scope.insert.phpurl = 'php/getSigns.php';
-				$scope.insert.formTitle = 'Steinmetzzeichen auswählen';
-				$scope.insert.type = $scope.insert.params.type;
-				break;
-			case 'plans/model':
-				$scope.insert.phpurl = 'php/planmodelFromZip.php';
-				$scope.insert.uploadType = 'zip';
-				$scope.insert.formTitle = '3D-Plan hochladen';
-				$scope.insert.type = $scope.insert.params.type;
-				break;
-			default: break;
-		}*/
 		
 		$scope.globals = {};
 		$scope.globals.type = $scope.insert.params.type;
@@ -1304,6 +1269,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
             console.info('onSuccessItem', fileItem, response, status, headers);
 			
 			fileItem.isProcessing = false;
+			
 			if(!(response instanceof Object)) {
 				console.error(response);
 				fileItem.isSuccess = false;
@@ -1316,20 +1282,56 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 				fileItem.formData[0].pages = response.data.pages;
 			}
 			
+			fileItem.isInserting = true;
+			
 			if($scope.uploadType == 'source') {
 				Utilities.waitfor(function(){return isInserting;}, false, 20, {}, function(params) {
 					isInserting = true;
 					neo4jRequest.insertDocument($stateParams.project, $stateParams.subproject, fileItem.formData[0]).then(function(response){
 						if(response.data.exception) { console.error('neo4j failed on insertDocument()', response.data); return; }
-						console.log('insertDocument', response.data);
+						if(response.data.data.length > 0 ) console.log('insertDocument', response.data);
+						else {
+							console.error('no document inserted', response.data);
+							fileItem.isSuccess = false;
+							fileItem.isError = true;
+						}
 						isInserting = false;
+						fileItem.isInserting = false;
 					});
 				});
 			}
 			
 			else if($scope.uploadType == 'model') {
 				
-				function neo4jinsertNode(formData, params) {
+				/*function neo4jinsertNode(formData, params) {
+					neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, formData, params.obj).then(function(response){
+						if(response.data.exception) { console.error('neo4j failed on insertModel()', response.data); return; }
+						console.log('insertModel', response.data);
+						//isInserting = false;
+						fileItem.anzInserted++;
+						console.log(fileItem.anzInserted, fileItem.anzInserting);
+						if(fileItem.anzInserted == fileItem.anzInserting)
+							fileItem.isInserting = false;
+					});
+					insertNodes(params.obj.children);
+				}*/
+				function insertNodes(nodes) {
+					for(var i=0, l=nodes.length; i<l; i++) {
+						fileItem.anzInserting++;
+						neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, fileItem.formData[0], nodes[i]).then(function(response){
+							if(response.data.exception) { console.error('neo4j failed on insertModel()', response.data); return; }
+							console.log('insertModel', response.data);
+							//isInserting = false;
+							fileItem.anzInserted++;
+							console.log(fileItem.anzInserted, fileItem.anzInserting);
+							if(fileItem.anzInserted == fileItem.anzInserting)
+								fileItem.isInserting = false;
+						});
+						insertNodes(nodes[i].children);
+					}
+				}
+				
+				/*function neo4jinsertNode(formData, params) {
 					//var obj = $.extend(true, {}, objData);
 					neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, formData, params.obj).then(function(response){
 						if(response.data.exception) { console.error('neo4j failed on insertModel()', response.data); return; }
@@ -1349,7 +1351,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 				function insertNodes(nodes) {
 					for(var i=0, l=nodes.length; i<l; i++) {
 						//if(nodes[i].type != 'object') continue;
-						fileItem.isInserting = true;
+						
 						fileItem.anzInserting++;
 						Utilities.waitfor(function(){return isInserting;}, false, 20, {obj: nodes[i]}, function(params) {
 							isInserting = true;
@@ -1360,20 +1362,21 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 								console.log('insertModel', data);
 								isInserting = false;
 								insertNodes(nodes[i].children);
-							});*/
+							});*
 						});
 					}
-				}
+				}*/
 				insertNodes(response);
 			}
 			
 			else if($scope.uploadType == 'zip') {
-				console.log('everythin done - start cypher query');
+				console.log('everything done - start cypher query');
 				isInserting = true;
 				neo4jRequest.attach3DPlan($stateParams.project, fileItem.formData[0], response, $scope.attachTo).then(function(response){
 					if(response.data.exception) { console.error('neo4j failed on attach3DPlan()', response.data); return; }
 					console.log('attach3DPlan', response.data);
 					isInserting = false;
+					fileItem.isInserting = false;
 				});
 			}
 			
@@ -1417,17 +1420,17 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 			}, 1000);
 		}
 		
-		function getArchives() {
+		$scope.getArchives = function() {
 			neo4jRequest.getArchives($scope.$parent.project).then(function(response){
-				if(!response.data) { console.error('neo4jRequest failed on getArchives()', response); return; }
-				$scope.archives = Utilities.cleanNeo4jData(response.data);
+				if(response.data.exception) { console.error('neo4j failed on getArchives()', response); return; }
+				if(response.data) $scope.archives = Utilities.cleanNeo4jData(response.data);
 				console.log('Archives:', $scope.archives);
 			});
 		}
-		getArchives();
+		$scope.getArchives();
 		
 		$scope.addArchive = function() {
-			var newscope = $scope.$new(true);
+			var newscope = $scope.$new(false);
 			newscope.modalParams = {
 				modalType: 'small',
 				modalLevel: 'level2'
@@ -1446,7 +1449,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 		$scope.setTypeaheadArray = function(label, prop) {
 			if(!label) return;
 			neo4jRequest.getAllLabelProps($scope.$parent.project, label, prop).then(function(response){
-				if(!response.data) { console.error('neo4jRequest failed on setTypeaheadArray()', response); return; }
+				if(response.data.exception) { console.error('neo4j failed on setTypeaheadArray()', response); return; }
 				$scope.suggestions = Utilities.cleanNeo4jData(response.data);
 				//console.log($scope.suggestions);
 			});
@@ -1526,12 +1529,33 @@ webglControllers.controller('sourceTypeCtrl', ['$scope',
 		
 		
 	}]);
-webglControllers.controller('addArchiveCtrl', ['$scope',
-	function($scope) {
+webglControllers.controller('addArchiveCtrl', ['$scope', '$stateParams', 'neo4jRequest',
+	function($scope, $stateParams, neo4jRequest) {
 		
 		console.log('addArchiveCtrl init', $scope);
 		
+		$scope.archive = {};
+		$scope.archive.institution = '';
+		$scope.archive.institutionAbbr = '';
+		$scope.archive.collection = '';
 		
+		$scope.addArchive = function() {
+			
+			if($scope.archive.institution.length < 1) {
+				console.log('inst einfügen')
+				return;
+			}
+			if($scope.archive.collection.length < 1) {
+				console.log('coll einfügen')
+				return;
+			}
+			
+			neo4jRequest.addArchive($stateParams.project, $scope.archive.collection, $scope.archive.institution, $scope.archive.institutionAbbr).then(function(response){
+				if(response.data.exception) { console.error('neo4j failed on addArchive()', response); return; }
+				$scope.$parent.$parent.$parent.getArchives();
+				$scope.$parent.$hide();
+			});
+		};
 	}]);
 	
 webglControllers.controller('sourceDetailCtrl', ['$scope',
