@@ -779,7 +779,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		};
 		
 		
-		
 		$scope.callDirFunc = {};
 		
 		// öffne oder schließe Tab im vpPanelContainer
@@ -882,7 +881,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			}
 		}
 		
-		$scope.$watch('selected', function(value) {
+		//$scope.$watch('selected', function(value) {
 			
 			/*if(value) {
 				console.log('watch', value);
@@ -890,7 +889,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				$('.sideContent').scrollTo('500px');
 				//document.getElementById(value.name).scrollIntoView();
 			}*/
-		});
+		//});
 		
 		$scope.ctrlBtnClick = function(btn) {
 			switch(btn) {

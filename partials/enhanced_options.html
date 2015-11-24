@@ -12,6 +12,12 @@
 		Darstellungsoptionen
 	</div>
 	<div ng-show="views.enhancedOptions.tab == 'display'" class="ctrlPanel-body" ng-scrollbars ng-scrollbars-config="scrollConfig">			
+		<div class="optionGroup">
+			<span class="groupHeader">Ausgewählte Objekte</span>
+			<span>Transp.</span>
+			<slider floor="0" ceiling="100" step="5" ng-model="wi.vizSettings.opacitySelected"></slider>
+			<span>{{wi.vizSettings.opacitySelected}}</span>
+		</div>
 		
 		<div class="optionGroup checkbox">
 			<span class="groupHeader">Unsicheres Wissen</span>
@@ -41,8 +47,12 @@
 			<span class="groupHeader">Kantendarstellung</span>
 			
 			<label>
-				<input type="checkbox" ng-model="unsafeSettings.edges"/> Kanten ein/aus
+				<input type="checkbox" ng-model="wi.vizSettings.edges"/> Kanten ein/aus
 			</label>
+			
+			<span>Transp.</span> 
+			<slider floor="0" ceiling="100" step="5" ng-model="wi.vizSettings.edgesOpacity"></slider>
+			<span>{{wi.vizSettings.edgesOpacity}}</span>
 			
 			<table class="tableoptions"> 
 				<tr>

@@ -1142,7 +1142,7 @@ webglServices.factory('Utilities',
 
 // Schnittstelle zwischen Three.js-Scope und Seite
 webglServices.factory('webglInterface',
-	function() {
+	function($rootScope) {
 		
 		var wi = {};
 		
@@ -1156,6 +1156,12 @@ webglServices.factory('webglInterface',
 		wi.viewportSettings.edges = true;
 		
 		wi.unsafeSettings = {};
+		
+		wi.vizSettings = {};
+		wi.vizSettings.opacitySelected = 100;
+		wi.vizSettings.edges = true;
+		wi.vizSettings.edgesOpacity = 100;
+		wi.vizSettings.edgesColor = 100
 		
 		// Listen
 		wi.objects = [];
@@ -1174,6 +1180,7 @@ webglServices.factory('webglInterface',
 			item.selected = false;
 			insertIntoHierarchList(item);
 			insertIntoLayerList(item);
+			$rootScope.$applyAsync();
 		};
 		
 		wi.clearLists = function() {
@@ -1221,11 +1228,13 @@ webglServices.factory('webglInterface',
 			var item = findHierarchyObject(wi.hierarchList, id);
 			item.selected = true;
 			if(item.parent) expandParents(item.parent);
+			$rootScope.$applyAsync();
 		};
 		
 		wi.deselectListEntry = function(id) {
 			var item = findHierarchyObject(wi.hierarchList, id);
 			item.selected = false;
+			$rootScope.$applyAsync();
 		};
 		
 		function expandParents(item) {
