@@ -6,7 +6,7 @@
 		<div class = "col-md-2" id = "search">
 			<div class="form-group">
 				<div class="input-group" >								    
-					<input type="text" class="form-control"  ng-model="options.filterRow">
+					<input type="text" class="form-control"  ng-model="options.filterTask">
 					<div class="input-group-addon"><span class="fa fa-search"></span></div>
 				</div>
 			</div>
@@ -31,7 +31,7 @@
 			
 			<div class = "col-md-1" id = "zoom">
 				<div class="input-group">
-							<input type="number"ng-model="options.zoom" step="0.1" min="1.3" max="5" class= "form-control"/>
+							<input type="number"ng-model="options.zoom" step="0.1" min="0.1" max="5" class= "form-control"/>
 							<span class="input-group-addon"><span class="fa fa-search-plus"></span></span>
 				</div>
 			</div>
@@ -52,7 +52,7 @@
 		
 			
 			<div gantt 
-				 data=data
+				 data= "options.useData"
 				 filter-task="{'name': options.filterTask}"
 		         filter-row="{'name': options.filterRow}"
 		         column-width="getColumnWidth(options.width, options.scale, options.zoom)"
@@ -90,7 +90,7 @@
 			  			
 			  
 		      
-		       <gantt-groups enabled = "true" display="overview">
+		       <gantt-groups enabled = "true" display="promote">
 		       </gantt-groups>
 			  
 			  <gantt-bounds></gantt-bounds>
@@ -117,15 +117,14 @@
     			</a>					
 			</div>	
 		</div>
+		
 			
-			<!--<div class = "col-md-2" >
-				<div class="input-group" >
-					<button class = "btn btn-default" ng-click = "scope.changeOrder()">
-    				<span class="fa fa-user-plus"></span> Aufgaben umsortieren
-    				</button>					
-				</div>
-			</div>-->
-			</div>
+		<button type="button" class="btn btn-default" ng-click="sortByTasks(row)"><span class="glyphicon glyphicon-sort"></span> Nach Aufgaben sortieren</button>		
+		<button type="button" class="btn btn-default" ng-click="sortByStaff()"><span class="glyphicon glyphicon-sort"></span> Nach Mitarbeitern sortieren</button>
+			
+		
+		</div>
+		
 	</div>
 	
 	

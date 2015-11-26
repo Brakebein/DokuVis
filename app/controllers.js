@@ -1809,6 +1809,9 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities, $aside) {
 	
 		$scope.project = $stateParams.project;
+		$scope.sortby = 'staff';
+		$scope.parentIsStaff= 'false';
+		$scope.parentsWithTasks = [];
 		
 		/*Mitarbeiter*/
 		$scope.newStaff = new Object();
@@ -1847,53 +1850,80 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		/*IndexDnd*/
 		$scope.indexDnD;
 
-		/*$scope.data = [		
-		{name: 'Jonas', isParent: 'true',  tasks: [{name: 'jonas', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}]},
+		/*Children zählen*/
+		$scope.childCounter = 0;
+
+		$scope.dataTasks = [];
+
+		$scope.data = [		  
+    	{name: 'Jonas', isStaff: 'true', 'groups': false, tasks: [] },
     
-    	{name: 'Martin', isParent: 'true', tasks: [{name: 'martin', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}]},
+    	{name: 'Martin', isStaff: 'true', 'groups': false, tasks: []},
+    	
     
-    	{name: 'test1', children: ['Martin'], status: 'erledigt',priority: '2', hasData: 'true',  tasks: [
-                            {name: 'test1', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]}]},
+    	{name: 'test1', parent: 'Martin', children: ["test2"], status: 'erledigt',priority: '2', hasData: 'false',  tasks: []},
 		
-		{name: 'test2',children: ['Martin'],  status: 'erledigt',priority: '3', hasData: 'false', tasks: [
+		{name: 'test2',  status: 'erledigt',priority: '3', hasData: 'false', tasks: [
 		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
 		                        ]},
+		                        
+		{name: 'test7', parent: 'Martin',children: ["test8"],  status: 'erledigt',priority: '2', hasData: 'false',  tasks: []},
+		
+		{name: 'test8',  status: 'erledigt',priority: '3', hasData: 'false', tasks: [
+		                            {name: 'test8', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
+		                        ]},
 		   
-		{name: 'test4',  status: 'zu bearbeiten', priority: '1', tasks: [
+		{name: 'test4', parent: 'Jonas', status: 'zu bearbeiten', priority: '1', hasData: 'false', tasks: [
 		                            {name: 'test4', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
 		                        ]},
-		]
-		*/
+		                  
 		
-		$scope.data = [		
-		{name: 'Jonas', isStaff: 'true', 'groups': {'enabled': false,}},
+		{name: 'test5',parent: 'Jonas', status: 'zu bearbeiten',priority: '2',hasData: 'false', tasks: [
+		                            {name: 'test5', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
+		                        ]},
+		{name: 'test6',parent: 'Jonas', status: 'zu bearbeiten', hasData: 'true', priority: '1', tasks: [
+		                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0), data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]}]},
+		];
+		
+		
+		/*$scope.data = [		
+		{name: 'Jonas', isStaff: 'true', 'groups': false, tasks: [] },
     
-    	{name: 'Martin', isStaff: 'true','groups': {'enabled': false,}},
+    	{name: 'Martin', isStaff: 'true', 'groups': false, tasks: []},
+    	
     
-    	{name: 'test1', parent: 'Martin', status: 'erledigt',priority: '2', hasData: 'true','groups': {'enabled': true,},  tasks: [
-                            {/*name: 'test1', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0),*/  data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]}]},
+    	{name: 'test1', parent: 'Martin',parentIsStaff: 'true', status: 'erledigt',priority: '2', hasData: 'false',  tasks: []},
 		
 		{name: 'test2', parent: 'test1', status: 'erledigt',priority: '3', hasData: 'false', tasks: [
 		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
 		                        ]},
+		                        
+		{name: 'test7', parent: 'Martin',parentIsStaff: 'true',  status: 'erledigt',priority: '2', hasData: 'false',  tasks: []},
+		
+		{name: 'test8', parent: 'test7', status: 'erledigt',priority: '3', hasData: 'false', tasks: [
+		                            {name: 'test8', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
+		                        ]},
 		   
-		{name: 'test4', parent: 'Jonas', status: 'zu bearbeiten', priority: '1', tasks: [
+		{name: 'test4', parent: 'Jonas',parentIsStaff: 'true', status: 'zu bearbeiten', priority: '1', hasData: 'false', tasks: [
 		                            {name: 'test4', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
 		                        ]},
-		{name: 'test5',parent: 'Jonas', status: 'zu bearbeiten',priority: '2', tasks: [
+		                  
+		
+		{name: 'test5',parent: 'Jonas',parentIsStaff: 'true', status: 'zu bearbeiten',priority: '2',hasData: 'false', tasks: [
 		                            {name: 'test5', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
 		                        ]},
-		{name: 'test6',parent: 'Jonas', status: 'zu bearbeiten',priority: '1', tasks: [
-		                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
-		                        ]},
-]		
+		{name: 'test6',parent: 'Jonas',parentIsStaff: 'true', status: 'zu bearbeiten', hasData: 'true', priority: '1', tasks: [
+		                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0), data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]}]},
+]		;*/
+
 		$scope.options = {
+			useData: $scope.data,
 			allowSideResizing: true,
 			fromDate: getFormattedDate(new Date()),
 			toDate: getFormattedDate(addDays(new Date(),30)),
-			columns: ['trash', 'model.priority',/*'from', 'to',*/ 'model.status'],
-			treeTableColumns: [/*'from', 'to',*/ 'status'],
-			columnsHeaders: {'trash': 'Löschen', 'model.priority': 'Priorität', /*'from': 'von', 'to': 'bis',*/ 'model.status': 'Status'},
+			columns: ['trash', 'model.priority', 'model.status'],
+			treeTableColumns: [ 'status'],
+			columnsHeaders: {'trash': 'Löschen', 'model.priority': 'Priorität',  'model.status': 'Status', 'model.parent': 'Bearbeiter'},
 			
 			columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to', 'model.status': 'gantt-column-status'},
 			columnsFormatters: {
@@ -1907,14 +1937,15 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             
             
             columnsHeaderContents: {
+            	'model.parent': '<i class="fa fa-users"></i>',
             	'trash': '<i class="glyphicon glyphicon-trash"></i>',
                 'model.priority': '<i class="fa fa-exclamation"></i>',
                 'model.status': '<i class="fa fa-flag"></i>'
             },
            labelsEnabled: true,
           columnsContents: {
-          'trash': '<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>', 
-          'from': '{{getValue()}}',
+          'model.parent': '<div>{{getValue()}}</div>',
+          'trash': '<i class="glyphicon glyphicon-trash" ng-click = "scope.deleteTask(row.model,row)" ></i>',      
           'model.priority': '<i ng-switch= "getValue()" ng-click="scope.changePriority(row.model)"><i ng-switch-when="1" class="fa fa-flag" id="lowPriority"></i><i ng-switch-when="2" class="fa fa-flag" id="mediumPriority"></i><i ng-switch-when="3" class="fa fa-flag" id="highPriority"></i></i>',
           'model.status': '<i ng-class="getValue() == \'erledigt\' ? \'glyphicon glyphicon-ok\' : \'glyphicon glyphicon-cog\'" ng-click="scope.changeStatus(row.model)"></i>',
             },
@@ -1925,9 +1956,17 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showAside()"></i><a href="#" /*ng-if="row.model.isParent == \'false\'"*/ editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row.model)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.addNewTask(row.model)"></i> ', /*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
+            rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showAside()"></i><a href="#" ng-class = "row.model.isStaff == \'true\' ? \'parent\': \'\' "  editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row.model)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.addNewTask(row.model,row)"></i> ', /*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
             taskContent: '{{task.model.name}}', /*deleteTask(task.model,row.model)*/
             zoom: 1.3,
+             api: function(api) {
+                // API Object is used to control methods and events from angular-gantt.
+                $scope.api = api;
+
+                api.core.on.ready($scope, function() {
+                	
+                	});
+                }
            };
 		
 		function getFormattedDate(date) {
@@ -1941,7 +1980,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		    return result;
 		}
 
-		 $scope.canAutoWidth = function(scale) {
+		$scope.canAutoWidth = function(scale) {
             if (scale.match(/.*?hour.*?/) || scale.match(/.*?minute.*?/)) {
                 return false;
             }
@@ -1972,54 +2011,52 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             return 40 * zoom;
         };
 
-	
+		$scope.getStaffInGantt = function(){
+			//alle Bearbeiter suchen
+			$.each($scope.data,function(index){
+					if($scope.data[index].isStaff == 'true'){
+						$scope.parentsWithTasks.push($scope.data[index].name);
+						/*parentsWithTasks.push({parent: $scope.data[index].name, tasks: []});*/
+						/*console.log("parentsWithTasks " + parentsWithTasks[index].parent);*/
+					}	
+				});
+		}
 		
 		/*Tasks*/
 		
-		$scope.addNewTask = function (rowModel){	
-				
-			$.each($scope.data,function(index){
-				
-				if($scope.data[index].name == 'neue Aufgabe'){
-					$scope.taskExists = 'true';
-					return false;
-				}
-			});	
+		$scope.addNewTask = function (rowModel,row){	
 			
-				if($scope.taskExists == 'true'){
-					alert('Diese Aufgabe existiert leider schon! Bitte benennen Sie sie um!');
-					$scope.taskExists = false;
-				}
+			if($scope.sortby == 'staff'){
+				$.each($scope.data,function(index){
+					if($scope.data[index].name == 'neue Aufgabe'){
+						$scope.taskExists = 'true';
+						return false;
+					}
+				});	
 				
-				else{
-					$scope.data.push({name: 'neue Aufgabe', parent: rowModel.name , priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: '#F1C232','groups': {'enabled': true, 'display': 'overview',}, from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
-					$scope.taskExists = false;
-				}	
-		}
-		
-		/*$scope.addNewTask = function(newTask) {
-			$.each($scope.data,function(index){
-				if(newTask.staff == $scope.data[index].name){
+					if($scope.taskExists == 'true'){
+						alert('Diese Aufgabe existiert leider schon! Bitte benennen Sie sie um!');
+						$scope.taskExists = false;
+					}
 					
-					
-					$scope.data.push({name: newTask.task, parent: newTask.staff,tasks: [{name: newTask.task, color: '#F1C232', from: newTask.from, to: newTask.to}]});
-					$scope.nameFound = true;
-					return false;
-				}		
-			});
-			
-			if($scope.nameFound == false){
-				$scope.data.push({name: newTask.staff});
-					$scope.data.push({	name: newTask.task, parent: newTask.staff,tasks: [{name: newTask.task, color: '#F1C232', from: newTask.from, to: newTask.to}]
-						
-					});
-					console.log($scope.data);
+					else{			//Aufgabe
+						 //wenn parent Bearbeiter ist
+							$scope.data.push({name: 'neue Aufgabe', parent: rowModel.name, children: [],  priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
+							rowModel.tasks = [];
+							$scope.taskExists = false;
+						}
+				}
+		else{
+			alert('Bitte ändern Sie die Sortierung!');
 			}
-			$scope.nameFound = false;	
+		}
+				
+		$scope.showDescendant = function(row){
+			console.log($scope.api.tree.getHierarchy());
+			var test= $scope.api.tree.getHierarchy();
+			console.log(test.parent(row));
 			
-		
-		}*/
-		
+		}
 		
 		$scope.getIndex = function(event, ui, indexStaff){
 			console.log(indexStaff);
@@ -2028,139 +2065,252 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		$scope.addNewStaffToGantt = function(){
 			/*Mitarbeiter existiert bereits?*/
+			
+		if($scope.sortby == 'staff'){
 			$.each($scope.data,function(index){
 				console.log("data" + $scope.data[index].name);
 				console.log("staff" + $scope.staff[$scope.indexDnD].name);
-				
-				if($scope.staff[$scope.indexDnD].name == $scope.data[index].name ){
-					$scope.staffExists = 'true';
-					return false;
+					if($scope.staff[$scope.indexDnD].name == $scope.data[index].name ){
+						$scope.staffExists = 'true';
+						return false;
+					}
+				});
+					
+				if($scope.staffExists == 'true'){
+					alert('Nutzer existiert leider schon!');
+					$scope.staffExists = false;
 				}
-			});
-				
-			if($scope.staffExists == 'true'){
-				alert('Nutzer existiert leider schon!');
-				$scope.staffExists = false;
+				else{
+					$scope.data.push({name: $scope.staff[$scope.indexDnD].name, isStaff:'true', 'groups': false, tasks:[]});
+					$scope.staffExists = false;
+				}
 			}
+			
 			else{
-				$scope.data.push({name: $scope.staff[$scope.indexDnD].name, isStaff:'true'});
-				$scope.staffExists = false;
-			}	
+				alert('Bitte ändern Sie die Sortierung!');
+			}
+		
 		}
 		
 		$scope.editTask = function(data, rowModel){
 			rowModel.name = data;
 			rowModel.tasks[0].name= data;
 		}
-
-		/*$scope.showComments = function() {
-			$scope.views.activeSide = 'comments';
+		
+		$scope.sortByTasks = function(row){			
+			if($scope.sortby == 'staff'){
+			//Aufgaben neuem Datenarray hinzufügen
+			$.each($scope.data,function(index){
+					if($scope.data[index].isStaff != 'true'){ //prüfen ob aufgabe oder bearbeiter
+						 //prüfen, ob Parent staff oder task ist
+						 if($scope.parentIsStaff($scope.data[index].parent)){// wenn parent bearbeiter ist, soll parent gelöscht werden			
+						 	console.log($scope.parentIsStaff($scope.data[index].parent));
+						 	$scope.dataTasks.push({name: $scope.data[index].name , parent: $scope.data[index].parent, children: $scope.data[index].children, status: $scope.data[index].status, priority: $scope.data[index].priority, hasData: $scope.data[index].hasData, tasks: $scope.data[index].tasks});
+						 	console.log('hat Bearbeiter als Parent ' + $scope.data[index].name);
+						 }
+						 
+						else{
+						 	$scope.dataTasks.push({name: $scope.data[index].name ,parent: $scope.data[index].parent ,status: $scope.data[index].status, priority: $scope.data[index].priority, hasData: $scope.data[index].hasData, tasks: $scope.data[index].tasks});
+						 	console.log('hat Aufgabe als Parent ' +  $scope.data[index].name);
+						 }
+						/*for(i= 0; i < parentsWithTasks.length; i++){						
+							if($scope.data[index].parent == parentsWithTasks[i].parent){// wenn parent bearbeiter ist, soll parent gelöscht werden
+								console.log('match' + i + parentsWithTasks[i].parent);
+								$scope.parentIsStaff = 'true';
+							}
+						
+						else{//wenn Parent Aufgabe ist, dann soll Parenteintrag beibehalten werden
+								console.log('kein match ' + i + parentsWithTasks[i].parent);
+								$scope.parentIsStaff = 'false';
+								
+							}
+						}
+						
+						if($scope.parentIsStaff == 'true'){
+						$scope.dataTasks.push({name: $scope.data[index].name ,parent: '' ,status: $scope.data[index].status, priority: $scope.data[index].priority, hasData: $scope.data[index].hasData, tasks: $scope.data[index].tasks});
+						console.log('Aufgabe false ' + $scope.data[index].name + ' parent ' + $scope.data[index].parent);
+						}
+						
+						if($scope.parentIsStaff == 'false'){
+						$scope.dataTasks.push({name: $scope.data[index].name ,parent: $scope.data[index].parent ,status: $scope.data[index].status, priority: $scope.data[index].priority, hasData: $scope.data[index].hasData, tasks: $scope.data[index].tasks});
+						console.log('Aufgabe false ' + $scope.data[index].name + ' parent ' + $scope.data[index].parent);	
+						}
+						
+						$scope.parentIsStaff = 'false';*/
+					}
+				});
+			
+			//Anzahl an Bearbeiterobjekten in dataTasks einfügen und an Aufgaben hängen
+	/*		$.each(parentsWithTasks,function(indexP){
+				for(i= 0; i < parentsWithTasks[indexP].tasks.length ;i++){
+					console.log('Bearbeiter eingefügt ' + parentsWithTasks[indexP].parent);	
+					console.log('Aktueller Task: ' + parentsWithTasks[indexP].tasks[i]);
+					
+					$scope.dataTasks.push({name: parentsWithTasks[indexP].parent, parent: parentsWithTasks[indexP].tasks[i], isStaff: 'true', 'groups': false, tasks: [] });
+					
+					console.log('Bearbeiter ' +$scope.dataTasks[$scope.dataTasks.length-1].name + ' Aufgabe:' + $scope.dataTasks[$scope.dataTasks.length-1].parent);
+				}	
+			});*/
+			
+			//Datenarray umschalten, Spalte hinzufügen
+			$scope.options.useData = $scope.dataTasks;
+			$scope.options.columns.push('model.parent');
+			$scope.sortby = 'task';
+			};
 		}
 		
-		$scope.changeOrder = function(){
-			if($scope.changeOrder == 'false')
-				{
-					
-				}
-			if($scope.changeOrder == 'true')
-				{
-					
-				}
-		}*/
+		$scope.sortByStaff = function(){
+			
+				
+			if($scope.sortby == 'task'){
+				$scope.dataTasks= [];
+				$scope.options.useData = $scope.data;
+				$scope.options.columns.splice($scope.options.columns.length-1,1);
+				$scope.sortby = 'staff';
+			};
+		}
+		
+		$scope.parentIsStaff = function(pObject){
+			 /*console.log(pObject);
+			 console.log(staffArray);
+			 console.log(staffArray.indexOf(pObject));*/
+			if($scope.parentsWithTasks.indexOf(pObject)!= -1){
+				/*console.log('Prüfung erfolgreich');*/
+				return true;
+			}	
+			else{
+				/*console.log('Prüfung nicht erfolgreich');*/
+				return false;
+			}
+				
+			
+		}
 		
 		$scope.changeStatus = function(rowName){
-			$.each($scope.data,function(index){
-				if(rowName.id == $scope.data[index].id){
-					
-					if($scope.data[index].status == 'zu bearbeiten'){
-						if(confirm("Ist die Aufgabe wirklich erledigt?")){
-							$scope.data[index].status = 'erledigt';
-							$scope.data[index].tasks[0].color = '#24ff6b';
+			if($scope.sortby == 'staff'){
+				$.each($scope.data,function(index){
+					if(rowName.id == $scope.data[index].id){
+						
+						if($scope.data[index].status == 'zu bearbeiten'){
+							if(confirm("Ist die Aufgabe wirklich erledigt?")){
+								$scope.data[index].status = 'erledigt';
+								$scope.data[index].tasks[0].color = '#24ff6b';
+							}
+							else{
+								$scope.data[index].status = 'zu bearbeiten';
+								$scope.data[index].tasks[0].color = '#F1C232';
+							}
+							return false;
+								
 						}
-						else{
+						
+						if($scope.data[index].status == 'erledigt'){
 							$scope.data[index].status = 'zu bearbeiten';
 							$scope.data[index].tasks[0].color = '#F1C232';
+							return false;				
 						}
-						return false;
-							
 					}
-					
-					if($scope.data[index].status == 'erledigt'){
-						$scope.data[index].status = 'zu bearbeiten';
-						$scope.data[index].tasks[0].color = '#F1C232';
-						return false;				
-					}
-				}
-			});
+				});
+			}
+			else{
+				alert('Bitte ändern Sie die Sortierung!');
+			}
 		};
 		
 		$scope.changePriority = function(rowModel){
-			$.each($scope.data,function(index){
-				if(rowModel.id == $scope.data[index].id){
-					
-					if($scope.data[index].priority == '1'){
-						$scope.data[index].priority = 2;
-						return false;
+			if($scope.sortby == 'staff'){
+				$.each($scope.data,function(index){
+					if(rowModel.id == $scope.data[index].id){
+						
+						if($scope.data[index].priority == '1'){
+							$scope.data[index].priority = 2;
+							return false;
+						}
+						
+						if($scope.data[index].priority == '2'){
+							$scope.data[index].priority = 3;
+							return false;
+						}
+						
+						if($scope.data[index].priority == '3'){
+							$scope.data[index].priority = 1;
+							return false;
+						}
+						
+					/*	switch ($scope.data[index].priority) {
+						    case '1':
+						    	$scope.data[index].priority = 2;
+						    	alert($scope.data[index].priority = 2);
+						        break;
+						    case '2':
+						        $scope.data[index].priority = 3;
+						        break;
+						    case '3':
+						        $scope.data[index].priority = 1;
+						        break;
+						   	}
+						  return false;*/
 					}
-					
-					if($scope.data[index].priority == '2'){
-						$scope.data[index].priority = 3;
-						return false;
-					}
-					
-					if($scope.data[index].priority == '3'){
-						$scope.data[index].priority = 1;
-						return false;
-					}
-					
-				/*	switch ($scope.data[index].priority) {
-					    case '1':
-					    	$scope.data[index].priority = 2;
-					    	alert($scope.data[index].priority = 2);
-					        break;
-					    case '2':
-					        $scope.data[index].priority = 3;
-					        break;
-					    case '3':
-					        $scope.data[index].priority = 1;
-					        break;
-					   	}
-					  return false;*/
-				}
-			});
+				});
+			}
+		else{
+				alert('Bitte ändern Sie die Sortierung!');
+			}
 		};	
 			
-		$scope.deleteTask = function(rowModel){	
-			/*console.log(taskModel);
-			console.log(rowModel);*/
-			var length = $scope.data.length
-			/*alles children löschen*/
-			
-			if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
-				/*alert(rowModel.id);*/
-				for (i= 0; i < length; i++) {
-					if(rowModel.name == $scope.data[i].parent){
-					console.log("gefunden" + $scope.data[i].name + $scope.data[i].parent);
-					$scope.data.splice(i,1);
-					length--;
-					}
-				};
-				
-				/*parent löschen*/
-				for (j= 0; j < length; j++) {	
-					console.log("rowModel "+ rowModel.name);
-					console.log("scope " + $scope.data[j].name);
+		$scope.deleteTask = function(rowModel,row){	
+			if($scope.sortby == 'staff'){
+				var length = $scope.data.length
+				/*alle children löschen*/
+				if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
 					
-					if(rowModel.id == $scope.data[j].id){
-					$scope.data.splice(j,1);
-					console.log("gelöscht");
-					console.log($scope.data);
-					return false;
-					}
 					
-				};
+				var hier= $scope.api.tree.getHierarchy();
+				/*console.log(hier.parent(row).tasks.length);*/
+					
+					for (i= 0; i < length; i++) {
+						if(rowModel.name == $scope.data[i].parent){
+							//kopieren der Daten von letzter Unteraufgabe auf übergeordnete Aufgabe
+						/*	*/
+							console.log("gefunden" + $scope.data[i].name + $scope.data[i].parent);
+							$scope.data.splice(i,1);
+							length--;
+						}
+					};
+					/*parent löschen*/
+					for (j= 0; j < length; j++) {	
+						if(rowModel.id == $scope.data[j].id){
+							$scope.countChildren(row,length,hier);
+							console.log($scope.childCounter);
+							if($scope.childCounter == 1){
+								/*hier.parent(row).model.name = rowModel.name;*/
+								hier.parent(row).model.tasks.push({name: hier.parent(row).model.name, color: '#F1C232', from: rowModel.tasks[0].from.format("YYYY.MM.DD"), to: rowModel.tasks[0].to.format("YYYY.MM.DD")});
+								}
+						
+						$scope.data.splice(j,1);
+						/*console.log("Unteraufgabe gelöscht");
+						console.log($scope.data);*/
+						$scope.childCounter= 0;
+						return false;
+						}
+						
+					};
+				}
+			}
+		else{
+				alert('Bitte ändern Sie die Sortierung!');
 			}
 		};
+		
+		$scope.countChildren = function(row,length, hier){
+			console.log(hier.parent(row).model.name);
+				for (i= 0; i < length; i++) {
+					if(hier.parent(row).model.name == $scope.data[i].parent){
+						$scope.childCounter++;
+						}
+					}
+			
+		}
 		
 		$scope.showAside = function(){
 			var aside = $aside({scope: $scope, templateUrl: 'partials/aside/asideComments.html', placement: 'right', animation: 'am-fade-and-slide-right', container: '.tasksLeft' , backdrop: false});
@@ -2170,7 +2320,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		$scope.addComment = function(){
 			console.log($scope.newComment.text);
-			$scope.data[2].tasks[0].data.push({message: $scope.newComment.text, author: 'Jonas'});
+			$scope.data[8].tasks[0].data.push({message: $scope.newComment.text, author: 'Jonas'});
 			/*$scope.views.activeSide = 'comments';*/	
 		}
 				
@@ -2259,7 +2409,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	
 	//initiiere Staff
 	$scope.getAllStaff();
-	
+	$scope.getStaffInGantt();
+	console.log('parents ' + $scope.parentsWithTasks);
 	}]);
 
 function extractData(data) {
