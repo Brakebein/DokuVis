@@ -269,3 +269,8 @@
 	left: 1%;
 	width: 95%;
 }
+
+.parent {
+	font-size: 15px;
+	font-weight: bold;
+}
