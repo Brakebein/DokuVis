@@ -2669,7 +2669,7 @@ webglDirectives.directive('alert', ['$timeout',
 	}]);
 	
 
-webglDirectives.directive('drag', ['$compile', '$timeout',
+/*webglDirectives.directive('drag', ['$compile', '$timeout',
 	function($compile, $timeout) {
 		return {
 			restrict: 'A',
@@ -2736,7 +2736,7 @@ webglDirectives.directive('drag', ['$compile', '$timeout',
 			
 			}	
 		};
-	}]);
+	}]);*/
 
 // zum Anpassen des Layouts
 webglDirectives.directive('resizer',
