@@ -597,27 +597,27 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				if(selected.length > 0 && !onlySelect) {
 					for(var i=0; i<selected.length; i++) {
 						var o = selected[i];
-						if(o.userData.type === 'object')
+						if(o.userData.type === 'object' || o.userData.type === 'plan')
 							rejectSelectionMat(o);
-						webglInterface.deselectListEntry(o.id);
+						webglInterface.deselectListEntry(o.id, o.userData.type);
 						deselectChildren(o.children);
 					}
 					selected = [];
 				}
 				// selection
 				if(obj && !onlyDeselect && selected.indexOf(obj) === -1) {
-					if(obj.userData.type === 'object')
+					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
 						assignSelectionMat(obj);
-					webglInterface.selectListEntry(obj.id);
+					webglInterface.selectListEntry(obj.id, obj.userData.type);
 					selectChildren(obj.children);
 					
 					selected.push(obj);
 					//console.log(selected);
 				}
-				else if(obj && !onlyDeselect && selected.indexOf(obj) > -1) {
-					if(obj.userData.type === 'object')
+				else if(obj && !onlyDeselect && selected.indexOf(obj) !== -1) {
+					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
 						rejectSelectionMat(obj);
-					webglInterface.deselectListEntry(obj.id);
+					webglInterface.deselectListEntry(obj.id, obj.userData.type);
 					deselectChildren(obj.children);
 					selected.splice(selected.indexOf(obj), 1);
 				}
@@ -659,6 +659,10 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					// obj.material = materials['selectionMat'];
 				// if(scope.viewportSettings.shading == shading.EDGE && obj.userData.type === 'object' && objects[obj.id].edges)
 					// objects[obj.id].edges.material.color.setHex(0xff4444);
+				 if(obj.userData.type === 'plan') {
+					 obj.material.color.setHex(0xffcccc);
+					 return;
+				 }
 				
 				switch(currentShading) {
 					case 'xray': obj.material = materials['xraySelectionMat']; break;
@@ -697,7 +701,10 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					// obj.material = materials[obj.userData.originalMat];
 				// if(obj.userData.type === 'object' && objects[obj.id].edges)
 					// objects[obj.id].edges.material.color.setHex(0x333333);
-				
+				 if(obj.userData.type === 'plan') {
+					 obj.material.color.setHex(0xffffff);
+					 return;
+				 }
 				switch(currentShading) {
 					case 'xray': obj.material = materials['xrayMat']; break;
 					case 'onlyEdges': objects[obj.id].edges.material = materials['edgesnMat']; break;
@@ -1483,12 +1490,16 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			}, function(value) {
 				for(var i=0; i<selected.length; i++) {
 					var mesh = selected[i];
-					var edges = objects[mesh.id].edges;
+					var edges;
+					if(mesh.userData.type === 'plan')
+						edges = plans[mesh.id].edges;
+					else
+						edges = objects[mesh.id].edges;
 					if(!mesh.userData.modifiedMat) {
 						mesh.material = mesh.material.clone();
 						mesh.material.transparent = true;
 						mesh.material.depthWrite = false;
-						mesh.material.side = THREE.FrontSide;
+						//mesh.material.side = THREE.FrontSide;
 						mesh.material.needsUpdate = true;
 						edges.material = edges.material.clone();
 						edges.material.transparent = true;
@@ -1990,6 +2001,11 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					
 					var mesh = new THREE.Mesh(geo, material);
 					
+					var edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
+					//edges.matrix = mesh.matrixWorld;
+					//edges.matrixAutoUpdate = false;
+					scene.add(edges);
+					
 					mesh.name = info.content;
 					mesh.userData.name = info.name;
 					mesh.userData.eid = info.content;
@@ -1998,8 +2014,8 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					scene.add(mesh);
 					
 					// Liste, um zusammengehörige Objekte zu managen
-					plans[mesh.id] = {mesh: mesh, edges: null, visible: true};
-					webglInterface.plans.push({ name: mesh.name, id: mesh.id, title: mesh.userData.name, type: mesh.userData.type });
+					plans[mesh.id] = {mesh: mesh, edges: edges, visible: true};
+					webglInterface.insertIntoPlanlist({ name: mesh.name, id: mesh.id, title: mesh.userData.name, type: mesh.userData.type });
 				}
 				
 				
@@ -2449,8 +2465,10 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			};
 			
 			// select Object (from list)
-			webglInterface.callFunc.selectObjectById = function(id, event) {
-				if(objects[id].visible)
+			webglInterface.callFunc.selectObjectById = function(id, event, type) {
+				if(type === 'plan' && plans[id].visible)
+					setSelected(plans[id].mesh, event.ctrlKey);
+				else if(objects[id].visible)
 					setSelected(objects[id].mesh, event.ctrlKey);
 			}
 			
@@ -2651,7 +2669,7 @@ webglDirectives.directive('alert', ['$timeout',
 	}]);
 	
 
-/*webglDirectives.directive('drag', ['$compile', '$timeout',
+webglDirectives.directive('drag', ['$compile', '$timeout',
 	function($compile, $timeout) {
 		return {
 			restrict: 'A',
@@ -2718,7 +2736,7 @@ webglDirectives.directive('alert', ['$timeout',
 			
 			}	
 		};
-	}]);*/
+	}]);
 
 // zum Anpassen des Layouts
 webglDirectives.directive('resizer',

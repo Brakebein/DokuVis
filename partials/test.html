@@ -1,0 +1,19 @@
+<div class="test">
+
+	<h3>Aufgaben</h3>
+
+	<div class="tasks" ng-repeat="data in tasks | orderBy: 'name'" ng-init="depth=0" ng-include="'partials/tree_tasks.html'"></div>
+	
+	<h3>Bearbeiter</h3>
+	
+	<div class="members" ng-repeat="m in members | orderBy: 'name'" ng-init="depth=0">
+		<div class="listItem">
+			<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
+				<span>{{m.name}} {{depth}}</span>
+			</div>
+		</div>
+		<div ng-if="m.tasks.length > 0" class="listChildren">
+			<div ng-repeat="data in tasks | filterEditor: m" ng-init="depth=depth+1" ng-include="'partials/tree_tasks2.html'"></div>
+		</div>
+	</div>
+<div>

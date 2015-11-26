@@ -1136,6 +1136,15 @@ webglServices.factory('Utilities',
 			return results;
 		};
 		
+		function getElementInHierarchy(node, content) {
+			if(node.content === content) return node;
+			for(var i=0, l=node.children.length; i<l; i++) {
+				var obj = getElementInHierarchy(node.children[i], content);
+				if(obj !== undefined) return obj;
+			}
+			return undefined;
+		}
+		
 		return f;
 		
 	});
@@ -1183,6 +1192,13 @@ webglServices.factory('webglInterface',
 			$rootScope.$applyAsync();
 		};
 		
+		wi.insertIntoPlanlist = function(item) {
+			item.visible = true;
+			item.selected = false;
+			wi.plans.push(item);
+			$rootScope.$applyAsync();
+		};
+		
 		wi.clearLists = function() {
 			console.log('clearList');
 			wi.layerLists = [];
@@ -1224,15 +1240,22 @@ webglServices.factory('webglInterface',
 			return undefined;
 		}
 		
-		wi.selectListEntry = function(id) {
-			var item = findHierarchyObject(wi.hierarchList, id);
+		function findPlanlistObject(id) {
+			for(var i=0; i<wi.plans.length; i++) {
+				if(wi.plans[i].id === id)
+					return wi.plans[i];
+			}
+		}
+		
+		wi.selectListEntry = function(id, type) {
+			var item = (type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
 			item.selected = true;
 			if(item.parent) expandParents(item.parent);
 			$rootScope.$applyAsync();
 		};
 		
-		wi.deselectListEntry = function(id) {
-			var item = findHierarchyObject(wi.hierarchList, id);
+		wi.deselectListEntry = function(id, type) {
+			var item = (type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
 			item.selected = false;
 			$rootScope.$applyAsync();
 		};

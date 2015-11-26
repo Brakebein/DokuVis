@@ -93,6 +93,12 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$too
 				templateUrl: 'partials/tasks.html',
 				controller: 'tasksCtrl',
 				css: 'style/tasks.css'
+			})
+			.state('project.test', {
+				url: '/test',
+				templateUrl: 'partials/test.html',
+				controller: 'testCtrl',
+				css: 'style/test.css'
 			});
 		
 		// defaults
@@ -110,3 +116,11 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$too
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 
+webglApp.filter('filterEditor', function(){
+	return function(items, search) {
+		if(!search) return items;
+		return items.filter(function(element, index, array) {
+			return element.editors.indexOf(search) !== -1;
+		});
+	}
+});

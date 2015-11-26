@@ -1735,6 +1735,76 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 		
 	}]);
 	
+webglControllers.controller('testCtrl', ['$scope', '$stateParams',
+	function($scope, $stateParams) {
+		
+		$scope.members = [
+			{name: 'Martin', tasks: []},
+			{name: 'Jonas', tasks: []},
+			{name: 'Markus', tasks: []}
+		];
+		
+		$scope.tasks = [
+			{name: 'task1', parent: null, children: [], editors: []},
+			{name: 'task2', parent: null, children: [], editors: []},
+			{name: 'task3', parent: 'task1', children: [], editors: ['Martin']},
+			{name: 'task4', parent: 'task1', children: [], editors: []},
+			{name: 'task5', parent: 'task2', children: [], editors: ['Markus']},
+			{name: 'task6', parent: 'task4', children: [], editors: ['Martin']},
+			{name: 'task7', parent: 'task4', children: [], editors: ['Jonas']}
+		];
+		
+		
+		function sortTasks() {
+			for(var i=0; i<$scope.tasks.length; i++) {
+				for(var j=0; j<$scope.tasks[i].editors.length; j++) {
+					$scope.tasks[i].editors[j] = getMember($scope.tasks[i].editors[j]);
+					$scope.tasks[i].editors[j].tasks.push($scope.tasks[i]);
+				}
+			}
+			for(var i=0; i<$scope.tasks.length; i++) {
+				if($scope.tasks[i].parent == null) continue;
+				var p = getElementInHierarchy($scope.tasks[i], 'parent', $scope.tasks, 'name');
+				//console.log(p);
+				p.children.push($scope.tasks[i]);
+				$scope.tasks[i].parent = p;
+				for(var k=0; k<$scope.tasks[i].editors.length; k++) {
+					pushToParents(p, $scope.tasks[i].editors[k]);
+				}
+				$scope.tasks.splice(i,1);
+				i--;
+			}
+			
+		}
+		
+		function pushToParents(p, e) {
+			if(p == null) return;
+			if(p.editors.indexOf(e) === -1)
+				p.editors.push(e);
+			pushToParents(p.parent, e);
+		}
+		
+		function getElementInHierarchy(node, key, list, listkey) {
+			for(var i=0; i<list.length; i++) {
+				if(node[key] == list[i][listkey]) return list[i];
+				var obj = getElementInHierarchy(node, key, list[i].children, listkey);
+				if(obj !== undefined) return obj;
+			}
+			return undefined;
+		}
+		
+		function getMember(name) {
+			for(var i=0; i<$scope.members.length; i++) {
+				if(name == $scope.members[i].name) return $scope.members[i];
+			}
+		}
+		
+		sortTasks();
+		console.log('members', $scope.members);
+		console.log('tasks', $scope.tasks);
+		
+	}]);
+	
 webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$http', 'Utilities','$aside', 
 	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities, $aside) {
 	

@@ -190,11 +190,11 @@
 				
 				<p>Plans</p>
 				
-				<div class="listItem" ng-repeat="data in wi.plans">
+				<div class="listItem" ng-class="{selected: data.selected}" ng-repeat="data in wi.plans">
 					<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="data.visible ? 'listCheck' : 'listUncheck'" ng-click="data.visible=!data.visible; callDirFunc.toggleObject(data);"></span>
 						<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
 							<div class="listExpand"><span></span></div>
-							<span ng-click="callDirFunc.selectObjectById(data.id);">{{data.title}} ({{data.id}})</span>
+							<span ng-click="wi.callFunc.selectObjectById(data.id, $event, 'plan');">{{data.title}} ({{data.id}})</span>
 						</div>
 				</div>
 				
@@ -238,7 +238,7 @@
 		<div class="sideContent">
 		
 		
-			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s.path, s.file, {markers: s.markers, id: s.id, width: s.width, height: s.height})">
+			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail('data/'+s.path, s.file, {markers: s.markers, id: s.id, width: s.width, height: s.height})">
 				<div class="media-left pull-left">
 					<img class="media-object" ng-src="{{'data/' + s.path + '_thumbs/t_' + s.file}}"/>
 				</div>

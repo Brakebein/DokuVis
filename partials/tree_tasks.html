@@ -1,0 +1,10 @@
+<div class="listItem">
+	<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
+		
+		<span>{{data.name}} &ndash; {{depth}}</span>
+		<span ng-repeat="e in data.editors">{{e.name}} </span>
+	</div>
+</div>
+<div ng-if="data.children.length > 0" class="listChildren">
+	<div ng-repeat="data in data.children | orderBy: 'name'" ng-init="depth=depth+1" ng-include="'partials/tree_tasks.html'"></div>
+</div>
