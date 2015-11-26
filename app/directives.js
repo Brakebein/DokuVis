@@ -2669,7 +2669,7 @@ webglDirectives.directive('alert', ['$timeout',
 	}]);
 	
 
-webglDirectives.directive('drag', ['$compile', '$timeout',
+webglDirectives.directive('dragMarker', ['$compile', '$timeout',
 	function($compile, $timeout) {
 		return {
 			restrict: 'A',

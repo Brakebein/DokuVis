@@ -15,7 +15,7 @@
 	
 	<!-- Layer mit Markern -->
 	<div class="markerLayer" ng-class="scMode=='marker'?'active':''" ng-mousedown="setMarker($event)" ng-style="{height: params.data.height, width: params.data.width}">
-		<div class="marker" ng-repeat="m in markers" ng-style="m.styleMarker" drag drag-enabled="!m.isInserted" drag-data="m" drag-complete="updateMarker" drag-abort="setFocusOnComment" drag-leave-parent="deleteMarker">
+		<div class="marker" ng-repeat="m in markers" ng-style="m.styleMarker" drag-marker drag-enabled="!m.isInserted" drag-data="m" drag-complete="updateMarker" drag-abort="setFocusOnComment" drag-leave-parent="deleteMarker">
 			<img class="markerSign" src="img/map-marker.svg"/>
 			<span class="badge markerBadge">{{$index+1}}</span>
 		</div>
