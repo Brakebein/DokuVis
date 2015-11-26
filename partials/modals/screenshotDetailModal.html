@@ -64,7 +64,7 @@
 					<img ng-style="{width: 25, height: 25}" src="img/map-marker.svg"/><br/>
 					<span class="badge">{{$index+1}}</span>
 				</div>
-				<div class="commentRight form-group">
+				<div ng-if="!m.isInserted" class="commentRight form-group">
 					<span ng-if="!m.isInserted" class="glyphicon glyphicon-trash commentBtn" ng-click="markers.splice($index,1)"></span>					
 					<div class="btn-group btn-group-xs">
 						<button type="button" class="btn" ng-class="activeBtn == 'comment' ? 'btn-primary' : 'btn-default'" ng-click="activeBtn = 'comment'">Kommentar</button>

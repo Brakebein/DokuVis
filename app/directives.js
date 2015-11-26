@@ -65,7 +65,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			scope.marksModels = [];
 			
 			
-			var selected;
+			var selected = [];
 			
 			
 			var objloader;
@@ -108,6 +108,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			var isPanningView = false;
 			scope.navigation = {select: true, rotate: false, pan: false, zoom: false};
 			
+			var isSelecting = false;
 			
 			// Liste der Materials
 			var materials = {};
@@ -118,7 +119,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			// default mat
 			materials['defaultMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, name: 'defaultMat'});
 			materials['defaultDoublesideMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, side: THREE.DoubleSide, name: 'defaultDoublesideMat'});
-			materials['defaultUnsafeMat'] = new THREE.MeshLambertMaterial({color: 0xaaaaaa, transparent: true, opacity: 0.5, name: 'defaultUnsafeMat'});
+			materials['defaultUnsafeMat'] = new THREE.MeshLambertMaterial({color: 0xaaaaaa, transparent: true, opacity: 0.5, depthWrite: false, name: 'defaultUnsafeMat'});
 			
 			// selection mat
 			materials['selectionMat'] = new THREE.MeshLambertMaterial({color: 0xff4444, side: THREE.DoubleSide, name: 'selectionMat'});
@@ -549,7 +550,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					gizmo.attachToObject(obj);
 			}
 			
-			function selectObject(mx, my) {
+			function selectObject(mx, my, ctrlKey) {
 				var elementOffset = new THREE.Vector2();
 				elementOffset.x = element.offset().left - $(window).scrollLeft();
 				elementOffset.y = element.offset().top - $(window).scrollTop();
@@ -579,98 +580,153 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				if(intersects.length > 0 ) {
 					console.log(intersects[0]);
 					console.log(objects[intersects[0].object.id]);
-					setSelected(intersects[0].object);
+					setSelected(intersects[0].object, ctrlKey);
 				}
 				else 
-					setSelected(null);
+					setSelected(null, ctrlKey);
 			}
 			
 			// deselect any selected obj and assign original material
 			// select obj and assign selectionMat
-			function setSelected(obj, isChild, onlySelect, onlyDeselect) {
-				isChild = isChild || false;
+			function setSelected(obj, onlySelect, onlyDeselect) {
 				onlySelect = onlySelect || false;
 				onlyDeselect = onlyDeselect || false;
 				
 				//dehighlight();
 				// deselection
-				if(selected && !onlySelect) {
-					var o;
-					if(isChild)	o = obj;
-					else o = selected;
-				
-					if(o.userData.type === 'object')
-						rejectSelectionMat(o);
-					
-					for(var i=0, l=o.children.length; i<l; i++) {
-						setSelected(o.children[i], true, false, true);
+				if(selected.length > 0 && !onlySelect) {
+					for(var i=0; i<selected.length; i++) {
+						var o = selected[i];
+						if(o.userData.type === 'object' || o.userData.type === 'plan')
+							rejectSelectionMat(o);
+						webglInterface.deselectListEntry(o.id, o.userData.type);
+						deselectChildren(o.children);
 					}
-					webglInterface.deselectListEntry(o.id);
-					if(!obj && !isChild) {
-						selected = null;
-						scope.selectedModels = {};
-						scope.$apply();
-					}
-					
+					selected = [];
 				}
 				// selection
-				if(obj && !onlyDeselect) {
-					if(obj.userData.type === 'object')
+				if(obj && !onlyDeselect && selected.indexOf(obj) === -1) {
+					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
 						assignSelectionMat(obj);
+					webglInterface.selectListEntry(obj.id, obj.userData.type);
+					selectChildren(obj.children);
 					
-					for(var i=0, l=obj.children.length; i<l; i++) {
-						setSelected(obj.children[i], true, true, false);
-					}
-					webglInterface.selectListEntry(obj.id);
-					if(!isChild) {
-						selected = obj;
-						console.log(selected);
-						//console.log('json'+selected.geometry.toJSON());
-						scope.selectedModels = {name: selected.name, eid: selected.userData.eid};
-						scope.$apply();
-					}
-					
+					selected.push(obj);
+					//console.log(selected);
+				}
+				else if(obj && !onlyDeselect && selected.indexOf(obj) !== -1) {
+					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
+						rejectSelectionMat(obj);
+					webglInterface.deselectListEntry(obj.id, obj.userData.type);
+					deselectChildren(obj.children);
+					selected.splice(selected.indexOf(obj), 1);
+				}
+			}
+			
+			function selectChildren(children) {
+				for(var i=0, l=children.length; i<l; i++) {
+					var o = children[i];
+					if(o.userData.type === 'object')
+						assignSelectionMat(o);
+					webglInterface.selectListEntry(o.id);
+					selectChildren(o.children);
+				}
+			}
+			function deselectChildren(children) {
+				for(var i=0, l=children.length; i<l; i++) {
+					var o = children[i];
+					if(o.userData.type === 'object')
+						rejectSelectionMat(o);
+					webglInterface.deselectListEntry(o.id);
+					deselectChildren(o.children);
 				}
 			}
 			
 			function assignSelectionMat(obj) {
-				if(obj.material.map != null) {
-					if(obj.userData.type == 'plan')
-						obj.material.color.setHex(0xff8888);
-					else
-						obj.material.ambient.setHex(0xff8888);
+				// if(obj.material.map != null) {
+					// if(obj.userData.type == 'plan')
+						// obj.material.color.setHex(0xff8888);
+					// else
+						// obj.material.ambient.setHex(0xff8888);
+				// }
+				// else if(shading === 'transparent')
+					// obj.material = materials['transparentSelectionMat'];
+				// else if(shading === shading.WIRE)
+					// obj.material = materials['wireframeSelectionMat'];
+				// else if(shading == 'xray')
+					// obj.material = materials['xraySelectionMat'];
+				// else
+					// obj.material = materials['selectionMat'];
+				// if(scope.viewportSettings.shading == shading.EDGE && obj.userData.type === 'object' && objects[obj.id].edges)
+					// objects[obj.id].edges.material.color.setHex(0xff4444);
+				 if(obj.userData.type === 'plan') {
+					 obj.material.color.setHex(0xffcccc);
+					 return;
+				 }
+				
+				switch(currentShading) {
+					case 'xray': obj.material = materials['xraySelectionMat']; break;
+					case 'onlyEdges': objects[obj.id].edges.material = materials['edgesSelectionMat']; break;
+					case 'transparent':
+						if(obj.userData.modifiedMat)
+							obj.material.color = materials['transparentSelectionMat'].color;
+						else
+							obj.material = materials['transparentSelectionMat'];
+						break;
+					default:
+						if(obj.userData.modifiedMat)
+							obj.material.color = materials['selectionMat'].color;
+						else	
+							obj.material = materials['selectionMat'];
+						break;
 				}
-				else if(scope.viewportSettings.shading == shading.TRANSPARENT_EDGE)
-					obj.material = materials['transparentSelectionMat'];
-				else if(scope.viewportSettings.shading == shading.WIRE)
-					obj.material = materials['wireframeSelectionMat'];
-				else if(scope.viewportSettings.shading == shading.XRAY)
-					obj.material = materials['xraySelectionMat'];
-				else
-					obj.material = materials['selectionMat'];
-				if(scope.viewportSettings.shading == shading.EDGE && obj.userData.type === 'object' && objects[obj.id].edges)
-					objects[obj.id].edges.material.color.setHex(0xff4444);
 			}
 			
 			function rejectSelectionMat(obj) {
-				if(obj.material.map != null) {
-					if(obj.userData.type == 'plan')
-						obj.material.color.setHex(0xffffff);
-					else
-						obj.material.ambient.setHex(0xffffff);
+				// if(obj.material.map != null) {
+					// if(obj.userData.type == 'plan')
+						// obj.material.color.setHex(0xffffff);
+					// else
+						// obj.material.ambient.setHex(0xffffff);
+				// }
+				// else if(scope.viewportSettings.shading == shading.GREY_EDGE)
+					// obj.material = materials['defaultMat'];
+				// else if(scope.viewportSettings.shading == shading.TRANSPARENT_EDGE)
+					// obj.material = materials['transparentMat'];
+				// else if(scope.viewportSettings.shading == shading.WIRE)
+					// obj.material = materials['wireframeMat'];
+				// else if(scope.viewportSettings.shading == shading.XRAY)
+					// obj.material = materials['xrayMat'];
+				// else
+					// obj.material = materials[obj.userData.originalMat];
+				// if(obj.userData.type === 'object' && objects[obj.id].edges)
+					// objects[obj.id].edges.material.color.setHex(0x333333);
+				 if(obj.userData.type === 'plan') {
+					 obj.material.color.setHex(0xffffff);
+					 return;
+				 }
+				switch(currentShading) {
+					case 'xray': obj.material = materials['xrayMat']; break;
+					case 'onlyEdges': objects[obj.id].edges.material = materials['edgesnMat']; break;
+					case 'transparent':
+						if(obj.userData.modifiedMat)
+							obj.material.color = materials['transparentMat'].color;
+						else
+							obj.material = materials['transparentMat'];
+						break;
+					case 'grey':
+						if(obj.userData.modifiedMat)
+							obj.material.color = materials['defaultDoublesideMat'].color;
+						else
+							obj.material = materials['defaultDoublesideMat'];
+						break;
+					default:
+						if(obj.userData.modifiedMat)
+							obj.material.color = materials[obj.userData.originalMat].color;
+						else	
+							obj.material = materials[obj.userData.originalMat];
+						break;
 				}
-				else if(scope.viewportSettings.shading == shading.GREY_EDGE)
-					obj.material = materials['defaultMat'];
-				else if(scope.viewportSettings.shading == shading.TRANSPARENT_EDGE)
-					obj.material = materials['transparentMat'];
-				else if(scope.viewportSettings.shading == shading.WIRE)
-					obj.material = materials['wireframeMat'];
-				else if(scope.viewportSettings.shading == shading.XRAY)
-					obj.material = materials['xrayMat'];
-				else
-					obj.material = materials[obj.userData.originalMat];
-				if(obj.userData.type === 'object' && objects[obj.id].edges)
-					objects[obj.id].edges.material.color.setHex(0x333333);
 			}
 			
 			// check for intersection of BoundingBoxes
@@ -1231,6 +1287,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			});
 			*/
 			
+			// watch ssao settings
 			$rootScope.$watch(function() {
 				return webglInterface.viewportSettings.ssao;
 			}, function(value) {
@@ -1241,15 +1298,31 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				}
 			});
 			
+			// watch edges settings
 			$rootScope.$watch(function() {
-				return webglInterface.viewportSettings.edges;
+				return webglInterface.vizSettings.edges;
 			}, function(value) {
 				for(var key in objects) {
 					var obj = objects[key];
-					if(obj.visible) {	
+					if(obj.visible) {
 						if(value) scene.add(obj.edges);
 						else scene.remove(obj.edges);
 					}
+				}
+			});
+			$rootScope.$watch(function() {
+				return webglInterface.vizSettings.edgesOpacity;
+			}, function(value) {
+				if(!materials['edges']) return;
+				if(value === 100) {
+					materials['edgesMat'].transparent = false;
+					materials['edgesSelectionMat'].transparent = false;
+				}
+				else {
+					materials['edgesMat'].transparent = true;
+					materials['edgesMat'].opacity = value/100;
+					materials['edgesSelectionMat'].transparent = true;
+					materials['edgesSelectionMat'].opacity = value/100;
 				}
 			});
 			
@@ -1258,15 +1331,15 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				console.log('set shading', value);
 				if(!scene) return;
 				
-				var uncoverObj = ['onlyEdges'].indexOf(currentShading) > -1 ? true : false;
-				var uncoverEdge = webglInterface.viewportSettings.edges ? ['xray'].indexOf(currentShading) > -1 ? true : false : false;
+				var uncoverObj = ['onlyEdges'].indexOf(currentShading) !== -1 ? true : false;
+				var uncoverEdge = webglInterface.viewportSettings.edges ? ['xray'].indexOf(currentShading) !== -1 ? true : false : false;
 				currentShading = value;
 				
 				switch(value) {
 					case 'color':
 						for(var key in objects) {
 							var obj = objects[key];
-							if(selected == obj.mesh) {
+							if(selected.indexOf(obj.mesh) !== -1) {
 								obj.mesh.material = materials['selectionMat'];
 								if(obj.edges)
 									obj.edges.material = materials['edgesMat'];
@@ -1285,13 +1358,13 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					case 'grey':
 						for(var key in objects) {
 							var obj = objects[key];
-							if(selected == obj.mesh) {
+							if(selected.indexOf(obj.mesh) !== -1) {
 								obj.mesh.material = materials['selectionMat'];
 								if(obj.edges)
 									obj.edges.material = materials['edgesMat'];
 							}
-							//else if(objects[key].mesh.userData.unsafe)
-							//	objects[key].mesh.material = materials['defaultUnsafeMat'];
+							else if(objects[key].mesh.userData.unsafe)
+								obj.mesh.material = materials['defaultUnsafeMat'];
 							else
 								obj.mesh.material = materials['defaultDoublesideMat'];
 							if(obj.visible) {
@@ -1306,11 +1379,13 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					case 'transparent':
 						for(var key in objects) {
 							var obj = objects[key];
-							if(selected == obj.mesh) {
+							if(selected.indexOf(obj.mesh) !== -1) {
 								obj.mesh.material = materials['transparentSelectionMat'];
 								if(obj.edges)
 									obj.edges.material = materials['edgesMat'];
 							}
+							else if(objects[key].mesh.userData.unsafe)
+								obj.mesh.material = materials['defaultUnsafeMat'];
 							else
 								obj.mesh.material = materials['transparentMat'];
 							if(obj.visible) {
@@ -1327,7 +1402,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						webglInterface.viewportSettings.edges = true;
 						for(var key in objects) {
 							var obj = objects[key];
-							if(selected == obj.mesh)
+							if(selected.indexOf(obj.mesh) !== -1)
 								obj.edges.material = materials['edgesSelectionMat'];
 							if(obj.visible) {
 								if(obj.parent) objects[obj.parent].mesh.remove(obj.mesh);
@@ -1339,7 +1414,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					case 'xray':
 						for(var key in objects) {
 							var obj = objects[key];
-							if(selected == obj.mesh)
+							if(selected.indexOf(obj.mesh) !== -1)
 								obj.mesh.material = materials['xraySelectionMat'];
 							else
 								obj.mesh.material = materials['xrayMat'];
@@ -1409,6 +1484,34 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				}
 			});
 			
+			// watch vizSettings.opacitySelected
+			$rootScope.$watch(function() {
+				return webglInterface.vizSettings.opacitySelected;
+			}, function(value) {
+				for(var i=0; i<selected.length; i++) {
+					var mesh = selected[i];
+					var edges;
+					if(mesh.userData.type === 'plan')
+						edges = plans[mesh.id].edges;
+					else
+						edges = objects[mesh.id].edges;
+					if(!mesh.userData.modifiedMat) {
+						mesh.material = mesh.material.clone();
+						mesh.material.transparent = true;
+						mesh.material.depthWrite = false;
+						//mesh.material.side = THREE.FrontSide;
+						mesh.material.needsUpdate = true;
+						edges.material = edges.material.clone();
+						edges.material.transparent = true;
+						edges.material.needsUpdate = true;
+						mesh.userData.modifiedMat = true;
+					}
+					mesh.material.opacity = value/100;
+					edges.material.opacity = value/100;
+					
+				}
+			});
+			
 			// transformiere Mousekoordinaten zu Viewportkoordinaten
 			function mouseInputToViewport(event) {
 				var elementOffset = new THREE.Vector2();
@@ -1421,6 +1524,13 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				
 				return mouse;
 			}
+			function mouseOffsetToViewport(ox, oy) {
+				var mouse = new THREE.Vector2();
+				mouse.x = (ox / SCREEN_WIDTH) * 2 - 1;
+				mouse.y = - (oy / SCREEN_HEIGHT) * 2 + 1;
+				
+				return mouse;
+			}
 			
 			// MouseDown EventHandler
 			function mousedown(event) {
@@ -1429,7 +1539,8 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				isMouseDown = true;
 				//$(canvas).bind('mouseup', mouseup);
 				
-				mouseDownCoord = new THREE.Vector2(event.clientX, event.clientY);
+				//mouseDownCoord = new THREE.Vector2(event.clientX, event.clientY);
+				mouseDownCoord = new THREE.Vector2(event.offsetX, event.offsetY);
 				
 				if(scope.navigation.select) {
 				
@@ -1462,6 +1573,13 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				else if(event.button === 0 && scope.navigation.zoom) {
 					isZoomingView = true;
 					controls.onMouseDown(event.originalEvent, 1);
+				}
+				else if(event.button === 0 && scope.navigation.selectRect) {
+					isSelecting = true;
+					console.log(event);
+					var sr = $('<div/>', {id: 'select-rectangle', 'class': 'select-rectangle'})
+						.css({left: event.offsetX, top: event.offsetY, width: 0, height: 0});
+					element.append(sr);
 				}
 			}
 			
@@ -1509,6 +1627,9 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 							controls.onMouseMove(event.originalEvent);
 						}
 					}
+					else if(isSelecting) {
+						element.find('#select-rectangle').css({width: event.offsetX-mouseDownCoord.x, height: event.offsetY-mouseDownCoord.y});
+					}
 				}
 				else {
 					// check if mouse hits gizmo
@@ -1547,7 +1668,16 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				
 				//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
 				
-				if(event.button === 0 && !scope.navigation.select) {
+				if(event.button === 0 && isSelecting) {
+					isSelecting = false;
+					console.log('select finished');
+					element.find('#select-rectangle').remove();
+					
+					var mStart = mouseOffsetToViewport(mouseDownCoord.x, mouseDownCoord.y);
+					var mEnd = mouseOffsetToViewport(event.offsetX, event.offsetY);
+				}
+				
+				else if(event.button === 0 && !scope.navigation.select) {
 					controls.onMouseUp(event.originalEvent);
 					if(scope.navigation.rotate) {
 						isRotatingView = false;
@@ -1567,7 +1697,8 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						controls.onMouseUp(event.originalEvent);
 						return;
 					}
-					if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
+					//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
+					if(!mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
 					
 					if(measureTool) {
 						var mouse = mouseInputToViewport(event);
@@ -1580,8 +1711,10 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						
 						measureTool.setTarget(mouse.x, mouse.y, camera, testObjects);
 					}
-					else
-						selectObject(event.clientX, event.clientY);
+					else {
+						//console.log(event);
+						selectObject(event.clientX, event.clientY, event.ctrlKey);
+					}
 				}
 				
 				// else if(event.button === 1 && !isRotatingView && !isPanningView) {
@@ -1603,10 +1736,12 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				else if(event.button === 2) {
 					scope.internalCallFunc.setNavigationMode('select');
 					scope.$apply();
-					if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
+					//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
+					if(!mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
 					
 					
 				}
+				
 			}
 			
 			// MouseWheel EventHandler
@@ -1763,6 +1898,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			
 			scope.internalCallFunc.setNavigationMode = function(mode) {
 				scope.navigation.select = false;
+				scope.navigation.selectRect = false;
 				scope.navigation.rotate = false;
 				scope.navigation.pan = false;
 				scope.navigation.zoom = false;
@@ -1865,6 +2001,11 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					
 					var mesh = new THREE.Mesh(geo, material);
 					
+					var edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
+					//edges.matrix = mesh.matrixWorld;
+					//edges.matrixAutoUpdate = false;
+					scene.add(edges);
+					
 					mesh.name = info.content;
 					mesh.userData.name = info.name;
 					mesh.userData.eid = info.content;
@@ -1873,8 +2014,8 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					scene.add(mesh);
 					
 					// Liste, um zusammengehörige Objekte zu managen
-					plans[mesh.id] = {mesh: mesh, edges: null, visible: true};
-					webglInterface.plans.push({ name: mesh.name, id: mesh.id, title: mesh.userData.name, type: mesh.userData.type });
+					plans[mesh.id] = {mesh: mesh, edges: edges, visible: true};
+					webglInterface.insertIntoPlanlist({ name: mesh.name, id: mesh.id, title: mesh.userData.name, type: mesh.userData.type });
 				}
 				
 				
@@ -2323,10 +2464,12 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				return screenData;
 			};
 			
-			// select Object
-			scope.internalCallFunc.selectObjectById = function(id) {
-				//console.log('watch selected', value);
-				setSelected(scene.getObjectById(id));
+			// select Object (from list)
+			webglInterface.callFunc.selectObjectById = function(id, event, type) {
+				if(type === 'plan' && plans[id].visible)
+					setSelected(plans[id].mesh, event.ctrlKey);
+				else if(objects[id].visible)
+					setSelected(objects[id].mesh, event.ctrlKey);
 			}
 			
 			// get object by id and add or remove mesh and edges
@@ -2377,28 +2520,27 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				resizeViewport();
 			}
 			
-			// Focus selected object
+			// Focus selected objects
 			webglInterface.callFunc.focusSelected = function() {
-				if(!selected) return;
-				if(selected.userData.type === 'object') {
+				if(selected.length === 0) return;
+				/*if(selected.userData.type === 'object') {
 					var center = selected.geometry.boundingSphere.center.clone().applyMatrix4(selected.matrixWorld);
 					var t = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3();
 					selected.matrixWorld.decompose(t,q,s);
 					computeFocusFromSphere(center, selected.geometry.boundingSphere.radius * s.x);
 				}
-				else if(selected.userData.type === 'group') {
-					var cc = [];
-					function collectChildren(children) {
-						for(var i=0; i<children.length; i++) {
-							collectChildren(children[i].children);
-							if(children[i].userData.type === 'object')
-								cc.push(children[i]);
-						}
+				else if(selected.userData.type === 'group') {*/
+				var cc = [];
+				function collectChildren(children) {
+					for(var i=0; i<children.length; i++) {
+						collectChildren(children[i].children);
+						if(children[i].userData.type === 'object')
+							cc.push(children[i]);
 					}
-					collectChildren(selected.children);
-					focusObjects(cc);
 				}
-			}
+				collectChildren(selected);
+				focusObjects(cc);
+			};
 			
 			// Focus all objects
 			webglInterface.callFunc.focusAll = function() {
@@ -2408,7 +2550,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						cc.push(objects[key].mesh);
 				}
 				focusObjects(cc);
-			}
+			};
 			
 			function focusObjects(objs) {
 				// maximale BoundingBox
@@ -2527,7 +2669,7 @@ webglDirectives.directive('alert', ['$timeout',
 	}]);
 	
 
-/*webglDirectives.directive('drag', ['$compile', '$timeout',
+webglDirectives.directive('drag', ['$compile', '$timeout',
 	function($compile, $timeout) {
 		return {
 			restrict: 'A',
@@ -2594,7 +2736,7 @@ webglDirectives.directive('alert', ['$timeout',
 			
 			}	
 		};
-	}]);*/
+	}]);
 
 // zum Anpassen des Layouts
 webglDirectives.directive('resizer',

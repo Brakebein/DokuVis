@@ -1136,13 +1136,22 @@ webglServices.factory('Utilities',
 			return results;
 		};
 		
+		function getElementInHierarchy(node, content) {
+			if(node.content === content) return node;
+			for(var i=0, l=node.children.length; i<l; i++) {
+				var obj = getElementInHierarchy(node.children[i], content);
+				if(obj !== undefined) return obj;
+			}
+			return undefined;
+		}
+		
 		return f;
 		
 	});
 
 // Schnittstelle zwischen Three.js-Scope und Seite
 webglServices.factory('webglInterface',
-	function() {
+	function($rootScope) {
 		
 		var wi = {};
 		
@@ -1156,6 +1165,12 @@ webglServices.factory('webglInterface',
 		wi.viewportSettings.edges = true;
 		
 		wi.unsafeSettings = {};
+		
+		wi.vizSettings = {};
+		wi.vizSettings.opacitySelected = 100;
+		wi.vizSettings.edges = true;
+		wi.vizSettings.edgesOpacity = 100;
+		wi.vizSettings.edgesColor = 100
 		
 		// Listen
 		wi.objects = [];
@@ -1174,6 +1189,14 @@ webglServices.factory('webglInterface',
 			item.selected = false;
 			insertIntoHierarchList(item);
 			insertIntoLayerList(item);
+			$rootScope.$applyAsync();
+		};
+		
+		wi.insertIntoPlanlist = function(item) {
+			item.visible = true;
+			item.selected = false;
+			wi.plans.push(item);
+			$rootScope.$applyAsync();
 		};
 		
 		wi.clearLists = function() {
@@ -1217,15 +1240,24 @@ webglServices.factory('webglInterface',
 			return undefined;
 		}
 		
-		wi.selectListEntry = function(id) {
-			var item = findHierarchyObject(wi.hierarchList, id);
+		function findPlanlistObject(id) {
+			for(var i=0; i<wi.plans.length; i++) {
+				if(wi.plans[i].id === id)
+					return wi.plans[i];
+			}
+		}
+		
+		wi.selectListEntry = function(id, type) {
+			var item = (type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
 			item.selected = true;
 			if(item.parent) expandParents(item.parent);
+			$rootScope.$applyAsync();
 		};
 		
-		wi.deselectListEntry = function(id) {
-			var item = findHierarchyObject(wi.hierarchList, id);
+		wi.deselectListEntry = function(id, type) {
+			var item = (type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
 			item.selected = false;
+			$rootScope.$applyAsync();
 		};
 		
 		function expandParents(item) {
