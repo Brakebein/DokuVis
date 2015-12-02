@@ -57,6 +57,7 @@
 		         filter-row="{'name': options.filterRow}"
 		         column-width="getColumnWidth(options.width, options.scale, options.zoom)"
 				 auto-expand="options.autoExpand"
+				 allow-side-resizing = "true"
 				 from-date = "options.fromDate"
 		         to-date = "options.toDate"
 		         sort-mode="options.sortMode"
@@ -67,7 +68,7 @@
 		         expand-to-fit= "true"
 		         task-content = "options.taskContent"
              	 row-content = "options.rowContent"
-             	 side-width = "max-width"
+             	 side-width = "min-width"
              	 api="options.api">
              
 		         
@@ -112,9 +113,9 @@
 		<div class = "row">
 		<div class = "col-md-2" > <!--id= "staff"-->
 			<div class="input-group" >
-				<a href="#" class="btn btn-info btn-md data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" backdrop = 'false' data-template-url="partials/aside/asideStaff.html"">
+				<button class="btn btn-info btn-md" data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" backdrop = 'false' data-template-url="partials/aside/asideStaff.html"">
     			<span class="fa fa-user-plus"></span> Mitarbeiter hinzufügen
-    			</a>					
+    			</button>					
 			</div>	
 		</div>
 		
