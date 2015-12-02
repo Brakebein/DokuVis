@@ -103,12 +103,7 @@
 					<option value="xray">xray</option>-->
 				</select>
 				<button class="btn btn-default btn-xs" ng-class="{active: wi.viewportSettings.edges}" ng-click="wi.viewportSettings.edges = !wi.viewportSettings.edges">Kanten</button>
-				<!--<select class="form-control input-sm" ng-model="viewportSettings.camera" ng-init="viewportSettings.camera = 'perspective'">
-					<option value="perspective">Perspective</option>
-					<option value="top">Top</option>
-					<option value="front">Front</option>
-					<option value="left">Left</option>
-				</select>-->
+				<select class="form-control input-sm" ng-options="c for c in wi.viewportSettings.camera" ng-model="wi.viewportSettings.cameraSel" ng-change="wi.callFunc.setCamera(wi.viewportSettings.cameraSel)"></select>
 			</div>
 			
 			<div class="ctrlGroup">
@@ -163,7 +158,7 @@
 		
 		<div class="sideContent">
 				
-				<p>Objekte</p>
+				<h5>Objekte</h5>
 				
 				<div ng-if="listSettings=='hierarchy'" ng-repeat="data in wi.hierarchList | orderBy: 'name'" ng-init="depth=0" ng-include="'partials/tree_item_renderer.html'"></div>
 				
@@ -188,14 +183,15 @@
 					</div>
 				</div>
 				
-				<p>Plans</p>
+				<h5>Plans</h5>
 				
 				<div class="listItem" ng-class="{selected: data.selected}" ng-repeat="data in wi.plans">
-					<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="data.visible ? 'listCheck' : 'listUncheck'" ng-click="data.visible=!data.visible; callDirFunc.toggleObject(data);"></span>
-						<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
-							<div class="listExpand"><span></span></div>
-							<span ng-click="wi.callFunc.selectObjectById(data.id, $event, 'plan');">{{data.title}} ({{data.id}})</span>
-						</div>
+					<span class="glyphicon toggle" ng-class="data.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="data.toggle()"></span>
+					<div class="expand"></div>
+					<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
+					<div class="opacity" ramp-slider rs-model="data.opacity" rs-onchange="data.setOpacity" rs-color="#ddd" rs-color-two="#bbb"></div>
+					<span class="glyphicon glyphicon-eye-open" title="Ansicht einnehmen" ng-click="data.setOrthoView()"></span>
+					
 				</div>
 				
 				<!--
@@ -369,7 +365,8 @@
 				
 				<div class="btnBar">
 					<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>
-					<a ng-if="p.type == 'plan' && p.plan3d" title="In 3D-View laden" ng-click="open3DPlan(p.eid, p.plan3d)"><span class="glyphicon glyphicon-open"></span></a>
+					<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
+					<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Ansicht einnehmen" ng-click="wi.callFunc.viewOrthoPlan(p.plan3d.meshId)"><span class="glyphicon glyphicon-eye-open"></span></a>
 					<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
 					<!--<button ng-click="callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', p.obj);">load</button>
 					<button ng-click="highlightObj(p.eid)">highlight</button>

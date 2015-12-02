@@ -44,6 +44,8 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			}
 			loadScripts(0);
 			
+			// Konstante maximale Sichtweite
+			var FAR = 1400;
 			
 			/* globale Variablen */
 			// allgemein 
@@ -157,8 +159,6 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				SCREEN_HEIGHT = element.height();
 				console.log('viewport size: ' + SCREEN_WIDTH + ' ' + SCREEN_HEIGHT);
 				
-				// Konstante maximale Sichtweite
-				var FAR = 1400;
 				
 				// Camera
 				//camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH/SCREEN_HEIGHT, 0.1, FAR);
@@ -174,6 +174,15 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				scene.add(camera);
 				scene.add(orthocam);
 				scene.fog = new THREE.Fog(0x666666, FAR-100, FAR);
+				
+				// Grid
+				scene.add(new THREE.GridHelper(100, 10));
+				
+				var camera2 = new THREE.CombinedCamera(SCREEN_WIDTH, SCREEN_HEIGHT, 35, 0.1, 200, 0.1, 200);
+				camera2.position.set(-20,50,150);
+				scene.add(camera2);
+				scene.add(new THREE.CameraHelper(camera2));
+				console.log(camera);
 				
 				// Renderer
 				renderer = new THREE.WebGLRenderer({antialias: true, alpha: false, preserveDrawingBuffer: true});
@@ -194,10 +203,10 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				
 				// Controls (für Navigation)
 				controls = new THREE.OrbitControls(camera, canvas);
-				//controls.addEventListener('change', render);
 				controls.center.set(86, 0, -74);
-				controls.zoomSpeed = 50.0;
-				controls.userPanSpeed = 1;
+				controls.zoomSpeed = 1.0;
+				//controls.userPanSpeed = 1;
+				camera.target = controls.center;
 				
 				// axis helper
 				var axiselement = $('#axis');
@@ -586,6 +595,71 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					setSelected(null, ctrlKey);
 			}
 			
+			function selectArea(mStart, mEnd, ctrlKey) {
+				var cam = camPerspective ? camera : orthocam;
+				var s0 = new THREE.Vector3(mStart.x, mStart.y, 0.5).unproject(cam);
+				var s1 = new THREE.Vector3(mStart.x, mEnd.y, 0.5).unproject(cam);
+				var s2 = new THREE.Vector3(mEnd.x, mEnd.y, 0.5).unproject(cam);
+				var s3 = new THREE.Vector3(mEnd.x, mStart.y, 0.5).unproject(cam);
+				var s4 = new THREE.Vector3(0, 0, 0.5).unproject(cam);
+				
+				
+				
+				
+				var v0 = new THREE.Vector3().subVectors(s0, cam.position).normalize();
+				var v1 = new THREE.Vector3().subVectors(s1, cam.position).normalize();
+				var v2 = new THREE.Vector3().subVectors(s2, cam.position).normalize();
+				var v3 = new THREE.Vector3().subVectors(s3, cam.position).normalize();
+				var v4 = new THREE.Vector3().subVectors(s4, cam.position).normalize();
+				
+				var s5 = new THREE.Vector3(0, 0, FAR).unproject(cam).add(v4.clone().setLength(FAR));
+				var v5 = new THREE.Vector3().subVectors(s5, cam.position).normalize();
+				
+				console.log(s0,s1,s4,s5);
+				
+				var n0 = new THREE.Vector3().crossVectors(v0, v1);
+				var n1 = new THREE.Vector3().crossVectors(v1, v2);
+				var n2 = new THREE.Vector3().crossVectors(v2, v3);
+				var n3 = new THREE.Vector3().crossVectors(v3, v0);
+				var n4 = v4.clone().negate();
+				// var n4 = camera.getWorldDirection();
+				var n5 = v5.clone();
+				// var n5 = camera.getWorldDirection().negate();
+				
+				var d0 = -n0.x*s0.x -n0.y*s0.y -n0.z*s0.z;
+				var d1 = -n1.x*s1.x -n1.y*s1.y -n1.z*s1.z;
+				var d2 = -n2.x*s2.x -n2.y*s2.y -n2.z*s2.z;
+				var d3 = -n3.x*s3.x -n3.y*s3.y -n3.z*s3.z;
+				var d4 = -n4.x*s4.x -n4.y*s4.y -n4.z*s4.z;
+				var d5 = -n5.x*s5.x -n5.y*s5.y -n5.z*s5.z;
+				
+				console.log(v0,v1,v4,v5);
+				console.log(n0,n1,n4,n5);
+				console.log(d0,d1,d4,d5);
+				
+				var p0 = new THREE.Plane(n0, d0);
+				var p1 = new THREE.Plane(n1, d1);
+				var p2 = new THREE.Plane(n2, d2);
+				var p3 = new THREE.Plane(n3, d3);
+				var p4 = new THREE.Plane(n4, d4);
+				var p5 = new THREE.Plane(n5, d5);
+				
+				var frustum = new THREE.Frustum(p0, p1, p2, p3, p4, p5);
+				
+				console.log(frustum);
+				
+				var countSelect = 0;
+				for(var key in objects) {
+					if(objects[key].visible && objects[key].mesh.userData.type === 'object') {
+						if(frustum.intersectsObject(objects[key].mesh)) {
+							if(countSelect === 0) setSelected(objects[key].mesh, false);
+							else setSelected(objects[key].mesh, true);
+							countSelect++;
+						}
+					}
+				}
+			}
+			
 			// deselect any selected obj and assign original material
 			// select obj and assign selectionMat
 			function setSelected(obj, onlySelect, onlyDeselect) {
@@ -677,7 +751,8 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						if(obj.userData.modifiedMat)
 							obj.material.color = materials['selectionMat'].color;
 						else	
-							obj.material = materials['selectionMat'];
+							//obj.material = materials['selectionMat'];
+							objects[obj.id].edges.material = materials['edgesSelectionMat'];
 						break;
 				}
 			}
@@ -707,7 +782,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				 }
 				switch(currentShading) {
 					case 'xray': obj.material = materials['xrayMat']; break;
-					case 'onlyEdges': objects[obj.id].edges.material = materials['edgesnMat']; break;
+					case 'onlyEdges': objects[obj.id].edges.material = materials['edgesMat']; break;
 					case 'transparent':
 						if(obj.userData.modifiedMat)
 							obj.material.color = materials['transparentMat'].color;
@@ -724,7 +799,8 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						if(obj.userData.modifiedMat)
 							obj.material.color = materials[obj.userData.originalMat].color;
 						else	
-							obj.material = materials[obj.userData.originalMat];
+							//obj.material = materials[obj.userData.originalMat];
+							objects[obj.id].edges.material = materials['edgesMat'];
 						break;
 				}
 			}
@@ -1445,44 +1521,40 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				}
 			};
 			
-			scope.$watch('viewportSettings.camera', function(value) {
-				console.log('watch camera');
+			//scope.$watch('viewportSettings.camera', function(value) {
+			webglInterface.callFunc.setCamera = function(value) {
+				console.log('set camera', value);
 				if(!scene) return;
 				
 				switch(value) {
-					case 'perspective':
+					case 'Perspective':
 						camPerspective = true;
 						camera.toPerspective();
+						camera.setZoom(1);
 						break;
-					case 'top':
+					case 'Top':
 						camera.toOrthographic(controls.center);
 						camera.toTopView();
-						//camera.setSize(SCREEN_WIDTH/20, SCREEN_HEIGHT/20);
-						/*camPerspective = false;
-						orthocam.position.set(0,50,0);
-						orthocam.rotation.set(-Math.PI/2,0,-Math.PI/2);
-						axiscamera.position.set(0,50,0);
-						axiscamera.rotation.set(-Math.PI/2,0,-Math.PI/2);
-						scope.internalCallFunc.focusAll();*/
+						// break;
+					case 'Front':
+						camera.toOrthographic(controls.center);
+						camera.toFrontView();
 						break;
-					case 'front':
-						camPerspective = false;
-						orthocam.position.set(0,0,50);
-						orthocam.lookAt(new THREE.Vector3(0,0,0));
-						axiscamera.position.set(0,0,50);
-						axiscamera.lookAt(new THREE.Vector3(0,0,0));
-						scope.internalCallFunc.focusAll();
+					case 'Back':
+						camera.toOrthographic(controls.center);
+						camera.toBackView();
 						break;
-					case 'left':
-						camPerspective = false;
-						orthocam.position.set(-50,0,0);
-						orthocam.lookAt(new THREE.Vector3(0,0,0));
-						axiscamera.position.set(-50,0,0);
-						axiscamera.lookAt(new THREE.Vector3(0,0,0));
-						scope.internalCallFunc.focusAll();
+					case 'Left':
+						camera.toOrthographic(controls.center);
+						camera.toLeftView();
 						break;
+					case 'Right':
+						camera.toOrthographic(controls.center);
+						camera.toRightView();
+						break;
+					default: break;
 				}
-			});
+			};
 			
 			// watch vizSettings.opacitySelected
 			$rootScope.$watch(function() {
@@ -1511,6 +1583,30 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					
 				}
 			});
+			
+			// set opacity of plans
+			webglInterface.callFunc.setPlanOpacity = function(id, value) {
+				var mesh = plans[id].mesh;
+				var edges = plans[id].edges;
+				if(value == 1.0) {
+					mesh.material.transparent = false;
+					mesh.material.depthWrite = true;
+					mesh.material.needsUpdate = true;
+					edges.material = selected.indexOf(mesh) === -1 ? materials['edgesMat'] : materials['edgesSelectionMat'];
+					mesh.userData.modifiedMat = false;
+				}
+				else if(!mesh.userData.modifiedMat) {
+					mesh.material.transparent = true;
+					mesh.material.depthWrite = false;
+					mesh.material.needsUpdate = true;
+					edges.material = edges.material.clone();
+					edges.material.transparent = true;
+					edges.material.needsUpdate = true;
+					mesh.userData.modifiedMat = true;
+				}
+				mesh.material.opacity = value;
+				edges.material.opacity = value;
+			};
 			
 			// transformiere Mousekoordinaten zu Viewportkoordinaten
 			function mouseInputToViewport(event) {
@@ -1675,6 +1771,8 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					
 					var mStart = mouseOffsetToViewport(mouseDownCoord.x, mouseDownCoord.y);
 					var mEnd = mouseOffsetToViewport(event.offsetX, event.offsetY);
+					
+					selectArea(mStart, mEnd, event.ctrlKey);
 				}
 				
 				else if(event.button === 0 && !scope.navigation.select) {
@@ -1988,9 +2086,12 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				objloader.load(path+file, path+'plans_muristan.mtl', loadPlanHandler);
 			}
 			
-			scope.internalCallFunc.loadCTMPlanIntoScene = function(info, file) {
+			scope.internalCallFunc.loadCTMPlanIntoScene = function(plan3d, info, file) {
 				
 				ctmloader.load('data/'+file.path+file.content, ctmPlanHandler, {useWorker: false});
+				
+				var po = {e36id: plan3d};
+				return po;
 				
 				function ctmPlanHandler(geo) {
 					geo.computeBoundingBox();
@@ -2015,7 +2116,11 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					
 					// Liste, um zusammengehörige Objekte zu managen
 					plans[mesh.id] = {mesh: mesh, edges: edges, visible: true};
-					webglInterface.insertIntoPlanlist({ name: mesh.name, id: mesh.id, title: mesh.userData.name, type: mesh.userData.type });
+					//webglInterface.insertIntoPlanlist({ name: mesh.name, id: mesh.id, title: mesh.userData.name, type: mesh.userData.type });
+					webglInterface.plans.push(new webglInterface.PlanEntry(mesh.id, mesh.name, mesh.userData.name, mesh.userData.type));
+					scope.$applyAsync();
+					
+					po.meshId = mesh.id;
 				}
 				
 				
@@ -2193,195 +2298,6 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				}
 			};
 			
-			scope.internalCallFunc.loadCTMIntoScene2 = function(path, file, parent, m, scale) {
-				
-				var mat = new THREE.Matrix4();
-				//mat.set(0.1, 0, 0, 0.1*m[3], 0, 0.1, 0, 0.1*m[7], 0, 0, 0.1, 0.1*m[11], 0, 0, 0, 1);
-				mat.set(m[0],m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8],m[9],m[10],m[11],m[12],m[13],m[14],m[15]);
-				
-				
-				if(!path) {
-				
-					var t = new THREE.Vector3();
-					var q = new THREE.Quaternion();
-					var s = new THREE.Vector3();
-					mat.decompose(t,q,s);
-					//console.log(t);
-					t.multiplyScalar(scale);
-					//s.multiplyScalar(scale);
-					mat.compose(t,q,s);
-				
-					var obj = new THREE.Object3D();
-					obj.name = file;
-					obj.userData.type = 'group';
-					//obj.userData.children = [];
-					obj.applyMatrix(mat);
-					
-					var parentid = null;
-					if(parent && (p = scene.getObjectByName(parent, true))) {
-						p.add(obj);
-						parentid = p.id;
-					}
-					else
-						scene.add(obj);
-					
-					insertIntoList(file, obj.id, obj.userData.type, parentid);
-					
-					return;
-				}
-			
-				ctmloader.load(path+file+'.ctm', function(geo) {
-					
-					geo.computeBoundingBox();
-					
-					//geo.applyMatrix(mat);
-					
-					var pos = geo.attributes.position.array;
-					var index = geo.attributes.index.array;
-					var normal = geo.attributes.normal.array;
-					//var uv = geo.attributes.uv.array;
-					
-					var ngeo = new THREE.Geometry();
-					
-					for(var i=0, l=pos.length; i<l; i+=3) {
-						ngeo.vertices.push(new THREE.Vector3(pos[i], pos[i+1], pos[i+2]));
-					}
-					for(var i=0, l=index.length; i<l; i+=3) {
-						var normals = [new THREE.Vector3(normal[index[i*3]], normal[index[i*3]+1], normal[index[i*3]+2]),
-									new THREE.Vector3(normal[index[(i+1)*3]], normal[index[(i+1)*3]+1], normal[index[(i+1)*3]+2]),
-									new THREE.Vector3(normal[index[(i+2)*3]], normal[index[(i+2)*3]+1], normal[index[(i+2)*3]+2])];
-						//var n = new THREE.Vector3().addVectors(normals[0], normals[1]).add(normals[2]).normalize();
-						ngeo.faces.push(new THREE.Face3(index[i], index[i+1], index[i+2], normals, new THREE.Color(1,1,1), 0));
-					}
-					
-					var emesh = new THREE.Mesh(ngeo, materials['defaultDoublesideMat']);
-					var edges = new THREE.EdgesHelper(emesh, '#333333');
-					var mesh = new THREE.Mesh(geo, materials['defaultDoublesideMat']);
-					
-					var t = new THREE.Vector3();
-					var q = new THREE.Quaternion();
-					var s = new THREE.Vector3();
-					mat.decompose(t,q,s);
-					//console.log(t);
-					t.multiplyScalar(scale);
-					s.multiplyScalar(scale);
-					mat.compose(t,q,s);
-					
-					mesh.applyMatrix(mat);
-					//scene.add(mesh);
-					mesh.add(edges);
-					
-					// userData
-					mesh.name = file;
-					mesh.userData.eid = 'e22_'+file;
-					mesh.userData.type = 'object';
-					mesh.userData.originalMat = 'defaultDoublesideMat';
-					
-					var parentid = null;
-					if(parent && (p = scene.getObjectByName(parent, true))) {
-						p.add(mesh);
-						parentid = p.id;
-					}
-					else
-						scene.add(mesh);
-					//console.log(scene);
-					
-					// Liste, um zusammengehörige Objekte zu managen
-					objects[mesh.id] = {mesh: mesh, edges: null, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true};
-					
-					// Liste für die Anzeige auf der HTML-Seite
-					insertIntoList(file, mesh.id, mesh.userData.type, parentid);
-					
-					
-				}, {useWorker: false});
-			};
-			
-			scope.internalCallFunc.loadScene = function(sc) {
-				
-				for(var key in objects) {
-					if(objects[key].visible) {
-						scene.remove(objects[key].mesh);
-						scene.remove(objects[key].edges);
-					}
-				}
-				
-				for(var key in plans) {
-					if(plans[key].visible) {
-						scene.remove(plans[key].mesh);
-						scene.remove(plans[key].edges);
-					}
-				}
-				
-				for(var key in marks) {
-					if(marks[key].visible) {
-						scene.remove(marks[key].mesh);
-					}
-				}
-				
-				objects = [];
-				plans = [];
-				marks = [];
-				scope.objModels = [];
-				scope.planModels = [];
-				scope.marksModels = [];
-			
-				switch(sc) {
-					case 'muristan':
-						objloader.load('data/models/komplett.obj', 'data/models/empty.mtl', loadObjectHandler);
-						break;
-					case 'rekonstr':
-						objloader.load('data/models/mur_rekonstr.obj', 'data/models/empty.mtl', loadObjectHandler);
-						break;
-					case 'fribourg':
-						var fbfiles = ["BA_I",
-							"BA_I_unsicher",
-							"BA_II",
-							"BA_II_unsicher",
-							"BA_II_unsicher_Turm",
-							"BA_III",
-							"BA_III_unsicher",
-							"BA_III_unsicher-5",
-							"BA_IV",
-							"BA_IV_Dachstuhl",
-							"BA_IV_Dachverkleidung",
-							"BA_IV_unsicher",
-							"BA_IV_unsicher_Dach",
-							"BA_IV_unsicher-5",
-							"BA_V",
-							"BA_V_Dachstuhl",
-							"BA_V_Dachverkleidung",
-							"BA_V_unsicher",
-							"BA_VI",
-							"BA_VI_Dachstuhl",
-							"BA_VI_Dachverkleidung",
-							"BA_VI_Turm",
-							"BA_VII",
-							"BA_VII_Dachstuhl",
-							"BA_VII_Dachverkleidung",
-							"BA_VIII",
-							"BA_VIII_1626_Dachstuhl",
-							"BA_VIII_1626_Dachverkleidung",
-							//"BAI",
-							"Boden"];
-							
-						for(var i=0; i<fbfiles.length; i++) {
-							objloader.load('data/models/fribourg/'+fbfiles[i]+'.obj', 'data/models/fribourg/'+fbfiles[i]+'.mtl', loadObjectHandler);
-						}
-						// objloader.load('data/models/BP1.obj', 'data/models/BP1.mtl', loadObjectHandler);
-						// objloader.load('data/models/BP2.obj', 'data/models/BP2.mtl', loadObjectHandler);
-						// objloader.load('data/models/BP3.obj', 'data/models/BP3.mtl', loadObjectHandler);
-						// objloader.load('data/models/BP4.obj', 'data/models/BP4.mtl', loadObjectHandler);
-						objloader.load('data/plans/fribourg/Grundriss_Boden.obj', 'data/plans/fribourg/Grundriss_Boden.mtl', loadPlanHandler);
-						objloader.load('data/plans/fribourg/Nordansicht.obj', 'data/plans/fribourg/Nordansicht.mtl', loadPlanHandler);
-						objloader.load('data/plans/fribourg/Ostansicht.obj', 'data/plans/fribourg/Ostansicht.mtl', loadPlanHandler);
-						objloader.load('data/plans/fribourg/Suedansicht.obj', 'data/plans/fribourg/Suedansicht.mtl', loadPlanHandler);
-						objloader.load('data/plans/fribourg/Grundriss_triphorium.obj', 'data/plans/fribourg/Grundriss_triphorium.mtl', loadPlanHandler);
-						objloader.load('data/steinmetzzeichen/Steinmetzzeichen_auswahl.obj', 'data/steinmetzzeichen/Steinmetzzeichen_auswahl.mtl', loadMasonMarkHandler);
-						break;
-				}
-			
-			};
-			
 			scope.internalCallFunc.setCoordsFromInput = function(coords) {
 				if(gizmo instanceof THREE.GizmoMove)
 					gizmo.object.position.set(parseFloat(coords.x), parseFloat(coords.y), parseFloat(coords.z));
@@ -2498,6 +2414,19 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				objects[item.id].visible = item.visible;
 			}
 			
+			webglInterface.callFunc.togglePlan = function(pid, visible) {
+				if(visible && !plans[pid].visible) {
+					scene.add(plans[pid].mesh);
+					scene.add(plans[pid].edges);
+					plans[pid].visible = true;
+				}
+				else {
+					scene.remove(plans[pid].mesh);
+					scene.remove(plans[pid].edges);
+					plans[pid].visible = false;
+				}
+			};
+			
 			// get plan by id and add or remove mesh and edges
 			scope.internalCallFunc.showhidePlan = function(id, bool) {
 				var obj = scene.getObjectById(id);
@@ -2519,6 +2448,47 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			webglInterface.callFunc.resize = function() {
 				resizeViewport();
 			}
+			
+			webglInterface.callFunc.viewOrthoPlan = function(pid) {
+				
+				var pgeo = plans[pid].mesh.geometry;
+				
+				console.log(pgeo);
+				
+				var normal = new THREE.Vector3(pgeo.attributes.normal.array[0], pgeo.attributes.normal.array[1], pgeo.attributes.normal.array[2]);
+				
+				var aspect = SCREEN_WIDTH/SCREEN_HEIGHT;
+				var pwidth = Math.sqrt( Math.pow(pgeo.boundingBox.max.x - pgeo.boundingBox.min.x, 2) + Math.pow(pgeo.boundingBox.max.z - pgeo.boundingBox.min.z, 2) ) / 2;
+				var pheight = (pgeo.boundingBox.max.y - pgeo.boundingBox.min.y) / 2;
+				
+				if(normal.y > 0.707 || normal.y < -0.707) {
+					pwidth = Math.sqrt( Math.pow(pgeo.boundingBox.max.x - pgeo.boundingBox.min.x, 2) + Math.pow(pgeo.boundingBox.max.y - pgeo.boundingBox.min.y, 2) ) / 2;
+					pheight = (pgeo.boundingBox.max.z - pgeo.boundingBox.min.z) / 2;
+				}
+				
+				if(aspect < pwidth/pheight)
+					pheight = 1/aspect * pwidth;
+				
+				var h = pheight / Math.tan( camera.fov/2 * Math.PI / 180 );
+				
+				var newpos = new THREE.Vector3();
+				newpos.addVectors(pgeo.boundingSphere.center, normal.setLength(h));
+				
+				new TWEEN.Tween(camera.position)
+					.to(newpos, 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.start();
+				new TWEEN.Tween(controls.center)
+					.to(pgeo.boundingSphere.center, 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.start()
+					.onComplete(function() {
+						camera.toOrthographic(controls.center);
+						webglInterface.viewportSettings.cameraSel = 'Custom';
+						scope.$apply();
+					});
+				console.log('orthoview');
+			};
 			
 			// Focus selected objects
 			webglInterface.callFunc.focusSelected = function() {
@@ -2586,7 +2556,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			// place camera in appropriate distance to selected object
 			// so the object will fit nicely within the viewport
 			function computeFocusFromSphere(M, r) {
-				if(camPerspective) {
+				if(camera.inPerspectiveMode) {
 					// vector from current center to cam-position
 					var s = new THREE.Vector3();
 					s.subVectors(camera.position, controls.center);
@@ -2603,7 +2573,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					new TWEEN.Tween(controls.center).to(M, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
 				}
 				else {
-					if(scope.camera == 'top')
+					if(scope.viewportSettings.camera == 'top')
 						orthocam.position.set(M.x, 50, M.z);
 					else if(scope.camera == 'front')
 						orthocam.position.set(M.x, M.y, 50);
@@ -2819,6 +2789,46 @@ webglDirectives.directive('resizer',
 					$document.unbind('mousemove', rMousemove);
 					$document.unbind('mouseup', rMouseup);
 					if(scope.resizerEnd) scope.resizerEnd();
+				}
+			}
+		};
+	});
+	
+webglDirectives.directive('rampSlider',
+	function($document) {
+		return {
+			scope: {
+				rsModel: '=',
+				rsOnchange: '='
+			},
+			template: '<div ng-style="{width: rsModel*100+\'%\'}""></div>',
+			link: function(scope, element, attrs) {
+				
+				var colorStart = attrs.rsColor || '#aaa';
+				var colorEnd = attrs.rsColorTwo || colorStart;
+				
+				var ramp = element.find('div');
+				ramp.css('height', (element.css('height').replace(/[^-\d\.]/g, '') - element.css('border-top-width').replace(/[^-\d\.]/g, '') - element.css('border-bottom-width').replace(/[^-\d\.]/g, '')) + 'px');
+				ramp.css('background', 'linear-gradient(to right, '+colorStart+', '+colorEnd+')');
+				
+				element.on('mousedown', function(event) {
+					event.preventDefault();
+					$document.bind('mousemove', jQuery.throttle(100, rampSliderMousemove) );
+					$document.bind('mouseup', rampSliderMouseup);
+				});
+				
+				function rampSliderMousemove(event) {
+					scope.rsModel = parseFloat(((event.pageX - element.offset().left) / element[0].offsetWidth ).toFixed(2));
+					if(scope.rsModel > 0.9) scope.rsModel = 1.0;
+					else if(scope.rsModel < 0.1) scope.rsModel = 0.0;
+					
+					scope.rsOnchange(scope.rsModel);
+					scope.$applyAsync();
+				}
+				
+				function rampSliderMouseup() {
+					$document.unbind('mousemove', rampSliderMousemove);
+					$document.unbind('mouseup', rampSliderMouseup);
 				}
 			}
 		};
