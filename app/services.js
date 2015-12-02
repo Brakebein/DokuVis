@@ -1163,6 +1163,8 @@ webglServices.factory('webglInterface',
 		wi.viewportSettings.shading = ['color', 'grey', 'transparent', 'onlyEdges', 'xray'];
 		wi.viewportSettings.shadingSel = wi.viewportSettings.shading[0];
 		wi.viewportSettings.edges = true;
+		wi.viewportSettings.camera = ['Perspective', 'Top', 'Front', 'Back', 'Left', 'Right', 'Custom'];
+		wi.viewportSettings.cameraSel = wi.viewportSettings.camera[0];
 		
 		wi.unsafeSettings = {};
 		
@@ -1195,6 +1197,7 @@ webglServices.factory('webglInterface',
 		wi.insertIntoPlanlist = function(item) {
 			item.visible = true;
 			item.selected = false;
+			item.opacity = 1.0;
 			wi.plans.push(item);
 			$rootScope.$applyAsync();
 		};
@@ -1205,6 +1208,36 @@ webglServices.factory('webglInterface',
 			wi.layers = [];
 			wi.hierarchList = [];
 			wi.plans = [];
+		};
+		
+		wi.PlanEntry = function(id, name, title, type) {
+			this.id = id;
+			this.name = name;
+			this.title = title;
+			this.type = type;
+			this.visible = true;
+			this.selected = false;
+			this.opacity = 1.0;
+			
+			var scope = this;
+			
+			this.toggle = function() {
+				scope.visible = !scope.visible;
+				wi.callFunc.togglePlan(scope.id, scope.visible);
+				// TODO: deselect
+			};
+			this.select = function(event) {
+				//wi.callFunc.select
+			};
+			this.setOpacity = function(value) {
+				wi.callFunc.setPlanOpacity(scope.id, value);
+			};
+			this.setVisibility = function(value) {
+				
+			};
+			this.setOrthoView = function() {
+				wi.callFunc.viewOrthoPlan(scope.id);
+			};
 		};
 		
 		function insertIntoHierarchList(item) {
