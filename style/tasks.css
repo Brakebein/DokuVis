@@ -11,6 +11,12 @@
    width: 66%;
 }
 
+.tasksLeft .ganttContainer{
+	position: absolute;
+	left: 1%;
+	width: 98%;
+}
+
 .tasksRight {
 	position: absolute;
 	left: 66%;
@@ -249,12 +255,8 @@
 	left: 50%;
 }
 
-/*.tasksLeft .optionsHeader #search{
-	position: absolute;
-	left: 0%;
-}*/
-
 .tasksLeft .optionsFooter{
+	
 	height: 20px;
 	margin-top: 20px;
 }

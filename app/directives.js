@@ -2737,7 +2737,7 @@ webglDirectives.directive('dragMarker', ['$compile', '$timeout',
 			}	
 		};
 	}]);
-
+                                                                                                                                                                                                                                                                             
 // zum Anpassen des Layouts
 webglDirectives.directive('resizer',
 	function($document) {
