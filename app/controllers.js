@@ -1855,76 +1855,54 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		/*Children zählen*/
 		$scope.childCounter = 0;
 
-		$scope.dataTasks = [];
+		$scope.editors = [
+		{id: 1, name: 'Jonas', isStaff: 'true', 'groups': false, children: [], tasks: [] },
+    	{id: 2,name: 'Martin', isStaff: 'true', 'groups': false, children: [], tasks: []},
+		];
+		
+		$scope.tasks=[
+		{id: 3,name: 'test1', isStaff: 'false',  parent: 1, children: [5], status: 'erledigt',priority: '2', hasData: 'false', editors: [1], tasks: []},
+    
+    	{id: 4,name: 'test1', isStaff: 'false',  parent: 2, children: [6,12], status: 'erledigt',priority: '2', hasData: 'false', editors: [2], tasks: []},
+		
+		
+		];
 
 	$scope.data = [		  
     	{id: 1, name: 'Jonas', isStaff: 'true', 'groups': false, children: [], tasks: [] },
     
     	{id: 2,name: 'Martin', isStaff: 'true', 'groups': false, children: [], tasks: []},
     	
-    	{id: 3,name: 'test1', isStaff: 'false',  parent: 1, children: [5], status: 'erledigt',priority: '2', hasData: 'false',  tasks: []},
+    	{id: 3,name: 'test1', taskRef: [], isStaff: 'false',  parent: 1, children: [5], status: 'erledigt',priority: '2', hasData: 'false', editors: [1], tasks: []},
     
-    	{id: 4,name: 'test1', isStaff: 'false',  parent: 2, children: [6,12], status: 'erledigt',priority: '2', hasData: 'false',  tasks: []},
+    	{id: 4,name: 'test1', taskRef: [], isStaff: 'false',  parent: 2, children: [6,12], status: 'erledigt',priority: '2', hasData: 'false', editors: [2], tasks: []},
 		
-		{id: 5,name: 'test2', isStaff: 'false', status: 'erledigt', children: [],priority: '3', hasData: 'false', tasks: [
+		{id: 5,name: 'test2',  isStaff: 'false', status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [1], tasks: [
 		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
-		{id: 6,name: 'test2', isStaff: 'false', status: 'erledigt', children: [],priority: '3', hasData: 'false', tasks: [
+		{id: 6,name: 'test2', isStaff: 'false', status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [2], tasks: [
 		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
 		                        
-		{id: 7,name: 'test7',isStaff: 'false', parent: 2,children: [8],  status: 'erledigt',priority: '2', hasData: 'false',  tasks: []},
+		{id: 7,name: 'test7',isStaff: 'false', parent: 2,children: [8],  status: 'erledigt',priority: '2', hasData: 'false', editors: [2],  tasks: []},
 		
-		{id: 8,name: 'test8', isStaff: 'false', status: 'erledigt', children: [],priority: '3', hasData: 'false', tasks: [
+		{id: 8,name: 'test8', isStaff: 'false', status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [2], tasks: [
 		                            {name: 'test8', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
 		   
-		{id: 9,name: 'test4', isStaff: 'false', parent: 1, children: [], status: 'zu bearbeiten', priority: '1', hasData: 'false', tasks: [
+		{id: 9,name: 'test4', isStaff: 'false', parent: 1, children: [], status: 'zu bearbeiten', priority: '1', editors: [1], hasData: 'false', tasks: [
 		                            {name: 'test4', color: '#F1C232', from: new Date(2015, 11, 21, 8, 0, 0), to: new Date(2015, 11, 25, 15, 0, 0), progress: 25}
 		                        ]},
-		{id: 10,name: 'test5', isStaff: 'false', parent: 1, children: [], status: 'zu bearbeiten',priority: '2',hasData: 'false', tasks: [
+		{id: 10,name: 'test5', isStaff: 'false', parent: 1, children: [], status: 'zu bearbeiten',priority: '2', editors: [1], hasData: 'false', tasks: [
 		                            {name: 'test5', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
-		{id: 11,name: 'test6', isStaff: 'false', parent: 1, children: [], status: 'zu bearbeiten', hasData: 'true', priority: '1', tasks: [
+		{id: 11,name: 'test6', isStaff: 'false', parent: 1, children: [], status: 'zu bearbeiten', hasData: 'true', editors: [1], priority: '1', tasks: [
 		                            {name: 'test6', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0), data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]}]},
 		                            
-		{id: 12,name: 'test3', isStaff: 'false', children: [], status: 'zu bearbeiten', hasData: 'true', priority: '1', tasks: [
+		{id: 12,name: 'test3', isStaff: 'false', children: [], status: 'zu bearbeiten', hasData: 'true', priority: '1', editors: [1], tasks: [
 		                            {name: 'test3', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0), data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]}]},
 		];
 		
-		
-		/*$scope.data = [		
-		{name: 'Jonas', isStaff: 'true', 'groups': false, tasks: [] },
-    
-    	{name: 'Martin', isStaff: 'true', 'groups': false, tasks: []},
-    	
-    
-    	{name: 'test1', parent: 'Martin', status: 'erledigt',priority: '2', hasData: 'false',  tasks: []},
-    	
-    	{name: 'test1', parent: 'Jonas', status: 'erledigt',priority: '2', hasData: 'false',  tasks: []},
-		
-		{name: 'test2', parent: 'test1', status: 'erledigt',priority: '3', hasData: 'false', tasks: [
-		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
-		                        ]},
-		                        
-		{name: 'test7', parent: 'Martin',  status: 'erledigt',priority: '2', hasData: 'false',  tasks: []},
-		
-		{name: 'test8', parent: 'test7', status: 'erledigt',priority: '3', hasData: 'false', tasks: [
-		                            {name: 'test8', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
-		                        ]},
-		   
-		{name: 'test4', parent: 'Jonas', status: 'zu bearbeiten', priority: '1', hasData: 'false', tasks: [
-		                            {name: 'test4', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
-		                        ]},
-		                  
-		
-		{name: 'test5',parent: 'Jonas', status: 'zu bearbeiten',priority: '2',hasData: 'false', tasks: [
-		                            {name: 'test5', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
-		                        ]},
-		{name: 'test6',parent: 'Jonas',parentIsStaff: 'true', status: 'zu bearbeiten', hasData: 'true', priority: '1', tasks: [
-		                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0), data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]}]},
-]		;*/
-
 		$scope.options = {
 			useData: $scope.data,
 			allowSideResizing: true,
@@ -1967,8 +1945,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showAside()"></i><a href="#" ng-class = "row.model.isStaff == \'true\' ? \'parent\': \'\' "  editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row)"> {{row.model.name}} {{row.model.id}} {{row.model.children}}</a> <i class= "fa fa-plus" ng-click="scope.addNewTask(row)"></i> ', /*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
-            taskContent: '{{task.model.name}} {{row.model.id}}', /*deleteTask(task.model,row.model)*/
+            rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showAside()"></i><a href="#" ng-class = "row.model.isStaff == \'true\' ? \'parent\': \'\' "  editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.addNewTask(row)"></i> ', /*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
+            taskContent: '{{task.model.name}}', /*deleteTask(task.model,row.model)*/
             zoom: 1.3,
              api: function(api) {
                 // API Object is used to control methods and events from angular-gantt.
