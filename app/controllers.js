@@ -571,8 +571,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			});
 		};
 		
-		$scope.open3DPlan = function(e31id, e36id) {
-			neo4jRequest.getAttached3DPlan($scope.project, e31id, e36id).success(function(data, status){
+		$scope.open3DPlan = function(plan) {
+			neo4jRequest.getAttached3DPlan($stateParams.project, plan.eid, plan.plan3d).success(function(data, status){
 				
 				//console.log($scope.models);
 				//console.log(data, status);
@@ -580,11 +580,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				var edata = extractData(data)[0];
 				console.log(edata);
 				
-				$scope.callDirFunc.loadCTMPlanIntoScene(edata.object, edata.file);
-				
-				/*for(var i=0; i<files.length; i++) {
-					$scope.callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', files[i].file);
-				}*/
+				plan.plan3d = $scope.callDirFunc.loadCTMPlanIntoScene(plan.plan3d, edata.object, edata.file);
+				console.log(plan);
 			});
 		};
 		
@@ -778,6 +775,10 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			});*/
 		};
 		
+		$scope.setRampOpacity = function(event, data) {
+			console.log(event, data);
+			console.log(event.offsetX / event.delegateTarget.offsetWidth);
+		};
 		
 		$scope.callDirFunc = {};
 		
@@ -1747,13 +1748,14 @@ webglControllers.controller('testCtrl', ['$scope', '$stateParams',
 		$scope.tasks = [
 			{name: 'task1', parent: null, children: [], editors: []},
 			{name: 'task2', parent: null, children: [], editors: []},
-			{name: 'task3', parent: 'task1', children: [], editors: ['Martin']},
+			{name: 'task3', parent: 'task1', from: new Date(2015,11,12,8,0,0), to: new Date(2015,11,30,15,0,0), children: [], editors: ['Martin']},
 			{name: 'task4', parent: 'task1', children: [], editors: []},
 			{name: 'task5', parent: 'task2', children: [], editors: ['Markus']},
 			{name: 'task6', parent: 'task4', children: [], editors: ['Martin']},
 			{name: 'task7', parent: 'task4', children: [], editors: ['Jonas']}
 		];
 		
+		$scope.data = [];
 		
 		function sortTasks() {
 			for(var i=0; i<$scope.tasks.length; i++) {
@@ -1799,9 +1801,67 @@ webglControllers.controller('testCtrl', ['$scope', '$stateParams',
 			}
 		}
 		
+		function generateRows() {
+			var newid = 0;
+			
+			$.each($scope.members, function(i) {
+				var member = $scope.members[i];
+				var row = {
+					id: newid,
+					name: member.name,
+					memberRef: member,
+					isStaff: true,
+					groups: false,
+					children: [],
+					tasks: []
+				};
+				$scope.data.push(row);
+				newid++;
+				console.log('member pushed');
+				
+				$.each($scope.tasks, function(j) {
+					if($scope.tasks[j].editors.indexOf(member) === -1)
+						return true;
+					var task = $scope.tasks[j];
+					var rowTask = {
+						id: newid,
+						name: task.name,
+						taskRef: task,
+						parent: row.id,
+						children: [],
+						tasks: task.from ? [{name: task.name, from: task.from, to: task.to}] : []
+					};
+					$scope.data.push(rowTask);
+					newid++;
+					
+					function pushChildTasks(parentTask, parentRow) {
+						$.each(parentTask.children, function(k) {
+							var childTask = parentTask.children[k];
+							parentRow.children.push(newid);
+							var childRow = {
+								id: newid,
+								name: childTask.name,
+								taskRef: childTask,
+								children: [],
+								tasks: childTask.from ? [{name: childTask.name, from: childTask.from, to: childTask.to}] : []
+							};
+							$scope.data.push(childRow);
+							newid++;
+							pushChildTasks(childTask, childRow);
+						});
+					}
+					pushChildTasks(task, rowTask)
+					
+				});
+			});
+			
+		}
+		
 		sortTasks();
+		generateRows();
 		console.log('members', $scope.members);
 		console.log('tasks', $scope.tasks);
+		console.log('data', $scope.data);
 		
 	}]);
 	
