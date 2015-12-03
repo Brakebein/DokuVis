@@ -15,24 +15,50 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		requests.createInitProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
 				query: 
-					'CREATE (proj:E7:'+prj+' {content: {master}}), \
+					// project
+				'CREATE (proj:E7:'+prj+' {content: {master}}), \
 					(root:E22:'+prj+' {content:"e22_root_master"}), \
-					(tsource:E55:'+prj+' {content:"sourceType"}), \
-					(tplan:E55:'+prj+' {content:"plan"}), \
-					(tpic:E55:'+prj+' {content:"picture"}), \
-					(ttext:E55:'+prj+' {content:"text"}), \
-					(tscreen:E55:'+prj+' {content:"screenshot"}),\
-					(tscomment:E55:'+prj+' {content:"screenshotComment"}), \
-					(tmodel:E55:'+prj+' {content:"model"}), \
 					(tproj:E55:'+prj+' {content:"project"}), \
 					(tsubproj:E55:'+prj+' {content:"subproject"}), \
 					(tpdesc:E55:'+prj+' {content:"projDesc"}), \
 					(tpinfo:E55:'+prj+' {content:"projInfo"}), \
-					(proj)-[:P2]->(tproj), \
 					(proj)-[:P15]->(root), \
-					(tplan)-[:P127]->(tsource), \
-					(tpic)-[:P127]->(tsource), \
-					(ttext)-[:P127]->(tsource)',
+					(proj)-[:P2]->(tproj), '
+					// source
+				  + '(tsource:E55:'+prj+' {content:"sourceType"}), \
+					(tplan:E55:'+prj+' {content:"plan"}), \
+					(tpic:E55:'+prj+' {content:"picture"}), \
+					(ttext:E55:'+prj+' {content:"text"}), \
+					(tsource)<-[:P127]-(tplan), \
+					(tsource)<-[:P127]-(tpic), \
+					(tsource)<-[:P127]-(ttext), \
+					(tprime:E55:'+prj+' {content:"primarySource"}), \
+					(tsins:E55:'+prj+' {content:"sourceInsertion"}), \
+					(tscomment:E55:'+prj+' {content:"sourceComment"}), '
+					// screenshot
+				  + '(tscreen:E55:'+prj+' {content:"screenshot"}),\
+					(tscomment:E55:'+prj+' {content:"screenshotComment"}), '
+					// model
+				  + '(tmodel:E55:'+prj+' {content:"model"}), \
+					(tmodel:E55:'+prj+' {content:"model/plan"}), '
+					// personal
+				  + '(tpproj:E55:'+prj+'{content:"projectPerson"}), \
+					(tphist:E55:'+prj+'{content:"historicPerson"}), '
+					// task
+				  + '(ttask:E55:'+prj+'{content:"task"}), \
+					(ttdesc:E55:'+prj+'{content:"taskDesc"}), \
+					(ttprior:E55:'+prj+'{content:"taskPriority"}), \
+					(ttphigh:E55:'+prj+'{content:"priority_high"}), \
+					(ttpmedium:E55:'+prj+'{content:"priority_medium"}), \
+					(ttplow:E55:'+prj+'{content:"priority_low"}), \
+					(ttprior)<-[:P127]-(ttphigh), \
+					(ttprior)<-[:P127]-(ttpmedium), \
+					(ttprior)<-[:P127]-(ttplow), \
+					(ttstatus:E55:'+prj+'{content:"taskStatus"}), \
+					(ttsdone:E55:'+prj+'{content:"status_done"}), \
+					(ttstodo:E55:'+prj+'{content:"status_todo"}), \
+					(ttstatus)<-[:P127]-(ttsdone), \
+					(ttstatus)<-[:P127]-(ttstodo)',
 				params: {
 					master: prj
 				}
@@ -1185,12 +1211,9 @@ webglServices.factory('webglInterface',
 		var layerDict = {};
 		
 		wi.insertIntoLists = function(item) {
-			item.children = [];
-			item.visible = true;
-			item.expand = false;
-			item.selected = false;
-			insertIntoHierarchList(item);
-			insertIntoLayerList(item);
+			var objentry = new wi.ObjectEntry(item);
+			insertIntoHierarchList(objentry);
+			insertIntoLayerList(objentry);
 			$rootScope.$applyAsync();
 		};
 		
@@ -1210,6 +1233,42 @@ webglServices.factory('webglInterface',
 			wi.plans = [];
 		};
 		
+		wi.ObjectEntry = function(item) {
+			this.id = item.id;
+			this.name = item.name;
+			this.title = item.title;
+			this.type = item.type;
+			this.layer = item.layer || 0;
+			
+			this.parent = item.parent || null;
+			this.children = [];
+			
+			this.parentVisible = true;
+			this.visible = true;
+			this.selected = false;
+			this.expand = false;
+			this.opacity = 1.0;
+			
+			var scope = this;
+			
+			this.toggle = function() {
+				scope.visible = !scope.visible;
+				if(!scope.visible && scope.selected)
+					wi.callFunc.selectObject(scope.id, false, true);
+				wi.callFunc.toggleObject(scope, scope.visible);
+			};
+			this.select = function(event) {
+				if(scope.visible && event)
+					wi.callFunc.selectObject(scope.id, event.ctrlKey, false);
+			};
+			this.setOpacity = function(value) {
+				wi.callFunc.setObjectOpacity(scope, value);
+			};
+			this.focus = function() {
+				wi.callFunc.focusObject(scope.id);
+			};
+		};
+		
 		wi.PlanEntry = function(id, name, title, type) {
 			this.id = id;
 			this.name = name;
@@ -1223,17 +1282,17 @@ webglServices.factory('webglInterface',
 			
 			this.toggle = function() {
 				scope.visible = !scope.visible;
+				if(!scope.visible && scope.selected)
+					wi.callFunc.selectPlan(scope.id, false, true);
 				wi.callFunc.togglePlan(scope.id, scope.visible);
-				// TODO: deselect
+				
 			};
 			this.select = function(event) {
-				//wi.callFunc.select
+				if(scope.visible && event)
+					wi.callFunc.selectPlan(scope.id, event.ctrlKey, false);
 			};
 			this.setOpacity = function(value) {
 				wi.callFunc.setPlanOpacity(scope.id, value);
-			};
-			this.setVisibility = function(value) {
-				
 			};
 			this.setOrthoView = function() {
 				wi.callFunc.viewOrthoPlan(scope.id);

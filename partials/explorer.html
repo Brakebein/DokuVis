@@ -190,7 +190,7 @@
 					<div class="expand"></div>
 					<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
 					<div class="opacity" ramp-slider rs-model="data.opacity" rs-onchange="data.setOpacity" rs-color="#ddd" rs-color-two="#bbb"></div>
-					<span class="glyphicon glyphicon-eye-open" title="Ansicht einnehmen" ng-click="data.setOrthoView()"></span>
+					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="data.setOrthoView()"></span>
 					
 				</div>
 				
@@ -366,7 +366,6 @@
 				<div class="btnBar">
 					<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>
 					<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
-					<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Ansicht einnehmen" ng-click="wi.callFunc.viewOrthoPlan(p.plan3d.meshId)"><span class="glyphicon glyphicon-eye-open"></span></a>
 					<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
 					<!--<button ng-click="callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', p.obj);">load</button>
 					<button ng-click="highlightObj(p.eid)">highlight</button>

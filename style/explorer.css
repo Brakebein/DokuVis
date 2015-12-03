@@ -303,11 +303,11 @@
 	padding: 3px 3px 3px;
 	display: flex;
 }
-.listItem:hover {
-	background-color: #eee;
-}
 .listItem.selected {
 	background-color: #d9f0a3;
+}
+.listItem:hover {
+	background-color: #eee;
 }
 .listItem > * {
 	margin: 0 5px;
@@ -338,6 +338,9 @@
 	flex: 0 0 50px;
 	border: 1px solid #555;
 	background-color: #fff;
+}
+.listChildren.unvisible {
+	opacity: 0.5;
 }
 
 .screenshot.dropArea {
