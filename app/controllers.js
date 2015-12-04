@@ -1822,7 +1822,7 @@ webglControllers.controller('testCtrl', ['$scope', '$stateParams',
 				$.each($scope.tasks, function(j) {
 					if($scope.tasks[j].editors.indexOf(member) === -1)
 						return true;
-					var task = $scope.tasks[j];
+					var task = $scope.tasks[j]; //task ist Referenz auf Objekt in $scope.tasks[j]
 					var rowTask = {
 						id: newid,
 						name: task.name,
@@ -1831,7 +1831,7 @@ webglControllers.controller('testCtrl', ['$scope', '$stateParams',
 						children: [],
 						tasks: task.from ? [{name: task.name, from: task.from, to: task.to}] : []
 					};
-					$scope.data.push(rowTask);
+					$scope.data.push(rowTask); // übergibt auch Referrenz
 					newid++;
 					
 					function pushChildTasks(parentTask, parentRow) {
@@ -1848,6 +1848,7 @@ webglControllers.controller('testCtrl', ['$scope', '$stateParams',
 							$scope.data.push(childRow);
 							newid++;
 							pushChildTasks(childTask, childRow);
+							console.log('task pushed');
 						});
 					}
 					pushChildTasks(task, rowTask)
@@ -1857,7 +1858,7 @@ webglControllers.controller('testCtrl', ['$scope', '$stateParams',
 			
 		}
 		
-		sortTasks();
+		/*sortTasks();*/
 		generateRows();
 		console.log('members', $scope.members);
 		console.log('tasks', $scope.tasks);
@@ -1915,53 +1916,131 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		/*Children zählen*/
 		$scope.childCounter = 0;
 
-		$scope.editors = [
-		{id: 1, name: 'Jonas', isStaff: 'true', 'groups': false, children: [], tasks: [] },
-    	{id: 2,name: 'Martin', isStaff: 'true', 'groups': false, children: [], tasks: []},
+		$scope.members = [
+			{name: 'Martin', tasks: []},
+			{name: 'Jonas', tasks: []},
 		];
 		
-		$scope.tasks=[
-		{id: 3,name: 'test1', isStaff: 'false',  parent: 1, children: [5], status: 'erledigt',priority: '2', hasData: 'false', editors: [1], tasks: []},
-    
-    	{id: 4,name: 'test1', isStaff: 'false',  parent: 2, children: [6,12], status: 'erledigt',priority: '2', hasData: 'false', editors: [2], tasks: []},
-		
-		
+		$scope.tasks = [
+			{name: 'task1', parent: null, children: ['task3','task4'], editors: ['Martin']},
+			{name: 'task2', parent: null, children: ['task5'], editors: []},
+			{name: 'task3', parent: null, from: new Date(2015,11,12,8,0,0), to: new Date(2015,11,30,15,0,0), children: [], editors: ['Martin']},
+			{name: 'task4', parent: null, children: [], editors: []},
+			{name: 'task5', parent: null, children: [], editors: ['Jonas']},
+			/*{name: 'task6', parent: null, children: [], editors: ['Martin']},
+			{name: 'task7', parent: null, children: [], editors: ['Jonas']}*/
 		];
-
-	$scope.data = [		  
-    	{id: 1, name: 'Jonas', isStaff: 'true', 'groups': false, children: [], tasks: [] },
+		
+		$scope.dataTasks = [];
+		
+		/* $scope.data=[
+		{"id":1,"name":"Jonas","isStaff":true,"groups":false,"children":[],"tasks":[],"highlight":false},
+		{"id":2,"name":"Martin","isStaff":true,"groups":false,"children":[],"tasks":[],"highlight":false},
+		{"id":3,"name":"test1","taskRef":[],"isStaff":false,"parent":1,"children":[5],"status":"erledigt","priority":"2","hasData":"false","editors":[1],"tasks":[],"highlight":false},
+		{"id":4,"name":"test1","taskRef":[],"isStaff":false,"parent":2,"children":[6,12,"pvKejD7","pvKekso","pvKelri"],"status":"erledigt","priority":"2","hasData":"false","editors":[2],"tasks":[],"highlight":false},
+		{"id":5,"name":"test2","isStaff":false,"status":"erledigt","children":[],"priority":"3","hasData":"false","editors":[1],"tasks":[{"name":"test2","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"3dd20ab4-e25a-e19d-1dbb-266c12960b06"}],"highlight":false},
+		{"id":6,"name":"test2","isStaff":false,"status":"erledigt","children":[],"priority":"3","hasData":"false","editors":[2],"tasks":[{"name":"test2","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"65b11b16-c36e-14b7-2666-69874c92efc4"}],"highlight":false},
+		{"id":7,"name":"test7","isStaff":false,"parent":2,"children":[8],"status":"erledigt","priority":"2","hasData":"false","editors":[2],"tasks":[],"highlight":false},{"id":8,"name":"test8","isStaff":false,"status":"erledigt","children":[],"priority":"3","hasData":"false","editors":[2],"tasks":[{"name":"test8","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"b348fae6-e426-b15a-0f70-72eba739901b"}],"highlight":false},
+		{"id":9,"name":"test4","isStaff":false,"parent":1,"children":[],"status":"zu bearbeiten","priority":"1","editors":[1],"hasData":"false","tasks":[{"name":"test4","color":"#F1C232","from":"2015-12-21T07:00:00.000Z","to":"2015-12-25T14:00:00.000Z","progress":25,"id":"7b9ba63f-cb13-a1e6-acb2-0d066c17bf77"}],"highlight":false},
+		{"id":10,"name":"test5","isStaff":false,"parent":1,"children":[],"status":"zu bearbeiten","priority":"2","editors":[1],"hasData":"false","tasks":[{"name":"test5","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"ecdeb010-480a-e0bc-0c99-7d92e4332275"}],"highlight":false},
+		{"id":11,"name":"test6","isStaff":false,"parent":1,"children":[],"status":"zu bearbeiten","hasData":"true","editors":[1],"priority":"1","tasks":[{"name":"test6","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","data":[{"message":"Lorem Ipsum","author":"Martin"},{"message":"123","author":"Martin"}],"id":"0b0e9d7f-699c-345c-c496-8adbc22f7065"}],"highlight":false},
+		{"id":12,"name":"test3","isStaff":false,"children":[],"status":"zu bearbeiten","hasData":"true","priority":"1","editors":[1],"tasks":[{"name":"test3","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","data":[{"message":"Lorem Ipsum","author":"Martin"},{"message":"123","author":"Martin"}],"id":"1ed2c928-67aa-3e63-fd0f-e79b2c388fc8"}],"highlight":false},
+		{"id":"pvKejD7","name":"neue Unteraufgabe1","isStaff":false,"children":[],"priority":"1","status":"zu bearbeiten","tasks":[{"name":"neue Unteraufgabe1","color":"#F1C232","from":"2015-12-02T20:45:30.000Z","to":"2015-12-07T20:45:30.000Z","id":"841a06ba-e444-af11-1e1a-3b560b3c4c1b"}],"highlight":false},
+		{"id":"pvKekso","name":"neue Unteraufgabe2","isStaff":false,"children":[],"priority":"1","status":"zu bearbeiten","tasks":[{"name":"neue Unteraufgabe2","color":"#F1C232","from":"2015-12-02T20:45:34.000Z","to":"2015-12-07T20:45:34.000Z","id":"18b116fe-5bef-e105-2770-d0089e493299"}],"highlight":false},
+		{"id":"pvKelri","name":"neue Unteraufgabe3","isStaff":false,"children":[],"priority":"1","status":"zu bearbeiten","tasks":[{"name":"neue Unteraufgabe3","color":"#F1C232","from":"2015-12-02T20:45:37.000Z","to":"2015-12-07T20:45:37.000Z","id":"bf4a7bb7-6742-8c65-0dce-69240944b025"}],"highlight":false}];
+		 */
+	/* 	$scope.dataTasks = [ //falsche Reihenfolge!! --> aus dem Rechner
+		{"name":"test4"					,"children":[],"editors":["Jonas"],"id":9,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","hasData":"false","tasks":[{"name":"test4","color":"#F1C232","from":"2015-12-21T07:00:00.000Z","to":"2015-12-25T14:00:00.000Z","progress":25,"id":"7d011325-7a4a-cd10-9e84-6d225c380e16"}]},
+		{"name":"neue Unteraufgabe3"	,"children":[],"editors":[""],"id":"pvK7G3P","isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","tasks":[{"name":"neue Unteraufgabe3","color":"#F1C232","from":"2015-12-02T20:19:08.000Z","to":"2015-12-07T20:19:08.000Z","id":"c008c02f-a306-e573-3643-e1ea1d79fe25"}],"highlight":false},
+		{"name":"test5"					,"children":[],"editors":["Jonas"],"id":10,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"2","hasData":"false","tasks":[{"name":"test5","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"2ad31c8a-0b14-4272-bc08-0db7225d35bc"}]},
+		{"name":"test1"					,"children":[6,12,"pvK7DT1","pvK7Fay","pvK7G3P"],"editors":["Jonas","Martin"],"id":4,"isStaff":false,"parent":"","status":"erledigt","priority":"2","hasData":"false","tasks":[]},
+		{"name":"neue Unteraufgabe2"	,"children":[],"editors":[""],"id":"pvK7Fay","isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","tasks":[{"name":"neue Unteraufgabe2","color":"#F1C232","from":"2015-12-02T20:19:05.000Z","to":"2015-12-07T20:19:05.000Z","id":"694d70b7-959a-832e-1aec-3d7f2dfa2e57"}],"highlight":false},
+		{"name":"neue Unteraufgabe1"	,"children":[],"editors":[""],"id":"pvK7DT1","isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","tasks":[{"name":"neue Unteraufgabe1","color":"#F1C232","from":"2015-12-02T20:19:00.000Z","to":"2015-12-07T20:19:00.000Z","id":"f259a724-ec24-7d73-9a61-fe31c9868182"}],"highlight":false},
+		{"name":"test3"				,"children":[],"editors":["Jonas"],"id":12,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","hasData":"true","tasks":[{"name":"test3","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","data":[{"message":"Lorem Ipsum","author":"Martin"},{"message":"123","author":"Martin"}],"id":"46f16d23-8a8e-7b0a-c06a-cb653855aa7b"}],"highlight":false},
+		{"name":"test6"				,"children":[],"editors":["Jonas"],"id":11,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","hasData":"true","tasks":[{"name":"test6","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","data":[{"message":"Lorem Ipsum","author":"Martin"},{"message":"123","author":"Martin"}],"id":"883c0090-c35b-d341-c1ac-7a0647dc2a1a"}],"highlight":false},
+		{"name":"test2"				,"children":[],"editors":["Jonas","Martin"],"id":6,"isStaff":false,"parent":"","status":"erledigt","priority":"3","hasData":"false","tasks":[{"name":"test2","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"4e696f72-248e-a7ad-6464-a9199a5caa0d"}],"highlight":false},
+		{"name":"test7"				,"children":[8],"editors":["Martin"],"id":7,"isStaff":false,"parent":"","status":"erledigt","priority":"2","hasData":"false","tasks":[],"highlight":false},{"name":"test8","children":[],"editors":["Martin"],"id":8,"isStaff":false,"parent":"","status":"erledigt","priority":"3","hasData":"false","tasks":[{"name":"test8","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"ca0d8e5e-17fa-d097-f17a-57ce50f35292"}],"highlight":false}
+		]; */
+		
+		/* $scope.dataTasks = [ //richtige Reihenfolge
+		{"name":"test4"					,"children":[],"editors":["Jonas"],"id":9,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","hasData":"false","tasks":[{"name":"test4","color":"#F1C232","from":"2015-12-21T07:00:00.000Z","to":"2015-12-25T14:00:00.000Z","progress":25,"id":"7d011325-7a4a-cd10-9e84-6d225c380e16"}]},
+		{"name":"test5"					,"children":[],"editors":["Jonas"],"id":10,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"2","hasData":"false","tasks":[{"name":"test5","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"2ad31c8a-0b14-4272-bc08-0db7225d35bc"}]},
+		{"name":"test1"					,"children":[6,12,"pvK7DT1","pvK7Fay","pvK7G3P"],"editors":["Jonas","Martin"],"id":4,"isStaff":false,"parent":"","status":"erledigt","priority":"2","hasData":"false","tasks":[]},
+		{"name":"test6"					,"children":[],"editors":["Jonas"],"id":11,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","hasData":"true","tasks":[{"name":"test6","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","data":[{"message":"Lorem Ipsum","author":"Martin"},{"message":"123","author":"Martin"}],"id":"883c0090-c35b-d341-c1ac-7a0647dc2a1a"}],"highlight":false},
+		{"name":"test2"					,"children":[],"editors":["Jonas","Martin"],"id":6,"isStaff":false,"parent":"","status":"erledigt","priority":"3","hasData":"false","tasks":[{"name":"test2","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"4e696f72-248e-a7ad-6464-a9199a5caa0d"}],"highlight":false},
+		{"name":"test3"					,"children":[],"editors":["Jonas"],"id":12,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","hasData":"true","tasks":[{"name":"test3","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","data":[{"message":"Lorem Ipsum","author":"Martin"},{"message":"123","author":"Martin"}],"id":"46f16d23-8a8e-7b0a-c06a-cb653855aa7b"}],"highlight":false},
+		{"name":"neue Unteraufgabe1"	,"children":[],"editors":[""],"id":"pvK7DT1","isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","tasks":[{"name":"neue Unteraufgabe1","color":"#F1C232","from":"2015-12-02T20:19:00.000Z","to":"2015-12-07T20:19:00.000Z","id":"f259a724-ec24-7d73-9a61-fe31c9868182"}],"highlight":false},
+		{"name":"neue Unteraufgabe2"	,"children":[],"editors":[""],"id":"pvK7Fay","isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","tasks":[{"name":"neue Unteraufgabe2","color":"#F1C232","from":"2015-12-02T20:19:05.000Z","to":"2015-12-07T20:19:05.000Z","id":"694d70b7-959a-832e-1aec-3d7f2dfa2e57"}],"highlight":false},
+		{"name":"neue Unteraufgabe3"	,"children":[],"editors":[""],"id":"pvK7G3P","isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","tasks":[{"name":"neue Unteraufgabe3","color":"#F1C232","from":"2015-12-02T20:19:08.000Z","to":"2015-12-07T20:19:08.000Z","id":"c008c02f-a306-e573-3643-e1ea1d79fe25"}],"highlight":false},
+		{"name":"test7"					,"children":[8],"editors":["Martin"],"id":7,"isStaff":false,"parent":"","status":"erledigt","priority":"2","hasData":"false","tasks":[],"highlight":false},{"name":"test8","children":[],"editors":["Martin"],"id":8,"isStaff":false,"parent":"","status":"erledigt","priority":"3","hasData":"false","tasks":[{"name":"test8","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"ca0d8e5e-17fa-d097-f17a-57ce50f35292"}],"highlight":false}
+		]; */
+		
+	/* $scope.data = [		  
+    	{id: 1, name: 'Jonas', isStaff: true, 'groups': false, children: [], tasks: [] }, //Zeitstempel für Kommentar
     
-    	{id: 2,name: 'Martin', isStaff: 'true', 'groups': false, children: [], tasks: []},
+    	{id: 2,name: 'Martin', isStaff: true, 'groups': false, children: [], tasks: []},
     	
-    	{id: 3,name: 'test1', taskRef: [], isStaff: 'false',  parent: 1, children: [5], status: 'erledigt',priority: '2', hasData: 'false', editors: [1], tasks: []},
+    	{id: 3,name: 'test1', isStaff: false,  parent: 1, children: [5], status: 'erledigt',priority: '2', hasData: 'false', editors: [1], tasks: []},
     
-    	{id: 4,name: 'test1', taskRef: [], isStaff: 'false',  parent: 2, children: [6,12], status: 'erledigt',priority: '2', hasData: 'false', editors: [2], tasks: []},
+    	{id: 4,name: 'test1', isStaff: false,  parent: 2, children: [6,12], status: 'erledigt',priority: '2', hasData: 'false', editors: [2], tasks: []},
 		
-		{id: 5,name: 'test2',  isStaff: 'false', status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [1], tasks: [
+		{id: 5,name: 'test2',  isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [1], tasks: [
 		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
-		{id: 6,name: 'test2', isStaff: 'false', status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [2], tasks: [
+		{id: 6,name: 'test2', isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [2], tasks: [
 		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
 		                        
-		{id: 7,name: 'test7',isStaff: 'false', parent: 2,children: [8],  status: 'erledigt',priority: '2', hasData: 'false', editors: [2],  tasks: []},
+		{id: 7,name: 'test7',isStaff: false, parent: 2,children: [8],  status: 'erledigt',priority: '2', hasData: 'false', editors: [2],  tasks: []},
 		
-		{id: 8,name: 'test8', isStaff: 'false', status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [2], tasks: [
+		{id: 8,name: 'test8', isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [2], tasks: [
 		                            {name: 'test8', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
-		                        ]},
+		                        ]}, 
 		   
-		{id: 9,name: 'test4', isStaff: 'false', parent: 1, children: [], status: 'zu bearbeiten', priority: '1', editors: [1], hasData: 'false', tasks: [
+		{id: 9, name: 'test4', isStaff: false, parent: 1, children: [], status: 'zu bearbeiten', priority: '1', editors: [1], hasData: 'false', tasks: [
 		                            {name: 'test4', color: '#F1C232', from: new Date(2015, 11, 21, 8, 0, 0), to: new Date(2015, 11, 25, 15, 0, 0), progress: 25}
 		                        ]},
-		{id: 10,name: 'test5', isStaff: 'false', parent: 1, children: [], status: 'zu bearbeiten',priority: '2', editors: [1], hasData: 'false', tasks: [
+		 {id: 10,name: 'test5', isStaff: false, parent: 1, children: [], status: 'zu bearbeiten',priority: '2', editors: [1], hasData: 'false', tasks: [
 		                            {name: 'test5', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
-		{id: 11,name: 'test6', isStaff: 'false', parent: 1, children: [], status: 'zu bearbeiten', hasData: 'true', editors: [1], priority: '1', tasks: [
+		{id: 11,name: 'test6', isStaff: false, parent: 1, children: [], status: 'zu bearbeiten', hasData: 'true', editors: [1], priority: '1', tasks: [
 		                            {name: 'test6', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0), data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]}]},
 		                            
-		{id: 12,name: 'test3', isStaff: 'false', children: [], status: 'zu bearbeiten', hasData: 'true', priority: '1', editors: [1], tasks: [
-		                            {name: 'test3', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0), data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]}]},
-		];
+		{id: 12,name: 'test3', isStaff: false, children: [], status: 'zu bearbeiten', hasData: 'true', priority: '1', editors: [1], tasks: [
+			{name: 'test3', color: '#F1C232',from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0), data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]}]},
+		]; */
+		 
+		 $scope.data = [		
+		{id: 1, name: 'Jonas', isStaff: true, 'groups': {'enabled': false,}},
+    
+    	{id: 2, name: 'Martin', isStaff: true,'groups': {'enabled': false,}},
+    
+    	{id: 3,name: 'test1', isStaff: false,  parent: 1, children: [5], status: 'erledigt',priority: '2', hasData: 'false', editors: [1], tasks: []},
+		
+		{id: 4,name: 'test1', isStaff: false,  parent: 2, children: [6,12], status: 'erledigt',priority: '2', hasData: 'false', editors: [2], tasks: []},
+		
+		{id: 5,name: 'test2',  isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [1], tasks: [
+		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}]},
+		{id: 6,name: 'test2', isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [2], tasks: [
+		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}]},
+		
+		{id: 7,name: 'test7',isStaff: false, parent: 2,children: [8],  status: 'erledigt',priority: '2', hasData: 'false', editors: [2],  tasks: []},
+		
+		{id: 8,name: 'test8', isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [2], tasks: [
+		                            {name: 'test8', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
+		                        ]}, 
+		   
+		{id: 9,name: 'test4', isStaff: false, parent: 1, children: [], status: 'zu bearbeiten', priority: '1', editors: [1], hasData: 'false', tasks: [
+		                            {name: 'test4', color: '#F1C232', from: new Date(2015, 11, 21, 8, 0, 0), to: new Date(2015, 11, 25, 15, 0, 0)}]},
+								
+		
+		{name: 'test5',parent: 'Jonas', status: 'zu bearbeiten',priority: '2', tasks: [
+		                            {name: 'test5', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
+		                        ]},
+		{name: 'test6',parent: 'Jonas', status: 'zu bearbeiten',priority: '1', tasks: [
+		                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
+		                        ]}, 
+]
 		
 		$scope.options = {
 			useData: $scope.data,
@@ -2005,8 +2084,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            rowContent: '<i ng-hide = "row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showAside()"></i><a href="#" ng-class = "row.model.isStaff == \'true\' ? \'parent\': \'\' "  editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.addNewTask(row)"></i> ', /*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
-            taskContent: '{{task.model.name}}', /*deleteTask(task.model,row.model)*/
+            rowContent: '<i ng-hide ="row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showAside()"></i><a href="#" ng-class = "row.model.isStaff == true ? \'parent\': \'\' "  editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onaftersave="scope.editTask($data,row)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.addNewTask(row)"></i> ', /*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
+            taskContent: '{{task.model.name}}', 
             zoom: 1.3,
              api: function(api) {
                 // API Object is used to control methods and events from angular-gantt.
@@ -2014,7 +2093,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 
 	              api.core.on.ready($scope, function(){
 	              	api.core.on.ready($scope, logReadyEvent);
-	              	
+	              	/* api.data.on.change($scope.dataTasks, $scope.data); */
+					api.data.on.remove($scope, addEventName('data.on.remove', logDataEvent));
 	     	              
 	              if (api.tasks.on.moveBegin) {
                         api.tasks.on.moveEnd($scope, addEventName('tasks.on.moveEnd', changeTask));
@@ -2045,53 +2125,110 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 
         $scope.getColumnWidth = function(widthEnabled, scale, zoom) {
             if (!widthEnabled && $scope.canAutoWidth(scale)) {
-                return undefined;
+
+				return undefined;
             }
 
             if (scale.match(/.*?week.*?/)) {
+				
                 return 150 * zoom;
             }
 
             if (scale.match(/.*?month.*?/)) {
+				
                 return 300 * zoom;
             }
 
             if (scale.match(/.*?quarter.*?/)) {
+				
                 return 500 * zoom;
             }
 
             if (scale.match(/.*?year.*?/)) {
+				
                 return 800 * zoom;
             }
-
+			
             return 40 * zoom;
         };
 
 		$scope.getStaffInGantt = function(){
 			//alle Bearbeiter suchen
 			$.each($scope.data,function(index){
-					if($scope.data[index].isStaff == 'true'){
+					if($scope.data[index].isStaff == true){
 						$scope.staffArray.push($scope.data[index].id);
+						/* console.log('push'); */
 					}	
 				});
-			/*console.log($scope.staffArray.id);
-			var j = 0;
-			$.each($scope.data,function(index){
-					if($scope.data[index].isStaff == 'true'){
-						$scope.staffArray[j] = [];
-						$scope.staffArray[j]["id"] = $scope.data[index].id;
-						$scope.staffArray[j]["name"] = $scope.data[index].name;
-						alert($scope.staffArray[j]);
-						j++;
-					}	
-				});*/
 		}
 		/*Tasks*/
+		function generateRows() {
+			var newid = 0;
+			
+			$.each($scope.members, function(i) {
+				var member = $scope.members[i];
+				var row = {
+					id: newid,
+					name: member.name,
+					memberRef: member,
+					isStaff: true,
+					groups: false,
+					children: [],
+					tasks: []
+				};
+				$scope.data.push(row);
+				newid++;
+				console.log('member pushed');
+				
+				$.each($scope.tasks, function(j) {
+					
+					/*if($scope.tasks[j].editors.indexOf(member) === -1){
+						return true;
+						}*/
+						console.log('test');
+					var task = $scope.tasks[j]; //task ist Referenz auf Objekt in $scope.tasks[j]
+					var rowTask = {
+						id: newid,
+						name: task.name,
+						taskRef: task,
+						parent: task.id,
+						children: task.children,
+						tasks: task.from ? [{name: task.name, from: task.from, to: task.to}] : []
+					};
+					
+					$scope.data.push(rowTask); // übergibt auch Referrenz
+					newid++;
+					console.log('task pushed');
+					
+					/*function pushChildTasks(parentTask, parentRow) {
+						$.each(parentTask.children, function(k) {
+							var childTask = parentTask.children[k];
+							parentRow.children.push(newid);
+							var childRow = {
+								id: newid,
+								name: childTask.name,
+								taskRef: childTask,
+								children: [],
+								tasks: childTask.from ? [{name: childTask.name, from: childTask.from, to: childTask.to}] : []
+							};
+							$scope.data.push(childRow);
+							newid++;
+							pushChildTasks(childTask, childRow);
+						});
+					}
+					pushChildTasks(task, rowTask);
+					console.log('child pushed');*/
+					
+				});
+			});
+			console.log($scope.data);
+		}
 		
 		$scope.addNewTask = function (row){	
 			
 			var tid = Utilities.getUniqueId();
-			
+			var hier= $scope.api.tree.getHierarchy();
+			/* console.log(hier.ancestors(row)[hier.ancestors(row).length-1].model.name); */
 			if($scope.sortby == 'staff'){
 				$.each($scope.data,function(index){
 					if($scope.data[index].name == 'neue Aufgabe' ||  $scope.data[index].name == 'neue Unteraufgabe'){
@@ -2108,15 +2245,15 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					else{
 						 
 							
-							if(row.model.isStaff == 'true'){ //wenn auf Bearbeiter geklickt wurde
-							$scope.data.push({id: tid, name: 'neue Aufgabe', isStaff: 'false', parent: row.model.id, children: [], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
+							if(row.model.isStaff == true){ //wenn auf Bearbeiter geklickt wurde
+							$scope.data.push({id: tid, name: 'neue Aufgabe', isStaff: false, parent: row.model.id, children: [], editors: [hier.ancestors(row)[hier.ancestors(row).length-1].model.id], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
 							/*console.log(tid);
 							console.log($scope.staffArray);*/
 							}
 							
 							 else{ // wenn auf Aufgabe oder Unteraufgabe geklickt wurde
 							 	//hinzufügen der Unteraufgabe
-								$scope.data.push({id: tid, name: 'neue Unteraufgabe',isStaff: 'false', children: [], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Unteraufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
+								$scope.data.push({id: tid, name: 'neue Unteraufgabe',isStaff: false, children: [], editors: [hier.ancestors(row)[hier.ancestors(row).length-1].model.id], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Unteraufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
 								//als child zu übergeordnetem Element hinzufügen
 								row.model.children.push(tid);
 								row.model.tasks = [];
@@ -2175,55 +2312,65 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		}
 		
 		$scope.editTask = function(data, row){
+			
 			var parent = $scope.getParent(row)
 			var isChanged = false;
 				//name in linker und rechter Spalte ändern
 				/*console.log(row.model.tasks);*/
-				$.each($scope.options.useData,function(index){ //prüfen, ob bereits vorhandene Aufgabe leer ist
+			/* 	$.each($scope.options.useData,function(index){ //prüfen, ob bereits vorhandene Aufgabe leer ist
 					if($scope.options.useData[index].name == data && isChanged == false){
+						console.log('test');
 						if(confirm('Diese Aufgabe existiert bereits, wollen Sie die Daten übernehmen?') ){
+							
 							row.model.name = $scope.options.useData[index].name;
 							row.model.tasks[0].name = $scope.options.useData[index].tasks[0].name;
 							row.model.tasks[0].from = $scope.options.useData[index].tasks[0].from;
 							row.model.tasks[0].to = $scope.options.useData[index].tasks[0].to;
 							isChanged = true;
 						}
-					}
+					} */
 					
-				});
+				/* 	else{
+						row.model.name = $scope.options.useData[index].name;
+						row.model.tasks[0].name = $scope.options.useData[index].tasks[0].name;
+					}
+					 
+				});*/
 				
-				/*row.model.name = data;
-				row.model.tasks[0].name= data;*/
+				row.model.name = data;
+				row.model.tasks[0].name= data;
 		}
 		
-		$scope.sortByTasks = function(row){			
+		$scope.sortByTasks = function(){	
+	
 			if($scope.sortby == 'staff'){
-			console.log($scope.data);
 			$.each($scope.data,function(index){ // Array mit Aufgaben anlegen
-					if($scope.data[index].isStaff == 'false'/* && $scope.parentIsStaff($scope.data[index].parent)*/){// ist Oberaufgabe
+					if($scope.data[index].isStaff == false/* && $scope.parentIsStaff($scope.data[index].parent)*/){// ist Oberaufgabe
 						$scope.tasksArray.push($scope.data[index].name);
 					}
 				});
 			
-			//duplikate rausfiltern das ist das Problem!!!!!
+			console.log($scope.tasksArray);
 			$scope.tasksArray = $.unique($scope.tasksArray);	
-			/*console.log($scope.tasksArray);*/
+			$scope.tasksArray.reverse();
+			console.log($scope.tasksArray);
+			
 			
 			//array mit tasks und editors bauen
 				//tasksArray einträge werden aufgabenobjekte
 				$.each($scope.tasksArray,function(indexT){
 					$scope.dataTasks.push({name: $scope.tasksArray[indexT], children: [], editors: []});
+					
 				});
+				
+				console.log($scope.dataTasks);
 				
 				//aufgabenobjekte bekommen editors
 				/*	console.log($scope.data);*/
 			$.each($scope.dataTasks,function(indexT){
 				$.each($scope.data,function(indexD){ 
-				//Oberufgaben bekommen als Editor Parentobjekte
-				
-					if($scope.dataTasks[indexT].name == $scope.data[indexD].name && $scope.parentIsStaff($scope.data[indexD].parent)){
-						/*console.log('mit parent Task ' + $scope.dataTasks[indexT].name);
-						console.log('mit parent Data ' + $scope.data[indexD].name);*/
+				//Oberaufgaben bekommen als Editor Parentobjekte
+					if($scope.dataTasks[indexT].name == $scope.data[indexD].name /* && $scope.parentIsStaff($scope.data[indexD].parent) */){
 						$scope.dataTasks[indexT].id= $scope.data[indexD].id;
 						$scope.dataTasks[indexT].isStaff= $scope.data[indexD].isStaff;
 						$scope.dataTasks[indexT].parent= '';
@@ -2232,24 +2379,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 						$scope.dataTasks[indexT].priority= $scope.data[indexD].priority;
 						$scope.dataTasks[indexT].hasData= $scope.data[indexD].hasData;
 						$scope.dataTasks[indexT].tasks = $scope.data[indexD].tasks;
-						$scope.dataTasks[indexT].editors.push($scope.getParentById($scope.data[indexD].parent));
-					}
-				//Unteraufgabe bekommen als Editor Parentobjekte der Oberaufgaben
-					if($scope.dataTasks[indexT].name == $scope.data[indexD].name && !$scope.parentIsStaff($scope.data[indexD].parent)){
-						$scope.dataTasks[indexT].id= $scope.data[indexD].id;
-						$scope.dataTasks[indexT].isStaff= $scope.data[indexD].isStaff;
-						$scope.dataTasks[indexT].parent= '';
-						$scope.dataTasks[indexT].children= $scope.data[indexD].children;
-						$scope.dataTasks[indexT].status= $scope.data[indexD].status;
-						$scope.dataTasks[indexT].priority= $scope.data[indexD].priority;
-						$scope.dataTasks[indexT].hasData= $scope.data[indexD].hasData;
-						$scope.dataTasks[indexT].tasks = $scope.data[indexD].tasks;
-						
-						$scope.dataTasks[indexT].editors = $scope.dataTasks[indexT].editors.concat($scope.getChildrensEditor($scope.data[indexD].id));//.concat($scope.getChildrensEditor($scope.data[indexD].id)); Oberaufgabe herausfinden
-						/*console.log($scope.tasksWithEditors[indexT]);*/
-						/*console.log('getChildrensEditors ' + $scope.getChildrensEditor($scope.data[indexD].id));*/
-						console.log($scope.dataTasks[indexT].editors, $scope.dataTasks[indexT].name);
-						
+						$scope.dataTasks[indexT].editors = $scope.dataTasks[indexT].editors.concat($scope.getStaffById($scope.data[indexD].editors));
 					}
 				});
 			});	
@@ -2262,9 +2392,9 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			//Datenarray umschalten, Spalte hinzufügen
 			$scope.options.columns.push('model.editors');
 			$scope.options.useData = $scope.dataTasks;
-			
+			/* $scope.api.data.on.change($scope.dataTasks, $scope.data); */
 			$scope.sortby = 'task';
-			/*console.log($scope.dataTasks);*/
+			console.log($scope.dataTasks);
 			};
 		}
 		
@@ -2279,7 +2409,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			};
 		}
 
-		$scope.getParentById= function(pid){
+		$scope.getStaffById= function(pid){
 			/*console.log('pid' + pid);*/
 			var tmp = '';
 				$.each($scope.data, function(indexD){
@@ -2307,7 +2437,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			found = false;
 			$.each($scope.dataTasks, function(index){
 				if(childID == $scope.dataTasks[index].id){
-					console.log('child gefunden');
 					found = true;
 				}
 			});
@@ -2315,7 +2444,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			return found;
 		}
 
-		$scope.getChildrensEditor = function(id){
+		/* $scope.getChildrensEditor = function(id){
 			var editors = [];
 	
 				$.each($scope.data,function(indexD){
@@ -2329,11 +2458,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			
 			//rückgabe array aller bearbeiter
 			return editors;
-		}
+		} */
 		
-		$scope.parentIsStaff = function(pObject){
-			/*console.log('pObject' + pObject);*/
-				if($scope.staffArray.indexOf(pObject)!== -1){
+		$scope.parentIsStaff = function(pid){ 
+				if($scope.staffArray.indexOf(pid)!== -1){
 				return true;
 			}	
 			else{
@@ -2401,49 +2529,83 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			}
 		};	
 			
-		$scope.deleteTask = function(row){	
+		/* $scope.deleteTask = function(row){	
+		
 			if($scope.sortby == 'staff'){
-				var length = $scope.data.length
-				/*alle children löschen*/
+				var arrayLength = $scope.data.length;
+				//alle children löschen
 				if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
-				var hier= $scope.api.tree.getHierarchy();
-				/*console.log(hier.parent(row).tasks.length);*/
-					// alle children löschen
+				
+					if($scope.parentIsStaff(row.model.parent)){//wenn Oberaufgabe geklickt, werden alle Children gelöscht
+						var hier= $scope.api.tree.getHierarchy();
+						console.log(hier.children(row)); 
+							if(hier.children(row)){ //Children + Einzelaufgabe löschen
+								for(i= 0; i< arrayLength; i++){ 
+									$.each(hier.children(row), function(indexC){
+										if(hier.children(row)[indexC].model.id == $scope.data[i].id){
+											console.log(row.model.id);
+											console.log($scope.data[i].id);
+											$scope.data.splice(i,1);
+											arrayLength--;
+											console.log($scope.data);
+											return false;
+										}
+									});
+								};
+							}
+							
+							else{
+								
+								for(i= 0; i< arrayLength; i++){ //Einzelaufgabe löschen
+									if(row.model.id == $scope.data[i].id){
+										console.log(row.model.id);
+										console.log($scope.data[i].id);
+										$scope.data.splice(i,1);
+										console.log('gelöscht');
+										arrayLength--;
+										return false;
+									}
+								};
+								
+							}
+					}	
 					
-					
-					for (i= 0; i < length; i++) {
-						/*console.log(row.model.children);*/
-						if(row.model.name == $scope.data[i].name){
-							//alle unteraufgaben an aufgabe löschen
-							/*console.log("gefunden" + $scope.data[i].name + $scope.data[i].parent);*/
-							$scope.data.splice(i,1);
-							length--;
-						}
-					};
-					/*parent löschen*/
-					for (j= 0; j < length; j++) {	
-						if(row.model.id == $scope.data[j].id){
-							$scope.countChildren(row,length,hier);
-							/*console.log($scope.childCounter);*/
-							if($scope.childCounter == 1){
-								/*hier.parent(row).model.name = rowModel.name;*/
-								hier.parent(row).model.tasks.push({name: hier.parent(row).model.name, color: '#F1C232', from: row.model.tasks[0].from.format("YYYY.MM.DD"), to: row.model.tasks[0].to.format("YYYY.MM.DD")});
-								}
-						
-						$scope.data.splice(j,1);
-						/*console.log("Unteraufgabe gelöscht");
-						console.log($scope.data);*/
-						$scope.childCounter= 0;
-						return false;
-						}
-						
-					};
+					else{
+						for(i= 0; i< arrayLength; i++){ 
+							if(row.model.id == $scope.data[i].id){
+										console.log(row.model.id);
+										console.log($scope.data[i].id);
+										$scope.data.splice(i,1);
+										arrayLength--;
+										return false;
+									}
+						};
+					}
 				}
 			}
 		else{
 				alert('Bitte ändern Sie die Sortierung!');
 			}
-		};
+		}; */
+		
+		$scope.deleteTask = function(row) {
+			
+			var dataToRemove= [];
+			var hier= $scope.api.tree.getHierarchy();
+			
+			if(hier.children(row)){ //alle childrenobjekte raussuchen
+				$.each(hier.children(row),function(indexC){ 
+					dataToRemove.push({'id': hier.children(row)[indexC].model.id});
+					dataToRemove.push({'id': row.model.id});
+					console.log(dataToRemove);
+				});
+			}
+			else{
+				dataToRemove.push({'id': row.model.id});
+			}
+			
+			$scope.api.data.remove(dataToRemove);
+        };
 		
 		$scope.countChildren = function(row,length, hier){
 			console.log(hier.parent(row).model.name);
@@ -2473,7 +2635,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			mysqlRequest.getAllStaff().success(function(obj, status){
 					
 					$scope.staff = obj.data;
-					console.log($scope.staff);
+					/* console.log($scope.staff); */
 			});
 		};
 		
@@ -2560,6 +2722,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
          var logReadyEvent = function() {
             $log.info('[Event] core.on.ready');
         };
+		 var logDataEvent = function(eventName) {
+            $log.info('[Event] ' + eventName);
+        };
+
         
         // Event utility function
         var addEventName = function(eventName, func) {
@@ -2571,7 +2737,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	//initiiere Staff
 	$scope.getAllStaff();
 	$scope.getStaffInGantt();
-	console.log('parents ' + $scope.staffArray);
+	/*generateRows();*/
+	/*console.log('parents ' + $scope.staffArray);*/
 	}]);
 
 function extractData(data) {
