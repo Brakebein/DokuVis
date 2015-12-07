@@ -2246,7 +2246,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							$scope.data.push({id: tid, name: 'neue Aufgabe', isStaff: false, parent: row.model.id, children: [], editors: [row.model.id], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
 							/*console.log(tid);
 							console.log($scope.staffArray);*/
-							neo4jRequest.addTask($stateParams.project, $stateParams.subproject, tid, ,'e21_martin', )
+							// neo4jRequest.addTask($stateParams.project, $stateParams.subproject, tid, ,'e21_martin', )
 							}
 							
 							 else{ // wenn auf Aufgabe oder Unteraufgabe geklickt wurde
