@@ -28,6 +28,10 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					(tsubproj:E55:'+prj+' {content:"subproject"}), \
 					(tpdesc:E55:'+prj+' {content:"projDesc"}), \
 					(tpinfo:E55:'+prj+' {content:"projInfo"}), \
+					(task:E55:'+prj+' {content:"task"}), \
+					(taskDesc:E55:'+prj+' {content:"taskDesc"}),\
+					(taskPriority:E55:'+prj+' {content:"taskPriority"}),\
+					(taskStatus:E55:'+prj+' {content:"taskStatus"}),\
 					(proj)-[:P2]->(tproj), \
 					(proj)-[:P15]->(root), \
 					(tplan)-[:P127]->(tsource), \
@@ -52,6 +56,78 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				params: {}
 			});
 		};
+		
+		//Aufgaben Kommentare hinzufügen
+		requests.addTask =  function(prj,subprj,taskID,tdesc,teditor,tduration){
+			
+			var q = '';
+			q += 'MATCH (e7:E7:'+prj+' {content: {e7id}})';
+			q += ',(taskDesc:E55:'+prj+'{content: "taskDesc"})';
+			q += ',(task:E55:'+prj+'{content: "task"})';
+			q += ',(editor:E21:'+prj+'{content: {editor}})';
+			
+			q += ' CREATE (e7:E7:'+prj+'{content: {tID}})-[:P2]]->(task)'; //Activity-->Task
+			q += ',CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(taskDesc)'; //String--> Type
+			q += ',CREATE (e7)-[:P4]->(e52:E652:'+prj+' {content:{e52id}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to})'; 
+			q += ',CREATE((e7)-[:P14]->(e21))';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					e7id: subprj,
+					tID: taskID,
+					desc: tdesc,
+					descId: taskID + '_taskDesc',
+					editor: teditor,
+					e52id: 'e52_' + taskID,
+					from: from,
+					to: to
+				}
+			});
+			
+		/* 	requests.insertScreenshot = function(prj, subprj, objData, markers) {
+			
+			var q = '';
+			q += 'MATCH (e22:E22:'+prj+' {content: {e22id}})';
+			q += ',(tscreen:E55:'+prj+' {content: "screenshot"})';
+			q += ',(tscomment:E55:'+prj+' {content: "screenshotComment"})';
+			
+			q += ' CREATE (e36:E36:'+prj+' {e36content})-[:P2]->(tscreen)';
+			q += ' CREATE (e36)-[:P1]->(e75:E75:'+prj+' {e75content})';
+			q += ' CREATE (e36)-[:P138]->(e22)';
+			
+			for(var i=0; i<markers.length; i++) {
+				q += ' CREATE (e36)-[:P106]->(:E90:'+prj+' {content: "'+markers[i].id+'", u: '+markers[i].u+', v: '+markers[i].v+'})-[:P3]->(:E62:'+prj+' {content: "'+markers[i].comment+'"})-[:P3_1]->(tscomment)';
+			}
+			
+			q += ' RETURN e36';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					e22id: 'e22_root_'+subprj,
+					e36content: {
+						content: 'e36_' + objData.filename,
+						cameraCenter: objData.data.cameraCenter,
+						cameraFOV: objData.data.cameraFOV,
+						cameraMatrix: objData.data.cameraMatrix
+					},
+					e75content: {
+						content: objData.filename,
+						path: objData.path,
+						width: objData.data.width,
+						height: objData.data.height
+					}
+				}
+			});
+		}; */
+			
+			
+		}
+		
+		requests.getCommentFromTask = function(prj,id){
+		}
+		
 		// alle Knoten und Kanten des Projekts löschen
 		requests.deleteAllProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
