@@ -775,11 +775,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			});*/
 		};
 		
-		$scope.setRampOpacity = function(event, data) {
-			console.log(event, data);
-			console.log(event.offsetX / event.delegateTarget.offsetWidth);
-		};
-		
 		$scope.callDirFunc = {};
 		
 		// öffne oder schließe Tab im vpPanelContainer
@@ -1817,7 +1812,6 @@ webglControllers.controller('testCtrl', ['$scope', '$stateParams',
 				};
 				$scope.data.push(row);
 				newid++;
-				console.log('member pushed');
 				
 				$.each($scope.tasks, function(j) {
 					if($scope.tasks[j].editors.indexOf(member) === -1)

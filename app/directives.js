@@ -1584,29 +1584,66 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				}
 			});
 			
+			// set opacity of objects
+			webglInterface.callFunc.setObjectOpacity = function(item, value) {
+				var mesh = objects[item.id].mesh;
+				var edges = objects[item.id].edges;
+				
+				if(item.type === 'object')
+					setOpacity(mesh, edges, value);
+				item.opacity = value;
+				setChildrenOpacity(item.children, value);
+			};
+			
 			// set opacity of plans
 			webglInterface.callFunc.setPlanOpacity = function(id, value) {
 				var mesh = plans[id].mesh;
 				var edges = plans[id].edges;
+				setOpacity(mesh, edges, value);
+			};
+			
+			function setChildrenOpacity(children, value) {
+				for(var i=0; i<children.length; i++) {
+					var cid = children[i].id;
+					var mesh = objects[cid].mesh;
+					var edges = objects[cid].edges;
+					
+					if(children[i].type === 'object')
+						setOpacity(mesh, edges, value);
+					children[i].opacity = value;
+					setChildrenOpacity(children[i].children, value);
+				}
+			}
+			
+			function setOpacity(mesh, edges, value) {
 				if(value == 1.0) {
-					mesh.material.transparent = false;
-					mesh.material.depthWrite = true;
-					mesh.material.needsUpdate = true;
-					edges.material = selected.indexOf(mesh) === -1 ? materials['edgesMat'] : materials['edgesSelectionMat'];
+					if(selected.indexOf(mesh) === -1) {
+						mesh.material = materials[mesh.userData.originalMat];
+						if(edges) edges.material = materials['edgesMat'] ;
+					}
+					else {
+						mesh.material = materials['selectionMat'];
+						if(edges) edges.material = materials['edgesSelectionMat'] ;
+					}
 					mesh.userData.modifiedMat = false;
 				}
 				else if(!mesh.userData.modifiedMat) {
+					mesh.material = mesh.material.clone();
 					mesh.material.transparent = true;
 					mesh.material.depthWrite = false;
 					mesh.material.needsUpdate = true;
-					edges.material = edges.material.clone();
-					edges.material.transparent = true;
-					edges.material.needsUpdate = true;
+					if(edges) {
+						edges.material = edges.material.clone();
+						edges.material.transparent = true;
+						edges.material.needsUpdate = true;
+					}
 					mesh.userData.modifiedMat = true;
 				}
 				mesh.material.opacity = value;
-				edges.material.opacity = value;
-			};
+				if(edges) edges.material.opacity = value;
+			}
+			
+			
 			
 			// transformiere Mousekoordinaten zu Viewportkoordinaten
 			function mouseInputToViewport(event) {
@@ -1908,6 +1945,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				$(canvas).bind('mousemove', mousemove);
 				$(canvas).bind('mouseup', mouseup);
 				$(canvas).bind('mousewheel', mousewheel);
+				//$(canvas).bind('MozMousePixelScroll', mousewheel); // firefox
 				$(canvas).bind('DOMMouseScroll', mousewheel); // firefox
 				$(canvas).bind('keydown', keydown);
 				$(canvas).bind('keyup', keyup);
@@ -2174,7 +2212,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					objects[obj.id] = {mesh: obj, edges: null, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true, parent: parentid};
 					
 					// Liste für die Anzeige auf der HTML-Seite
-					webglInterface.insertIntoLists({ name: obj.name, id: obj.id, title: obj.userData.name, layer: obj.userData.layer, type: obj.userData.type, parent: parentid });
+					webglInterface.insertIntoLists({ name: obj.name, id: obj.id, title: obj.userData.name, layer: obj.userData.layer, type: obj.userData.type, parent: parentid, parentVisible: true});
 					
 					// if(scope.layers.indexOf(obj.userData.layer) === -1)
 						// scope.layers.push(obj.userData.layer);
@@ -2286,7 +2324,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					}
 					
 					// Liste, um zusammengehörige Objekte zu managen
-					objects[mesh.id] = {mesh: mesh, edges: edges, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true, parent: parentid};
+					objects[mesh.id] = {mesh: mesh, edges: edges, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true, parent: parentid, parentVisible: true};
 					
 					// Liste für die Anzeige auf der HTML-Seite
 					webglInterface.insertIntoLists({ name: mesh.name, id: mesh.id, title: mesh.userData.name, layer: mesh.userData.layer, type: mesh.userData.type, parent: parentid });
@@ -2386,32 +2424,58 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					setSelected(plans[id].mesh, event.ctrlKey);
 				else if(objects[id].visible)
 					setSelected(objects[id].mesh, event.ctrlKey);
-			}
+			};
+			
+			webglInterface.callFunc.selectObject = function(id, ctrlKey, deselect) {
+				if(objects[id].visible)
+					setSelected(objects[id].mesh, ctrlKey, deselect);
+			};
+			
+			webglInterface.callFunc.selectPlan = function(id, ctrlKey, deselect) {
+				if(plans[id].visible)
+					setSelected(plans[id].mesh, ctrlKey, deselect);
+			};
 			
 			// get object by id and add or remove mesh and edges
-			scope.internalCallFunc.toggleObject = function(item) {
+			webglInterface.callFunc.toggleObject = function(item, visible) {
 				var p;
 				if(parent)
 					p = objects[item.parent.id].mesh;
 				else
 					p = scene;
 				
-				var obj = p.getObjectById(item.id);				
-				if(item.visible && !obj) {
-					if(scope.shading != shading.EDGE && objects[item.id].mesh)
-						p.add(objects[item.id].mesh);
-					if((scope.shading == shading.COLOR_EDGE || scope.shading == shading.GREY_EDGE || scope.shading == shading.EDGE || scope.shading == shading.TRANSPARENT_EDGE) && objects[item.id].edges) {
-						if(scope.unsafeSettings.edges)
-							p.add(objects[item.id].edges);
-					}
+				var obj = p.getObjectById(item.id);	
+				if(visible && !obj) {
+					p.add(objects[item.id].mesh);
+					scene.add(objects[item.id].edges);
+					objects[item.id].visible = true;
+					addChildren(item.children);
+					
 				}
-				if(!item.visible) {
-					if(scope.shading != shading.EDGE)
-						p.remove(objects[item.id].mesh);
-					if((scope.shading == shading.COLOR_EDGE || scope.shading == shading.GREY_EDGE || scope.shading == shading.EDGE || scope.shading == shading.TRANSPARENT_EDGE) && objects[item.id].edges)
-						p.remove(objects[item.id].edges);
+				else if(!item.visible) {
+					p.remove(objects[item.id].mesh);
+					scene.remove(objects[item.id].edges);
+					objects[item.id].visible = false;
+					removeChildren(item.children);
 				}
-				objects[item.id].visible = item.visible;
+			};
+			
+			function addChildren(children) {
+				for(var i=0; i<children.length; i++) {
+					var cid = children[i].id;
+					scene.add(objects[cid].edges);
+					objects[cid].visible = true;
+					addChildren(children[i].children);
+				}
+			}
+			
+			function removeChildren(children) {
+				for(var i=0; i<children.length; i++) {
+					var cid = children[i].id;
+					scene.remove(objects[cid].edges);
+					objects[cid].visible = false;
+					removeChildren(children[i].children);
+				}
 			}
 			
 			webglInterface.callFunc.togglePlan = function(pid, visible) {
@@ -2490,16 +2554,23 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				console.log('orthoview');
 			};
 			
+			webglInterface.callFunc.focusObject = function(id) {
+				var objs = [objects[id].mesh];
+				var cc = [];
+				function collectChildren(children) {
+					for(var i=0; i<children.length; i++) {
+						collectChildren(children[i].children);
+						if(children[i].userData.type === 'object')
+							cc.push(children[i]);
+					}
+				}
+				collectChildren(objs);
+				focusObjects(cc);
+			};
+			
 			// Focus selected objects
 			webglInterface.callFunc.focusSelected = function() {
 				if(selected.length === 0) return;
-				/*if(selected.userData.type === 'object') {
-					var center = selected.geometry.boundingSphere.center.clone().applyMatrix4(selected.matrixWorld);
-					var t = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3();
-					selected.matrixWorld.decompose(t,q,s);
-					computeFocusFromSphere(center, selected.geometry.boundingSphere.radius * s.x);
-				}
-				else if(selected.userData.type === 'group') {*/
 				var cc = [];
 				function collectChildren(children) {
 					for(var i=0; i<children.length; i++) {

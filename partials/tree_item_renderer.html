@@ -1,12 +1,14 @@
 <div class="listItem" ng-class="{selected: data.selected}" id="list{{data.id}}">
-	<span class="glyphicon glyphicon-eye-open toggle" ng-class="data.visible ? 'show' : 'hide'" ng-click="data.visible=!data.visible; callDirFunc.toggleObject(data);"></span>
+	<span class="glyphicon toggle" ng-class="data.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="data.toggle()"></span>
 	<div class="expand" ng-style="{'flex-basis': (depth*20+15)+'px'}" ng-click="data.expand = !data.expand;"><span ng-class="(data.children.length > 0) ? (data.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus') : ''" ></span></div>
-	<span class="info" ng-click="wi.callFunc.selectObjectById(data.id, $event);">{{data.title}} ({{data.id}}) {{depth}}</span>
+	<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}}) {{depth}}</span>
+	<div class="opacity" ramp-slider rs-model="data.opacity" rs-onchange="data.setOpacity" rs-color="#ddd" rs-color-two="#bbb"></div>
+	<span class="glyphicon glyphicon-search" title="Fokusieren" ng-click="data.focus()"></span>
 	<!--<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
 		<div class="listExpand"><span ng-class="(data.children.length > 0) ? (data.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus') : ''" ng-click="data.expand = !data.expand;"></span></div>
 		<span ng-click="wi.callFunc.selectObjectById(data.id, $event);">{{data.title}} ({{data.id}}) {{depth}}</span>
 	</div>-->
 </div>
-<div ng-if="data.expand && data.children.length > 0" class="listChildren">
+<div ng-if="data.expand && data.children.length > 0" class="listChildren" ng-class="{unvisible: !data.visible}">
 	<div ng-repeat="data in data.children | orderBy: 'name'" ng-init="depth=depth+1" ng-include="'partials/tree_item_renderer.html'"></div>
 </div>

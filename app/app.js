@@ -15,7 +15,7 @@ var webglApp = angular.module('webglApp', [
 	'ngDragDrop',
 	'textAngular'
 ]);
-
+webglApp.constant('API', 'api/');
 webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$tooltipProvider',
 	function($stateProvider, $urlRouterProvider, $modalProvider, $tooltipProvider) {
 		
