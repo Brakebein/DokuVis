@@ -1945,6 +1945,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				$(canvas).bind('mousemove', mousemove);
 				$(canvas).bind('mouseup', mouseup);
 				$(canvas).bind('mousewheel', mousewheel);
+				//$(canvas).bind('MozMousePixelScroll', mousewheel); // firefox
 				$(canvas).bind('DOMMouseScroll', mousewheel); // firefox
 				$(canvas).bind('keydown', keydown);
 				$(canvas).bind('keyup', keyup);
