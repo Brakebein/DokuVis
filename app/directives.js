@@ -2784,12 +2784,14 @@ webglDirectives.directive('resizer',
 	function($document) {
 		return {
 			scope: {
-				resizerEnd: '='
+				resizerEnd: '=',
+				resizerAnim: '='
 			},
 			link: function(scope, element, attrs) {
 				
 				var offset = 0;
 				var space = 0;
+				var endPosition = 0;
 				
 				element.on('mousedown', function(event) {
 					event.preventDefault();
@@ -2829,9 +2831,9 @@ webglDirectives.directive('resizer',
 							width: x + 'px'
 						});
 						$(attrs.resizerRight).css({
-							left: (x + parseInt(attrs.resizerWidth)) + 'px'
+							left: (x + element.width()) + 'px'
 						});
-						
+						endPosition = x;
 					}
 					else {
 						// handle horizontal resizer
@@ -2848,19 +2850,69 @@ webglDirectives.directive('resizer',
 							bottom: y + 'px'
 						});
 						$(attrs.resizerTop).css({
-							bottom: (y + parseInt(attrs.resizerHeight)) + 'px'
+							bottom: (y + element.height()) + 'px'
 						});
 						$(attrs.resizerBottom).css({
 							height: y + 'px'
 						});
+						endPosition = y;
 					}
-				}	
+				}
 				
 				function rMouseup() {
 					$document.unbind('mousemove', rMousemove);
 					$document.unbind('mouseup', rMouseup);
 					if(scope.resizerEnd) scope.resizerEnd();
+					scope.resizerAnim = endPosition;
+					scope.$apply();
 				}
+				
+				scope.$watch('resizerAnim', function(newValue, oldValue) {
+					console.log(newValue, oldValue);
+					
+					if(attrs.resizer == 'vertical') {
+						space = element.parent()[0].offsetWidth;
+						var x = newValue;
+						
+						if(attrs.resizerLeftMin && x < attrs.resizerLeftMin) {
+							x = parseInt(attrs.resizerLeftMin);
+						}
+						if(attrs.resizerRightMin && x > space - attrs.resizerRightMin) {
+							x = space - parseInt(attrs.resizerRightMin);
+						}
+						
+						element.animate({
+							left: x + 'px'
+						}, 500);
+						$(attrs.resizerLeft).animate({
+							width: x + 'px'
+						}, 500);
+						$(attrs.resizerRight).animate({
+							left: (x + element.width()) + 'px'
+						}, 500);
+					}
+					else {
+						space = element.parent()[0].offsetHeight;
+						var y = newValue;
+						
+						if(attrs.resizerTopMin && y > space - attrs.resizerTopMin) {
+							y = space - parseInt(attrs.resizerTopMin);
+						}
+						if(attrs.resizerBottomMin && y < attrs.resizerBottomMin) {
+							y = parseInt(attrs.resizerBottomMin);
+						}
+						
+						element.animate({
+							bottom: y + 'px'
+						}, 500);
+						$(attrs.resizerTop).animate({
+							bottom: (y + element.height()) + 'px'
+						}, 500);
+						$(attrs.resizerBottom).animate({
+							height: y + 'px'
+						}, 500);
+					}
+				});
 			}
 		};
 	});

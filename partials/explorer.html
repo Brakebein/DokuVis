@@ -256,7 +256,7 @@
 
 </div>
 
-<div class="resizer-v" resizer="vertical" resizer-width="6" resizer-left=".viewportPanel" resizer-left-min="780" resizer-right=".sidePanel" resizer-right-min="380" resizer-end="wi.callFunc.resize"></div>
+<div class="resizer-v" resizer="vertical" resizer-left=".viewportPanel" resizer-left-min="780" resizer-right=".sidePanel" resizer-right-min="380" resizer-end="wi.callFunc.resize"></div>
 
 </div>
 
@@ -390,6 +390,8 @@
 		<button ng-click="indexDocuments()">index</button>
 		<button ng-click="searchText('Vestibül')">search</button>
 		<button ng-click="openIndexEdit()">index modal</button>
+		
+		<button ng-click="resizerValue = 800">resizerAnim</button>
 	</div>
 	
 	
@@ -437,11 +439,11 @@
 	
 </div>
 
-<div class="resizer-v" resizer="vertical" resizer-width="6" resizer-left=".sourcesPanel" resizer-left-min="780" resizer-right=".previewPanel" resizer-right-min="280"></div>
+<div class="resizer-v" resizer="vertical" resizer-left=".sourcesPanel" resizer-left-min="780" resizer-right=".previewPanel" resizer-right-min="280" resizer-anim="resizerValue"></div>
 
 </div>
 
-<div class="resizer-h" resizer="horizontal" resizer-height="6" resizer-top=".explorerUpperHalf" resizer-top-min="400" resizer-bottom=".explorerLowerHalf" resizer-bottom-min="234" resizer-end="wi.callFunc.resize"></div>
+<div class="resizer-h" resizer="horizontal" resizer-top=".explorerUpperHalf" resizer-top-min="400" resizer-bottom=".explorerLowerHalf" resizer-bottom-min="234" resizer-end="wi.callFunc.resize"></div>
 
 
 
