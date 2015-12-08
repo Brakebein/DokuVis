@@ -2246,9 +2246,12 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							$scope.data.push({id: tid, name: 'neue Aufgabe', isStaff: false, parent: row.model.id, children: [], editors: [row.model.id], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
 							/*console.log(tid);
 							console.log($scope.staffArray);*/
-							// neo4jRequest.addTask($stateParams.project, $stateParams.subproject, tid, ,'e21_martin', )
+							//prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus
+								if(neo4jRequest.addTask($stateParams.project, $stateParams.subproject, tid, 'neue Aufgabe','dies und das modellieren',row.model.id, getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'todo')){
+									alert('success');
+								}
+								else{alert('didnt work')};
 							}
-							
 							 else{ // wenn auf Aufgabe oder Unteraufgabe geklickt wurde
 							 	//hinzufügen der Unteraufgabe
 								$scope.data.push({id: tid, name: 'neue Unteraufgabe',isStaff: false, children: [], editors: [hier.ancestors(row)[hier.ancestors(row).length-1].model.id], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Unteraufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
