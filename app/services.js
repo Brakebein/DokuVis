@@ -22,6 +22,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					(tsubproj:E55:'+prj+' {content:"subproject"}), \
 					(tpdesc:E55:'+prj+' {content:"projDesc"}), \
 					(tpinfo:E55:'+prj+' {content:"projInfo"}), \
+					(proj)-[:P2]->(tproj), \
 					(proj)-[:P15]->(root), \
 					(proj)-[:P2]->(tproj), '
 					// source
@@ -78,6 +79,57 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				params: {}
 			});
 		};
+		
+		//Tasks/////////
+		//Aufgaben hinzufügen //muss noch erweitert werden
+		requests.addTask =  function(prj,subprj,taskID,tdesc,teditor,tduration){
+			
+			var q = '';
+			q += 'MATCH (e7:E7:'+prj+' {content: {e7id}})';
+			q += ',(ttdesc:E55:'+prj+'{content: "taskDesc"})';
+			q += ',(ttask:E55:'+prj+'{content: "task"})';
+			q += ',(editor:E21:'+prj+'{content: {editor}})';
+			q += ' CREATE (e7:E7:'+prj+'{content: {tID}})-[:P2]]->(task)'; //Activity-->Task
+			q += ',CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(taskDesc)'; //String--> Type
+			q += ',CREATE (e7)-[:P4]->(e52:E652:'+prj+' {content:{e52id}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to})'; 
+			q += ',CREATE((e7)-[:P14]->(e21))';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					e7id: subprj,
+					tID: taskID,
+					desc: tdesc,
+					descId: taskID + '_taskDesc',
+					editor: teditor,
+					e52id: 'e52_' + taskID,
+					from: from,
+					to: to
+				}
+			});			
+		}
+		
+		requests.getTask = function(prj,id){
+		}
+		//Mitarbeiter////////
+		//Mitarbeiter hinzufügen --> müssten doch an Projektknoten hängen,oder? Bezihung? P14?
+		requests.addStaff = function(prj,id,name){
+			var q = '';
+			q += 'MATCH (master:E7:'+prj+' {content: {master}})';
+			q += ',(tpproj:E55:'+prj+'{content:"projectPerson"})';
+			q +=  'CREATE (tpproj)<-[:P2]-(:E21:'+prj+' {content: 'e21_' + [name]})-[:P131]->(:E82:'+prj+' {content:{id}, value: {name}})',
+			
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					master: prj,
+					name:  name,
+					id: id,
+				}
+			});		
+		}
+		
 		// alle Knoten und Kanten des Projekts löschen
 		requests.deleteAllProjectNodes = function(prj) {
 			return $http.post(phpUrl, {
