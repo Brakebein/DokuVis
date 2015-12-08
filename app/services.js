@@ -80,19 +80,24 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		//Tasks/////////
-		//Aufgaben hinzufügen //muss noch erweitert werden
-		requests.addTask =  function(prj,subprj,taskID,tdesc,teditor,tduration){
-			
+		//Tasks////////
+		requests.addTask =  function(prj,subprj,taskID,tdesc,teditor,tfrom,tto,ttitle, tpriority, tstatus){
 			var q = '';
 			q += 'MATCH (e7:E7:'+prj+' {content: {e7id}})';
 			q += ',(ttdesc:E55:'+prj+'{content: "taskDesc"})';
 			q += ',(ttask:E55:'+prj+'{content: "task"})';
-			q += ',(editor:E21:'+prj+'{content: {editor}})';
+			q += ',(tprior:E55:'+prj+'{content: {priority}})';
+			q += ',(tstatus:E55:'+prj+'{content: {status}})';
 			q += ' CREATE (e7:E7:'+prj+'{content: {tID}})-[:P2]]->(task)'; //Activity-->Task
-			q += ',CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(taskDesc)'; //String--> Type
-			q += ',CREATE (e7)-[:P4]->(e52:E652:'+prj+' {content:{e52id}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to})'; 
-			q += ',CREATE((e7)-[:P14]->(e21))';
+			q += ',CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(taskDesc)'; 
+			q += ',CREATE (e7)-[:P4]->(e52:E52:'+prj+' {content:{e52id}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to})'; 
+			q += ',CREATE((e7)-[:P102]->(e35:E35:'+prj+' {value: {name}})'; 
+			q += ',CREATE((e7)-[:P14]->(editor:E21:'+prj+'{content: {editor}}))';
+			q += ',CREATE((e7)-[:P2]->(tprior))';
+			q += ',CREATE((e7)-[:P2]->(tstatus))';
+			//ersteller+zeitstempel
+			q += ',CREATE ((e61:E61:'+prj+'{content:{currentDate}})<-[:P82]-(e52:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[P:14]->(e21:E21:'+prj+'{content: "logindata"}))'; 
+			q += ',CREATE ((e65 {value: {createTask}})-[:P94]->(e7))';
 			
 			return $http.post(phpUrl, {
 				query: q,
@@ -103,17 +108,42 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					descId: taskID + '_taskDesc',
 					editor: teditor,
 					e52id: 'e52_' + taskID,
-					from: from,
-					to: to
+					from: tfrom,
+					to: tto,
+					title: ttitle,
+					createTask: 'e65_'+ taskID + '_creation',
+					currentDate: new Date().getTime(), 
+					priority: tpriority,
+					status: tstatus,
 				}
 			});			
 		}
 		
-		requests.getTask = function(prj,id){
+		requests.addComment = function(taskID,tcomment){
+			q += 'MATCH ((e7:E7:'+prj+'{content: {tID}}))';
+			 //KOMMENTAR -->logindata: Platzhalter für späteren Verfasser
+			q += ',CREATE ((e62:E62:'+prj+'{value: {comment}})<-[:P3]-(e33:E33:'+prj+' {value: {lingObj}})<-[:P94]-(e65:E65:'+prj+' {value: {createComment}})-[:P14]->(e21:E21:'+prj+'{content: "logindata"}))';
+			q += ',CREATE ((e52:E52:'+prj+'{value: {timeSpanID}})-[:P82]->(e61:E61:'+prj+'{value:{currentDate}}))';
+			q += ',CREATE ((e65)-[:P4]->(e52))';
+			q += ',CREATE ((e33)-[:P129]->(e7))';
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tID: taskID,
+					comment: tcomment,
+					currentDate: new Date().getTime(), 
+					lingObj: 'e33_'+ taskID,
+					createComment: 'e65_e33_' + taskID,
+					timeSpanID:'e65_e33_e52' + taskID,
+				}
+			});
+		}
+		
+		requests.getTasks = function(prj,id){
 		}
 		//Mitarbeiter////////
 		//Mitarbeiter hinzufügen --> müssten doch an Projektknoten hängen,oder? Bezihung? P14?
-		requests.addStaff = function(prj,id,name){
+		/* requests.addStaff = function(prj,id,name){
 			var q = '';
 			q += 'MATCH (master:E7:'+prj+' {content: {master}})';
 			q += ',(tpproj:E55:'+prj+'{content:"projectPerson"})';
@@ -128,7 +158,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					id: id,
 				}
 			});		
-		}
+		} */
 		
 		// alle Knoten und Kanten des Projekts löschen
 		requests.deleteAllProjectNodes = function(prj) {
