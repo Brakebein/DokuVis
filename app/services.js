@@ -38,10 +38,10 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					(tscomment:E55:'+prj+' {content:"sourceComment"}), '
 					// screenshot
 				  + '(tscreen:E55:'+prj+' {content:"screenshot"}),\
-					(tscomment:E55:'+prj+' {content:"screenshotComment"}), '
+					(tscreencomment:E55:'+prj+' {content:"screenshotComment"}), '
 					// model
 				  + '(tmodel:E55:'+prj+' {content:"model"}), \
-					(tmodel:E55:'+prj+' {content:"model/plan"}), '
+					(tmodelplan:E55:'+prj+' {content:"model/plan"}), '
 					// personal
 				  + '(tpproj:E55:'+prj+'{content:"projectPerson"}), \
 					(tphist:E55:'+prj+'{content:"historicPerson"}), '
@@ -82,24 +82,25 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		//Tasks////////
 		requests.addTask =  function(prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus){
-			
-			console.log('Task to Database!');
+
 			var q = '';
-			q += 'MATCH (e7:E7:'+prj+' {content: {e7id}})';
+			q += 'MATCH (sub:E7:'+prj+' {content: {e7id}})';
 			q += ',(ttdesc:E55:'+prj+'{content: "taskDesc"})';
 			q += ',(ttask:E55:'+prj+'{content: "task"})';
 			q += ',(tprior:E55:'+prj+'{content: {priority}})';
 			q += ',(tstatus:E55:'+prj+'{content: {status}})';
-			q += 'CREATE (e7:E7:'+prj+'{content: {tID}})-[:P2]->(task)'; //Activity-->Task
+			q += 'CREATE (e7:E7:'+prj+'{content: {tID}})-[:P2]->(ttask)'; //Activity-->Task
 			q += 'CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(taskDesc)'; 
-			q += 'CREATE (e7)-[:P4]->(e52:E52:'+prj+' {content:{e52id}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to}})'; 
+			q += 'CREATE (e7)-[:P4]->(e52:E52:'+prj+' {content:{e52idDuration}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to}})'; 
 			q += 'CREATE(e7)-[:P102]->(e35:E35:'+prj+' {value: {title}})'; 
 			q += 'CREATE(e7)-[:P14]->(editor:E21:'+prj+'{content: {editor}})';
 			q += 'CREATE(e7)-[:P2]->(tprior)';
 			q += 'CREATE(e7)-[:P2]->(tstatus)';
-			//ersteller+zeitstempel
-			q += ',CREATE ((e61:E61:'+prj+'{content:{currentDate}})<-[:P82]-(e52:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[P:14]->(e21:E21:'+prj+'{content: "logindata"}))'; 
-			q += ',CREATE ((e65 {value: {createTask}})-[:P94]->(e7))';
+			//ersteller+zeitstempel  -->Prüfen, ob ersteller schon existiert
+			q += 'CREATE (e61n:E61:'+prj+'{content: {currentDate}})<-[:P82]-(e52n:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})'; 
+			q += 'CREATE (e65)-[:P94]->(e7)';
+			q += 'CREATE (sub)-[:P9]->(e7)'
+			
 			
 			return $http.post(phpUrl, {
 				query: q,
@@ -109,6 +110,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					desc: tdesc,
 					descId: taskID + '_taskDesc',
 					editor: teditor,
+					e52idDuration: 'e52_' + taskID + '_duration', //in Diagramm ändern
 					e52id: 'e52_' + taskID,
 					from: tfrom,
 					to: tto,
@@ -117,9 +119,13 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					currentDate: new Date().getTime(), 
 					priority: tpriority,
 					status: tstatus,
+					logindata: 'logindata_' +  new Date().getTime()
 				}
-			});		
+			});	
+			console.log(q);			
 		}
+		
+		
 		
 		requests.addComment = function(taskID,tcomment){
 			q += 'MATCH ((e7:E7:'+prj+'{content: {tID}}))';
@@ -142,6 +148,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		}
 		
 		requests.getTasks = function(prj,id){
+			
 		}
 		//Mitarbeiter////////
 		//Mitarbeiter hinzufügen --> müssten doch an Projektknoten hängen,oder? Bezihung? P14?

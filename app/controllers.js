@@ -2243,20 +2243,30 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 						 
 							
 							if(row.model.isStaff == true){ //wenn auf Bearbeiter geklickt wurde
-							$scope.data.push({id: tid, name: 'neue Aufgabe', isStaff: false, parent: row.model.id, children: [], editors: [row.model.id], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
-							/*console.log(tid);
-							console.log($scope.staffArray);*/
-							//prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus
-								if(neo4jRequest.addTask($stateParams.project, $stateParams.subproject, tid, 'neue Aufgabe','dies und das modellieren',row.model.id, getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'todo')){
-									alert('success');
+								$scope.data.push({id: tid, name: 'neue Aufgabe', isStaff: false, parent: row.model.id, children: [], editors: [row.model.id], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
+								/*console.log(tid);
+								console.log($scope.staffArray);*/
+								//prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus
+								//anhängen an Subprojekt -->$stateParams.subproject
+									neo4jRequest.addTask($stateParams.project, $stateParams.subproject, tid, 'neue Aufgabe','dies und das modellieren',row.model.id, getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'status_todo')
+										.then(function(response){
+										console.log(response.data);
+										/* return neo4jRequest.dropProjectConstraint(prj); */
+									});
 								}
-								else{alert('didnt work')};
-							}
+								
 							 else{ // wenn auf Aufgabe oder Unteraufgabe geklickt wurde
 							 	//hinzufügen der Unteraufgabe
 								$scope.data.push({id: tid, name: 'neue Unteraufgabe',isStaff: false, children: [], editors: [hier.ancestors(row)[hier.ancestors(row).length-1].model.id], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Unteraufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
 								//als child zu übergeordnetem Element hinzufügen
 								row.model.children.push(tid);
+								//anhängen an parenttask --> statt $stateParams.subproject -->
+								neo4jRequest.addTask($stateParams.project, row.model.id, tid, 'neue Unteraufgabe','dies und das modellieren',[hier.ancestors(row)[hier.ancestors(row).length-1].model.id], getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'status_todo')
+										.then(function(response){
+										console.log(response.data);
+										/* return neo4jRequest.dropProjectConstraint(prj); */
+									});
+								
 								row.model.tasks = [];
 								$scope.taskExists = false;
 								/*console.log($scope.data);*/
