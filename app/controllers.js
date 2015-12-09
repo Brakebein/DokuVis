@@ -1201,6 +1201,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 				item.ocr = false;
 				item.resample = false;
 				item.primary = true;
+				item.tags = [];
 			}
 			else if($scope.uploadType === 'model') {
 				item.sourceType = 'model';
@@ -1242,6 +1243,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 				ocr: item.ocr,
 				resample: item.resample,
 				primary: item.primary,
+				tags: item.tags,
 				
 				oldFileName: item.file.name,
 				newFileName: item.newFileName,
@@ -1514,6 +1516,16 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 			});
 		};
 		
+		// tag input callbacks
+		$scope.onTagAdded = function(tag) {
+			tag.text = tag.text.toLowerCase();
+		};
+		$scope.getTags = function(query) {
+			return neo4jRequest.searchTags($stateParams.project, query).then(function(response) {
+				if(response.data.exception) { console.error('neo4j failed on getAllTags()', response.data); return; }
+				return Utilities.extractArrayFromNeo4jData(response.data);
+			});
+		};
 	}]);
 	
 webglControllers.controller('sourceTypeCtrl', ['$scope',

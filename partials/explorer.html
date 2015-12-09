@@ -83,11 +83,11 @@
 			
 			<!-- Buttons -> navigieren -->
 			<div class="ctrlGroup">
-				<button title="Auswahl-Werkzeug" class="ctrlBtn" ng-class="(navigation.select) ? 'active' : ''"  ng-click="callDirFunc.setNavigationMode('select')"><img src="img/icons/cursor80_w.svg" width="24"/></button>
-				<button title="Rechteckauswahl" class="ctrlBtn" ng-class="(navigation.selectRect) ? 'active' : ''"  ng-click="callDirFunc.setNavigationMode('selectRect')"><img src="img/icons/cursor80_w.svg" width="24"/></button>
-				<button title="Ansicht drehen" class="ctrlBtn" ng-class="(navigation.rotate) ? 'active' : ''"  ng-click="callDirFunc.setNavigationMode('rotate')"><img src="img/icons/orbit_w.svg" width="24"/></button>
-				<button title="Ansicht verschieben" class="ctrlBtn" ng-class="(navigation.pan) ? 'active' : ''"  ng-click="callDirFunc.setNavigationMode('pan')"><img src="img/icons/move_w.svg" width="24"/></button>
-				<button title="Ansicht zoomen" class="ctrlBtn" ng-class="(navigation.zoom) ? 'active' : ''" ng-click="callDirFunc.setNavigationMode('zoom')"><img src="img/icons/zoom2_w.svg" width="24"/></button>
+				<button title="Auswahl-Werkzeug" class="ctrlBtn" ng-class="(navigation.select) ? 'active' : ''"  ng-click="wi.callFunc.setNavigationMode('select')"><img src="img/icons/cursor80_w.svg" width="24"/></button>
+				<button title="Rechteckauswahl" class="ctrlBtn" ng-class="(navigation.selectRect) ? 'active' : ''"  ng-click="wi.callFunc.setNavigationMode('selectRect')"><img src="img/icons/cursor80_w.svg" width="24"/></button>
+				<button title="Ansicht drehen" class="ctrlBtn" ng-class="(navigation.rotate) ? 'active' : ''"  ng-click="wi.callFunc.setNavigationMode('rotate')"><img src="img/icons/orbit_w.svg" width="24"/></button>
+				<button title="Ansicht verschieben" class="ctrlBtn" ng-class="(navigation.pan) ? 'active' : ''"  ng-click="wi.callFunc.setNavigationMode('pan')"><img src="img/icons/move_w.svg" width="24"/></button>
+				<button title="Ansicht zoomen" class="ctrlBtn" ng-class="(navigation.zoom) ? 'active' : ''" ng-click="wi.callFunc.setNavigationMode('zoom')"><img src="img/icons/zoom2_w.svg" width="24"/></button>
 			</div>
 			
 			<!-- Dropdown-Liste Rendermode und Kamera -->
@@ -226,8 +226,10 @@
 			<hr/>
 			
 			<div class="dropArea screenshot" ng-click="makeScreenshot()">
-			<div class="plus" ng-bind-html="plusSign"></div> <div>Screenshot erstellen</div>
-		</div>
+				<div class="plus" ng-bind-html="plusSign"></div> <div>Screenshot erstellen</div>
+			</div>
+			
+			<button class="btn btn-default" ng-click="wi.callFunc.startMarking()">mark</button>
 			
 		</div>
 		
@@ -355,24 +357,24 @@
 		</div>
 		
 		<div class="sources" horizontal-scroll>
-		<div class="resultItem" ng-repeat="p in sourceResults | filter: {type: sourcesSettings.activeTab} | filter: sourcesSettings.filterBy | orderBy: [sourcesSettings.orderBy,'title']:sourcesSettings.reverse as filteredSourceResults" ng-click="selectResultItem($event, p)">
-			<div class="thumbnail" ng-class="(p.selected) ? 'selected' : ''" title="{{p.title}}" ng-dblclick="openSourceDetail($index)">
-				<img ng-src="data/{{p.file.path}}_thumbs/{{p.file.thumb}}"/>
-				<div class="caption">
-					<span>{{ p.title | characters:23:true }}</span>
-					<p>{{p.author || 'unbekannt'}} &ensp; {{p.date}}</p>
-				</div>
-				
-				<div class="btnBar">
-					<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>
-					<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
-					<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
-					<!--<button ng-click="callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', p.obj);">load</button>
-					<button ng-click="highlightObj(p.eid)">highlight</button>
-					<a ng-href="data/Proj_Muristan/plans/{{p.jpg}}" target="_blank">open</a>-->
+			<div class="resultItem" ng-repeat="p in sourceResults | filter: {type: sourcesSettings.activeTab} | filter: sourcesSettings.filterBy | orderBy: [sourcesSettings.orderBy,'title']:sourcesSettings.reverse as filteredSourceResults" ng-click="selectResultItem($event, p)">
+				<div class="thumbnail" ng-class="(p.selected) ? 'selected' : ''" title="{{p.title}}" ng-dblclick="openSourceDetail($index)">
+					<img ng-src="data/{{p.file.path}}_thumbs/{{p.file.thumb}}"/>
+					<div class="caption">
+						<span>{{ p.title | characters:23:true }}</span>
+						<p>{{p.author || 'unbekannt'}} &ensp; {{p.date}}</p>
+					</div>
+					
+					<div class="btnBar">
+						<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>
+						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
+						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
+						<!--<button ng-click="callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', p.obj);">load</button>
+						<button ng-click="highlightObj(p.eid)">highlight</button>
+						<a ng-href="data/Proj_Muristan/plans/{{p.jpg}}" target="_blank">open</a>-->
+					</div>
 				</div>
 			</div>
-		</div>
 		</div>
 	</div>
 

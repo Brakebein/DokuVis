@@ -117,7 +117,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			var q = '';
 			q += 'MATCH (master:E7:'+prj+' {content: {master}})';
 			q += ',(tpproj:E55:'+prj+'{content:"projectPerson"})';
-			q +=  'CREATE (tpproj)<-[:P2]-(:E21:'+prj+' {content: 'e21_' + [name]})-[:P131]->(:E82:'+prj+' {content:{id}, value: {name}})',
+			q +=  'CREATE (tpproj)<-[:P2]-(:E21:'+prj+' {content: "e21_"+{name})-[:P131]->(:E82:'+prj+' {content:{id}, value: {name}})';
 			
 			
 			return $http.post(phpUrl, {
@@ -489,7 +489,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		// Einfügen der Quelle
 		requests.insertDocument = function(prj, subprj, formData) {
-			var ts = new Utilities.Base62().encode(new Date().getTime());
+			var ts = Utilities.getUniqueId();
+			console.log(formData);
 			
 			var q = '';
 			q += 'MATCH (e55:E55:'+prj+' {content: {sourceType}})';
@@ -546,8 +547,12 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			if(formData.comment.length > 0) {
 				q += ' CREATE (e31)-[:P3]->(e62:E62:'+prj+' {content: "'+ts+'_e31_"+{newFileName}, value: {comment}})';
 			}
+			for(var i=0; i<formData.tags.length; i++) {
+				q += ' MERGE (tag'+i+':TAG:'+prj+' {content: "'+formData.tags[i].text+'"})';
+				q += ' MERGE (e31)-[:has_tag]->(tag'+i+')';
+			}
 			q += ' RETURN e31';
-			//console.log(q);
+			console.log(q);
 			
 			formData.subprj = subprj === 'master' ? prj : subprj;
 			
@@ -771,6 +776,26 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			
 			return $http.post(phpUrl, {
 				query: q,
+				params: {}
+			});
+		};
+		
+		/**
+		  * tags
+		*/
+		requests.getAllTags = function(prj) {
+			return $http.post(phpUrl, {
+				query: 'MATCH (n:TAG:'+prj+') RETURN n.content as tags',
+				params: {}
+			});
+		};
+		
+		requests.searchTags = function(prj, query) {
+			return $http.post(phpUrl, {
+				query:
+					'MATCH (n:TAG:'+prj+') \
+					WHERE n.content =~ ".*'+query+'.*" \
+					RETURN n.content as tag ORDER BY tag',
 				params: {}
 			});
 		};
@@ -1177,6 +1202,18 @@ webglServices.factory('Utilities',
 				if(selected)
 					obj.selected = false;
 				results.push(obj);
+			}
+			return results;
+		};
+		
+		/**
+		  * extracts array data from neo4j response object
+		  * (e.g. for getting a list of tags etc.)
+		*/
+		f.extractArrayFromNeo4jData = function(data) {
+			var results = [];
+			for(var i=0; i<data.data.length; i++) {
+				results.push(data.data[i][0]);
 			}
 			return results;
 		};

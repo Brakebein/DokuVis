@@ -85,6 +85,22 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			var isSliceMoving = false;
 			
 			var measureTool;
+			var pin;
+			
+			var navigationState = {
+				SELECT: 0,
+				AREASELECT: 1,
+				ROTATE: 2,
+				PAN: 3,
+				ZOOM: 4,
+				
+			};
+			var interactionState = {
+				SELECT: 0,
+				MEASURE: 1,
+				PIN: 2,
+				SLICE: 3
+			};
 			
 			// Shading-Konstanten
 			var shading = {
@@ -1782,6 +1798,15 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						
 						measureTool.checkMouseHit(mouse.x, mouse.y, camera, testObjects);
 					}
+					else if(pin) {
+						var mouse = mouseInputToViewport(event);
+						var testObjects = [];
+						for(var key in objects) {
+							if(objects[key].visible)
+								testObjects.push(objects[key].mesh);
+						}
+						pin.mousehit(mouse.x, mouse.y, camera, testObjects);
+					}
 				}
 				
 			}
@@ -1869,7 +1894,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					}
 				}
 				else if(event.button === 2) {
-					scope.internalCallFunc.setNavigationMode('select');
+					webglInterface.callFunc.setNavigationMode('select');
 					scope.$apply();
 					//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
 					if(!mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
@@ -1956,6 +1981,12 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				});
 			}
 			
+			webglInterface.callFunc.startMarking = function() {
+				webglInterface.callFunc.setNavigationMode(false);
+				pin = new THREE.Pin(3, 1, 0.5);
+				scene.add(pin);
+			};
+			
 			function setGizmoCoords(type, apply) {
 				scope.gizmoCoords.enabled = true;
 				switch(type) {
@@ -2032,13 +2063,14 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				}
 			};
 			
-			scope.internalCallFunc.setNavigationMode = function(mode) {
+			webglInterface.callFunc.setNavigationMode = function(mode) {
 				scope.navigation.select = false;
 				scope.navigation.selectRect = false;
 				scope.navigation.rotate = false;
 				scope.navigation.pan = false;
 				scope.navigation.zoom = false;
-				scope.navigation[mode] = true;
+				if(mode)
+					scope.navigation[mode] = true;
 			};
 			
 			scope.internalCallFunc.getObjForPlans = function() {
@@ -2439,7 +2471,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			// get object by id and add or remove mesh and edges
 			webglInterface.callFunc.toggleObject = function(item, visible) {
 				var p;
-				if(parent)
+				if(item.parent)
 					p = objects[item.parent.id].mesh;
 				else
 					p = scene;
@@ -2452,7 +2484,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					addChildren(item.children);
 					
 				}
-				else if(!item.visible) {
+				else if(!visible) {
 					p.remove(objects[item.id].mesh);
 					scene.remove(objects[item.id].edges);
 					objects[item.id].visible = false;
