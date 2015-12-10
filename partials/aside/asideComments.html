@@ -6,13 +6,13 @@
         <h4 class="aside-title" >Kommentare</h4>
       </div>
       <div class="aside-body" ></div>
-	  	<ul ng-repeat ="d in data[commentIndex].data" style="list-style-type:none">
-  			<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.message}}</li>
-  			<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.author}}</li>
+	  	<ul ng-repeat ="d in comments" style="list-style-type:none">
+  			<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.desc}}</li>
+  			<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.date}}</li>
   			<li><br/></li>
 		</ul>
 		
-		<p>{{commentIndex}}</p>
+		<!-- <p>{{commentIndex}}</p> -->
 		
 		
       <div class="aside-footer">

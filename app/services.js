@@ -93,7 +93,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += 'CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(taskDesc)'; 
 			q += 'CREATE (e7)-[:P4]->(e52:E52:'+prj+' {content:{e52idDuration}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to}})'; 
 			q += 'CREATE(e7)-[:P102]->(e35:E35:'+prj+' {value: {title}})'; 
-			q += 'CREATE(e7)-[:P14]->(editor:E21:'+prj+'{content: {editor}})';
+			q += 'CREATE(e7)-[:P14]->(editor:E21:'+prj+'{value: {editor}})';
 			q += 'CREATE(e7)-[:P2]->(tprior)';
 			q += 'CREATE(e7)-[:P2]->(tstatus)';
 			//ersteller+zeitstempel  -->Prüfen, ob ersteller schon existiert
@@ -127,7 +127,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		
 		
-		requests.addComment = function(prj,taskID,tcomment){
+		requests.addCommentToTask = function(prj,taskID,tcomment){
 			var q = '';//KOMMENTAR -->logindata: Platzhalter für späteren Verfasser
 			q += 'MATCH (task:E7:'+prj+'{content: {tID}})';
 			q += 'CREATE (e62:E62:'+prj+'{value: {comment}})<-[:P3]-(e33:E33:'+prj+' {value: {lingObj}})<-[:P94]-(e65:E65:'+prj+' {value: {createComment}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})';
@@ -148,27 +148,42 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		}
 		
-		requests.getTasks = function(prj,id){
-			
-		}
-		//Mitarbeiter////////
-		//Mitarbeiter hinzufügen --> müssten doch an Projektknoten hängen,oder? Bezihung? P14?
-		/* requests.addStaff = function(prj,id,name){
+		requests.getTasksFromSubproject = function(subprj){
 			var q = '';
-			q += 'MATCH (master:E7:'+prj+' {content: {master}})';
-			q += ',(tpproj:E55:'+prj+'{content:"projectPerson"})';
-			q +=  'CREATE (tpproj)<-[:P2]-(:E21:'+prj+' {content: 'e21_' + [name]})-[:P131]->(:E82:'+prj+' {content:{id}, value: {name}})',
+			q += 'MATCH (sub:E7 {content: {subprj}})-[:P9*]->(task:E7)';
+			q += ',(task)-[:P102]->(title:E35)';
+			q += ',(task)-[:P3]->(taskDesc:E62)';
+			q += ',(task)-[:P14]->(editor:E21)';
 			
+			q += 'OPTIONAL MATCH (task)-[:P4]->(:E52)-[:P81]->(time:E61)';
+			q += 'RETURN task.content AS id, title.value AS name,taskDesc.value AS taskDesc, editor.content AS editor, time.from AS from, time.to AS to';
+			// q += ',(task)<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)',
+			// q += 'OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)';
+			// q += 'creationDate.value AS date, commentDesc.value AS commentDesc';
+
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					subprj: subprj,
+				}
+				})
+		}
+		
+		requests.getCommentsFromTask = function(taskID){
+			var q = '';
+			q += 'MATCH (task:E7 {content: {tid}})<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)';
+			q += 'OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)';
+			q += 'RETURN creationDate.value AS date, commentDesc.value AS desc';
 			
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					master: prj,
-					name:  name,
-					id: id,
+					tid: taskID,
 				}
-			});		
-		} */
+				})
+		}
+		
+
 		
 		// alle Knoten und Kanten des Projekts löschen
 		requests.deleteAllProjectNodes = function(prj) {

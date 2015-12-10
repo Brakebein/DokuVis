@@ -1055,33 +1055,6 @@ webglControllers.controller('indexEditCtrl', ['$scope', '$stateParams', 'phpRequ
 		
 	}]);
 
-webglControllers.controller('addNewStaffCtrl', ['$scope', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 
-	function($scope, $timeout, $sce, phpRequest, mysqlRequest) {
-		
-		/*$scope.newStaff = new Object();
-		
-		$scope.newStaff.name = '';
-		$scope.newStaff.surname = '';
-		$scope.newStaff.mail = '';
-		$scope.newStaff.role = '';
-		$scope.newStaff.projects = '';
-		
-		$scope.addNewStaff = function() {
-						
-			mysqlRequest.addNewStaff($scope.newStaff.name, $scope.newStaff.surname, $scope.newStaff.mail, $scope.newStaff.role).success(function(answer, status){
-					//alert(answer);
-						if(answer != 'SUCCESS') {
-							console.error(answer);
-							return;
-						}
-			});
-		$scope.getAllStaff();
-		
-		}*/
-		
-		
-		
-		}]);
 
 webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'FileUploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal',
 	function($scope, $stateParams, FileUploader, neo4jRequest, Utilities, $timeout, $modal) {
@@ -1884,11 +1857,15 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		/*Tasks*/
 		$scope.staff = [];
 		$scope.nameFound = false;
+		$scope.taskExists = 'false';
+		
+		// Kommentare
 		$scope.taskNameForComment;
 		$scope.taskIdForComment;
 		$scope.commentIndex;
+		$scope.comments = [];
 		
-		$scope.taskExists = 'false';
+		
 		
 		/*Views*/
 		
@@ -2003,7 +1980,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		];  */
 		 
 		$scope.data = [		
-		{id: 1, name: 'Jonas', isStaff: true, 'groups': false, children: [], tasks: []},
+		/* {id: 1, name: 'Jonas', isStaff: true, 'groups': false, children: [], tasks: []},
     
     	{id: 2, name: 'Martin', isStaff: true,'groups': false, children: [], tasks: []},
     
@@ -2033,7 +2010,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		{id: 11,name: 'test8', isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: false, editors: [2], data: [], tasks: [
 		                            {name: 'test8', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0), }
-		                        ]}, 
+		                        ]},  */
 ]		
 		
 		$scope.options = {
@@ -2108,6 +2085,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		    return result;
 		}
 
+		
 		$scope.canAutoWidth = function(scale) {
             if (scale.match(/.*?hour.*?/) || scale.match(/.*?minute.*?/)) {
                 return false;
@@ -2216,6 +2194,26 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			console.log($scope.data);
 		}
 		
+		$scope.fillDataObject = function(){
+			neo4jRequest.getTasksFromSubproject($stateParams.subproject).then(function(response){
+				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromSubproject()', response.data); return; }
+					 if(response.data){
+						 $.each(Utilities.cleanNeo4jData(response.data),function(index){
+							console.log({name: Utilities.cleanNeo4jData(response.data)[index].name});
+							$scope.data.push({id: Utilities.cleanNeo4jData(response.data)[index].id,
+											name: Utilities.cleanNeo4jData(response.data)[index].name,
+											isStaff: false,
+											editor: [],
+											tasks: [{name: Utilities.cleanNeo4jData(response.data)[index].name,
+													color: '#F1C232',
+													from: Utilities.cleanNeo4jData(response.data)[index].from,
+													to: Utilities.cleanNeo4jData(response.data)[index].to}]
+											});
+							});
+						}
+				});
+		}
+				
 		$scope.addNewTask = function (row){	
 			
 			var tid = Utilities.getUniqueId();
@@ -2256,7 +2254,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 								//als child zu übergeordnetem Element hinzufügen
 								row.model.children.push(tid);
 								//anhängen an parenttask --> statt $stateParams.subproject -->
-								neo4jRequest.addTask($stateParams.project, row.model.id, tid, 'neue Unteraufgabe','dies und das modellieren',[hier.ancestors(row)[hier.ancestors(row).length-1].model.id], getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'status_todo')
+								neo4jRequest.addTask($stateParams.project, row.model.id, tid, 'neue Unteraufgabe','noch mehr modellieren',[hier.ancestors(row)[hier.ancestors(row).length-1].model.id], getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'status_todo')
 										.then(function(response){
 										console.log(response.data);
 									});
@@ -2579,35 +2577,42 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.showAside = function(row){
 			$scope.taskNameForComment= row.model.name;
 			$scope.taskIdForComment= row.model.id; //--> dient der Indexermittlung der Aufgabe
-			console.log($scope.taskNameForComment);
-			console.log($scope.taskIdForComment);
+			/* console.log($scope.taskNameForComment);*/
+			// console.log($scope.taskIdForComment); 
 			
-			$.each($scope.data,function(index){
+		/* 	$.each($scope.data,function(index){
 				if($scope.data[index].id == $scope.taskIdForComment){ //-->in allen Aufgaben mit gleichem Namen steht Kommenta
 					$scope.commentIndex = index;
 					console.log($scope.commentIndex);
 				}
-			});
+			}); */
+			
+			neo4jRequest.getCommentsFromTask(row.model.id)
+						.then(function(response){
+							if(response.data.exception) { console.error('neo4jRequest Exception on getCommentFromTask()', response.data); return; }
+							if(response.data){
+								$scope.comments = Utilities.cleanNeo4jData(response.data);
+								console.log($scope.comments);
+								}
+						});
 			
 			var aside = $aside({scope: $scope, templateUrl: 'partials/aside/asideComments.html', placement: 'right', animation: 'am-fade-and-slide-right', container: '.tasksLeft' , backdrop: false});
 			aside.show();
 		}
 		
 		$scope.addComment = function(){
-			console.log($scope.taskNameForComment)
 			$.each($scope.data,function(index){
-				if($scope.data[index].name == $scope.taskNameForComment){ //-->in allen Aufgaben mit gleichem Namen steht Kommentar
-					console.log($scope.taskNameForComment)
-					console.log($scope.data[index].name)
+				if($scope.data[index].name == $scope.taskNameForComment){ //-->in allen Aufgaben mit gleichem Namen steht Kommentar					
+					// $scope.data[index].data.push({message: $scope.newComment.text, author: 'Jonas', date: new Date(new Date().getTime())});
 					
-					$scope.data[index].data.push({message: $scope.newComment.text, author: 'Jonas', date: new Date(new Date().getTime())});
-					neo4jRequest.addComment($stateParams.project,$scope.taskIdForComment, $scope.newComment.text)
+					neo4jRequest.addCommentToTask($stateParams.project,$scope.taskIdForComment, $scope.newComment.text)
 						.then(function(response){
 											console.log(response.data);
 										});
 					$scope.data[index].hasData = true;
 				}
 			});
+			
 			/*$scope.views.activeSide = 'comments';*/	
 		}
 				
@@ -2719,6 +2724,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	
 	//initiiere Staff
 	$scope.getAllStaff();
+	$scope.fillDataObject();
 	$scope.getStaffInGantt();
 	/*generateRows();*/
 	/*console.log('parents ' + $scope.staffArray);*/
