@@ -980,7 +980,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function(event) {
-			webglInterface.clearLists();
+			//webglInterface.clearLists();
 			console.log('destroy explorerCtrl');
 		});
 		
