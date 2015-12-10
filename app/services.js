@@ -127,13 +127,13 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		
 		
-		requests.addComment = function(taskID,tcomment){
-			q += 'MATCH ((e7:E7:'+prj+'{content: {tID}}))';
-			 //KOMMENTAR -->logindata: Platzhalter für späteren Verfasser
-			q += ',CREATE ((e62:E62:'+prj+'{value: {comment}})<-[:P3]-(e33:E33:'+prj+' {value: {lingObj}})<-[:P94]-(e65:E65:'+prj+' {value: {createComment}})-[:P14]->(e21:E21:'+prj+'{content: "logindata"}))';
-			q += ',CREATE ((e52:E52:'+prj+'{value: {timeSpanID}})-[:P82]->(e61:E61:'+prj+'{value:{currentDate}}))';
-			q += ',CREATE ((e65)-[:P4]->(e52))';
-			q += ',CREATE ((e33)-[:P129]->(e7))';
+		requests.addComment = function(prj,taskID,tcomment){
+			var q = '';//KOMMENTAR -->logindata: Platzhalter für späteren Verfasser
+			q += 'MATCH (task:E7:'+prj+'{content: {tID}})';
+			q += 'CREATE (e62:E62:'+prj+'{value: {comment}})<-[:P3]-(e33:E33:'+prj+' {value: {lingObj}})<-[:P94]-(e65:E65:'+prj+' {value: {createComment}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})';
+			q += 'CREATE (e52:E52:'+prj+'{value: {timeSpanID}})-[:P82]->(e61:E61:'+prj+'{value:{currentDate}})';
+			q += 'CREATE (e65)-[:P4]->(e52)';
+			q += 'CREATE (e33)-[:P129]->(task)';
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
@@ -143,6 +143,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					lingObj: 'e33_'+ taskID,
 					createComment: 'e65_e33_' + taskID,
 					timeSpanID:'e65_e33_e52' + taskID,
+					logindata: 'logindata_' +  new Date().getTime() //vorläufige eindeutige ID, wird später durch eingeloggt person ersetzt
 				}
 			});
 		}
