@@ -182,13 +182,14 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				//camera.setSize(SCREEN_WIDTH/20, SCREEN_HEIGHT/20);
 				//camera.position.set(0, 60, 10);
 				camera.position.set(-100, 60, 100);
+				console.log(camera);
 				
-				orthocam = new THREE.OrthographicCamera(SCREEN_WIDTH/-20, SCREEN_WIDTH/20, SCREEN_HEIGHT/20, SCREEN_HEIGHT/-20, 0.1, FAR);
+				//orthocam = new THREE.OrthographicCamera(SCREEN_WIDTH/-20, SCREEN_WIDTH/20, SCREEN_HEIGHT/20, SCREEN_HEIGHT/-20, 0.1, FAR);
 				
 				// Scene
 				scene = new THREE.Scene();
 				scene.add(camera);
-				scene.add(orthocam);
+				//scene.add(orthocam);
 				scene.fog = new THREE.Fog(0x666666, FAR-100, FAR);
 				
 				// Grid
@@ -198,7 +199,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				camera2.position.set(-20,50,150);
 				scene.add(camera2);
 				scene.add(new THREE.CameraHelper(camera2));
-				console.log(camera);
+				
 				
 				// Renderer
 				renderer = new THREE.WebGLRenderer({antialias: true, alpha: false, preserveDrawingBuffer: true});
@@ -575,20 +576,11 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					gizmo.attachToObject(obj);
 			}
 			
-			function selectObject(mx, my, ctrlKey) {
-				var elementOffset = new THREE.Vector2();
-				elementOffset.x = element.offset().left - $(window).scrollLeft();
-				elementOffset.y = element.offset().top - $(window).scrollTop();
-				
-				var mouse = new THREE.Vector2();
-				mouse.x = ((mx - elementOffset.x) / SCREEN_WIDTH) * 2 - 1;
-				mouse.y = - ((my - elementOffset.y) / SCREEN_HEIGHT) * 2 + 1;
-				
-				var cam = camPerspective ? camera : orthocam;
-				var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(cam);
-				
-				//var raycaster = new THREE.Projector().pickingRay(vector, camPerspective ? camera : orthocam);
-				var raycaster = new THREE.Raycaster(cam.position, vector.sub(cam.position).normalize());
+			// selection by a simple click
+			function selectRay(mouse, ctrlKey) {				
+			
+				var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
+				var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
 				
 				var testObjects = [];
 				for(var key in objects) {
@@ -611,47 +603,37 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					setSelected(null, ctrlKey);
 			}
 			
+			// selection by drawing a rectangle
 			function selectArea(mStart, mEnd, ctrlKey) {
-				var cam = camPerspective ? camera : orthocam;
-				var s0 = new THREE.Vector3(mStart.x, mStart.y, 0.5).unproject(cam);
-				var s1 = new THREE.Vector3(mStart.x, mEnd.y, 0.5).unproject(cam);
-				var s2 = new THREE.Vector3(mEnd.x, mEnd.y, 0.5).unproject(cam);
-				var s3 = new THREE.Vector3(mEnd.x, mStart.y, 0.5).unproject(cam);
-				var s4 = new THREE.Vector3(0, 0, 0.5).unproject(cam);
 				
+				var s0 = new THREE.Vector3(mStart.x, mStart.y, 0.5).unproject(camera);
+				var s1 = new THREE.Vector3(mStart.x, mEnd.y, 0.5).unproject(camera);
+				var s2 = new THREE.Vector3(mEnd.x, mEnd.y, 0.5).unproject(camera);
+				var s3 = new THREE.Vector3(mEnd.x, mStart.y, 0.5).unproject(camera);
+				var s4 = new THREE.Vector3(0, 0, 0.5).unproject(camera);
 				
+				var v0 = new THREE.Vector3().subVectors(s0, camera.position);
+				var v1 = new THREE.Vector3().subVectors(s1, camera.position);
+				var v2 = new THREE.Vector3().subVectors(s2, camera.position);
+				var v3 = new THREE.Vector3().subVectors(s3, camera.position);
+				var v4 = new THREE.Vector3().subVectors(s4, camera.position);
 				
+				var s5 = new THREE.Vector3(0, 0, FAR).unproject(camera).add(v4.clone().setLength(FAR));
+				var v5 = new THREE.Vector3().subVectors(s5, camera.position);
 				
-				var v0 = new THREE.Vector3().subVectors(s0, cam.position).normalize();
-				var v1 = new THREE.Vector3().subVectors(s1, cam.position).normalize();
-				var v2 = new THREE.Vector3().subVectors(s2, cam.position).normalize();
-				var v3 = new THREE.Vector3().subVectors(s3, cam.position).normalize();
-				var v4 = new THREE.Vector3().subVectors(s4, cam.position).normalize();
+				var n0 = new THREE.Vector3().crossVectors(v1, v0).normalize();
+				var n1 = new THREE.Vector3().crossVectors(v2, v1).normalize();
+				var n2 = new THREE.Vector3().crossVectors(v3, v2).normalize();
+				var n3 = new THREE.Vector3().crossVectors(v0, v3).normalize();
+				var n4 = v4.clone().normalize();
+				var n5 = v5.clone().negate().normalize();
 				
-				var s5 = new THREE.Vector3(0, 0, FAR).unproject(cam).add(v4.clone().setLength(FAR));
-				var v5 = new THREE.Vector3().subVectors(s5, cam.position).normalize();
-				
-				console.log(s0,s1,s4,s5);
-				
-				var n0 = new THREE.Vector3().crossVectors(v0, v1);
-				var n1 = new THREE.Vector3().crossVectors(v1, v2);
-				var n2 = new THREE.Vector3().crossVectors(v2, v3);
-				var n3 = new THREE.Vector3().crossVectors(v3, v0);
-				var n4 = v4.clone().negate();
-				// var n4 = camera.getWorldDirection();
-				var n5 = v5.clone();
-				// var n5 = camera.getWorldDirection().negate();
-				
-				var d0 = -n0.x*s0.x -n0.y*s0.y -n0.z*s0.z;
-				var d1 = -n1.x*s1.x -n1.y*s1.y -n1.z*s1.z;
-				var d2 = -n2.x*s2.x -n2.y*s2.y -n2.z*s2.z;
-				var d3 = -n3.x*s3.x -n3.y*s3.y -n3.z*s3.z;
-				var d4 = -n4.x*s4.x -n4.y*s4.y -n4.z*s4.z;
-				var d5 = -n5.x*s5.x -n5.y*s5.y -n5.z*s5.z;
-				
-				console.log(v0,v1,v4,v5);
-				console.log(n0,n1,n4,n5);
-				console.log(d0,d1,d4,d5);
+				var d0 = - n0.dot(s0);
+				var d1 = - n1.dot(s1);
+				var d2 = - n2.dot(s2);
+				var d3 = - n3.dot(s3);
+				var d4 = - n4.dot(s4);
+				var d5 = - n5.dot(s5);
 				
 				var p0 = new THREE.Plane(n0, d0);
 				var p1 = new THREE.Plane(n1, d1);
@@ -662,15 +644,22 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				
 				var frustum = new THREE.Frustum(p0, p1, p2, p3, p4, p5);
 				
-				console.log(frustum);
+				if(!ctrlKey)
+					setSelected(null, false, true);
 				
-				var countSelect = 0;
 				for(var key in objects) {
 					if(objects[key].visible && objects[key].mesh.userData.type === 'object') {
-						if(frustum.intersectsObject(objects[key].mesh)) {
-							if(countSelect === 0) setSelected(objects[key].mesh, false);
-							else setSelected(objects[key].mesh, true);
-							countSelect++;
+						if(selected.indexOf(objects[key].mesh) === -1 && frustum.intersectsObject(objects[key].mesh)) {
+							var position = objects[key].mesh.geometry.attributes.position.array;
+							var m = objects[key].mesh.matrixWorld;
+							for(var i=0, l=position.length; i<l; i+=3) {
+								var vertex = new THREE.Vector3(position[i], position[i+1], position[i+2]);
+								vertex.applyMatrix4(m);
+								if(frustum.containsPoint(vertex)) {
+									setSelected(objects[key].mesh, true);
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -1651,6 +1640,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					if(edges) {
 						edges.material = edges.material.clone();
 						edges.material.transparent = true;
+						edges.material.depthWrite = false;
 						edges.material.needsUpdate = true;
 					}
 					mesh.userData.modifiedMat = true;
@@ -1723,13 +1713,13 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					isZoomingView = true;
 					controls.onMouseDown(event.originalEvent, 1);
 				}
-				else if(event.button === 0 && scope.navigation.selectRect) {
+				/*else if(event.button === 0 && scope.navigation.selectRect) {
 					isSelecting = true;
 					console.log(event);
 					var sr = $('<div/>', {id: 'select-rectangle', 'class': 'select-rectangle'})
 						.css({left: event.offsetX, top: event.offsetY, width: 0, height: 0});
 					element.append(sr);
-				}
+				}*/
 			}
 			
 			// MouseMove EventHandler
@@ -1776,10 +1766,38 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 							controls.onMouseMove(event.originalEvent);
 						}
 					}
-					else if(isSelecting) {
-						element.find('#select-rectangle').css({width: event.offsetX-mouseDownCoord.x, height: event.offsetY-mouseDownCoord.y});
+					// area selection
+					else {
+						var css = {};
+						if(event.offsetX - mouseDownCoord.x > 0) {
+							css.left = mouseDownCoord.x;
+							css.width = event.offsetX - mouseDownCoord.x;
+						}
+						else {
+							css.left = event.offsetX;
+							css.width = mouseDownCoord.x - event.offsetX;
+						}
+						if(event.offsetY - mouseDownCoord.y > 0) {
+							css.top = mouseDownCoord.y;
+							css.height = event.offsetY - mouseDownCoord.y;
+						}
+						else {
+							css.top = event.offsetY;
+							css.height = mouseDownCoord.y - event.offsetY;
+						}
+						
+						if(isSelecting) {
+							element.find('#select-rectangle').css(css);
+						}
+						else {
+							isSelecting = true;
+							var sr = $('<div/>', {id: 'select-rectangle', 'class': 'select-rectangle'})
+								.css(css);
+							element.append(sr);
+						}
 					}
 				}
+				
 				else {
 					// check if mouse hits gizmo
 					if(gizmo) {
@@ -1826,13 +1844,22 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				
 				//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
 				
+				// area selection
 				if(event.button === 0 && isSelecting) {
 					isSelecting = false;
-					console.log('select finished');
 					element.find('#select-rectangle').remove();
 					
-					var mStart = mouseOffsetToViewport(mouseDownCoord.x, mouseDownCoord.y);
-					var mEnd = mouseOffsetToViewport(event.offsetX, event.offsetY);
+					var mStart, mEnd;
+					
+					if (event.offsetX - mouseDownCoord.x > 0 && event.offsetY - mouseDownCoord.y > 0 ||
+						event.offsetX - mouseDownCoord.x < 0 && event.offsetY - mouseDownCoord.y < 0) {
+						mStart = mouseOffsetToViewport(mouseDownCoord.x, mouseDownCoord.y);
+						mEnd = mouseOffsetToViewport(event.offsetX, event.offsetY);
+					}
+					else {
+						mStart = mouseOffsetToViewport(mouseDownCoord.x, event.offsetY);
+						mEnd = mouseOffsetToViewport(event.offsetX, mouseDownCoord.y);
+					}
 					
 					selectArea(mStart, mEnd, event.ctrlKey);
 				}
@@ -1871,9 +1898,10 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						
 						measureTool.setTarget(mouse.x, mouse.y, camera, testObjects);
 					}
+					// selection
 					else {
-						//console.log(event);
-						selectObject(event.clientX, event.clientY, event.ctrlKey);
+						var mouse = mouseOffsetToViewport(event.offsetX, event.offsetY);
+						selectRay(mouse, event.ctrlKey);
 					}
 				}
 				
@@ -2065,7 +2093,6 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			
 			webglInterface.callFunc.setNavigationMode = function(mode) {
 				scope.navigation.select = false;
-				scope.navigation.selectRect = false;
 				scope.navigation.rotate = false;
 				scope.navigation.pan = false;
 				scope.navigation.zoom = false;

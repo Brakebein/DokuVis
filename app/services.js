@@ -394,7 +394,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					+' OPTIONAL MATCH (e31)-[:P3]->(comment:E62)'
 					+' OPTIONAL MATCH (e31)<-[:P128]-(:E84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41),'
 					+' (e78)-[:P52]->(:E40)-[:P131]->(inst:E82)'
-					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, primary.content AS primary, aname.content AS author, pname.content AS place, date.content AS date, {identifier: archivenr.content, collection: coll.content, institution: inst.content, institutionAbbr: inst.abbr} AS archive, {name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, plan3d.content AS plan3d, comment.value AS comment',
+					+' OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG)'
+					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, primary.content AS primary, aname.content AS author, pname.content AS place, date.content AS date, {identifier: archivenr.content, collection: coll.content, institution: inst.content, institutionAbbr: inst.abbr} AS archive, {name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, plan3d.content AS plan3d, comment.value AS comment, collect(tag.content) as tags',
 				params: {
 					subprj: subprj === 'master' ? prj : subprj
 				}
@@ -1447,5 +1448,26 @@ webglServices.factory('webglInterface',
 		}
 		
 		return wi;
+		
+	});
+	
+webglServices.factory('webglContext',
+	function() {
+		
+		var wc = {};
+		
+		// Camera
+		wc.camera = new THREE.CombinedCamera(SCREEN_WIDTH, SCREEN_HEIGHT, 35, 0.1, FAR, 0.1, FAR);
+		wc.camera.position.set(-100, 60, 100);
+		
+		// Scene
+		wc.scene = new THREE.Scene();
+		wc.scene.add(wc.camera);
+		wc.scene.fog = new THREE.Fog(0x666666, FAR-100, FAR);
+		
+		// Grid
+		wi.scene.add(new THREE.GridHelper(100, 10));
+		
+		return wc;
 		
 	});

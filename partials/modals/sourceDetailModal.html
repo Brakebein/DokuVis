@@ -38,6 +38,12 @@
 				<strong>Kommentar</strong>
 				<p>{{item.comment}}</p>
 			</div>
+			<div ng-if="item.tags.length">
+				<strong>Tags</strong>
+				<p>
+					<span ng-repeat="tag in item.tags | orderBy: tag">{{tag}} </span>
+				</p>
+			</div>
 			<div>
 				<p><a ng-href="data/{{item.file.path + item.file.name}}" target="_blank">Originaldatei</a></p>
 			</div>
