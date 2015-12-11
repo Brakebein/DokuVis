@@ -1055,33 +1055,6 @@ webglControllers.controller('indexEditCtrl', ['$scope', '$stateParams', 'phpRequ
 		
 	}]);
 
-webglControllers.controller('addNewStaffCtrl', ['$scope', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 
-	function($scope, $timeout, $sce, phpRequest, mysqlRequest) {
-		
-		/*$scope.newStaff = new Object();
-		
-		$scope.newStaff.name = '';
-		$scope.newStaff.surname = '';
-		$scope.newStaff.mail = '';
-		$scope.newStaff.role = '';
-		$scope.newStaff.projects = '';
-		
-		$scope.addNewStaff = function() {
-						
-			mysqlRequest.addNewStaff($scope.newStaff.name, $scope.newStaff.surname, $scope.newStaff.mail, $scope.newStaff.role).success(function(answer, status){
-					//alert(answer);
-						if(answer != 'SUCCESS') {
-							console.error(answer);
-							return;
-						}
-			});
-		$scope.getAllStaff();
-		
-		}*/
-		
-		
-		
-		}]);
 
 webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'FileUploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal',
 	function($scope, $stateParams, FileUploader, neo4jRequest, Utilities, $timeout, $modal) {
@@ -1977,13 +1950,15 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		/*Tasks*/
 		$scope.staff = [];
 		$scope.nameFound = false;
-		
-		$scope.newTask = new Object();
-		$scope.newTask.staff = '';
-		$scope.newTask.task = '';
-		$scope.newTask.from = '';
-		$scope.newTask.to = '';
 		$scope.taskExists = 'false';
+		
+		// Kommentare
+		$scope.taskNameForComment;
+		$scope.taskIdForComment;
+		$scope.commentIndex;
+		$scope.comments = [];
+		
+		
 		
 		/*Views*/
 		
@@ -2036,7 +2011,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		{"id":"pvKekso","name":"neue Unteraufgabe2","isStaff":false,"children":[],"priority":"1","status":"zu bearbeiten","tasks":[{"name":"neue Unteraufgabe2","color":"#F1C232","from":"2015-12-02T20:45:34.000Z","to":"2015-12-07T20:45:34.000Z","id":"18b116fe-5bef-e105-2770-d0089e493299"}],"highlight":false},
 		{"id":"pvKelri","name":"neue Unteraufgabe3","isStaff":false,"children":[],"priority":"1","status":"zu bearbeiten","tasks":[{"name":"neue Unteraufgabe3","color":"#F1C232","from":"2015-12-02T20:45:37.000Z","to":"2015-12-07T20:45:37.000Z","id":"bf4a7bb7-6742-8c65-0dce-69240944b025"}],"highlight":false}];
 		 */
-	/* 	$scope.dataTasks = [ //falsche Reihenfolge!! --> aus dem Rechner
+	/* 	$scope.data = [ //falsche Reihenfolge!! --> aus dem Rechner
 		{"name":"test4"					,"children":[],"editors":["Jonas"],"id":9,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","hasData":"false","tasks":[{"name":"test4","color":"#F1C232","from":"2015-12-21T07:00:00.000Z","to":"2015-12-25T14:00:00.000Z","progress":25,"id":"7d011325-7a4a-cd10-9e84-6d225c380e16"}]},
 		{"name":"neue Unteraufgabe3"	,"children":[],"editors":[""],"id":"pvK7G3P","isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","tasks":[{"name":"neue Unteraufgabe3","color":"#F1C232","from":"2015-12-02T20:19:08.000Z","to":"2015-12-07T20:19:08.000Z","id":"c008c02f-a306-e573-3643-e1ea1d79fe25"}],"highlight":false},
 		{"name":"test5"					,"children":[],"editors":["Jonas"],"id":10,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"2","hasData":"false","tasks":[{"name":"test5","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"2ad31c8a-0b14-4272-bc08-0db7225d35bc"}]},
@@ -2049,7 +2024,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		{"name":"test7"				,"children":[8],"editors":["Martin"],"id":7,"isStaff":false,"parent":"","status":"erledigt","priority":"2","hasData":"false","tasks":[],"highlight":false},{"name":"test8","children":[],"editors":["Martin"],"id":8,"isStaff":false,"parent":"","status":"erledigt","priority":"3","hasData":"false","tasks":[{"name":"test8","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"ca0d8e5e-17fa-d097-f17a-57ce50f35292"}],"highlight":false}
 		]; */
 		
-		/* $scope.dataTasks = [ //richtige Reihenfolge
+		/* $scope.data = [ //richtige Reihenfolge
 		{"name":"test4"					,"children":[],"editors":["Jonas"],"id":9,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"1","hasData":"false","tasks":[{"name":"test4","color":"#F1C232","from":"2015-12-21T07:00:00.000Z","to":"2015-12-25T14:00:00.000Z","progress":25,"id":"7d011325-7a4a-cd10-9e84-6d225c380e16"}]},
 		{"name":"test5"					,"children":[],"editors":["Jonas"],"id":10,"isStaff":false,"parent":"","status":"zu bearbeiten","priority":"2","hasData":"false","tasks":[{"name":"test5","color":"#F1C232","from":"2015-12-12T07:00:00.000Z","to":"2015-12-30T14:00:00.000Z","id":"2ad31c8a-0b14-4272-bc08-0db7225d35bc"}]},
 		{"name":"test1"					,"children":[6,12,"pvK7DT1","pvK7Fay","pvK7G3P"],"editors":["Jonas","Martin"],"id":4,"isStaff":false,"parent":"","status":"erledigt","priority":"2","hasData":"false","tasks":[]},
@@ -2098,38 +2073,37 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		];  */
 		 
 		$scope.data = [		
-		{id: 1, name: 'Jonas', isStaff: true, 'groups': false, children: [], tasks: []},
+		/* {id: 1, name: 'Jonas', isStaff: true, 'groups': false, children: [], tasks: []},
     
     	{id: 2, name: 'Martin', isStaff: true,'groups': false, children: [], tasks: []},
     
-    	{id: 3, name: 'test1', isStaff: false, parent: 1, children: [4], status: 'erledigt',priority: '2', hasData: 'false', editors: [1],  tasks: []},
+    	{id: 3, name: 'test1', isStaff: false, parent: 1, children: [4], status: 'erledigt',priority: '2', hasData: false, editors: [1],data: [], tasks: []},
                             
-		
-		{id: 4, name: 'test2', isStaff: false, children: [], status: 'erledigt',priority: '3', hasData: 'false',editors: [1],  tasks: [
+	
+		{id: 4, name: 'test2', isStaff: false, children: [], status: 'erledigt',priority: '3', hasData: false,editors: [1], data: [], tasks: [
 		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
 			
-		{id: 5,name: 'test1', isStaff: false,  parent: 2, children: [6,12], status: 'erledigt',priority: '2', hasData: 'false', editors: [2], tasks: []},
+		{id: 5,name: 'test1', isStaff: false,  parent: 2, children: [6,12], status: 'erledigt',priority: '2', hasData: false, editors: [2], data: [], tasks: []},
 		
-		{id: 6,name: 'test2', isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [2], tasks: [
+		{id: 6,name: 'test2', isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: false, editors: [2], data: [], tasks: [
 		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
 		 
-		{id: 7, name: 'test4', isStaff: false,parent: 1,children: [], status: 'zu bearbeiten', priority: '1',hasData: 'false',editors: [1],  tasks: [
+		{id: 7, name: 'test4', isStaff: false,parent: 1,children: [], status: 'zu bearbeiten', priority: '1',hasData: false,editors: [1], data: [],tasks: [
 		                            {name: 'test4', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
 		                        ]},
-		{id: 8, name: 'test5', isStaff: false,parent: 2, children: [], status: 'zu bearbeiten',priority: '2',hasData: 'false', editors: [2], tasks: [
+		{id: 8, name: 'test5', isStaff: false,parent: 2, children: [], status: 'zu bearbeiten',priority: '2',hasData: false, editors: [2], data: [], tasks: [
 		                            {name: 'test5', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
 		                        ]},
-		{id: 9, name: 'test6', isStaff: false, parent: 2, children: [], status: 'zu bearbeiten',priority: '1',hasData: 'true', editors: [2],  tasks: [
-		                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0), data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}]
-		}]},
+		{id: 9, name: 'test6', isStaff: false, parent: 2, children: [], status: 'zu bearbeiten',priority: '1',hasData: true, editors: [2],data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}],  tasks: [
+		                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}]},
 		
-		{id: 10,name: 'test7',isStaff: false, parent: 2,children: [11],  status: 'erledigt',priority: '2', hasData: 'false', editors: [2],  tasks: []},
+		{id: 10,name: 'test7',isStaff: false, parent: 2,children: [11],  status: 'erledigt',priority: '2', hasData: false, editors: [2], data: [], tasks: []},
 		
-		{id: 11,name: 'test8', isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: 'false', editors: [2], tasks: [
-		                            {name: 'test8', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
-		                        ]}, 
+		{id: 11,name: 'test8', isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: false, editors: [2], data: [], tasks: [
+		                            {name: 'test8', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0), }
+		                        ]},  */
 ]		
 		
 		$scope.options = {
@@ -2137,8 +2111,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			allowSideResizing: true,
 			fromDate:  getFormattedDate(new Date()),
 			toDate: getFormattedDate(addDays(new Date(),30)),
-			/*currentDate: 'line',*/
-           /* currentDateValue: getFormattedDate(new Date()),*/
 			columns: ['trash', 'model.priority', 'model.status'],
 			treeTableColumns: [ 'status'],
 			columnsHeaders: {'trash': 'Löschen', 'model.priority': 'Priorität',  'model.status': 'Status', 'model.editors': 'Bearbeiter'},
@@ -2174,7 +2146,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            rowContent: '<i ng-hide ="row.model.isStaff" ng-class="row.model.hasData == \'true\' ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showAside()"></i><a href="#" ng-class = "row.model.isStaff == true ? \'parent\': \'\' "  editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onbeforesave="scope.editTask($data,row)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.addNewTask(row)"></i> ', /*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
+            rowContent: '<i ng-hide ="row.model.isStaff" ng-class="row.model.hasData == true ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showAside(row)"></i><a href="#" ng-class = "row.model.isStaff == true ? \'parent\': \'\' "  editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onbeforesave="scope.editTask($data,row)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.addNewTask(row)"></i> ', /*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
             taskContent: '{{task.model.name}}', 
             zoom: 1.3,
              api: function(api) {
@@ -2206,6 +2178,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		    return result;
 		}
 
+		
 		$scope.canAutoWidth = function(scale) {
             if (scale.match(/.*?hour.*?/) || scale.match(/.*?minute.*?/)) {
                 return false;
@@ -2314,6 +2287,26 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			console.log($scope.data);
 		}
 		
+		$scope.fillDataObject = function(){
+			neo4jRequest.getTasksFromSubproject($stateParams.subproject).then(function(response){
+				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromSubproject()', response.data); return; }
+					 if(response.data){
+						 $.each(Utilities.cleanNeo4jData(response.data),function(index){
+							console.log({name: Utilities.cleanNeo4jData(response.data)[index].name});
+							$scope.data.push({id: Utilities.cleanNeo4jData(response.data)[index].id,
+											name: Utilities.cleanNeo4jData(response.data)[index].name,
+											isStaff: false,
+											editor: [],
+											tasks: [{name: Utilities.cleanNeo4jData(response.data)[index].name,
+													color: '#F1C232',
+													from: Utilities.cleanNeo4jData(response.data)[index].from,
+													to: Utilities.cleanNeo4jData(response.data)[index].to}]
+											});
+							});
+						}
+				});
+		}
+				
 		$scope.addNewTask = function (row){	
 			
 			var tid = Utilities.getUniqueId();
@@ -2336,17 +2329,29 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 						 
 							
 							if(row.model.isStaff == true){ //wenn auf Bearbeiter geklickt wurde
-							$scope.data.push({id: tid, name: 'neue Aufgabe', isStaff: false, parent: row.model.id, children: [], editors: [row.model.id], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
-							/*console.log(tid);
-							console.log($scope.staffArray);*/
-							// neo4jRequest.addTask($stateParams.project, $stateParams.subproject, tid, ,'e21_martin', )
-							}
-							
+								$scope.data.push({id: tid, name: 'neue Aufgabe', isStaff: false, parent: row.model.id, children: [], editors: [row.model.id], priority: '1', status: 'zu bearbeiten', data: [], tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
+								/*console.log(tid);
+								console.log($scope.staffArray);*/
+								//prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus
+								//anhängen an Subprojekt -->$stateParams.subproject
+									neo4jRequest.addTask($stateParams.project, $stateParams.subproject, tid, 'neue Aufgabe','dies und das modellieren',row.model.id, getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'status_todo')
+										.then(function(response){
+										console.log(response.data);
+										/* return neo4jRequest.dropProjectConstraint(prj); */
+									});
+								}
+								
 							 else{ // wenn auf Aufgabe oder Unteraufgabe geklickt wurde
 							 	//hinzufügen der Unteraufgabe
-								$scope.data.push({id: tid, name: 'neue Unteraufgabe',isStaff: false, children: [], editors: [hier.ancestors(row)[hier.ancestors(row).length-1].model.id], priority: '1', status: 'zu bearbeiten', tasks: [{name: 'neue Unteraufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
+								$scope.data.push({id: tid, name: 'neue Unteraufgabe',isStaff: false, children: [], editors: [hier.ancestors(row)[hier.ancestors(row).length-1].model.id], priority: '1', status: 'zu bearbeiten',data: [], tasks: [{name: 'neue Unteraufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
 								//als child zu übergeordnetem Element hinzufügen
 								row.model.children.push(tid);
+								//anhängen an parenttask --> statt $stateParams.subproject -->
+								neo4jRequest.addTask($stateParams.project, row.model.id, tid, 'neue Unteraufgabe','noch mehr modellieren',[hier.ancestors(row)[hier.ancestors(row).length-1].model.id], getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'status_todo')
+										.then(function(response){
+										console.log(response.data);
+									});
+								
 								row.model.tasks = [];
 								$scope.taskExists = false;
 								/*console.log($scope.data);*/
@@ -2620,7 +2625,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			}
 		};	
 		
-
 		
 		$scope.deleteTask = function(row) {
 			
@@ -2663,15 +2667,45 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			
 		}
 		
-		$scope.showAside = function(){
-			var aside = $aside({scope: $scope, templateUrl: 'partials/aside/asideComments.html', placement: 'right', animation: 'am-fade-and-slide-right', container: '.tasksLeft' , backdrop: false});
+		$scope.showAside = function(row){
+			$scope.taskNameForComment= row.model.name;
+			$scope.taskIdForComment= row.model.id; //--> dient der Indexermittlung der Aufgabe
+			/* console.log($scope.taskNameForComment);*/
+			// console.log($scope.taskIdForComment); 
 			
+		/* 	$.each($scope.data,function(index){
+				if($scope.data[index].id == $scope.taskIdForComment){ //-->in allen Aufgaben mit gleichem Namen steht Kommenta
+					$scope.commentIndex = index;
+					console.log($scope.commentIndex);
+				}
+			}); */
+			
+			neo4jRequest.getCommentsFromTask(row.model.id)
+						.then(function(response){
+							if(response.data.exception) { console.error('neo4jRequest Exception on getCommentFromTask()', response.data); return; }
+							if(response.data){
+								$scope.comments = Utilities.cleanNeo4jData(response.data);
+								console.log($scope.comments);
+								}
+						});
+			
+			var aside = $aside({scope: $scope, templateUrl: 'partials/aside/asideComments.html', placement: 'right', animation: 'am-fade-and-slide-right', container: '.tasksLeft' , backdrop: false});
 			aside.show();
 		}
 		
 		$scope.addComment = function(){
-			console.log($scope.newComment.text);
-			$scope.data[8].tasks[0].data.push({message: $scope.newComment.text, author: 'Jonas'});
+			$.each($scope.data,function(index){
+				if($scope.data[index].name == $scope.taskNameForComment){ //-->in allen Aufgaben mit gleichem Namen steht Kommentar					
+					// $scope.data[index].data.push({message: $scope.newComment.text, author: 'Jonas', date: new Date(new Date().getTime())});
+					
+					neo4jRequest.addCommentToTask($stateParams.project,$scope.taskIdForComment, $scope.newComment.text)
+						.then(function(response){
+											console.log(response.data);
+										});
+					$scope.data[index].hasData = true;
+				}
+			});
+			
 			/*$scope.views.activeSide = 'comments';*/	
 		}
 				
@@ -2783,6 +2817,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	
 	//initiiere Staff
 	$scope.getAllStaff();
+	$scope.fillDataObject();
 	$scope.getStaffInGantt();
 	/*generateRows();*/
 	/*console.log('parents ' + $scope.staffArray);*/

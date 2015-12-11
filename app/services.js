@@ -38,10 +38,10 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					(tscomment:E55:'+prj+' {content:"sourceComment"}), '
 					// screenshot
 				  + '(tscreen:E55:'+prj+' {content:"screenshot"}),\
-					(tscomment:E55:'+prj+' {content:"screenshotComment"}), '
+					(tscreencomment:E55:'+prj+' {content:"screenshotComment"}), '
 					// model
 				  + '(tmodel:E55:'+prj+' {content:"model"}), \
-					(tmodel:E55:'+prj+' {content:"model/plan"}), '
+					(tmodelplan:E55:'+prj+' {content:"model/plan"}), '
 					// personal
 				  + '(tpproj:E55:'+prj+'{content:"projectPerson"}), \
 					(tphist:E55:'+prj+'{content:"historicPerson"}), '
@@ -80,19 +80,27 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		//Tasks/////////
-		//Aufgaben hinzufügen //muss noch erweitert werden
-		requests.addTask =  function(prj,subprj,taskID,tdesc,teditor,tduration){
-			
+		//Tasks////////
+		requests.addTask =  function(prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus){
+
 			var q = '';
-			q += 'MATCH (e7:E7:'+prj+' {content: {e7id}})';
+			q += 'MATCH (sub:E7:'+prj+' {content: {e7id}})';
 			q += ',(ttdesc:E55:'+prj+'{content: "taskDesc"})';
 			q += ',(ttask:E55:'+prj+'{content: "task"})';
-			q += ',(editor:E21:'+prj+'{content: {editor}})';
-			q += ' CREATE (e7:E7:'+prj+'{content: {tID}})-[:P2]]->(task)'; //Activity-->Task
-			q += ',CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(taskDesc)'; //String--> Type
-			q += ',CREATE (e7)-[:P4]->(e52:E652:'+prj+' {content:{e52id}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to})'; 
-			q += ',CREATE((e7)-[:P14]->(e21))';
+			q += ',(tprior:E55:'+prj+'{content: {priority}})';
+			q += ',(tstatus:E55:'+prj+'{content: {status}})';
+			q += 'CREATE (e7:E7:'+prj+'{content: {tID}})-[:P2]->(ttask)'; //Activity-->Task
+			q += 'CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(taskDesc)'; 
+			q += 'CREATE (e7)-[:P4]->(e52:E52:'+prj+' {content:{e52idDuration}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to}})'; 
+			q += 'CREATE(e7)-[:P102]->(e35:E35:'+prj+' {value: {title}})'; 
+			q += 'CREATE(e7)-[:P14]->(editor:E21:'+prj+'{value: {editor}})';
+			q += 'CREATE(e7)-[:P2]->(tprior)';
+			q += 'CREATE(e7)-[:P2]->(tstatus)';
+			//ersteller+zeitstempel  -->Prüfen, ob ersteller schon existiert
+			q += 'CREATE (e61n:E61:'+prj+'{content: {currentDate}})<-[:P82]-(e52n:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})'; 
+			q += 'CREATE (e65)-[:P94]->(e7)';
+			q += 'CREATE (sub)-[:P9]->(e7)'
+			
 			
 			return $http.post(phpUrl, {
 				query: q,
@@ -102,33 +110,80 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					desc: tdesc,
 					descId: taskID + '_taskDesc',
 					editor: teditor,
+					e52idDuration: 'e52_' + taskID + '_duration', //in Diagramm ändern
 					e52id: 'e52_' + taskID,
-					from: from,
-					to: to
+					from: tfrom,
+					to: tto,
+					title: ttitle,
+					createTask: 'e65_'+ taskID + '_creation',
+					currentDate: new Date().getTime(), 
+					priority: tpriority,
+					status: tstatus,
+					logindata: 'logindata_' +  new Date().getTime()
 				}
-			});			
+			});	
+			console.log(q);			
 		}
 		
-		requests.getTask = function(prj,id){
+		
+		
+		requests.addCommentToTask = function(prj,taskID,tcomment){
+			var q = '';//KOMMENTAR -->logindata: Platzhalter für späteren Verfasser
+			q += 'MATCH (task:E7:'+prj+'{content: {tID}})';
+			q += 'CREATE (e62:E62:'+prj+'{value: {comment}})<-[:P3]-(e33:E33:'+prj+' {value: {lingObj}})<-[:P94]-(e65:E65:'+prj+' {value: {createComment}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})';
+			q += 'CREATE (e52:E52:'+prj+'{value: {timeSpanID}})-[:P82]->(e61:E61:'+prj+'{value:{currentDate}})';
+			q += 'CREATE (e65)-[:P4]->(e52)';
+			q += 'CREATE (e33)-[:P129]->(task)';
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tID: taskID,
+					comment: tcomment,
+					currentDate: new Date().getTime(), 
+					lingObj: 'e33_'+ taskID,
+					createComment: 'e65_e33_' + taskID,
+					timeSpanID:'e65_e33_e52' + taskID,
+					logindata: 'logindata_' +  new Date().getTime() //vorläufige eindeutige ID, wird später durch eingeloggt person ersetzt
+				}
+			});
 		}
-		//Mitarbeiter////////
-		//Mitarbeiter hinzufügen --> müssten doch an Projektknoten hängen,oder? Bezihung? P14?
-		requests.addStaff = function(prj,id,name){
+		
+		requests.getTasksFromSubproject = function(subprj){
 			var q = '';
-			q += 'MATCH (master:E7:'+prj+' {content: {master}})';
-			q += ',(tpproj:E55:'+prj+'{content:"projectPerson"})';
-			q +=  'CREATE (tpproj)<-[:P2]-(:E21:'+prj+' {content: "e21_"+{name})-[:P131]->(:E82:'+prj+' {content:{id}, value: {name}})';
+			q += 'MATCH (sub:E7 {content: {subprj}})-[:P9*]->(task:E7)';
+			q += ',(task)-[:P102]->(title:E35)';
+			q += ',(task)-[:P3]->(taskDesc:E62)';
+			q += ',(task)-[:P14]->(editor:E21)';
 			
+			q += 'OPTIONAL MATCH (task)-[:P4]->(:E52)-[:P81]->(time:E61)';
+			q += 'RETURN task.content AS id, title.value AS name,taskDesc.value AS taskDesc, editor.content AS editor, time.from AS from, time.to AS to';
+			// q += ',(task)<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)',
+			// q += 'OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)';
+			// q += 'creationDate.value AS date, commentDesc.value AS commentDesc';
+
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					subprj: subprj,
+				}
+				})
+		}
+		
+		requests.getCommentsFromTask = function(taskID){
+			var q = '';
+			q += 'MATCH (task:E7 {content: {tid}})<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)';
+			q += 'OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)';
+			q += 'RETURN creationDate.value AS date, commentDesc.value AS desc';
 			
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					master: prj,
-					name:  name,
-					id: id,
+					tid: taskID,
 				}
-			});		
+				})
 		}
+		
+
 		
 		// alle Knoten und Kanten des Projekts löschen
 		requests.deleteAllProjectNodes = function(prj) {
