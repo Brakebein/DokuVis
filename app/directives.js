@@ -261,8 +261,8 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				*/
 				
 				// Gizmo
-				//gizmoMove = new THREE.GizmoMove(10, 2.5, 1.2);
-				//gizmoRotate = new THREE.GizmoRotate(10);
+				gizmoMove = new THREE.GizmoMove(10, 2.5, 1.2);
+				gizmoRotate = new THREE.GizmoRotate(10);
 				//console.log(gizmo);
 				
 				// Schnittebene
@@ -408,7 +408,6 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				if(obj.material.name in materials) {
 					obj.material = materials[obj.material.name];
 					obj.userData.originalMat = obj.material.name;
-					//console.log(obj.name, obj.material.name);
 					return;
 				}
 				/*obj.material.color.r = Math.pow(obj.material.color.r, 1/2.2);
@@ -1745,6 +1744,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					// check if mouse hits gizmo
 					if(gizmo) {
 						var mouse = mouseInputToViewport(event);
+						//var mouse = mouseOffsetToViewport(event);
 						activeGizmo = gizmo.checkMouseHit(mouse.x, mouse.y, camera);
 					}
 					// measureTool routine
@@ -2155,6 +2155,8 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					mesh.userData.type = 'plan';
 					
 					scene.add(mesh);
+					
+					setGizmo(mesh, 'move');
 					
 					// Liste, um zusammengehörige Objekte zu managen
 					plans[mesh.id] = {mesh: mesh, edges: edges, visible: true};
@@ -2934,9 +2936,14 @@ webglDirectives.directive('rampSlider',
 				var colorStart = attrs.rsColor || '#aaa';
 				var colorEnd = attrs.rsColorTwo || colorStart;
 				
+				element.css('position', 'relative');
 				var ramp = element.find('div');
-				ramp.css('height', (element.css('height').replace(/[^-\d\.]/g, '') - element.css('border-top-width').replace(/[^-\d\.]/g, '') - element.css('border-bottom-width').replace(/[^-\d\.]/g, '')) + 'px');
-				ramp.css('background', 'linear-gradient(to right, '+colorStart+', '+colorEnd+')');
+				ramp.css({
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					background: 'linear-gradient(to right, '+colorStart+', '+colorEnd+')'
+				});
 				
 				element.on('mousedown', function(event) {
 					event.preventDefault();
@@ -2945,6 +2952,16 @@ webglDirectives.directive('rampSlider',
 				});
 				
 				function rampSliderMousemove(event) {
+					applyChange(event);
+				}
+				
+				function rampSliderMouseup() {
+					applyChange(event);
+					$document.unbind('mousemove', rampSliderMousemove);
+					$document.unbind('mouseup', rampSliderMouseup);
+				}
+				
+				function applyChange(event) {
 					scope.rsModel = parseFloat(((event.pageX - element.offset().left) / element[0].offsetWidth ).toFixed(2));
 					if(scope.rsModel > 0.9) scope.rsModel = 1.0;
 					else if(scope.rsModel < 0.1) scope.rsModel = 0.0;
@@ -2952,11 +2969,23 @@ webglDirectives.directive('rampSlider',
 					scope.rsOnchange(scope.rsModel);
 					scope.$applyAsync();
 				}
-				
-				function rampSliderMouseup() {
-					$document.unbind('mousemove', rampSliderMousemove);
-					$document.unbind('mouseup', rampSliderMouseup);
+			}
+		};
+	});
+
+webglDirectives.directive('ngWheel',
+	function($parse) {
+		return {
+			restrict: 'A',
+			link: function(scope, element, attr) {
+				var fn = $parse(attr.ngWheel);
+				function mousewheel(event) {
+					scope.$apply(function() {
+						fn(scope, {$event: event});
+					});
 				}
+				element.bind('mousewheel', mousewheel);
+				element.bind('DOMMouseScroll', mousewheel); // firefox
 			}
 		};
 	});

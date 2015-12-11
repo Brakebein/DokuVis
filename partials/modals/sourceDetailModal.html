@@ -11,7 +11,13 @@
 	
 		<div ng-class="horizontalImage ? 'imageHDiv' : 'imageVDiv'">
 			<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="data/{{item.file.path + (item.file.display || item.file.img1024 || item.file.name)}}"/>
-			<div ng-if="item.type == 'text'" class="displayText" ng-include="'data/' + item.file.path + item.file.display[pageNr]"></div>
+			<div ng-if="item.type == 'text' && !textEdit" class="displayText" ng-include="'data/' + item.file.path + item.file.display[pageNr]" ng-mouseover="highlight($event)" ng-wheel="syncScroll($event, isEndEvent)"></div>
+			<div ng-if="item.type == 'text'" class="displayImage" ng-wheel="syncScroll($event, isEndEvent)">
+				<img src="data/Proj_puuD1TP/texts/pdf_image.jpg"/>
+				<div id="wordRect"></div>
+			</div>
+			
+			<div ng-if="item.type == 'text' && textEdit" text-angular ta-toolbar="[['h3','p','quote'],['bold','italics','underline','ul','ol'],['undo','redo'],['html','insertLink']]" ng-model="editorInput"></div>
 		</div>
 		<div ng-class="horizontalImage ? 'infoHDiv' : 'infoVDiv'">
 			<img ng-if="item.type == 'text'" ng-src="data/{{item.file.path}}_thumbs/{{item.file.thumb}}"/>
@@ -50,7 +56,14 @@
 			<div ng-if="item.type == 'text'">
 				<button class="btn btn-default btn-sm" ng-click="nextPage(-1)">vorige Seite</button>
 				<button class="btn btn-default btn-sm" ng-click="nextPage(1)">nächste Seite</button>
+				
 				<p>Seite {{pageNr + 1}}</p>
+				<p>
+					<button class="btn btn-default btn-sm" ng-class="{active: showConfidence}" ng-click="toggleConfidence()">Fehler zeigen</button>
+				<!--	<button class="btn btn-default btn-sm" ng-click="editText()">Text bearbeiten</button>
+					<button class="btn btn-default btn-sm" ng-click="saveText()">Text speichern</button>
+				-->
+				</p>
 			</div>
 		</div>
 	
