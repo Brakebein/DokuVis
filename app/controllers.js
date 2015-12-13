@@ -980,7 +980,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function(event) {
-			webglInterface.clearLists();
+			//webglInterface.clearLists();
 			console.log('destroy explorerCtrl');
 		});
 		
@@ -1174,6 +1174,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 				item.ocr = false;
 				item.resample = false;
 				item.primary = true;
+				item.tags = [];
 			}
 			else if($scope.uploadType === 'model') {
 				item.sourceType = 'model';
@@ -1215,6 +1216,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 				ocr: item.ocr,
 				resample: item.resample,
 				primary: item.primary,
+				tags: item.tags,
 				
 				oldFileName: item.file.name,
 				newFileName: item.newFileName,
@@ -1487,6 +1489,16 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 			});
 		};
 		
+		// tag input callbacks
+		$scope.onTagAdded = function(tag) {
+			tag.text = tag.text.toLowerCase();
+		};
+		$scope.getTags = function(query) {
+			return neo4jRequest.searchTags($stateParams.project, query).then(function(response) {
+				if(response.data.exception) { console.error('neo4j failed on getAllTags()', response.data); return; }
+				return Utilities.extractArrayFromNeo4jData(response.data);
+			});
+		};
 	}]);
 	
 webglControllers.controller('sourceTypeCtrl', ['$scope',
@@ -1526,8 +1538,8 @@ webglControllers.controller('addArchiveCtrl', ['$scope', '$stateParams', 'neo4jR
 		};
 	}]);
 	
-webglControllers.controller('sourceDetailCtrl', ['$scope',
-	function($scope) {
+webglControllers.controller('sourceDetailCtrl', ['$scope', '$http',
+	function($scope, $http) {
 		
 		console.log('sourceDetailCtrl init');
 		
@@ -1563,6 +1575,87 @@ webglControllers.controller('sourceDetailCtrl', ['$scope',
 		};
 		
 		$scope.nextItem(0);
+		
+		$scope.highlight = function(event) {
+			if(event.target.className !== 'ocrx_word') return;
+			
+			var values = $('.displayText').find('.ocr_page')[0].attributes.title.value.match(/bbox (\d+) (\d+) (\d+) (\d+);/);
+			var global = [values[1], values[2], values[3], values[4]];
+			
+			values = event.target.attributes.title.value.match(/^bbox (\d+) (\d+) (\d+) (\d+); x_wconf (\d+)$/);
+			var bbox = [values[1], values[2], values[3], values[4]];
+			
+			var img = $('.displayImage').find('img');
+			
+			var left = Math.floor( bbox[0] * img.width() / global[2] );
+			var width = Math.ceil( bbox[2] * img.width() / global[2] ) - left + 1;
+			var top = Math.floor( bbox[1] * img.height() / global[3] );
+			var height = Math.ceil( bbox[3] * img.height() / global[3] ) - top + 1;
+			
+			//console.log(left, width, top, height);
+			
+			$('#wordRect').css({
+				left: left+'px',
+				top: top+'px',
+				width: width+'px',
+				height: height+'px'
+			});
+		};
+		
+		$scope.syncScroll = function(event) {
+			
+			//console.log(event);
+			
+			var delta = event.originalEvent.wheelDelta || -event.originalEvent.detail*40 || 0;
+			
+			console.log(delta);
+			
+			var target = event.delegateTarget;
+			
+			var percentScroll = target.scrollTop / (target.scrollHeight - target.offsetHeight);
+			
+			console.log(percentScroll);
+			
+			var syncDiv;
+			if(target.className.split(" ").indexOf('displayText') !== -1)
+				syncDiv = $('.displayImage')[0];
+			else
+				syncDiv = $('.displayText')[0];
+			
+			syncDiv.scrollTop = Math.round(percentScroll * (syncDiv.scrollHeight - syncDiv.offsetHeight));
+			$scope.$applyAsync();
+		};
+		
+		$scope.toggleConfidence = function() {
+			$scope.showConfidence = !$scope.showConfidence;
+			
+			var words = $('.displayText').find('.ocrx_word');
+			for(var i=0, l=words.length; i<l; i++) {
+				if($scope.showConfidence) {
+					var values = words[i].attributes.title.value.match(/^bbox (\d+) (\d+) (\d+) (\d+); x_wconf (\d+)$/);
+					var wconf = values[5];
+					var hue = Math.floor((wconf-50)/50 * 120);
+					$(words[i]).css('background', 'hsl('+hue+',100%,85%)');
+				}
+				else
+					$(words[i]).css('background', 'none');
+			}
+		};
+		
+		$scope.editText = function() {
+			//$scope.textEdit = !$scope.textEdit;
+			
+			$http.get('data/' + $scope.item.file.path + $scope.item.file.display[$scope.pageNr]).then(function(response) {
+				console.log(response);
+				$scope.editorInput = response.data;
+				$scope.textEdit = true;
+			});
+			
+		};
+		
+		$scope.saveText = function() {
+			console.log($scope.editorInput);
+		};
 		
 	}]);
 	

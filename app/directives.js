@@ -1,12 +1,12 @@
 var webglDirectives = angular.module('webglDirectives', ['urish']);
 
-webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities',
-	function($stateParams, angularLoad, $timeout, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities) {
+webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities',
+	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities) {
 		
 		function link(scope, element, attr) {
 			
 			// Scripts werden nachgeladen, sobald diese directive genutzt wird
-			var scripts = [
+			/*var scripts = [
 				'lib/webgl/three-r73.min.js',
 				'lib/webgl/Projector.js',
 				'lib/webgl/CanvasRenderer.js',
@@ -42,7 +42,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					console.log(scripts[counter] + ' failed');
 				});
 			}
-			loadScripts(0);
+			loadScripts(0);*/
 			
 			// Konstante maximale Sichtweite
 			var FAR = 1400;
@@ -52,14 +52,14 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			var SCREEN_WIDTH, SCREEN_HEIGHT;
 			var canvas;
 			var renderer, scene, controls, stats;
-			var axisrenderer, axisscene, axiscamera;
+			var axisRenderer, axisScene, axisCamera;
 			var camera, orthocam;
 			var dlight;
 			
 			var postprocessing = {};
 			
 			// Listen für die Verwaltung der einzelnen Objekte
-			var objects = {}, plans = {}, marks = {};
+			var marks = {};
 			var highlighted = [], sliced = [], hidden = [];
 			// Listen für die Schnittstelle mit der HTML-Seite
 			scope.objModels = [];
@@ -70,11 +70,9 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			var selected = [];
 			
 			
-			var objloader;
-			var ctmloader;
+			var objloader, ctmloader;
 			
 			var plane;
-			var planGH;
 			
 			// Gizmo, Slice, Messen
 			var gizmo, gizmoMove, gizmoRotate;
@@ -85,6 +83,21 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			var isSliceMoving = false;
 			
 			var measureTool;
+			var pin;
+			
+			var navigationState = {
+				SELECT: 0,
+				ROTATE: 2,
+				PAN: 3,
+				ZOOM: 4,
+				
+			};
+			var interactionState = {
+				SELECT: 0,
+				MEASURE: 1,
+				PIN: 2,
+				SLICE: 3
+			};
 			
 			// Shading-Konstanten
 			var shading = {
@@ -112,146 +125,93 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			
 			var isSelecting = false;
 			
-			// Liste der Materials
-			var materials = {};
+			
+			// Übernahme aus webglContext
+			var objects = webglContext.objects;
+			var plans = webglContext.plans;
+			var materials = webglContext.materials;
 			
 			// Initialisierung des Ganzen
+			init();
 			function init() {
 			
-			// default mat
-			materials['defaultMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, name: 'defaultMat'});
-			materials['defaultDoublesideMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, side: THREE.DoubleSide, name: 'defaultDoublesideMat'});
-			materials['defaultUnsafeMat'] = new THREE.MeshLambertMaterial({color: 0xaaaaaa, transparent: true, opacity: 0.5, depthWrite: false, name: 'defaultUnsafeMat'});
-			
-			// selection mat
-			materials['selectionMat'] = new THREE.MeshLambertMaterial({color: 0xff4444, side: THREE.DoubleSide, name: 'selectionMat'});
-			
-			// transparent mat
-			materials['transparentMat'] = new THREE.MeshLambertMaterial({color: 0xcccccc, transparent: true, opacity: 0.5, depthWrite: false, name: 'transparentMat'});
-			materials['transparentSelectionMat'] = new THREE.MeshLambertMaterial({color: 0xff4444, transparent: true, opacity: 0.5, depthWrite: false, name: 'transparentSelectionMat'});
-			// wireframe mat
-			materials['wireframeMat'] = new THREE.MeshBasicMaterial({color: 0x333333, wireframe: true, name: 'wireframeMat'});
-			materials['wireframeSelectionMat'] = new THREE.MeshBasicMaterial({color: 0xff4444, wireframe: true, name: 'wireframeSelectionMat'});
-			
-			materials['invisibleMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, visible: false, name: 'invisibleMat'});
-			// highlight mat
-			materials['highlightMat'] = new THREE.MeshLambertMaterial({color: 0xffff44, name: 'highlightMat'});
-			materials['transparentHighlightMat'] = new THREE.MeshLambertMaterial({color: 0xffff44, transparent: true, opacity: 0.5, name: 'transparentHighlightMat'});
-			
-			materials['xrayMat'] = new THREE.ShaderMaterial({name: 'xrayMat', side: THREE.DoubleSide, transparent: true, depthWrite: false, depthTest: false, uniforms: {"ambient":{type:"f",value:0.05},"edgefalloff":{type:"f",value:0.1},"intensity":{type:"f",value:1.0},"vColor":{type:"c",value:new THREE.Color(0x000000)}}, vertexShader: THREE.XRayShader.vertexShader, fragmentShader: THREE.XRayShader.fragmentShader});
-			materials['xraySelectionMat'] = new THREE.ShaderMaterial({name: 'xraySelectionMat', side: THREE.DoubleSide, transparent: true, depthWrite: false, depthTest: false, uniforms: {"ambient":{type:"f",value:0.05},"edgefalloff":{type:"f",value:0.3},"intensity":{type:"f",value:1.5},"vColor":{type:"c",value:new THREE.Color(0xff4444)}}, vertexShader: THREE.XRayShader.vertexShader, fragmentShader: THREE.XRayShader.fragmentShader});
-			
-			materials['edgesMat'] = new THREE.LineBasicMaterial({color: 0x333333, name: 'edgesMat'});
-			materials['edgesSelectionMat'] = new THREE.LineBasicMaterial({color: 0xff4444, name: 'edgesMat'});
-			//materials['edgesMat'] = new THREE.LineBasicMaterial({color: 0xcccccc, name: 'edgesMat'});
-			
-			// slice mat
-			materials['sliceMultiMat'] = [ materials['defaultMat'], materials['invisibleMat'], materials['defaultMat'], materials['invisibleMat'] ];
-			materials['sliceLineMat'] = new THREE.LineBasicMaterial({color: 0xff0000, name: 'sliceLineMat'});
-			
-			materials['sliceMultiMat_debug'] = [new THREE.MeshLambertMaterial({color: 0xdd4444}),new THREE.MeshLambertMaterial({color: 0x44dd44}),new THREE.MeshLambertMaterial({color: 0x4444dd}),new THREE.MeshLambertMaterial({color: 0x44dddd})];
-			
-			
-			
 				// Auslesen von Höhe und Breite des Fensters
-				element.height(element.parent().height() - element.position().top - 2*parseInt(element.css('border-top-width'),10));
-				SCREEN_WIDTH = element.width();
-				SCREEN_HEIGHT = element.height();
-				console.log('viewport size: ' + SCREEN_WIDTH + ' ' + SCREEN_HEIGHT);
+				// element.height(element.parent().height() - element.position().top - 2*parseInt(element.css('border-top-width'),10));
+				// SCREEN_WIDTH = element.width();
+				// SCREEN_HEIGHT = element.height();
+				// console.log('viewport size: ' + SCREEN_WIDTH + ' ' + SCREEN_HEIGHT);
 				
 				
 				// Camera
-				//camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH/SCREEN_HEIGHT, 0.1, FAR);
-				camera = new THREE.CombinedCamera(SCREEN_WIDTH, SCREEN_HEIGHT, 35, 0.1, FAR, 0.1, FAR);
-				//camera.setSize(SCREEN_WIDTH/20, SCREEN_HEIGHT/20);
-				//camera.position.set(0, 60, 10);
-				camera.position.set(-100, 60, 100);
-				
-				orthocam = new THREE.OrthographicCamera(SCREEN_WIDTH/-20, SCREEN_WIDTH/20, SCREEN_HEIGHT/20, SCREEN_HEIGHT/-20, 0.1, FAR);
+				camera = webglContext.camera;
 				
 				// Scene
-				scene = new THREE.Scene();
-				scene.add(camera);
-				scene.add(orthocam);
-				scene.fog = new THREE.Fog(0x666666, FAR-100, FAR);
-				
-				// Grid
-				scene.add(new THREE.GridHelper(100, 10));
-				
-				var camera2 = new THREE.CombinedCamera(SCREEN_WIDTH, SCREEN_HEIGHT, 35, 0.1, 200, 0.1, 200);
-				camera2.position.set(-20,50,150);
-				scene.add(camera2);
-				scene.add(new THREE.CameraHelper(camera2));
-				console.log(camera);
+				scene = webglContext.scene;
 				
 				// Renderer
-				renderer = new THREE.WebGLRenderer({antialias: true, alpha: false, preserveDrawingBuffer: true});
-				renderer.setClearColor(0x666666, 1);
-				//renderer.setClearColor(0x000000, 1);
-				renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-				//renderer.autoClear = false;
+				renderer = webglContext.renderer;
 				canvas = renderer.domElement;
 				element.append(canvas);
 				
-				stats = new Stats();
-				stats.domElement.style.position = 'absolute';
-				stats.domElement.style.top = '33px';
-				element.append( stats.domElement );
+				// Stats
+				if(webglContext.stats) {
+					stats = webglContext.stats;
+					stats.domElement.style.position = 'absolute';
+					stats.domElement.style.top = '33px';
+					element.append( stats.domElement );
+				}
 				
 				// MouseHandler für Viewport
 				addMouseHandler();
 				
 				// Controls (für Navigation)
-				controls = new THREE.OrbitControls(camera, canvas);
-				controls.center.set(86, 0, -74);
-				controls.zoomSpeed = 1.0;
-				//controls.userPanSpeed = 1;
-				camera.target = controls.center;
+				controls = webglContext.controls;
 				
-				// axis helper
-				var axiselement = $('#axis');
-				//axisrenderer = new THREE.CanvasRenderer();
-				axisrenderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
-				axisrenderer.setSize(axiselement.width(), axiselement.height());
-				axiselement.append(axisrenderer.domElement);
+				// Axis helper
+				axisRenderer = webglContext.axisRenderer;
+				axisScene = webglContext.axisScene;
+				axisCamera = webglContext.axisCamera;
 				
-				axisscene = new THREE.Scene();
-				axiscamera = new THREE.OrthographicCamera(axiselement.width()/-2, axiselement.width()/2, axiselement.height()/2, axiselement.height()/-2, 1, 100);
-				//axiscamera = new THREE.PerspectiveCamera(50, axiselement.width() / axiselement.height(), 1, 100);
-				axiscamera.up = camera.up;
+				var axisElement = element.find('#axis');
+				axisRenderer.setSize(axisElement.width(), axisElement.height());
+				axisElement.append(axisRenderer.domElement);
 				
-				var axes = new THREE.AxisHelper(30);
-				axisscene.add(axes);
-				
+				axisCamera.left = axisElement.width()/-2;
+				axisCamera.right = axisElement.width()/2;
+				axisCamera.top = axisElement.height()/2;
+				axisCamera.bottom = axisElement.height()/-2;
+				axisCamera.near = 1;
+				axisCamera.far = 100;
+				axisCamera.updateProjectionMatrix();
 				
 				// Light
-				//var alight = new THREE.AmbientLight(0x666666);
-				var alight = new THREE.AmbientLight(0x888888);
-				//var alight = new THREE.AmbientLight(0xffffff);
-				scene.add(alight);
+				dlight = webglContext.directionalLight;
 				
-				dlight = new THREE.DirectionalLight(0xffffff, 0.7);
-				dlight.position.set(-2,8,4);
-				scene.add(dlight);
 				
 				// Ladebalken
 				var manager = new THREE.LoadingManager();
 				manager.onProgress = function ( item, loaded, total ) {
-					$('#loadprogressbar').show();
-					$('#loadprogressitem').show();
+					var pbar = element.find('#loadprogressbar');
+					var pitem = element.find('#loadprogressitem');
+					pbar.show();
+					pitem.show();
 					//console.log( item, loaded, total );
 					var percent = loaded / total * 100;
-					$('#loadprogressbar').css('width', percent + '%');
-					$('#loadprogressitem').html(item + ' &ndash; ' + loaded + ' / ' + total);
+					pbar.css('width', percent + '%');
+					pitem.html(item + ' &ndash; ' + loaded + ' / ' + total);
 					if(percent == 100) {
 						//$('#loadprogressbar').css('visibility' , 'hidden');
-						$('#loadprogressbar').delay(2000).fadeOut(2000);
-						$('#loadprogressitem').delay(2000).fadeOut(2000);
+						pbar.delay(2000).fadeOut(2000);
+						pitem.delay(2000).fadeOut(2000);
 						/*$timeout(function() {
 							webglInterface.callFunc.focusAll();
 						}, 100);*/
 					}
 				};
+				
+				objloader = new THREE.OBJMTLLoader(manager);
+				ctmloader = new THREE.CTMLoader(manager);
+				
 				
 				// Postprocessing
 				postprocessing.sampleRatio = 2;
@@ -295,9 +255,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				postprocessing.composer = composer;
 				console.log(composer);
 				
-				// Loader für obj-Dateien
-				objloader = new THREE.OBJMTLLoader(manager);
-				ctmloader = new THREE.CTMLoader(manager);
+				
 				
 				/*objloader.load('data/steinmetzzeichen/Steinmetzzeichen_auswahl.obj', 'data/steinmetzzeichen/Steinmetzzeichen_auswahl.mtl', loadMasonMarkHandler);
 				*/
@@ -331,6 +289,9 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				//gizmo.attachToObject(plane);
 				
 				
+				$timeout(function() {
+					resizeViewport();
+				});
 				
 				animate();
 			}
@@ -368,10 +329,10 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				
 				// update of axis helper
 				if(camPerspective) {
-					axiscamera.position.copy(camera.position);
-					axiscamera.position.sub(controls.center);
-					axiscamera.position.setLength(50);
-					axiscamera.lookAt(axisscene.position);
+					axisCamera.position.copy(camera.position);
+					axisCamera.position.sub(controls.center);
+					axisCamera.position.setLength(50);
+					axisCamera.lookAt(axisScene.position);
 				}
 				
 				render();
@@ -379,8 +340,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			}
 
 			function render() {
-				//renderer.render(scene, camPerspective ? camera : orthocam);
-				axisrenderer.render(axisscene, axiscamera);
+				axisRenderer.render(axisScene, axisCamera);
 				
 				if(renderSSAO) {
 					// do postprocessing
@@ -448,7 +408,6 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				if(obj.material.name in materials) {
 					obj.material = materials[obj.material.name];
 					obj.userData.originalMat = obj.material.name;
-					//console.log(obj.name, obj.material.name);
 					return;
 				}
 				/*obj.material.color.r = Math.pow(obj.material.color.r, 1/2.2);
@@ -559,20 +518,11 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					gizmo.attachToObject(obj);
 			}
 			
-			function selectObject(mx, my, ctrlKey) {
-				var elementOffset = new THREE.Vector2();
-				elementOffset.x = element.offset().left - $(window).scrollLeft();
-				elementOffset.y = element.offset().top - $(window).scrollTop();
-				
-				var mouse = new THREE.Vector2();
-				mouse.x = ((mx - elementOffset.x) / SCREEN_WIDTH) * 2 - 1;
-				mouse.y = - ((my - elementOffset.y) / SCREEN_HEIGHT) * 2 + 1;
-				
-				var cam = camPerspective ? camera : orthocam;
-				var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(cam);
-				
-				//var raycaster = new THREE.Projector().pickingRay(vector, camPerspective ? camera : orthocam);
-				var raycaster = new THREE.Raycaster(cam.position, vector.sub(cam.position).normalize());
+			// selection by a simple click
+			function selectRay(mouse, ctrlKey) {				
+			
+				var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
+				var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
 				
 				var testObjects = [];
 				for(var key in objects) {
@@ -595,47 +545,37 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					setSelected(null, ctrlKey);
 			}
 			
+			// selection by drawing a rectangle
 			function selectArea(mStart, mEnd, ctrlKey) {
-				var cam = camPerspective ? camera : orthocam;
-				var s0 = new THREE.Vector3(mStart.x, mStart.y, 0.5).unproject(cam);
-				var s1 = new THREE.Vector3(mStart.x, mEnd.y, 0.5).unproject(cam);
-				var s2 = new THREE.Vector3(mEnd.x, mEnd.y, 0.5).unproject(cam);
-				var s3 = new THREE.Vector3(mEnd.x, mStart.y, 0.5).unproject(cam);
-				var s4 = new THREE.Vector3(0, 0, 0.5).unproject(cam);
 				
+				var s0 = new THREE.Vector3(mStart.x, mStart.y, 0.5).unproject(camera);
+				var s1 = new THREE.Vector3(mStart.x, mEnd.y, 0.5).unproject(camera);
+				var s2 = new THREE.Vector3(mEnd.x, mEnd.y, 0.5).unproject(camera);
+				var s3 = new THREE.Vector3(mEnd.x, mStart.y, 0.5).unproject(camera);
+				var s4 = new THREE.Vector3(0, 0, 0.5).unproject(camera);
 				
+				var v0 = new THREE.Vector3().subVectors(s0, camera.position);
+				var v1 = new THREE.Vector3().subVectors(s1, camera.position);
+				var v2 = new THREE.Vector3().subVectors(s2, camera.position);
+				var v3 = new THREE.Vector3().subVectors(s3, camera.position);
+				var v4 = new THREE.Vector3().subVectors(s4, camera.position);
 				
+				var s5 = new THREE.Vector3(0, 0, FAR).unproject(camera).add(v4.clone().setLength(FAR));
+				var v5 = new THREE.Vector3().subVectors(s5, camera.position);
 				
-				var v0 = new THREE.Vector3().subVectors(s0, cam.position).normalize();
-				var v1 = new THREE.Vector3().subVectors(s1, cam.position).normalize();
-				var v2 = new THREE.Vector3().subVectors(s2, cam.position).normalize();
-				var v3 = new THREE.Vector3().subVectors(s3, cam.position).normalize();
-				var v4 = new THREE.Vector3().subVectors(s4, cam.position).normalize();
+				var n0 = new THREE.Vector3().crossVectors(v1, v0).normalize();
+				var n1 = new THREE.Vector3().crossVectors(v2, v1).normalize();
+				var n2 = new THREE.Vector3().crossVectors(v3, v2).normalize();
+				var n3 = new THREE.Vector3().crossVectors(v0, v3).normalize();
+				var n4 = v4.clone().normalize();
+				var n5 = v5.clone().negate().normalize();
 				
-				var s5 = new THREE.Vector3(0, 0, FAR).unproject(cam).add(v4.clone().setLength(FAR));
-				var v5 = new THREE.Vector3().subVectors(s5, cam.position).normalize();
-				
-				console.log(s0,s1,s4,s5);
-				
-				var n0 = new THREE.Vector3().crossVectors(v0, v1);
-				var n1 = new THREE.Vector3().crossVectors(v1, v2);
-				var n2 = new THREE.Vector3().crossVectors(v2, v3);
-				var n3 = new THREE.Vector3().crossVectors(v3, v0);
-				var n4 = v4.clone().negate();
-				// var n4 = camera.getWorldDirection();
-				var n5 = v5.clone();
-				// var n5 = camera.getWorldDirection().negate();
-				
-				var d0 = -n0.x*s0.x -n0.y*s0.y -n0.z*s0.z;
-				var d1 = -n1.x*s1.x -n1.y*s1.y -n1.z*s1.z;
-				var d2 = -n2.x*s2.x -n2.y*s2.y -n2.z*s2.z;
-				var d3 = -n3.x*s3.x -n3.y*s3.y -n3.z*s3.z;
-				var d4 = -n4.x*s4.x -n4.y*s4.y -n4.z*s4.z;
-				var d5 = -n5.x*s5.x -n5.y*s5.y -n5.z*s5.z;
-				
-				console.log(v0,v1,v4,v5);
-				console.log(n0,n1,n4,n5);
-				console.log(d0,d1,d4,d5);
+				var d0 = - n0.dot(s0);
+				var d1 = - n1.dot(s1);
+				var d2 = - n2.dot(s2);
+				var d3 = - n3.dot(s3);
+				var d4 = - n4.dot(s4);
+				var d5 = - n5.dot(s5);
 				
 				var p0 = new THREE.Plane(n0, d0);
 				var p1 = new THREE.Plane(n1, d1);
@@ -646,15 +586,22 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				
 				var frustum = new THREE.Frustum(p0, p1, p2, p3, p4, p5);
 				
-				console.log(frustum);
+				if(!ctrlKey)
+					setSelected(null, false, true);
 				
-				var countSelect = 0;
 				for(var key in objects) {
 					if(objects[key].visible && objects[key].mesh.userData.type === 'object') {
-						if(frustum.intersectsObject(objects[key].mesh)) {
-							if(countSelect === 0) setSelected(objects[key].mesh, false);
-							else setSelected(objects[key].mesh, true);
-							countSelect++;
+						if(selected.indexOf(objects[key].mesh) === -1 && frustum.intersectsObject(objects[key].mesh)) {
+							var position = objects[key].mesh.geometry.attributes.position.array;
+							var m = objects[key].mesh.matrixWorld;
+							for(var i=0, l=position.length; i<l; i+=3) {
+								var vertex = new THREE.Vector3(position[i], position[i+1], position[i+2]);
+								vertex.applyMatrix4(m);
+								if(frustum.containsPoint(vertex)) {
+									setSelected(objects[key].mesh, true);
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -1635,6 +1582,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					if(edges) {
 						edges.material = edges.material.clone();
 						edges.material.transparent = true;
+						edges.material.depthWrite = false;
 						edges.material.needsUpdate = true;
 					}
 					mesh.userData.modifiedMat = true;
@@ -1707,13 +1655,13 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					isZoomingView = true;
 					controls.onMouseDown(event.originalEvent, 1);
 				}
-				else if(event.button === 0 && scope.navigation.selectRect) {
+				/*else if(event.button === 0 && scope.navigation.selectRect) {
 					isSelecting = true;
 					console.log(event);
 					var sr = $('<div/>', {id: 'select-rectangle', 'class': 'select-rectangle'})
 						.css({left: event.offsetX, top: event.offsetY, width: 0, height: 0});
 					element.append(sr);
-				}
+				}*/
 			}
 			
 			// MouseMove EventHandler
@@ -1760,14 +1708,43 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 							controls.onMouseMove(event.originalEvent);
 						}
 					}
-					else if(isSelecting) {
-						element.find('#select-rectangle').css({width: event.offsetX-mouseDownCoord.x, height: event.offsetY-mouseDownCoord.y});
+					// area selection
+					else {
+						var css = {};
+						if(event.offsetX - mouseDownCoord.x > 0) {
+							css.left = mouseDownCoord.x;
+							css.width = event.offsetX - mouseDownCoord.x;
+						}
+						else {
+							css.left = event.offsetX;
+							css.width = mouseDownCoord.x - event.offsetX;
+						}
+						if(event.offsetY - mouseDownCoord.y > 0) {
+							css.top = mouseDownCoord.y;
+							css.height = event.offsetY - mouseDownCoord.y;
+						}
+						else {
+							css.top = event.offsetY;
+							css.height = mouseDownCoord.y - event.offsetY;
+						}
+						
+						if(isSelecting) {
+							element.find('#select-rectangle').css(css);
+						}
+						else {
+							isSelecting = true;
+							var sr = $('<div/>', {id: 'select-rectangle', 'class': 'select-rectangle'})
+								.css(css);
+							element.append(sr);
+						}
 					}
 				}
+				
 				else {
 					// check if mouse hits gizmo
 					if(gizmo) {
 						var mouse = mouseInputToViewport(event);
+						//var mouse = mouseOffsetToViewport(event);
 						activeGizmo = gizmo.checkMouseHit(mouse.x, mouse.y, camera);
 					}
 					// measureTool routine
@@ -1781,6 +1758,15 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						}
 						
 						measureTool.checkMouseHit(mouse.x, mouse.y, camera, testObjects);
+					}
+					else if(pin) {
+						var mouse = mouseInputToViewport(event);
+						var testObjects = [];
+						for(var key in objects) {
+							if(objects[key].visible)
+								testObjects.push(objects[key].mesh);
+						}
+						pin.mousehit(mouse.x, mouse.y, camera, testObjects);
 					}
 				}
 				
@@ -1801,13 +1787,22 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				
 				//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
 				
+				// area selection
 				if(event.button === 0 && isSelecting) {
 					isSelecting = false;
-					console.log('select finished');
 					element.find('#select-rectangle').remove();
 					
-					var mStart = mouseOffsetToViewport(mouseDownCoord.x, mouseDownCoord.y);
-					var mEnd = mouseOffsetToViewport(event.offsetX, event.offsetY);
+					var mStart, mEnd;
+					
+					if (event.offsetX - mouseDownCoord.x > 0 && event.offsetY - mouseDownCoord.y > 0 ||
+						event.offsetX - mouseDownCoord.x < 0 && event.offsetY - mouseDownCoord.y < 0) {
+						mStart = mouseOffsetToViewport(mouseDownCoord.x, mouseDownCoord.y);
+						mEnd = mouseOffsetToViewport(event.offsetX, event.offsetY);
+					}
+					else {
+						mStart = mouseOffsetToViewport(mouseDownCoord.x, event.offsetY);
+						mEnd = mouseOffsetToViewport(event.offsetX, mouseDownCoord.y);
+					}
 					
 					selectArea(mStart, mEnd, event.ctrlKey);
 				}
@@ -1846,9 +1841,10 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						
 						measureTool.setTarget(mouse.x, mouse.y, camera, testObjects);
 					}
+					// selection
 					else {
-						//console.log(event);
-						selectObject(event.clientX, event.clientY, event.ctrlKey);
+						var mouse = mouseOffsetToViewport(event.offsetX, event.offsetY);
+						selectRay(mouse, event.ctrlKey);
 					}
 				}
 				
@@ -1869,7 +1865,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					}
 				}
 				else if(event.button === 2) {
-					scope.internalCallFunc.setNavigationMode('select');
+					webglInterface.callFunc.setNavigationMode('select');
 					scope.$apply();
 					//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
 					if(!mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
@@ -1925,8 +1921,10 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				
 				console.log('resize called', SCREEN_WIDTH, SCREEN_HEIGHT);
 				
-				camera.cameraP.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+				//camera.cameraP.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+				camera.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 				camera.cameraP.updateProjectionMatrix();
+				
 				
 				renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 				
@@ -1955,6 +1953,12 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					event.preventDefault();
 				});
 			}
+			
+			webglInterface.callFunc.startMarking = function() {
+				webglInterface.callFunc.setNavigationMode(false);
+				pin = new THREE.Pin(3, 1, 0.5);
+				scene.add(pin);
+			};
 			
 			function setGizmoCoords(type, apply) {
 				scope.gizmoCoords.enabled = true;
@@ -2032,13 +2036,13 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 				}
 			};
 			
-			scope.internalCallFunc.setNavigationMode = function(mode) {
+			webglInterface.callFunc.setNavigationMode = function(mode) {
 				scope.navigation.select = false;
-				scope.navigation.selectRect = false;
 				scope.navigation.rotate = false;
 				scope.navigation.pan = false;
 				scope.navigation.zoom = false;
-				scope.navigation[mode] = true;
+				if(mode)
+					scope.navigation[mode] = true;
 			};
 			
 			scope.internalCallFunc.getObjForPlans = function() {
@@ -2151,6 +2155,8 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					mesh.userData.type = 'plan';
 					
 					scene.add(mesh);
+					
+					setGizmo(mesh, 'move');
 					
 					// Liste, um zusammengehörige Objekte zu managen
 					plans[mesh.id] = {mesh: mesh, edges: edges, visible: true};
@@ -2439,7 +2445,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 			// get object by id and add or remove mesh and edges
 			webglInterface.callFunc.toggleObject = function(item, visible) {
 				var p;
-				if(parent)
+				if(item.parent)
 					p = objects[item.parent.id].mesh;
 				else
 					p = scene;
@@ -2452,7 +2458,7 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 					addChildren(item.children);
 					
 				}
-				else if(!item.visible) {
+				else if(!visible) {
 					p.remove(objects[item.id].mesh);
 					scene.remove(objects[item.id].edges);
 					objects[item.id].visible = false;
@@ -2652,17 +2658,17 @@ webglDirectives.directive('webglView', ['$stateParams', 'angularLoad', '$timeout
 						orthocam.position.set(-50, M.y, M.z);
 				}
 			}
+			
+			scope.$on('$destroy', function(event) {
+				setSelected(null, false, true);
+				console.log('destroy webgl directive');
+			});
 		}
 		
 		return {
 			restrict: 'AE',
 			//replace: true,
 			scope: {
-				objModels: '=',
-				planModels: '=',
-				marksModels: '=',
-				selectedModels: '=',
-				highlightedModels: '=',
 				unsafeSettings: '=',
 				viewportSettings: '=',
 				callFunc: '=',
@@ -2930,9 +2936,14 @@ webglDirectives.directive('rampSlider',
 				var colorStart = attrs.rsColor || '#aaa';
 				var colorEnd = attrs.rsColorTwo || colorStart;
 				
+				element.css('position', 'relative');
 				var ramp = element.find('div');
-				ramp.css('height', (element.css('height').replace(/[^-\d\.]/g, '') - element.css('border-top-width').replace(/[^-\d\.]/g, '') - element.css('border-bottom-width').replace(/[^-\d\.]/g, '')) + 'px');
-				ramp.css('background', 'linear-gradient(to right, '+colorStart+', '+colorEnd+')');
+				ramp.css({
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					background: 'linear-gradient(to right, '+colorStart+', '+colorEnd+')'
+				});
 				
 				element.on('mousedown', function(event) {
 					event.preventDefault();
@@ -2941,6 +2952,16 @@ webglDirectives.directive('rampSlider',
 				});
 				
 				function rampSliderMousemove(event) {
+					applyChange(event);
+				}
+				
+				function rampSliderMouseup() {
+					applyChange(event);
+					$document.unbind('mousemove', rampSliderMousemove);
+					$document.unbind('mouseup', rampSliderMouseup);
+				}
+				
+				function applyChange(event) {
 					scope.rsModel = parseFloat(((event.pageX - element.offset().left) / element[0].offsetWidth ).toFixed(2));
 					if(scope.rsModel > 0.9) scope.rsModel = 1.0;
 					else if(scope.rsModel < 0.1) scope.rsModel = 0.0;
@@ -2948,11 +2969,23 @@ webglDirectives.directive('rampSlider',
 					scope.rsOnchange(scope.rsModel);
 					scope.$applyAsync();
 				}
-				
-				function rampSliderMouseup() {
-					$document.unbind('mousemove', rampSliderMousemove);
-					$document.unbind('mouseup', rampSliderMouseup);
+			}
+		};
+	});
+
+webglDirectives.directive('ngWheel',
+	function($parse) {
+		return {
+			restrict: 'A',
+			link: function(scope, element, attr) {
+				var fn = $parse(attr.ngWheel);
+				function mousewheel(event) {
+					scope.$apply(function() {
+						fn(scope, {$event: event});
+					});
 				}
+				element.bind('mousewheel', mousewheel);
+				element.bind('DOMMouseScroll', mousewheel); // firefox
 			}
 		};
 	});

@@ -8,7 +8,7 @@ $postdata = json_decode(file_get_contents("php://input"));
 $path = str_replace("/", $DS, $postdata->path);
 $upath = $pData . $DS . $path;
 
-$fname = $postdata->filename;
+$fname = utf8_decode($postdata->filename);
 
 $data = str_replace('data:application/zip;base64,', '', $postdata->data);
 
