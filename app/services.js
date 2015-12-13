@@ -80,9 +80,10 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		//Tasks////////
-		requests.addTask =  function(prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus){
+		//Tasks
+		requests.addTask =  function(prj,subprj,taskID,ttitle,tdesc,teditorId,teditorName,tfrom,tto, tpriority, tstatus){
 
+			
 			var q = '';
 			q += 'MATCH (sub:E7:'+prj+' {content: {e7id}})';
 			q += ',(ttdesc:E55:'+prj+'{content: "taskDesc"})';
@@ -93,14 +94,23 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += 'CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(taskDesc)'; 
 			q += 'CREATE (e7)-[:P4]->(e52:E52:'+prj+' {content:{e52idDuration}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to}})'; 
 			q += 'CREATE(e7)-[:P102]->(e35:E35:'+prj+' {value: {title}})'; 
-			q += 'CREATE(e7)-[:P14]->(editor:E21:'+prj+'{value: {editor}})';
+			//Prüfen, ob editor existiert 
+			q += 'CREATE(e7)-[:P14]->(editor:E21:'+prj+'{content: {editorId}, value: {editorName}})';
 			q += 'CREATE(e7)-[:P2]->(tprior)';
 			q += 'CREATE(e7)-[:P2]->(tstatus)';
 			//ersteller+zeitstempel  -->Prüfen, ob ersteller schon existiert
 			q += 'CREATE (e61n:E61:'+prj+'{content: {currentDate}})<-[:P82]-(e52n:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})'; 
 			q += 'CREATE (e65)-[:P94]->(e7)';
 			q += 'CREATE (sub)-[:P9]->(e7)'
-			
+				
+			// Match (sub:E7:Proj_pwLoMDJ {content: "subpwLoQXn"}), (editor:E21:Proj_pwLoMDJ) Where exists(editor.value) return editor
+			/* MATCH (n:Proj_pwLoMDJ {content: "subpwLoQXn"})-[:P9*]->(task)-[:P14]->(editor)
+			RETURN
+			CASE editor.content
+			WHEN '072c2b97-06db-e018-dc32-8722993017ca'
+			THEN 1
+			ELSE 'not found'
+			END */
 			
 			return $http.post(phpUrl, {
 				query: q,
@@ -109,7 +119,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					tID: taskID,
 					desc: tdesc,
 					descId: taskID + '_taskDesc',
-					editor: teditor,
+					editorId: teditorId,
+					editorName: teditorName,
 					e52idDuration: 'e52_' + taskID + '_duration', //in Diagramm ändern
 					e52id: 'e52_' + taskID,
 					from: tfrom,
@@ -122,10 +133,23 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					logindata: 'logindata_' +  new Date().getTime()
 				}
 			});	
-			console.log(q);			
+					
 		}
 		
+		requests.EditorExists = function(prj,subprj,editorId){
+		var q = '';
+		q += 'MATCH (n:'+prj+' {content: {subprj}})-[:P9*]->(task)-[:P14]->(editor {content: {editorId}})';
+		q += 'WHERE EXISTS(editor.content)';
+		q += 'return editor.content AS editorID';
 		
+		return $http.post(phpUrl, {
+				query: q,
+				params: {
+					subprj: subprj,
+					editorId: editorId
+				}
+			});
+		}
 		
 		requests.addCommentToTask = function(prj,taskID,tcomment){
 			var q = '';//KOMMENTAR -->logindata: Platzhalter für späteren Verfasser
@@ -156,7 +180,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += ',(task)-[:P14]->(editor:E21)';
 			
 			q += 'OPTIONAL MATCH (task)-[:P4]->(:E52)-[:P81]->(time:E61)';
-			q += 'RETURN task.content AS id, title.value AS name,taskDesc.value AS taskDesc, editor.content AS editor, time.from AS from, time.to AS to';
+			q += 'RETURN task.content AS id, title.value AS name,taskDesc.value AS taskDesc, editor.content AS editorId, time.from AS from, time.to AS to';
 			// q += ',(task)<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)',
 			// q += 'OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)';
 			// q += 'creationDate.value AS date, commentDesc.value AS commentDesc';
@@ -183,7 +207,38 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				})
 		}
 		
-
+		/* requests.changePriority = function(prj, subprj, taskID, priorityOld,priorityNew){
+		
+			var q = '';
+			q += 'MATCH (n:'+prj+' {content: {subprj}})-[:P9]->(task:'+prj+' {content: {tid}})-[r:P2]->(priority)'
+			q += 'Delete r'
+			MATCH (n:Proj_pwLoMDJ {content: "subpwLoQXn"})-[:P9]->(task:Proj_pwLoMDJ {content: "pwLoYJM"})-[r:P2]->(priority)
+CREATE(task)-[:P2]->(prior:E55 {content: "priority_high"})
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					subpr: subprj,
+					tid: taskID,
+					priority: priority
+				}
+				})
+		
+		} */
+		
+		//alle Mitarbeiter holen
+		requests.getStaffFromSubproject = function(subprj){
+		var q = '';
+			q += 'match (sub:E7 {content: {subprj}})-[:P9*]->(task:E7)-[:P14]->(editor:E21) return editor.content AS editorId, editor.value AS editorName';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					subprj: subprj,
+				}
+				})
+		
+		}
 		
 		// alle Knoten und Kanten des Projekts löschen
 		requests.deleteAllProjectNodes = function(prj) {
