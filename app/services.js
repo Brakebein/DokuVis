@@ -1328,7 +1328,8 @@ webglServices.factory('Utilities',
 			return results;
 		};
 		
-		f.createHierarchy = function(data) {
+		// createHierarchy(data, ['file', 'obj'])
+		f.createHierarchy = function(data, props, isNode) {
 			var results = [];
 			for(var i=0, l=data.data.length; i<l; i++) {
 				var parent = {};
@@ -1338,8 +1339,14 @@ webglServices.factory('Utilities',
 				parent.children = [];
 				for(var j=0, m=data.data[i][1].length; j<m; j++) {
 					var child = {};
-					child.file = data.data[i][1][j].file.data;
-					child.obj = data.data[i][1][j].obj.data;
+					for(var k=0; k<props.length; k++) {
+						if(isNode)
+							child[props[k]] = data.data[i][1][j][props[k]].data;
+						else
+							child[props[k]] = data.data[i][1][j][props[k]];
+					}
+					// child.file = data.data[i][1][j].file.data;
+					// child.obj = data.data[i][1][j].obj.data;
 					child.content = data.data[i][1][j].child.data.content;
 					child.children = [];
 					parent.children.push(child);
