@@ -2505,6 +2505,7 @@
                 <File name="partials\aside\asideComments.html" />
                 <File name="partials\aside\asideStaff.html" />
                 <File name="partials\aside\_asideTpl.html" />
+                <File name="partials\aside\asideTasks.html" />
             </Folder>
             <Folder name="modals">
                 <File name="partials\modals\addArchiveModal.html" />

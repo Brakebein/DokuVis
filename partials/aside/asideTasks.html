@@ -1,0 +1,42 @@
+<div class="aside" tabindex="-1" role="dialog">
+  <div class="aside-dialog">
+    <div class="aside-content">
+      <div class="aside-header" >
+        <button type="button" class="close" ng-click="$hide()">&times;</button>
+        <h4 class="aside-title" >Aufgabe hinzufügen</h4>
+      </div>
+      <div class="aside-body" >
+
+						<div class="form-group text-left">
+					   		<label class="control-label">Bearbeiter</label><br>
+							<input type="text" class="form-control" style="width: 8em" ng-model="newTask.staff">
+						</div>
+						
+						<div class="form-group text-left">
+					   		<label class="control-label">Aufgabe</label><br>
+							<input type="text" class="form-control" style="width: 10em" ng-model="newTask.task" placeholder="Aufgabe">
+						</div>
+						
+						
+					<div class="form-group text-left">
+					   		<label class="control-label">Von</label><br>
+							<input type="text" class="form-control" style="width: 6em" ng-model="newTask.from" placeholder="Von" bs-datepicker>
+						</div>
+						
+						<div class="form-group text-left">
+					   		<label for="to" class="control-label">Bis</label><br>
+							<input type="text" id = "to" class="form-control" style="width: 6em" ng-model="newTask.to" placeholder="Bis" bs-datepicker>
+						</div>
+						
+		                 <label>Beschreibung</label>
+						<textarea class="form-control" rows="3" ng-model="newTask.desc"></textarea>
+					           
+						<div class="form-group text-left">
+					   		<label  class="control-label">Hinzufügen</label><br>
+							<button type="button" class="btn btn-primary" ng-click="addNewTask(newTask)" >Neue Aufgabe hinzufügen</button>
+						</div>
+							   
+			</div>				
+		</div>							 
+	</div>
+</div>
