@@ -2278,7 +2278,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					newid++;
 					console.log('task pushed');
 					
-					/*function pushChildTasks(parentTask, parentRow) {
+					function pushChildTasks(parentTask, parentRow) {
 						$.each(parentTask.children, function(k) {
 							var childTask = parentTask.children[k];
 							parentRow.children.push(newid);
@@ -2295,7 +2295,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 						});
 					}
 					pushChildTasks(task, rowTask);
-					console.log('child pushed');*/
+					console.log('child pushed');
 					
 				});
 			});
@@ -2324,27 +2324,60 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			neo4jRequest.getTasksFromSubproject($stateParams.project,$stateParams.subproject).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromSubproject()', response.data); return; }
 					 if(response.data){
-						 // var root = Utilities.createHierarchy(response.data);
-						 console.log(Utilities.createHierarchy(response.data));
+						 console.log(response.data.data);
+						 var root = Utilities.createHierarchy(response.data,['name','desc','editors','from','to'], false)[0];
+						 console.log(root); 
 						 
-						 $.each(Utilities.cleanNeo4jData(response.data),function(index){
+						 $.each(root.children, function(indexC) {
+							var rowTask = {
+								id: root.children[indexC].content,
+								name: root.children[indexC].name,
+								isStaff: false,
+								// parent: root[indexC].editorId,
+								children: [],
+								// status: 'erledigt',
+								// priority: '2',
+								data: [],
+								// editors: [root[index].editors],
+								tasks: [{name: root.children[indexC].name,
+										color: '#F1C232',
+										from: root.children[indexC].from,
+										to: root.children[indexC].to}] 
+								};
+							
+							$scope.data.push(rowTask);
+
+							pushChildren(root.children[indexC], rowTask);
+						 });
+						 
+						 
+						 function pushChildren(children, parentRow) {
+							$.each(children,function(indexR){
 							/* console.log({name: Utilities.cleanNeo4jData(response.data)[index].name}); */
-							$scope.data.push({id: Utilities.cleanNeo4jData(response.data)[index].id,
-											name: Utilities.cleanNeo4jData(response.data)[index].name,
-											isStaff: false,
-											parent: Utilities.cleanNeo4jData(response.data)[index].editorId,
-											children: [],
-											status: 'erledigt',
-											priority: '2',
-											data: [],
-											editors: [Utilities.cleanNeo4jData(response.data)[index].editorId],
-											tasks: [{name: Utilities.cleanNeo4jData(response.data)[index].name,
-													color: '#F1C232',
-													from: Utilities.cleanNeo4jData(response.data)[index].from,
-													to: Utilities.cleanNeo4jData(response.data)[index].to}]
-											});
+								parentRow.children.push(children[indexR].content);
+								var newRow = {id: children[indexR].content,
+												name: children[indexR].name,
+												isStaff: false,
+												// parent: root[indexR].editorId,
+												children: [],
+												// status: 'erledigt',
+												// priority: '2',
+												data: [],
+												// editors: [root[index].editors],
+												tasks: [{name: children[indexR].name,
+														color: '#F1C232',
+														from: children[indexR].from,
+														to: children[indexR].to}] 
+												};
+								
+								$scope.data.push(newRow);
+								pushChildren(children[indexR], newRow); 
+								
+							
+							
 							});
-						}
+						 }
+					}
 						//id: 3, name: 'test1', isStaff: false, parent: 1, children: [4], status: 'erledigt',priority: '2', hasData: false, editors: [1],data: [], tasks: []
 				});
 				console.log($scope.data);
