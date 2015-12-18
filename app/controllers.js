@@ -1988,21 +1988,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 
 		/*Children zählen*/
 		$scope.childCounter = 0;
-
-		$scope.members = [
-			{name: 'Martin', tasks: []},
-			{name: 'Jonas', tasks: []},
-		];
-		
-		$scope.tasks = [
-			{name: 'task1', parent: null, children: ['task3','task4'], editors: ['Martin']},
-			{name: 'task2', parent: null, children: ['task5'], editors: []},
-			{name: 'task3', parent: null, from: new Date(2015,11,12,8,0,0), to: new Date(2015,11,30,15,0,0), children: [], editors: ['Martin']},
-			{name: 'task4', parent: null, children: [], editors: []},
-			{name: 'task5', parent: null, children: [], editors: ['Jonas']},
-			/*{name: 'task6', parent: null, children: [], editors: ['Martin']},
-			{name: 'task7', parent: null, children: [], editors: ['Jonas']}*/
-		];
 		
 		$scope.dataTasks = [];
 		
@@ -2240,67 +2225,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				});
 		}
 		/*Tasks*/
-		function generateRows() {
-			var newid = 0;
-			
-			$.each($scope.members, function(i) {
-				var member = $scope.members[i];
-				var row = {
-					id: newid,
-					name: member.name,
-					memberRef: member,
-					isStaff: true,
-					groups: false,
-					children: [],
-					tasks: []
-				};
-				$scope.data.push(row);
-				newid++;
-				console.log('member pushed');
-				
-				$.each($scope.tasks, function(j) {
-					
-					/*if($scope.tasks[j].editors.indexOf(member) === -1){
-						return true;
-						}*/
-						console.log('test');
-					var task = $scope.tasks[j]; //task ist Referenz auf Objekt in $scope.tasks[j]
-					var rowTask = {
-						id: newid,
-						name: task.name,
-						taskRef: task,
-						parent: task.id,
-						children: task.children,
-						tasks: task.from ? [{name: task.name, from: task.from, to: task.to}] : []
-					};
-					
-					$scope.data.push(rowTask); // übergibt auch Referrenz
-					newid++;
-					console.log('task pushed');
-					
-					function pushChildTasks(parentTask, parentRow) {
-						$.each(parentTask.children, function(k) {
-							var childTask = parentTask.children[k];
-							parentRow.children.push(newid);
-							var childRow = {
-								id: newid,
-								name: childTask.name,
-								taskRef: childTask,
-								children: [],
-								tasks: childTask.from ? [{name: childTask.name, from: childTask.from, to: childTask.to}] : []
-							};
-							$scope.data.push(childRow);
-							newid++;
-							pushChildTasks(childTask, childRow);
-						});
-					}
-					pushChildTasks(task, rowTask);
-					console.log('child pushed');
-					
-				});
-			});
-			console.log($scope.data);
-		}
+		
 		
 		$scope.fillDataObject = function(){
 			//Mitarbeiter einfügen
@@ -2308,7 +2233,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromProject()', response.data); return; }
 					 if(response.data){
 						 $.each(Utilities.cleanNeo4jData(response.data),function(index){
-							console.log({name: Utilities.cleanNeo4jData(response.data)[index].editorName});
+							//console.log({name: Utilities.cleanNeo4jData(response.data)[index].editorName});
 							$scope.data.push({id: Utilities.cleanNeo4jData(response.data)[index].editorId,
 											name: Utilities.cleanNeo4jData(response.data)[index].editorName,
 											isStaff: true,
@@ -2324,21 +2249,21 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			neo4jRequest.getTasksFromSubproject($stateParams.project,$stateParams.subproject).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromSubproject()', response.data); return; }
 					 if(response.data){
-						 console.log(response.data.data);
+						 /* console.log(response.data.data); */
 						 var root = Utilities.createHierarchy(response.data,['name','desc','editors','from','to'], false)[0];
-						 console.log(root); 
+						 console.log(root.children); 
 						 
 						 $.each(root.children, function(indexC) {
 							var rowTask = {
 								id: root.children[indexC].content,
 								name: root.children[indexC].name,
 								isStaff: false,
-								// parent: root[indexC].editorId,
+								parent: root.children[indexC].editors,
 								children: [],
 								// status: 'erledigt',
 								// priority: '2',
 								data: [],
-								// editors: [root[index].editors],
+								editors: root.children[indexC].editors,
 								tasks: [{name: root.children[indexC].name,
 										color: '#F1C232',
 										from: root.children[indexC].from,
@@ -2347,37 +2272,51 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							
 							$scope.data.push(rowTask);
 
-							pushChildren(root.children[indexC], rowTask);
-						 });
+							//console.log(root.children[indexC].children.length);
+							if(root.children[indexC].children.length>0){
+								pushChildren(root.children[indexC].children, rowTask);
+							}
 						 
 						 
 						 function pushChildren(children, parentRow) {
+							
+							console.log(children);
+							console.log(parentRow);
+							//console.log(children[0].content); 
+							
 							$.each(children,function(indexR){
-							/* console.log({name: Utilities.cleanNeo4jData(response.data)[index].name}); */
+							
+								/* console.log(indexR);
+								console.log(children[indexR].content);  */
+								
 								parentRow.children.push(children[indexR].content);
+								//console.log(parentRow);
+								
+								if(children[indexR].editors.length == 1){
 								var newRow = {id: children[indexR].content,
 												name: children[indexR].name,
 												isStaff: false,
-												// parent: root[indexR].editorId,
+												parent: [],
 												children: [],
 												// status: 'erledigt',
 												// priority: '2',
 												data: [],
-												// editors: [root[index].editors],
+												editors: children[indexR].editors,
 												tasks: [{name: children[indexR].name,
 														color: '#F1C232',
 														from: children[indexR].from,
 														to: children[indexR].to}] 
 												};
-								
+								}
+								//console.log(newRow);
 								$scope.data.push(newRow);
-								pushChildren(children[indexR], newRow); 
+								//console.log(children[indexR]);
+								pushChildren(children[indexR].children, newRow); 
 								
-							
-							
-							});
-						 }
-					}
+							});	
+						}	
+						});
+					 }
 						//id: 3, name: 'test1', isStaff: false, parent: 1, children: [4], status: 'erledigt',priority: '2', hasData: false, editors: [1],data: [], tasks: []
 				});
 				console.log($scope.data);
@@ -2425,13 +2364,24 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 								//anhängen an parenttask --> statt $stateParams.subproject --> clickedElement
 								
 								
-								neo4jRequest.addTask($stateParams.project, $scope.newTask.clickedElement.model.id, tid, $scope.newTask.task,$scope.newTask.desc,$scope.newTask.staffID
+								 neo4jRequest.addTask($stateParams.project, $scope.newTask.clickedElement.model.id, tid, $scope.newTask.task,$scope.newTask.desc,$scope.newTask.staffID
 													, getFormattedDate($scope.newTask.from), getFormattedDate($scope.newTask.to),'priority_high', 'status_todo')
 										.then(function(response){
 										console.log(response.data);
-									});
+										})
+									/* 	.then(){
+										}); */
 								
-								$scope.newTask.clickedElement.tasks = [];
+								$scope.newTask.clickedElement.tasks = []; //daten aus parent für gruppierung löschen
+								console.log($scope.newTask.clickedElement.model.id);
+								
+								 neo4jRequest.deleteTaskDates($stateParams.project, $scope.newTask.clickedElement.model.id)
+										.then(function(response){
+										console.log('element gelöscht')
+										console.log(response.data);
+									});
+								 
+								
 								$scope.taskExists = false;
 
 								}
@@ -2452,13 +2402,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			}
 		}
 				
-		$scope.getParent = function(row){
-			/*console.log(row);*/
-			var hier= $scope.api.tree.getHierarchy();
-			/*console.log(hier.parent(row).model.name);*/
-			return hier.parent(row).model;
-			
-		}
 		
 		$scope.getIndex = function(event, ui, indexStaff){
 			/*console.log(indexStaff);*/
@@ -2504,9 +2447,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		}
 		
 		$scope.editTask = function(data, row){
-			console.log(row.model);
-			console.log($scope.data);
-			console.log(data);
 			
 			var isChanged = false;
 			var found = false;
@@ -2583,7 +2523,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			//Datenarray umschalten, Spalte hinzufügen
 			$scope.options.columns.push('model.editors');
 			$scope.options.useData = $scope.dataTasks;
-			/* $scope.api.data.on.change($scope.dataTasks, $scope.data); */
 			$scope.sortby = 'task';
 			console.log($scope.dataTasks);
 			};
@@ -2724,29 +2663,42 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		$scope.deleteTask = function(row) {
 			
-			console.log('data vorher');
-			console.log($scope.data);
+			//console.log('data vorher');
+			//console.log($scope.data);
 			
 			var dataToRemove= [];
 			var hier= $scope.api.tree.getHierarchy();
 			
 			if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
 				if(hier.children(row)){ //wenn oberaufgabe gelöscht werden soll
-					$.each(hier.children(row),function(indexC){ //alle childrenobjekte raussuchen und zum löschen übergeben
-						dataToRemove.push({'id': hier.children(row)[indexC].model.id});
-						dataToRemove.push({'id': row.model.id}); //Elternobjekt zum löschen übergeben
+				console.log(hier.descendants(row));
+					$.each(hier.descendants(row),function(indexC){ //alle childrenobjekte raussuchen und zum löschen übergeben
+						dataToRemove.push({'id': hier.descendants(row)[indexC].model.id});
 						console.log(dataToRemove);
 					});
+					dataToRemove.splice(0,0,{'id': row.model.id}); //Elternobjekt zum löschen übergeben
+					console.log(dataToRemove);
+					
 				}
 				else{
-					dataToRemove.push({'id': row.model.id});
+					dataToRemove.push({'id': row.model.id}); 
 					if(hier.children(row)){
 						hier.parent(row).model.children.splice(hier.parent(row).model.children.indexOf(row.model.id,1)); //childrenobjekt in parent löschen
 					}
-					console.log(dataToRemove);
 				}
-				
 				$scope.api.data.remove(dataToRemove);
+				
+				//dataToRemove = dataToRemove.reverse();
+				
+				$.each(dataToRemove,function(indexD){
+					neo4jRequest.deleteTask($stateParams.project,dataToRemove[indexD].id)
+						.then(function(response){
+							console.log($stateParams.project);
+							console.log(dataToRemove[indexD]);
+						console.log(response.data);
+						}); 
+				});
+				
 				console.log('data nacher');
 				console.log($scope.data);
 			}
@@ -2829,7 +2781,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.getAllStaff = function() {
 			mysqlRequest.getAllStaff().success(function(obj, status){
 					$scope.staff = obj.data;
-					console.log($scope.staff);
+					//console.log($scope.staff);
 			});
 		};
 		
@@ -2915,10 +2867,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
         };
         
 		var logReadyEvent = function() {
-            $log.info('[Event] core.on.ready');
+           // $log.info('[Event] core.on.ready');
         };
 		 var logDataEvent = function(eventName) {
-            console.log('[Event] ' + eventName);
+           // console.log('[Event] ' + eventName);
         };
 
         
