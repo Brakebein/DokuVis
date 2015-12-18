@@ -1987,12 +1987,23 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.newStaff.mail = '';
 		$scope.newStaff.role = '';
 		$scope.newStaff.projects = '';
-		$scope.staffExists= 'false';
+		$scope.staffExists= false;
 		
 		/*Tasks*/
+		
+		$scope.newTask = new Object();
+		$scope.newTask.staffID = '';
+		$scope.newTask.staff = '';
+		$scope.newTask.isStaff = '';
+		$scope.newTask.clickedElement = '';
+		$scope.newTask.task = '';
+		$scope.newTask.from = '';
+		$scope.newTask.to = '';
+		$scope.newTask.desc = '';
+		
 		$scope.staff = [];
 		$scope.nameFound = false;
-		$scope.taskExists = 'false';
+		$scope.taskExists = false;
 		
 		// Kommentare
 		$scope.taskNameForComment;
@@ -2019,21 +2030,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 
 		/*Children zählen*/
 		$scope.childCounter = 0;
-
-		$scope.members = [
-			{name: 'Martin', tasks: []},
-			{name: 'Jonas', tasks: []},
-		];
-		
-		$scope.tasks = [
-			{name: 'task1', parent: null, children: ['task3','task4'], editors: ['Martin']},
-			{name: 'task2', parent: null, children: ['task5'], editors: []},
-			{name: 'task3', parent: null, from: new Date(2015,11,12,8,0,0), to: new Date(2015,11,30,15,0,0), children: [], editors: ['Martin']},
-			{name: 'task4', parent: null, children: [], editors: []},
-			{name: 'task5', parent: null, children: [], editors: ['Jonas']},
-			/*{name: 'task6', parent: null, children: [], editors: ['Martin']},
-			{name: 'task7', parent: null, children: [], editors: ['Jonas']}*/
-		];
 		
 		$scope.dataTasks = [];
 		
@@ -2188,7 +2184,11 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             sortMode: undefined,
             maxHeight: true,
             width: true,
-            rowContent: '<i ng-hide ="row.model.isStaff" ng-class="row.model.hasData == true ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" ng-click="scope.showAside(row)"></i><a href="#" ng-class = "row.model.isStaff == true ? \'parent\': \'\' "  editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onbeforesave="scope.editTask($data,row)"> {{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.addNewTask(row)"></i> ', /*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
+            rowContent: '<i ng-hide ="row.model.isStaff" ng-class="row.model.hasData == true ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" \
+							ng-click="scope.showAsideForComment(row)"></i><a href="#" ng-class = "row.model.isStaff == true ? \'parent\': \'\' "  \
+							editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onbeforesave="scope.editTask($data,row)"> \
+							{{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.showAsideForTask(row)"></i> ',
+							/*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
             taskContent: '{{task.model.name}}', 
             zoom: 1.3,
              api: function(api) {
@@ -2267,91 +2267,107 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				});
 		}
 		/*Tasks*/
-		function generateRows() {
-			var newid = 0;
-			
-			$.each($scope.members, function(i) {
-				var member = $scope.members[i];
-				var row = {
-					id: newid,
-					name: member.name,
-					memberRef: member,
-					isStaff: true,
-					groups: false,
-					children: [],
-					tasks: []
-				};
-				$scope.data.push(row);
-				newid++;
-				console.log('member pushed');
-				
-				$.each($scope.tasks, function(j) {
-					
-					/*if($scope.tasks[j].editors.indexOf(member) === -1){
-						return true;
-						}*/
-						console.log('test');
-					var task = $scope.tasks[j]; //task ist Referenz auf Objekt in $scope.tasks[j]
-					var rowTask = {
-						id: newid,
-						name: task.name,
-						taskRef: task,
-						parent: task.id,
-						children: task.children,
-						tasks: task.from ? [{name: task.name, from: task.from, to: task.to}] : []
-					};
-					
-					$scope.data.push(rowTask); // übergibt auch Referrenz
-					newid++;
-					console.log('task pushed');
-					
-					/*function pushChildTasks(parentTask, parentRow) {
-						$.each(parentTask.children, function(k) {
-							var childTask = parentTask.children[k];
-							parentRow.children.push(newid);
-							var childRow = {
-								id: newid,
-								name: childTask.name,
-								taskRef: childTask,
-								children: [],
-								tasks: childTask.from ? [{name: childTask.name, from: childTask.from, to: childTask.to}] : []
-							};
-							$scope.data.push(childRow);
-							newid++;
-							pushChildTasks(childTask, childRow);
-						});
-					}
-					pushChildTasks(task, rowTask);
-					console.log('child pushed');*/
-					
-				});
-			});
-			console.log($scope.data);
-		}
+		
 		
 		$scope.fillDataObject = function(){
-			neo4jRequest.getTasksFromSubproject($stateParams.subproject).then(function(response){
-				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromSubproject()', response.data); return; }
+			//Mitarbeiter einfügen
+			neo4jRequest.getStaffFromProject($stateParams.project).then(function(response){
+				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromProject()', response.data); return; }
 					 if(response.data){
 						 $.each(Utilities.cleanNeo4jData(response.data),function(index){
-							console.log({name: Utilities.cleanNeo4jData(response.data)[index].name});
-							$scope.data.push({id: Utilities.cleanNeo4jData(response.data)[index].id,
-											name: Utilities.cleanNeo4jData(response.data)[index].name,
-											isStaff: false,
-											editor: [],
-											tasks: [{name: Utilities.cleanNeo4jData(response.data)[index].name,
-													color: '#F1C232',
-													from: Utilities.cleanNeo4jData(response.data)[index].from,
-													to: Utilities.cleanNeo4jData(response.data)[index].to}]
+							//console.log({name: Utilities.cleanNeo4jData(response.data)[index].editorName});
+							$scope.data.push({id: Utilities.cleanNeo4jData(response.data)[index].editorId,
+											name: Utilities.cleanNeo4jData(response.data)[index].editorName,
+											isStaff: true,
+											'groups': false,
+											children: [],
+											tasks: []
 											});
 							});
+							
 						}
+			});
+			//AUfgaben einfügen
+			neo4jRequest.getTasksFromSubproject($stateParams.project,$stateParams.subproject).then(function(response){
+				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromSubproject()', response.data); return; }
+					 if(response.data){
+						 /* console.log(response.data.data); */
+						 var root = Utilities.createHierarchy(response.data,['name','desc','editors','from','to'], false)[0];
+						 console.log(root.children); 
+						 
+						 $.each(root.children, function(indexC) {
+							var rowTask = {
+								id: root.children[indexC].content,
+								name: root.children[indexC].name,
+								isStaff: false,
+								parent: root.children[indexC].editors,
+								children: [],
+								// status: 'erledigt',
+								// priority: '2',
+								data: [],
+								editors: root.children[indexC].editors,
+								tasks: [{name: root.children[indexC].name,
+										color: '#F1C232',
+										from: root.children[indexC].from,
+										to: root.children[indexC].to}] 
+								};
+							
+							$scope.data.push(rowTask);
+
+							//console.log(root.children[indexC].children.length);
+							if(root.children[indexC].children.length>0){
+								pushChildren(root.children[indexC].children, rowTask);
+							}
+						 
+						 
+						 function pushChildren(children, parentRow) {
+							
+							console.log(children);
+							console.log(parentRow);
+							//console.log(children[0].content); 
+							
+							$.each(children,function(indexR){
+							
+								/* console.log(indexR);
+								console.log(children[indexR].content);  */
+								
+								parentRow.children.push(children[indexR].content);
+								//console.log(parentRow);
+								
+								if(children[indexR].editors.length == 1){
+								var newRow = {id: children[indexR].content,
+												name: children[indexR].name,
+												isStaff: false,
+												parent: [],
+												children: [],
+												// status: 'erledigt',
+												// priority: '2',
+												data: [],
+												editors: children[indexR].editors,
+												tasks: [{name: children[indexR].name,
+														color: '#F1C232',
+														from: children[indexR].from,
+														to: children[indexR].to}] 
+												};
+								}
+								//console.log(newRow);
+								$scope.data.push(newRow);
+								//console.log(children[indexR]);
+								pushChildren(children[indexR].children, newRow); 
+								
+							});	
+						}	
+						});
+					 }
+						//id: 3, name: 'test1', isStaff: false, parent: 1, children: [4], status: 'erledigt',priority: '2', hasData: false, editors: [1],data: [], tasks: []
 				});
+				console.log($scope.data);
+				
 		}
 				
 		$scope.addNewTask = function (row){	
 			
-			var tid = Utilities.getUniqueId();
+			var tid = Utilities.getUniqueId(row);
 			var hier= $scope.api.tree.getHierarchy();
 			/* console.log(hier.ancestors(row)[hier.ancestors(row).length-1].model.name); */
 			if($scope.sortby == 'staff'){
@@ -2368,50 +2384,66 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					}
 					
 					else{
-						 
-							
-							if(row.model.isStaff == true){ //wenn auf Bearbeiter geklickt wurde
-								$scope.data.push({id: tid, name: 'neue Aufgabe', isStaff: false, parent: row.model.id, children: [], editors: [row.model.id], priority: '1', status: 'zu bearbeiten', data: [], tasks: [{name: 'neue Aufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
-								/*console.log(tid);
-								console.log($scope.staffArray);*/
-								//prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus
+							if($scope.newTask.isStaff == true){ //wenn auf Bearbeiter geklickt wurde
+								$scope.data.push({id: tid, name: $scope.newTask.task, isStaff: false, parent: $scope.newTask.staffID, children: [], editors: [$scope.newTask.staffID], priority: '1', status: 'zu bearbeiten', data: [],
+												  tasks: [{name: $scope.newTask.task, color: '#F1C232', from: getFormattedDate($scope.newTask.from), to: getFormattedDate($scope.newTask.to)}]});
+								console.log($scope.newTask.staffID);
 								//anhängen an Subprojekt -->$stateParams.subproject
-									neo4jRequest.addTask($stateParams.project, $stateParams.subproject, tid, 'neue Aufgabe','dies und das modellieren',row.model.id, getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'status_todo')
+									neo4jRequest.addTask($stateParams.project, $stateParams.subproject, tid, $scope.newTask.task,$scope.newTask.desc,$scope.newTask.staffID
+														,getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'status_todo')
 										.then(function(response){
 										console.log(response.data);
-										/* return neo4jRequest.dropProjectConstraint(prj); */
-									});
-								}
+								});
+							}
 								
 							 else{ // wenn auf Aufgabe oder Unteraufgabe geklickt wurde
 							 	//hinzufügen der Unteraufgabe
-								$scope.data.push({id: tid, name: 'neue Unteraufgabe',isStaff: false, children: [], editors: [hier.ancestors(row)[hier.ancestors(row).length-1].model.id], priority: '1', status: 'zu bearbeiten',data: [], tasks: [{name: 'neue Unteraufgabe', color: '#F1C232', from: getFormattedDate(new Date()), to: getFormattedDate(addDays(new Date(),5))}]});
+								$scope.data.push({id: tid, name: $scope.newTask.task,isStaff: false, children: [], editors: [$scope.newTask.staffID], priority: '1', status: 'zu bearbeiten',data: [],
+												  tasks: [{name: $scope.newTask.task, color: '#F1C232', from: getFormattedDate($scope.newTask.from), to: getFormattedDate($scope.newTask.to)}]});
 								//als child zu übergeordnetem Element hinzufügen
-								row.model.children.push(tid);
-								//anhängen an parenttask --> statt $stateParams.subproject -->
-								neo4jRequest.addTask($stateParams.project, row.model.id, tid, 'neue Unteraufgabe','noch mehr modellieren',[hier.ancestors(row)[hier.ancestors(row).length-1].model.id], getFormattedDate(new Date()), getFormattedDate(addDays(new Date(),5)),'priority_high', 'status_todo')
+								console.log($scope.newTask.clickedElement.model);
+								$scope.newTask.clickedElement.model.children.push(tid);
+								//anhängen an parenttask --> statt $stateParams.subproject --> clickedElement
+								
+								
+								 neo4jRequest.addTask($stateParams.project, $scope.newTask.clickedElement.model.id, tid, $scope.newTask.task,$scope.newTask.desc,$scope.newTask.staffID
+													, getFormattedDate($scope.newTask.from), getFormattedDate($scope.newTask.to),'priority_high', 'status_todo')
 										.then(function(response){
 										console.log(response.data);
-									});
+										})
+									/* 	.then(){
+										}); */
 								
-								row.model.tasks = [];
+								$scope.newTask.clickedElement.tasks = []; //daten aus parent für gruppierung löschen
+								console.log($scope.newTask.clickedElement.model.id);
+								
+								 neo4jRequest.deleteTaskDates($stateParams.project, $scope.newTask.clickedElement.model.id)
+										.then(function(response){
+										console.log('element gelöscht')
+										console.log(response.data);
+									});
+								 
+								
 								$scope.taskExists = false;
-								/*console.log($scope.data);*/
+
 								}
 						}
+	
+						$scope.newTask.staffID = '';
+						$scope.newTask.staff = '';
+						$scope.newTask.isStaff = '';
+						$scope.newTask.clickedElement = '';
+						$scope.newTask.task = '';
+						$scope.newTask.from = '';
+						$scope.newTask.to = '';
+						$scope.newTask.desc = '';
+					
 				}
 		else{
 			alert('Bitte ändern Sie die Sortierung!');
 			}
 		}
 				
-		$scope.getParent = function(row){
-			/*console.log(row);*/
-			var hier= $scope.api.tree.getHierarchy();
-			/*console.log(hier.parent(row).model.name);*/
-			return hier.parent(row).model;
-			
-		}
 		
 		$scope.getIndex = function(event, ui, indexStaff){
 			/*console.log(indexStaff);*/
@@ -2424,21 +2456,28 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			$.each($scope.data,function(index){
 				/*console.log("data" + $scope.data[index].name);
 				console.log("staff" + $scope.staff[$scope.indexDnD].name);*/
-					if($scope.staff[$scope.indexDnD].name == $scope.data[index].name ){
-						$scope.staffExists = 'true';
+					if($scope.staff[$scope.indexDnD].name == $scope.data[index].name){
+						$scope.staffExists = true;
 						return false;
 					}
 				});
 					
-				if($scope.staffExists == 'true'){
+				if($scope.staffExists == true){
 					alert('Nutzer existiert leider schon!');
 					$scope.staffExists = false;
 				}
 				else{
-					var sid = Utilities.getUniqueId();
-					$scope.data.push({id: sid, name: $scope.staff[$scope.indexDnD].name, isStaff: true, 'groups': false, children: [], tasks:[]});
-					$scope.staffArray.push($scope.data[$scope.data.length-1].id);
-					/*console.log($scope.staffArray);*/
+					$scope.data.push({id: $scope.staff[$scope.indexDnD].sid, name: $scope.staff[$scope.indexDnD].name, isStaff: true, 'groups': false, children: [], tasks:[]});
+					$scope.staffArray.push($scope.staff[$scope.indexDnD].sid);
+					
+					neo4jRequest.addStaffToGraph($stateParams.project, $scope.staff[$scope.indexDnD].sid, $scope.staff[$scope.indexDnD].name) .then(function(response){
+					if(response.data.exception) { console.error('neo4jRequest Exception on addStaffToGraph()', response.data); return; }
+					 if(response.data){
+						 console.log('Bearbeiter hinzugefügt');
+						}
+						
+					}); 
+					
 					$scope.staffExists = false;
 				}
 			}
@@ -2450,9 +2489,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		}
 		
 		$scope.editTask = function(data, row){
-			console.log(row.model);
-			console.log($scope.data);
-			console.log(data);
 			
 			var isChanged = false;
 			var found = false;
@@ -2529,7 +2565,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			//Datenarray umschalten, Spalte hinzufügen
 			$scope.options.columns.push('model.editors');
 			$scope.options.useData = $scope.dataTasks;
-			/* $scope.api.data.on.change($scope.dataTasks, $scope.data); */
 			$scope.sortby = 'task';
 			console.log($scope.dataTasks);
 			};
@@ -2670,29 +2705,42 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		$scope.deleteTask = function(row) {
 			
-			console.log('data vorher');
-			console.log($scope.data);
+			//console.log('data vorher');
+			//console.log($scope.data);
 			
 			var dataToRemove= [];
 			var hier= $scope.api.tree.getHierarchy();
 			
 			if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
 				if(hier.children(row)){ //wenn oberaufgabe gelöscht werden soll
-					$.each(hier.children(row),function(indexC){ //alle childrenobjekte raussuchen und zum löschen übergeben
-						dataToRemove.push({'id': hier.children(row)[indexC].model.id});
-						dataToRemove.push({'id': row.model.id}); //Elternobjekt zum löschen übergeben
+				console.log(hier.descendants(row));
+					$.each(hier.descendants(row),function(indexC){ //alle childrenobjekte raussuchen und zum löschen übergeben
+						dataToRemove.push({'id': hier.descendants(row)[indexC].model.id});
 						console.log(dataToRemove);
 					});
+					dataToRemove.splice(0,0,{'id': row.model.id}); //Elternobjekt zum löschen übergeben
+					console.log(dataToRemove);
+					
 				}
 				else{
-					dataToRemove.push({'id': row.model.id});
+					dataToRemove.push({'id': row.model.id}); 
 					if(hier.children(row)){
 						hier.parent(row).model.children.splice(hier.parent(row).model.children.indexOf(row.model.id,1)); //childrenobjekt in parent löschen
 					}
-					console.log(dataToRemove);
 				}
-				
 				$scope.api.data.remove(dataToRemove);
+				
+				//dataToRemove = dataToRemove.reverse();
+				
+				$.each(dataToRemove,function(indexD){
+					neo4jRequest.deleteTask($stateParams.project,dataToRemove[indexD].id)
+						.then(function(response){
+							console.log($stateParams.project);
+							console.log(dataToRemove[indexD]);
+						console.log(response.data);
+						}); 
+				});
+				
 				console.log('data nacher');
 				console.log($scope.data);
 			}
@@ -2709,7 +2757,26 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			
 		}
 		
-		$scope.showAside = function(row){
+		$scope.showAsideForTask = function(row){
+			var hier= $scope.api.tree.getHierarchy();
+			if(row.model.isStaff == true){
+				$scope.newTask.staffID= row.model.id; //klcik auf Bearbeiter speichert BearbeiterId direkt
+				$scope.newTask.staff= row.model.name;
+				$scope.newTask.isStaff = row.model.isStaff;
+			}
+			
+			else{
+				$scope.newTask.staffID= hier.ancestors(row)[hier.ancestors(row).length-1].model.id ////klcik auf Aufgabe ermittelt root-Element -->Bearbeiter
+				$scope.newTask.staff= hier.ancestors(row)[hier.ancestors(row).length-1].model.name;
+				$scope.newTask.clickedElement= row;
+				$scope.newTask.isStaff = row.model.isStaff;
+			}
+			console.log($scope.newTask.clickedElement);
+			var aside = $aside({scope: $scope, templateUrl: 'partials/aside/asideTasks.html', placement: 'right', animation: 'am-fade-and-slide-right', container: '.tasksLeft' , backdrop: false});
+			aside.show();
+		}
+		
+		$scope.showAsideForComment = function(row){
 			$scope.taskNameForComment= row.model.name;
 			$scope.taskIdForComment= row.model.id; //--> dient der Indexermittlung der Aufgabe
 			/* console.log($scope.taskNameForComment);*/
@@ -2755,9 +2822,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		$scope.getAllStaff = function() {
 			mysqlRequest.getAllStaff().success(function(obj, status){
-					
 					$scope.staff = obj.data;
-					/* console.log($scope.staff); */
+					//console.log($scope.staff);
 			});
 		};
 		
@@ -2772,7 +2838,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					});
 		};
 			
-		$scope.addNewStaff = function() {
+		$scope.addNewStaffToProject = function() {
 			mysqlRequest.addNewStaff($scope.newStaff.name, $scope.newStaff.surname, $scope.newStaff.mail, $scope.newStaff.role).success(function(answer, status){
 					//alert(answer);
 						if(answer != 'SUCCESS') {
@@ -2843,10 +2909,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
         };
         
 		var logReadyEvent = function() {
-            $log.info('[Event] core.on.ready');
+           // $log.info('[Event] core.on.ready');
         };
 		 var logDataEvent = function(eventName) {
-            console.log('[Event] ' + eventName);
+           // console.log('[Event] ' + eventName);
         };
 
         
@@ -2860,8 +2926,14 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	//initiiere Staff
 	$scope.getAllStaff();
 	$scope.fillDataObject();
+	console.log()
 	$scope.getStaffInGantt();
-	/*generateRows();*/
+	
+	
+	/* neo4jRequest.EditorExists($stateParams.project, $stateParams.subproject,"072c2b97-06db-e018-dc32-8722993017cd").then(function(response){
+										response.data.data.length;
+									}); */
+	 //generateRows();
 	/*console.log('parents ' + $scope.staffArray);*/
 	}]);
 
