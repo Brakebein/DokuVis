@@ -764,20 +764,29 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		requests.insertScreenshot = function(prj, subprj, objData, markers) {
+		requests.insertScreenshot = function(prj, subprj, objData, markers, title, paintFile) {
 			
 			var q = '';
-			q += 'MATCH (e22:E22:'+prj+' {content: {e22id}})';
-			q += ',(tscreen:E55:'+prj+' {content: "screenshot"})';
+			q += 'MATCH (tscreen:E55:'+prj+' {content: "screenshot"})';
 			q += ',(tscomment:E55:'+prj+' {content: "screenshotComment"})';
+			
+			if(objData.data.pinObject)
+				q += ',(e73:E73:'+prj+' {content: {e73id}})<-[:P106]-(:E36)-[:P138]->(e22:E22)';
+			else
+				q += ',(e22:E22:'+prj+' {content: {e22id}})';
 			
 			q += ' CREATE (e36:E36:'+prj+' {e36content})-[:P2]->(tscreen)';
 			q += ' CREATE (e36)-[:P1]->(e75:E75:'+prj+' {e75content})';
+			q += ' CREATE (e36)-[:P102]->(e35:E35:'+prj+' {e35content})';
 			q += ' CREATE (e36)-[:P138]->(e22)';
 			
 			for(var i=0; i<markers.length; i++) {
-				q += ' CREATE (e36)-[:P106]->(:E90:'+prj+' {content: "'+markers[i].id+'", u: '+markers[i].u+', v: '+markers[i].v+'})-[:P3]->(:E62:'+prj+' {content: "'+markers[i].comment+'"})-[:P3_1]->(tscomment)';
+				q += ' CREATE (e36)-[:P106]->(:E90:'+prj+' {content: "'+markers[i].id+'", u: '+markers[i].u+', v: '+markers[i].v+'})-[:P3]->(:E62:'+prj+' {content: "e62'+markers[i].id+'", value: "'+markers[i].comment+'"})-[:P3_1]->(tscomment)';
 			}
+			
+			q += ' MERGE (tdraw:E55:'+prj+' {content: "userDrawing"})';
+			q += ' CREATE (e36)-[:P106]->(paint:E36:'+prj+' {content: {paintid}})-[:P1]->(:E75:'+prj+' {painte75content})';
+			q += ',(paint)-[:P2]->(tdraw)';
 			
 			q += ' RETURN e36';
 			
@@ -785,14 +794,27 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				query: q,
 				params: {
 					e22id: 'e22_root_'+subprj,
+					e73id: objData.data.pinObject,
 					e36content: {
 						content: 'e36_' + objData.filename,
 						cameraCenter: objData.data.cameraCenter,
 						cameraFOV: objData.data.cameraFOV,
-						cameraMatrix: objData.data.cameraMatrix
+						cameraMatrix: objData.data.cameraMatrix,
+						pinMatrix: objData.data.pinMatrix
 					},
 					e75content: {
 						content: objData.filename,
+						path: objData.path,
+						width: objData.data.width,
+						height: objData.data.height
+					},
+					e35content: {
+						content: Utilities.getUniqueId()+'_screenshotTitle',
+						value: title
+					},
+					paintid: 'e36_' + paintFile,
+					painte75content: {
+						content: paintFile,
 						path: objData.path,
 						width: objData.data.width,
 						height: objData.data.height
@@ -825,10 +847,21 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			var q = '';
 			q += 'MATCH (e22:E22:'+prj+')<-[P138]-(e36:E36:'+prj+')-[:P2]->(:E55 {content: "screenshot"})';
 			q += ',(e36)-[:P1]->(e75:E75)'
+			q += ',(e36)-[:P102]->(e35:E35)'
 			q += ',(e36)-[:P106]->(marker:E90)-[:P3]->(comment:E62)'
+			q += ',(e36)-[:P106]->(:E36)-[:P1]->(paint:E75)'
 			
 			//q += ' RETURN {id: e36.content, file: e75.content, path: e75.path, width: e75.width, height: e75.height, markers: collect({id: marker.content, u: marker.u, v: marker.v, comment: comment.content})} AS screenshots';
-			q += ' RETURN e36.content AS id, e75.content AS file, e75.path AS path, e75.width AS width, e75.height AS height, collect({id: marker.content, u: marker.u, v: marker.v, comment: comment.content}) AS markers';
+			q += ' RETURN e36.content AS id, \
+				e75.content AS file, \
+				e75.path AS path, \
+				e75.width AS width, \
+				e75.height AS height, \
+				e35.value AS title, \
+				{object: e22.content, matrix: e36.pinMatrix} AS pin, \
+				{center: e36.cameraCenter, matrix: e36.cameraMatrix, fov: e36.cameraFOV} AS camera, \
+				collect({id: marker.content, u: marker.u, v: marker.v, comment: comment.value}) AS markers, \
+				{file: paint.content, path: paint.path, width: paint.width, height: paint.height} AS drawing';
 			
 			return $http.post(phpUrl, {
 				query: q,
@@ -883,11 +916,12 @@ webglServices.factory('phpRequest',
 			});
 		};
 		
-		requests.saveBase64Image = function(path, filename, base64) {
+		requests.saveBase64Image = function(path, filename, base64, thumb) {
 			return $http.post('php/saveBase64Image.php', {
 				path: path,
 				filename: filename,
-				imgdata: base64
+				imgdata: base64,
+				thumbnail: thumb
 			});
 		};
 		
@@ -1137,7 +1171,7 @@ webglServices.factory('neo4jExtraction',
 	});
 
 webglServices.factory('Utilities',
-	function() {
+	function($alert) {
 		
 		var f = {};
 		
@@ -1322,6 +1356,39 @@ webglServices.factory('Utilities',
 			}
 			return undefined;
 		}
+		
+		/**
+		  * Alerts
+		*/
+		f.dangerAlert = function(message) {
+			$alert({
+				content: message,
+				type: 'danger',
+				duration: 5
+			});
+		};
+		
+		/**
+		  * Exceptions
+		*/
+		f.throwException = function(title, message, data) {
+			$alert({
+				title: title+':',
+				content: message,
+				type: 'danger',
+				duration: 5
+			});
+			console.error(title+': '+message, data);
+		};
+		f.throwNeo4jException = function(message, data) {
+			$alert({
+				title: 'Neo4jException:',
+				content: message,
+				type: 'danger',
+				duration: 5
+			});
+			console.error('Neo4jException: '+message, data);
+		};
 		
 		return f;
 		

@@ -17,8 +17,8 @@ var webglApp = angular.module('webglApp', [
 	'ngTagsInput'
 ]);
 webglApp.constant('API', 'api/');
-webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$tooltipProvider',
-	function($stateProvider, $urlRouterProvider, $modalProvider, $tooltipProvider) {
+webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
+	function($stateProvider, $urlRouterProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
 		$urlRouterProvider.otherwise('/intro');
 		
@@ -84,8 +84,8 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$too
 					'style/explorer.css',
 					'style/panelContainer.css',
 					'style/modals/insertSource.css',
-					'style/modals/sourceDetail.css',
-					'style/modals/screenshotDetail.css',
+					'style/modals/sourceDetail.min.css',
+					'style/modals/screenshotDetail.min.css',
 					'style/modals/indexEdit.css'
 				]
 			})
@@ -105,6 +105,9 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$too
 		// defaults
 		angular.extend($modalProvider.defaults, {
 			backdrop: 'static',
+			keyboard: false
+		});
+		angular.extend($alertProvider.defaults, {
 			keyboard: false
 		});
 		angular.extend($tooltipProvider.defaults, {

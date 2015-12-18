@@ -60,7 +60,8 @@
 		viewport-settings="viewportSettings"
 		call-func="callDirFunc"
 		gizmo-Coords="coords"
-		navigation="navigation">
+		navigation="navigation"
+		screenshot-callback="receiveScreenshot">
 		
 		<!-- Achsen-Viewport -->
 		<div id="axis"></div>
@@ -138,7 +139,7 @@
 	</div>
 	
 	<!--Objekthierarchie-->
-	<div ng-if="views.activeSide == 'objlist'" class="sideContainer">
+	<div ng-show="views.activeSide == 'objlist'" class="sideContainer">
 		
 		<div class="sideHeader">
 			<h4>Objekte</h4>
@@ -158,22 +159,22 @@
 				
 				<div ng-if="listSettings=='layers'" ng-repeat="layer in wi.layers | orderBy: 'name'" ng-init="depth=0">
 					<div class="listItem">
-						<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="layer.visible ? 'listCheck' : 'listUncheck'" ng-click="layer.visible=!layer.visible; callDirFunc.toggleObject(layer);"></span>
-						<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
-							<div class="listExpand"><span ng-class="layer.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus'" ng-click="layer.expand = !layer.expand;"></span></div>
-							<span ng-click="callDirFunc.selectObjectById(layer);">{{(layer.name=='')?'0':layer.name}}</span>
+						<span class="glyphicon toggle" ng-class="layer.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="layer.toggle()"></span>
+						<div class="expand" ng-style="{'flex-basis': (depth*20+15)+'px'}" ng-click="layer.expand = !layer.expand;"><span ng-class="layer.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus'" ></span></div>
+						<span class="info" ng-click="layer.select($event)">{{layer.name}}</span>
+						<div class="opacity" ramp-slider rs-model="layer.opacity" rs-onchange="layer.setOpacity" rs-color="#ddd" rs-color-two="#bbb"></div>
+						<span class="glyphicon glyphicon-search" title="Fokusieren" ng-click="layer.focus()"></span>
+					</div>
+					<div ng-show="layer.expand" class="listChildren">
+						<div ng-repeat="data in wi.layerList | filter: {layer: layer.name} | orderBy: 'name'" ng-init="depth=1">
+							<div class="listItem">
+								<span class="glyphicon toggle" ng-class="data.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="data.toggle()"></span>
+								<div class="expand"></div>
+								<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
+								<div class="opacity" ramp-slider rs-model="data.opacity" rs-onchange="data.setOpacity" rs-color="#ddd" rs-color-two="#bbb"></div>
+								<span class="glyphicon glyphicon-search" title="Fokusieren" ng-click="data.focus()"></span>
+							</div>
 						</div>
-					</div>
-					<div ng-if="layer.expand" class="listChildren">
-					<div ng-repeat="data in wi.layerList | filter: {layer: layer.name} | orderBy: 'name'" ng-init="depth=1">
-					<div class="listItem">
-						<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="data.visible ? 'listCheck' : 'listUncheck'" ng-click="data.visible=!data.visible; callDirFunc.toggleObject(data);"></span>
-						<div class="listString" ng-style="{'padding-left': (depth*20+5)+'px'}" >
-							<div class="listExpand"><span></span></div>
-							<span ng-click="callDirFunc.selectObjectById(data.id);">{{data.title}} ({{data.id}})</span>
-						</div>
-					</div>
-					</div>
 					</div>
 				</div>
 				
@@ -187,22 +188,6 @@
 					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="data.setOrthoView()"></span>
 					
 				</div>
-				
-				<!--
-				<div class="listItem" ng-if="listTabs == 'objects'" ng-repeat="m in models | filter: searchObjectList | orderBy: 'name'" id="{{m.name}}">
-					<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="m.visible ? 'listCheck' : 'listUncheck'" ng-click="m.visible=!m.visible; callDirFunc.showhideObject(m.id, m.visible);"></span>
-					<div class="listString" ng-click="callDirFunc.selectObjectById(m.id);" ng-class="(m.name == selected.name) ? 'listSelected' : ''"> {{m.name}} ({{m.id}})</div>
-				</div>
-				
-				<div class="listItem"  ng-if="listTabs == 'plans'" ng-repeat="m in plans | filter: searchObjectList | orderBy: 'name'" id="{{m.name}}">
-					<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="m.visible ? 'listCheck' : 'listUncheck'" ng-click="m.visible=!m.visible; callDirFunc.showhidePlan(m.id, m.visible);"></span>
-					<div class="listString" ng-click="callDirFunc.selectObjectById(m.id);" ng-class="(m.name == selected.name) ? 'listSelected' : ''"> {{m.name}} ({{m.id}})</div>
-				</div>
-				
-				<div class="listItem"  ng-if="listTabs == 'marks'" ng-repeat="m in marks | filter: searchObjectList | orderBy: 'name'" id="{{m.name}}">
-					<span class="glyphicon glyphicon-eye-open floatleft pointer" ng-class="m.visible ? 'listCheck' : 'listUncheck'" ng-click="m.visible=!m.visible; callDirFunc.showhidePlan(m.id, m.visible);"></span>
-					<div class="listString" ng-click="callDirFunc.selectObjectById(m.id);" ng-class="(m.name == selected.name) ? 'listSelected' : ''"> {{m.name}} ({{m.id}})</div>
-				</div>-->
 			
 		</div>
 		
@@ -213,34 +198,41 @@
 	</div>
 
 	<!-- Screenshots und Kommentare -->
-	<div ng-if="views.activeSide == 'comments'" class="sideContainer">
+	<div ng-show="views.activeSide == 'comments'" class="sideContainer">
 		
 		<div class="sideHeader">
 			<h4>Screenshots & Kommentare</h4>
 			<hr/>
 			
-			<div class="dropArea screenshot" ng-click="makeScreenshot()">
-				<div class="plus" ng-bind-html="plusSign"></div> <div>Screenshot erstellen</div>
+			<div class="dropArea screenshot" ng-click="wi.callFunc.startMarking()">
+				<i class="plus fa fa-thumb-tack"></i> <div>Screenshot erstellen</div>
+				<!--<div class="plus" ng-bind-html="plusSign"></div> <div>Screenshot erstellen</div>-->
 			</div>
 			
-			<button class="btn btn-default" ng-click="wi.callFunc.startMarking()">mark</button>
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="screenshotPins.isVisible" ng-change="togglePins()"/> Pins anzeigen
+				</label>
+			</div>
 			
 		</div>
 		
 		<div class="sideContent">
 		
 		
-			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail('data/'+s.path, s.file, {markers: s.markers, id: s.id, width: s.width, height: s.height})">
+			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s)" ng-mouseenter="!screenshotPins.isVisible && wi.callFunc.addPin(s.id,s.pin)" ng-mouseleave="!screenshotPins.isVisible && wi.callFunc.removePin(s.id)">
 				<div class="media-left pull-left">
 					<img class="media-object" ng-src="{{'data/' + s.path + '_thumbs/t_' + s.file}}"/>
 				</div>
 				<div class="media-body">
-					<h4 class="media-heading">Screenshot</h4>
+					<h4 class="media-heading">{{s.title}}</h4>
 					<ol>
 						<li ng-repeat="m in s.markers">{{m.comment | characters:90:false }}</li>
 					</ol>
+					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="wi.callFunc.setScreenshotView(s.camera);$event.stopPropagation()"></span>
 				</div>
 			</div>
+			
 		</div>
 		
 		<div class="sideFooter">

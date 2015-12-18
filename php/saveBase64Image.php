@@ -12,24 +12,15 @@ $fname = $postdata->filename;
 
 $img = $postdata->imgdata;
 $img = str_replace('data:image/jpeg;base64,', '', $img);
+$img = str_replace('data:image/png;base64,', '', $img);
 
 file_put_contents($upath . $fname, base64_decode($img))
 	or exit('ERROR: file_put_contents() failed');
 	
-// Auflösung auslesen
-/*$ans = exec("C:\\ImageMagick\\identify.exe -ping ".$upath.$fname);
-//print_r($ans);
-
-$resolution = preg_split('/x/', preg_split('/\s+/', $ans)[2]);
-$dim = new StdClass();
-$dim->width = $resolution[0];
-$dim->height = $resolution[1];
-*/
-
 // Thumbnail erstellen
-system($pImagickConvert." ".$upath.$fname." -resize \"160x90^\" -gravity center -extent 160x90 ".$upath."_thumbs".$DS."t_".$fname);
+if($postdata->thumbnail)
+	system($pImagickConvert." ".$upath.$fname." -resize \"160x90^\" -gravity center -extent 160x90 ".$upath."_thumbs".$DS."t_".$fname);
 
-//echo json_encode($dim);
 echo 'SUCCESS';
 	
 ?>

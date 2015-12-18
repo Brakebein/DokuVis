@@ -1,0 +1,30 @@
+/*
+Sass::SyntaxError: ".input-group-lg tags-input" failed to @extend ".ti-input-lg".
+The selector ".ti-input-lg" was not found.
+Use "@extend .ti-input-lg !optional" if the extend should be able to fail.
+
+
+Backtrace:
+C:\xampp\htdocs\DokuVis\style\ngTagsInput-scss\bootstrap\input-groups.scss:18
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/tree/visitors/extend.rb:61:in `block in check_extends_fired!'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/util/subset_map.rb:106:in `block in each_value'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/util/subset_map.rb:106:in `each'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/util/subset_map.rb:106:in `each_value'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/tree/visitors/extend.rb:50:in `check_extends_fired!'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/tree/visitors/extend.rb:16:in `visit'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/tree/root_node.rb:39:in `css_tree'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/tree/root_node.rb:29:in `render_with_sourcemap'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/engine.rb:368:in `_render_with_sourcemap'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/engine.rb:285:in `render_with_sourcemap'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/exec/sass_scss.rb:396:in `run'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/exec/sass_scss.rb:62:in `process_result'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/exec/base.rb:52:in `parse'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/lib/sass/exec/base.rb:19:in `parse!'
+C:/Program Files (x86)/Koala/rubygems/gems/sass-3.4.9/bin/sass:13:in `<top (required)>'
+C:/Program Files (x86)/Koala/bin/sass:18:in `load'
+C:/Program Files (x86)/Koala/bin/sass:18:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Sass::SyntaxError: \".input-group-lg tags-input\" failed to @extend \".ti-input-lg\".\A The selector \".ti-input-lg\" was not found.\A Use \"@extend .ti-input-lg !optional\" if the extend should be able to fail.\A "; }

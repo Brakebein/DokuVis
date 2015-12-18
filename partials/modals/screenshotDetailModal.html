@@ -1,7 +1,7 @@
 <div class="modal-content">
 	
 	<div class="modal-header" ng-show="title">
-		<button type="button" class="close" aria-label="Close" ng-click="$hide()">
+		<button type="button" class="close" aria-label="Close" ng-click="abort()">
 			<span aria-hidden="true">&times;</span>
 		</button>
 		<h4 class="modal-title" ng-bind="title"></h4>
@@ -9,139 +9,153 @@
 	
 	<div class="modal-body screenshotDetail"><div>
 	
-	<div class="upperleftDiv" ng-style="{height: params.data.height, width: params.data.width}">
-		<img data-ng-src="{{params.data.dataUrl}}"/>
-	</div>
-	
-	<!-- Layer mit Markern -->
-	<div class="markerLayer" ng-class="scMode=='marker'?'active':''" ng-mousedown="setMarker($event)" ng-style="{height: params.data.height, width: params.data.width}">
-		<div class="marker" ng-repeat="m in markers" ng-style="m.styleMarker" drag-marker drag-enabled="!m.isInserted" drag-data="m" drag-complete="updateMarker" drag-abort="setFocusOnComment" drag-leave-parent="deleteMarker">
-			<img class="markerSign" src="img/map-marker.svg"/>
-			<span class="badge markerBadge">{{$index+1}}</span>
-		</div>
-	</div>
-	
-	<!-- Layer zum Malen -->
-	<div class="paintLayer" ng-class="scMode=='paint'?'active':''" ng-style="{height: params.data.height, width: params.data.width}">
-		<div pw-canvas options="paintOptions" version="undoVersion">
-		</div>
-	</div>
-
-	
-	<div class="lowerleftDiv" ng-style="{top: params.data.height, width: params.data.width}">
-		<div class="btn-group btn-group-sm">
-			<button type="button" class="btn" ng-class="scMode=='paint'?'btn-primary':'btn-default'" ng-click="scMode = 'paint'"><span class="glyphicon glyphicon-pencil"></span> Malen</button>
-			<button type="button" class="btn" ng-class="scMode=='marker'?'btn-primary':'btn-default'" ng-click="scMode = 'marker'"><span class="glyphicon glyphicon-map-marker"></span> Markierung setzen</button>
+		<div class="upperleftDiv" ng-style="{height: imgHeight+2*borderSize, width: imgWidth+2*borderSize}">
+			<img data-ng-src="{{params.data.dataUrl}}"/>
 		</div>
 		
-		<div ng-if="scMode == 'paint'" class="settings">
-			<button type="button" class="btn btn-default btn-sm" ng-click="undoPaint()" ng-disabled="undoVersion < 1"><span class="fa fa-undo"></span> Rückgängig ({{undoVersion}})</button>
-			
-			
-			<div class="lineWidth">
-				Linienstärke: {{paintOptions.lineWidth}}
-				<input type="range" min="1" max="10" ng-model="paintOptions.lineWidth"/>
+		<!-- Layer mit Markern -->
+		<div class="markerLayer" ng-class="scMode=='marker'?'active':''" ng-mousedown="setMarker($event)" ng-style="{height: imgHeight+2*borderSize, width: imgWidth+2*borderSize}">
+			<div class="marker" ng-repeat="m in markers" ng-style="m.styleMarker" drag-marker drag-enabled="!m.isInserted" drag-data="m" drag-complete="updateMarker" drag-abort="setFocusOnComment" drag-leave-parent="deleteMarker">
+				<img class="markerSign" src="img/map-marker.svg"/>
+				<span class="badge markerBadge">{{$index+1}}</span>
 			</div>
 		</div>
-	</div>
-	
-	<div class="upperrightDiv" ng-style="{left: params.data.width, height: params.data.height}">
-		<div class="heading">
-			<button type="button" class="close" aria-label="Close" ng-click="$hide()">
-				<span aria-hidden="true">&times;</span>
-			</button>
-			
-			<h4>Screenshot kommentieren</h4>
-			<hr/>
-			<ol>
-				<li>Marker setzen</li>
-				<li>Kommentieren</li>
-			</ol>
+		
+		<!-- Layer zum Malen -->
+		<div class="paintLayer" ng-class="scMode=='paint'?'active':''" ng-style="{height: imgHeight+2*borderSize, width: imgWidth+2*borderSize}">
+			<div pw-canvas options="paintOptions" version="undoVersion" current-size="{width: imgWidth, height: imgHeight}"></div>
 		</div>
-		<div class="markerComments">
-			<div class="comment" ng-repeat="m in markers">
-				<div class="commentLeft">
-					<img ng-style="{width: 25, height: 25}" src="img/map-marker.svg"/><br/>
-					<span class="badge">{{$index+1}}</span>
+
+		
+		<div class="lowerleftDiv" ng-style="{top: imgHeight+2*borderSize, width: imgWidth+2*borderSize}">
+			<div class="btn-group btn-group-sm">
+				<button type="button" class="btn" ng-class="scMode=='paint'?'btn-primary':'btn-default'" ng-click="scMode = 'paint'"><span class="glyphicon glyphicon-pencil"></span> Malen</button>
+				<button type="button" class="btn" ng-class="scMode=='marker'?'btn-primary':'btn-default'" ng-click="scMode = 'marker'"><span class="glyphicon glyphicon-map-marker"></span> Markierung setzen</button>
+			</div>
+			
+			<div ng-show="scMode == 'paint'" class="settings">
+				<button type="button" class="btn btn-default btn-sm" ng-click="undoPaint()" ng-disabled="undoVersion < 1"><span class="fa fa-undo"></span> Rückgängig ({{undoVersion}})</button>
+				
+				
+				<div class="lineWidth">
+					Linienstärke: {{paintOptions.lineWidth}}
+					<input class="dvSlider" type="range" min="1" max="20" ng-model="paintOptions.lineWidth"/>
 				</div>
-				<div ng-if="!m.isInserted" class="commentRight form-group">
-					<span ng-if="!m.isInserted" class="glyphicon glyphicon-trash commentBtn" ng-click="markers.splice($index,1)"></span>					
-					<div class="btn-group btn-group-xs">
-						<button type="button" class="btn" ng-class="activeBtn == 'comment' ? 'btn-primary' : 'btn-default'" ng-click="activeBtn = 'comment'">Kommentar</button>
-						<button type="button" class="btn" ng-class="activeBtn == 'task' ? 'btn-primary' : 'btn-default'" ng-click="activeBtn = 'task'">neue Aufgabe</button>
+				<div class="lineWidth">
+					Liniendeckkraft: {{paintOptions.opacity}}
+					<input class="dvSlider" type="range" min="0.2" max="1.0" step="0.1" ng-model="paintOptions.opacity"/>
+				</div>
+			</div>
+		</div>
+	
+		<div class="upperrightDiv" ng-style="{left: imgWidth+2*borderSize, height: imgHeight+2*borderSize}">
+			<div class="heading">
+				<button type="button" class="close" aria-label="Close" ng-click="$hide()">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				
+				<h4>Screenshot kommentieren</h4>
+				<hr/>
+				<ol>
+					<li>Marker setzen</li>
+					<li>Kommentieren</li>
+				</ol>
+			</div>
+			
+			
+			<div ng-show="!params.data.title" class="form-horizontal">
+				<label class="control-label col-sm-2">Titel</label>
+				<div class="col-sm-9">
+					<input class="form-control" ng-model="screenshotTitle"/>
+				</div>
+			</div>
+			<div ng-show="params.data.title">
+				<h3>{{params.data.title}}</h3>
+			</div>
+			
+			<div class="markerComments">
+				<div class="comment" ng-repeat="m in markers">
+					<div class="commentLeft">
+						<img ng-style="{width: 25, height: 25}" src="img/map-marker.svg"/><br/>
+						<span class="badge">{{$index+1}}</span>
 					</div>
-					
-					<div ng-if="activeBtn == 'comment'">
-						<textarea ng-if="!m.isInserted" id="{{'markerComment'+$index}}" class="form-control" ng-model="m.comment" rows="3"></textarea>
-						<select class="form-control">
-							    <option value="" disabled selected>Als Kommentar zu Aufgabe hinzufügen</option>
-							    <option>test1</option> //Aufgaben aus Datenbank holen
-							    <option>test2</option>
-							    <option>test3</option>
-							 </select>
-					</div>
-					
-					<div ng-if="activeBtn == 'task'">
-						<textarea ng-if="!m.isInserted" id="{{'markerComment'+$index}}" class="form-control" ng-model="m.comment" rows="3"></textarea>
-						<div class="form-group">
-							<select class="form-control">
-							    <option value="" disabled selected>Bitte wählen Sie einen Bearbeiter aus</option>
-							    <option>Martin</option>
-							    <option>Jonas</option>
-							    <option>Markus</option>
-							 </select>
-							 
-							 <select class="form-control">
-							    <option value="" disabled selected>Als Unteraufgabe anfügen an...(optional)</option>
-							    <option>test1</option>
-							    <option>test2</option>
-							    <option>test3</option>
-							 </select>
-							 
-							 					    
-							<!--<input type="text" class="form-control" placeholder="Bearbeiter">-->
-							<!--<input type="text" class="form-control" placeholder="als Unteraufgabe zu Aufgabe hinzufügen(optional)">-->
+					<div ng-if="!m.isInserted" class="commentRight form-group">
+						<span ng-if="!m.isInserted" class="glyphicon glyphicon-trash commentBtn" ng-click="markers.splice($index,1)"></span>					
+						<div class="btn-group btn-group-xs">
+							<button type="button" class="btn" ng-class="activeBtn == 'comment' ? 'btn-primary' : 'btn-default'" ng-click="activeBtn = 'comment'">Kommentar</button>
+							<button type="button" class="btn" ng-class="activeBtn == 'task' ? 'btn-primary' : 'btn-default'" ng-click="activeBtn = 'task'">neue Aufgabe</button>
 						</div>
+						
+						<div ng-if="activeBtn == 'comment'">
+							<textarea ng-if="!m.isInserted" id="{{'markerComment'+$index}}" class="form-control" ng-model="m.comment" rows="3"></textarea>
+							<select class="form-control">
+									<option value="" disabled selected>Als Kommentar zu Aufgabe hinzufügen</option>
+									<option>test1</option> //Aufgaben aus Datenbank holen
+									<option>test2</option>
+									<option>test3</option>
+								 </select>
+						</div>
+						
+						<div ng-if="activeBtn == 'task'">
+							<textarea ng-if="!m.isInserted" id="{{'markerComment'+$index}}" class="form-control" ng-model="m.comment" rows="3"></textarea>
+							<div class="form-group">
+								<select class="form-control">
+									<option value="" disabled selected>Bitte wählen Sie einen Bearbeiter aus</option>
+									<option>Martin</option>
+									<option>Jonas</option>
+									<option>Markus</option>
+								 </select>
+								 
+								 <select class="form-control">
+									<option value="" disabled selected>Als Unteraufgabe anfügen an...(optional)</option>
+									<option>test1</option>
+									<option>test2</option>
+									<option>test3</option>
+								 </select>
+								 
+														
+								<!--<input type="text" class="form-control" placeholder="Bearbeiter">-->
+								<!--<input type="text" class="form-control" placeholder="als Unteraufgabe zu Aufgabe hinzufügen(optional)">-->
+							</div>
+								
 							
+						</div>
+						
+						
+						
+						<!--<label>Als Aufgabe hinzufügen? <input type="checkbox" ng-model="showInputfields" ng-init="showInputfields = 'false'"/></label>
+						<p>{{showInputfields}}</p>-->
+						
+						
 						
 					</div>
-					
-					
-					
-					<!--<label>Als Aufgabe hinzufügen? <input type="checkbox" ng-model="showInputfields" ng-init="showInputfields = 'false'"/></label>
-					<p>{{showInputfields}}</p>-->
-					
-					
-					
-				</div>
-					
-					<!--<div ng-if="showInputfields" >				
-							<div class="form-group">
-								<div class="input-group" >								    
-									<input type="text" class="form-control">
-									<div class="input-group-addon"><span class="fa fa-search-plus"></span></div>
+						
+						<!--<div ng-if="showInputfields" >				
+								<div class="form-group">
+									<div class="input-group" >								    
+										<input type="text" class="form-control">
+										<div class="input-group-addon"><span class="fa fa-search-plus"></span></div>
+									</div>
 								</div>
-							</div>
-							<div class="form-group">
-								<div class="input-group" >								    
-									<input type="text" class="form-control">
-									<div class="input-group-addon"><span class="fa fa-search-plus"></span></div>
+								<div class="form-group">
+									<div class="input-group" >								    
+										<input type="text" class="form-control">
+										<div class="input-group-addon"><span class="fa fa-search-plus"></span></div>
+									</div>
 								</div>
-							</div>
-					</div>-->
-					
+						</div>-->
+						
 					<p ng-if="m.isInserted">{{m.comment}}</p>
 				</div>
 			</div>		
 		</div>
+			
 		
-	</div>
-	
-	<div class="lowerrightDiv" ng-style="{top: params.data.height, left: params.data.width}">
-		<button class="btn btn-primary" ng-click="saveScreenshot()">Speichern</button>
-		<button class="btn btn-default" ng-click="$hide()">Abbrechen</button>
-	</div>
-	
+		
+		<div class="lowerrightDiv" ng-style="{top: imgHeight+2*borderSize, left: imgWidth+2*borderSize}">
+			<button class="btn btn-primary" ng-click="saveScreenshot()">Speichern</button>
+			<button class="btn btn-default" ng-click="abort()">Abbrechen</button>
+		</div>
 	
 	</div></div>
 	<!--
