@@ -298,9 +298,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		$scope.views.enhancedOptions.show = false;
 		$scope.views.enhancedOptions.tab = 'display';
 		
-		//Mitarbeiter
-		/*$scope.staff = [];*/
-						
 		$scope.overlayParams = {url: '', params: {}};
 		
 		$scope.alert = new Object();
@@ -322,8 +319,14 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		//$scope.listSettings = 'layers';
 		$scope.listSettings = 'hierarchy';
 		
-		// Screenshots
+		// Screenshots, Aufgaben,KOmmentare
 		$scope.screenshots = [];
+		$scope.comments = [];
+		$scope.tasks = [];
+		$scope.staff= [];
+		$scope.markerNotes = '';
+		$scope.editorsAndTasksArr = [];
+		
 		
 		// webgl zeugs
 		$scope.toggleSlice = false;
@@ -396,15 +399,62 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		};
 		
 		$scope.marksOpacity = 50;
-		
-		
-		
-		
+
 		phpRequest.getSvgContent('img/plus-sign.svg').success(function(data, status) {
 			console.log(data);
 			$scope.plusSign = $sce.trustAsHtml(data);
 		});
 	
+		//Aufgaben und Bearbeiter holen
+		$scope.getStaffFromGraph = function(){
+			neo4jRequest.getStaffFromProject ($stateParams.project).then(function(response){
+				if(response.data.exception) { console.error('neo4jRequest Exception on getAllTasks()', response.data); return; }
+					 if(response.data){
+						$scope.staff = Utilities.cleanNeo4jData(response.data)
+						 console.log($scope.staff);
+					 }
+			});
+			
+		}
+		$scope.getStaffFromGraph();
+		
+		$scope.getTasksFromGraph = function() {
+			neo4jRequest.getAllTasks($stateParams.project).then(function(response){
+				if(response.data.exception) { console.error('neo4jRequest Exception on getAllTasks()', response.data); return; }
+					 if(response.data){
+						$scope.tasks = Utilities.cleanNeo4jData(response.data)
+						 console.log($scope.tasks);
+					 }
+			});
+		}
+		$scope.getTasksFromGraph();
+		
+		$scope.getTasksFromEditors = function(markerObject,tasksFromEditor) {
+			 markerObject.tid= '';
+			 if(markerObject.editor != ''){
+				  neo4jRequest.getTasksFromEditor ($stateParams.project,markerObject.editor).then(function(response){
+						if(response.data.exception) {console.error('neo4jRequest Exception on getTasksfromStaff()', response.data); return; }
+							 if(response.data){ 
+								console.log(markerObject.editor); 
+								$scope.tasksFromEditor = Utilities.cleanNeo4jData(response.data);
+								console.log($scope.tasksFromEditor);
+							 }
+					})
+			} 
+		}
+
+		/* $scope.editorsAndTasks = function(){
+			console.log($scope.staff);
+			$.each($scope.staff,function(indexS){
+				
+				getTasksFromEditors($scope.staff[indexS]);
+				console.log($scope.staff[indexS]);
+				$scope.editorsAndTasksArr.push({editor: $scope.staff[indexS], tasks: $scope.tasksFromEditor})
+			})
+			console.log($scope.editorsAndTasksArr);
+		}
+		$scope.editorsAndTasks(); */
+		
 		// Uploader für Quellen
 		$scope.sourcesUploader = new FileUploader();
 		
@@ -983,6 +1033,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			//webglInterface.clearLists();
 			console.log('destroy explorerCtrl');
 		});
+		
+		
 		
 	}]);
 
@@ -1703,7 +1755,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 				});
 			}
 		}
-		
+		 
 		
 		$scope.setMarker = function(event) {
 			//console.log(event);
@@ -1719,17 +1771,57 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 				v: offsetY / $scope.params.data.height,
 				styleMarker: {'width': 30, 'height': 30, 'left': offsetX-16, 'top': offsetY-30},
 				comment: '',
-				isInserted: false
+				taskID: '',
+				isInserted: false,
+				activeBtn: 'comment',
+				editor: '',
+				to: '',
+				from: '',
+				taskName: '',
 			});
 			
 			console.log($scope.markers);
+			
 			$timeout(function() {
 				$scope.setFocusOnComment($scope.markers.length-1);
 			});
 			
 		};
 		
+		$scope.changeMarkerStatus = function (id, status){
+			$.each($scope.markers, function(indexM){
+				if($scope.markers[indexM].id==id ){
+					$scope.markers[indexM].activeBtn = status;
+					
+					/* if($scope.markers[indexM].activeBtn == 'comment')	{
+						$scope.markerNotes = "<textarea ng-if=\"!m.isInserted\" id=\"{{'markerComment'+$index}}\" class=\"form-control\" ng-model=\"m.comment\" rows=\"3\"></textarea>\
+												<select class=\"form-control\" ng-model= \"m.taskID\">\
+													<option value=\"\" disabled=\"\" selected=\"\">Als Kommentar zu Aufgabe hinzufügen</option>\
+													<option ng-repeat= \"t in tasks\" value=\"{{t.taskID}}\">{{t.taskName}}</option>\
+												</select>";
+												return false;
+					}
+					else{
+						$scope.markerNotes="<textarea ng-if=\"!m.isInserted\" id=\"{{'markerComment'+$index}}\" class=\"form-control\" ng-model=\"m.comment\" rows=\"3\"></textarea>\
+											<div class=\"form-group\">\
+												<select class=\"form-control\" ng-model=\"m.editor\" ng-change = \"getTasksFromEditors()\">\
+												   <option value=\"\" >Bitte wählen Sie einen Bearbeiter aus</option>\
+												   <option ng-repeat= \"s in staff\" value=\"{{s.editorId}}\">{{s.editorName}}</option>\
+												 </select>\
+												 <select class=\"form-control\" ng-model =\"m.tid\">\
+													<option value=\"\" >Als Unteraufgabe anfügen an...(optional)</option>\
+													<option ng-repeat= \"t in tasksFromStaff\" value=\"{{t.taskId}}\">{{t.taskName}}</option>\
+												 </select>\
+											</div>";
+											return false;
+					} */
+					return false;
+				}
+			})
+		}
+		
 		$scope.saveScreenshot = function () {
+			var tid = Utilities.getUniqueId();
 			if(isExisting) {
 				// sammle neue Marker und füge sie dem Screenshot an
 				var newMarkers = [];
@@ -1749,6 +1841,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 					else
 						$scope.$parent.$parent.closeModal('screenshot');
 				});
+				
 			}
 			else {
 				// speichere Screenshot und füge komplett neue Nodes ein
@@ -1765,8 +1858,54 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 						else
 							$scope.$parent.$hide();
 					});
+					
+					
+						$.each($scope.markers,function(indexN){ //marker durchgehen und entweder Kommentar an Aufgabe hängen oder neue Aufgabe einfügen
+							//Kommentar einfügen
+							console.log($scope.markers[indexN].taskID,$scope.markers[indexN].comment);
+							
+							if($scope.markers[indexN].activeBtn == 'comment'){
+								if($scope.markers[indexN]!= ''){
+									neo4jRequest.addCommentToTask($scope.$parent.project,$scope.markers[indexN].taskID,$scope.markers[indexN].comment).success(function(data, status){
+											console.log(data, 'neo4j comment inserted');
+											if(data.exception == 'SyntaxException') {
+												console.error('ERROR: Neo4j SyntaxException');
+											}
+										});
+								}
+							}
+							
+							else{
+								//Aufgabe einfügen
+										
+								/* id: tid+'_screenshotMarker',
+								u: offsetX / $scope.params.data.width,
+								v: offsetY / $scope.params.data.height,
+								styleMarker: {'width': 30, 'height': 30, 'left': offsetX-16, 'top': offsetY-30},
+								comment: '',
+								taskID: '',
+								isInserted: false,
+								activeBtn: 'comment',
+								editor: '',
+								to: '',
+								from: '',
+								taskName: '', */
+								
+								console.log('taskID' + $scope.markers[indexN].taskID)
+								console.log($scope.markers[indexN].activeBtn);
+								neo4jRequest.addTask($stateParams.project, $scope.markers[indexN].taskID, tid, $scope.markers[indexN].taskName, $scope.markers[indexN].comment,$scope.markers[indexN].editor
+													, Utilities.getFormattedDate($scope.markers[indexN].from), Utilities.getFormattedDate($scope.markers[indexN].to),'priority_high', 'status_todo')
+										.then(function(response){
+										console.log(response.data);
+										})
+							}
+						});
+					
+					
+					
 				});
 			}
+			
 		};
 		
 		$scope.setFocusOnComment = function(m) {
@@ -1792,6 +1931,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 		};
 		
 		$scope.undoPaint = function() {
+			
 			$scope.undoVersion--;
 		};
 		
@@ -2143,9 +2283,9 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             maxHeight: true,
             width: true,
             rowContent: '<i ng-hide ="row.model.isStaff" ng-class="row.model.hasData == true ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" \
-							ng-click="scope.showAsideForComment(row)"></i><a href="#" ng-class = "row.model.isStaff == true ? \'parent\': \'\' "  \
-							editable-text ="row.model.name" e-style="width: 60px; height: 20px" buttons = "no" onbeforesave="scope.editTask($data,row)"> \
-							{{row.model.name}}</a> <i class= "fa fa-plus" ng-click="scope.showAsideForTask(row)"></i> ',
+							ng-click="scope.showAsideForComment(row)"></i>\
+							<i ng-class = "row.model.isStaff == true ? \'parent\': \'child\' " ng-click= "scope.showAsideForComment(row)"> \
+							{{row.model.name}}</i> <i class= "fa fa-plus" ng-click="scope.showAsideForTask(row)"></i> ',
 							/*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
             taskContent: '{{task.model.name}}', 
             zoom: 1.3,
@@ -2369,8 +2509,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 										.then(function(response){
 										console.log(response.data);
 										})
-									/* 	.then(){
-										}); */
+			
 								
 								$scope.newTask.clickedElement.tasks = []; //daten aus parent für gruppierung löschen
 								console.log($scope.newTask.clickedElement.model.id);
@@ -2761,18 +2900,21 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		}
 		
 		$scope.addComment = function(){
-			$.each($scope.data,function(index){
+			 /* $.each($scope.data,function(index){
 				if($scope.data[index].name == $scope.taskNameForComment){ //-->in allen Aufgaben mit gleichem Namen steht Kommentar					
-					// $scope.data[index].data.push({message: $scope.newComment.text, author: 'Jonas', date: new Date(new Date().getTime())});
-					
-					neo4jRequest.addCommentToTask($stateParams.project,$scope.taskIdForComment, $scope.newComment.text)
+					$scope.data[index].data.push({desc: $scope.newComment.text,  date: new Date() });
+					$scope.data[index].hasData = true;
+					console.log($scope.data[index].data);
+				} 
+			}); */
+				
+				$scope.comments.push({desc: $scope.newComment.text,  date: new Date() });
+				
+				neo4jRequest.addCommentToTask($stateParams.project,$scope.taskIdForComment, $scope.newComment.text)
 						.then(function(response){
 											console.log(response.data);
 										});
-					$scope.data[index].hasData = true;
-				}
-			});
-			
+		
 			/*$scope.views.activeSide = 'comments';*/	
 		}
 				

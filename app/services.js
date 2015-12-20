@@ -83,7 +83,6 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		//Tasks
 		requests.addTask =  function(prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus){
 
-			
 			var q = '';
 			q += 'MATCH (sub:E7:'+prj+' {content: {e7id}})';
 			q += ',(ttdesc:E55:'+prj+'{content: "taskDesc"})';
@@ -103,6 +102,16 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += 'CREATE (e65)-[:P94]->(e7)';
 			q += 'CREATE (sub)-[:P9]->(e7)'
 			
+			console.log(prj);
+			console.log(subprj);
+			console.log('tid ' + taskID);
+			console.log('name ' + ttitle);
+			console.log('desc ' + tdesc);
+			console.log('edit ' + teditor);
+			console.log('from ' + tfrom);
+			console.log('to ' + tto);
+			console.log(tpriority);
+			console.log(tstatus);
 			
 			return $http.post(phpUrl, {
 				query: q,
@@ -118,7 +127,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					to: tto,
 					title: ttitle,
 					createTask: 'e65_'+ taskID + '_creation',
-					currentDate: new Date().getTime(), 
+					currentDate: new Date(), 
 					priority: tpriority,
 					status: tstatus,
 					logindata: 'logindata_' +  new Date().getTime()
@@ -139,7 +148,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				params: {
 					tID: taskID,
 					comment: tcomment,
-					currentDate: new Date().getTime(), 
+					currentDate: new Date, 
 					lingObj: 'e33_'+ taskID,
 					createComment: 'e65_e33_' + taskID,
 					timeSpanID:'e65_e33_e52' + taskID,
@@ -168,6 +177,32 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				}
 				})
 		}
+		
+		requests.getAllTasks = function(prj){
+		var q = '';
+		
+		q = 'match (n:E55:'+prj+' {content: "task"})<-[:P2]-(task)-[:P102]->(name) return task.content AS taskID, name.value AS taskName';
+		return $http.post(phpUrl,{
+				query: q,
+			});		
+		
+		}
+		
+		requests.getTasksFromEditor = function(prj,editorId){
+			
+			var q = '';
+			q = 'MATCH (editor:E82:'+prj+' {content: '+editorId+'})<-[:P131]-(activity:E21)<-[:P14]-(task)-[:P102]->(name) RETURN task.content AS taskId, name.value AS taskName';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					eid: editorId,
+					
+				}
+			});
+		}
+		
+		
 		
 		requests.addStaffToGraph = function(prj,tid,name){
 			var q = '';
@@ -1300,6 +1335,11 @@ webglServices.factory('Utilities',
 			return new f.Base62().encode(new Date().getTime());
 		};
 		
+		
+		f.getFormattedDate = function(date) {
+    		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
+		    return str;
+		}
 		/**
 		  * sleep function - application on hold
 		*/
