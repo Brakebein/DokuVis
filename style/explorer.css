@@ -347,10 +347,12 @@
 	height: 50px;
 	width: 300px;
 	font-size: 14px;
+	/*justify-content: space-around;*/
 }
 .screenshot.dropArea .plus {
 	flex: 0 0 50px;
-	height: 30px;
+	height: 20px;
+	font-size: 20px;
 	padding: 0 10px;
 }
 .screenshot.dropArea svg {
@@ -549,34 +551,6 @@
 	width: 40px;
 }
 
-
-/* dropArea */
-.dropArea {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: #f5f5f5;
-	border: 5px dashed #ddd;
-	border-radius: 5px;
-	text-align: center;
-	font-weight: bold;
-	color: #ccc;
-	fill: #ccc;
-	cursor: pointer;
-	transition: color 0.3s, fill 0.3s, border-color 0.3s;
-}
-.dropArea:hover {
-	color: #aaa;
-	fill: #aaa;
-	border-color: #bbb;
-}
-.dropArea.nv-file-over {
-	color: #5cb85c;
-	fill: #5cb85c;
-	border-color: #5cb85c;
-}
-
-
 /* Vorschauspalte */
 .previewPanel {
 	padding: 5px;
@@ -669,17 +643,4 @@
 	border: 1px solid #333;
 	border-radius: 4px;
 	transition: box-shadow 0.5s;
-}
-
-
-
-/* alert */
-.alert {
-	position: absolute;
-	width: 400px;
-	top: 100px;
-	left: 50%;
-	transform: translate(-50%,0);
-	z-index: 200;
-	box-shadow: 0 0 10px #333;
 }

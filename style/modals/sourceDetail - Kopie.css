@@ -39,23 +39,27 @@
 
 .sourceDetail .displayText {
 	width: 100%;
+	height: 100%;
+	
+}
+.sourceDetail .displayText > .text {
 	height: 50%;
 	padding: 10px 15px;
 	border: 1px solid #333;
 	overflow-y: scroll;
 }
-.sourceDetail .displayImage {
+.sourceDetail .displayText > .image {
 	width: 100%;
 	height: 50%;
 	border: 1px solid #333;
 	overflow-y: scroll;
 	position: relative;
 }
-.sourceDetail .displayImage > img {
+.sourceDetail .displayText > .image > img {
 	width: 100%;
 	max-height: none;
 }
-.sourceDetail .displayImage > #wordRect {
+.sourceDetail .displayText > .image > #wordRect {
 	position: absolute;
 	left: 30px;
 	top: 40px;

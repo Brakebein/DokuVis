@@ -60,15 +60,15 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 			
 			// Listen für die Verwaltung der einzelnen Objekte
 			var marks = {};
-			var highlighted = [], sliced = [], hidden = [];
+			var sliced = [], hidden = [];
 			// Listen für die Schnittstelle mit der HTML-Seite
 			scope.objModels = [];
 			scope.planModels = [];
 			scope.marksModels = [];
 			
 			
-			var selected = [];
-			
+			var selected = [], highlighted = [];
+			var pins = [];
 			
 			var objloader, ctmloader;
 			
@@ -124,7 +124,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 			scope.navigation = {select: true, rotate: false, pan: false, zoom: false};
 			
 			var isSelecting = false;
-			
+			var isPinning = false;
 			
 			// Übernahme aus webglContext
 			var objects = webglContext.objects;
@@ -614,7 +614,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				onlyDeselect = onlyDeselect || false;
 				
 				//dehighlight();
-				// deselection
+				// deselect all
 				if(selected.length > 0 && !onlySelect) {
 					for(var i=0; i<selected.length; i++) {
 						var o = selected[i];
@@ -635,6 +635,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					selected.push(obj);
 					//console.log(selected);
 				}
+				// deselect obj
 				else if(obj && !onlyDeselect && selected.indexOf(obj) !== -1) {
 					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
 						rejectSelectionMat(obj);
@@ -750,6 +751,54 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 							objects[obj.id].edges.material = materials['edgesMat'];
 						break;
 				}
+			}
+			
+			function highlightObject(obj) {
+				
+				for(var i=0; i<highlighted.length; i++) {
+					if(highlighted[i] === obj) continue;
+					rejectHighlightMat(highlighted[i]);
+					highlighted.splice(i,1);
+					--i;
+				}
+				
+				if(obj && highlighted.indexOf(obj) === -1) {
+					if(obj.userData.type === 'object')
+						assignHighlightMat(obj);
+					highlighted.push(obj);
+				}
+				
+			}
+			
+			function assignHighlightMat(obj) {
+				
+				obj.material = obj.material.clone();
+				var hcolor = new THREE.Color(0xffff00); //materials['highlightMat'].color.clone();
+				
+				obj.material.color.lerp(hcolor, 0.2);
+				
+				/*
+				switch(currentShading) {
+					case 'xray': obj.material = materials['xrayHighlightMat']; break;
+					case 'onlyEdges': objects[obj.id].edges.material = materials['edgesHighlightMat']; break;
+					case 'transparent':
+						if(obj.userData.modifiedMat)
+							obj.material.color = materials['transparentHighlightMat'].color;
+						else
+							obj.material = materials['transparentHighlightMat'];
+						break;
+					default:
+						if(obj.userData.modifiedMat)
+							obj.material.color = materials['highlightMat'].color;
+						else	
+							//obj.material = materials['selectionMat'];
+							objects[obj.id].edges.material = materials['edgesHighlightMat'];
+						break;
+				}*/
+			}
+			
+			function rejectHighlightMat(obj) {
+				obj.material = materials[obj.userData.originalMat];
 			}
 			
 			// check for intersection of BoundingBoxes
@@ -1623,7 +1672,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				//mouseDownCoord = new THREE.Vector2(event.clientX, event.clientY);
 				mouseDownCoord = new THREE.Vector2(event.offsetX, event.offsetY);
 				
-				if(scope.navigation.select) {
+				if(scope.navigation.select || isPinning) {
 				
 					if(event.button === 0 && event.altKey && !isPanningView) {
 						if(activeGizmo) activeGizmo = false;
@@ -1709,7 +1758,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 						}
 					}
 					// area selection
-					else {
+					else if(event.button === 0 && scope.navigation.select){
 						var css = {};
 						if(event.offsetX - mouseDownCoord.x > 0) {
 							css.left = mouseDownCoord.x;
@@ -1759,14 +1808,16 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 						
 						measureTool.checkMouseHit(mouse.x, mouse.y, camera, testObjects);
 					}
-					else if(pin) {
+					// pinning
+					else if(isPinning && pin) {
 						var mouse = mouseInputToViewport(event);
 						var testObjects = [];
 						for(var key in objects) {
 							if(objects[key].visible)
 								testObjects.push(objects[key].mesh);
 						}
-						pin.mousehit(mouse.x, mouse.y, camera, testObjects);
+						var obj = pin.mousehit(mouse.x, mouse.y, camera, testObjects);
+						highlightObject(obj);
 					}
 				}
 				
@@ -1807,17 +1858,11 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					selectArea(mStart, mEnd, event.ctrlKey);
 				}
 				
-				else if(event.button === 0 && !scope.navigation.select) {
+				else if(event.button === 0 && (scope.navigation.rotate || scope.navigation.pan || scope.navigation.zoom)) {
 					controls.onMouseUp(event.originalEvent);
-					if(scope.navigation.rotate) {
-						isRotatingView = false;
-					}
-					else if(scope.navigation.pan) {
-						isPanningView = false;
-					}
-					else if(scope.navigation.zoom) {
-						isZoomingView = false;
-					}
+					isRotatingView = false;
+					isPanningView = false;
+					isZoomingView = false;
 				}
 				
 				else if(event.button === 0 && !isPanningView) {
@@ -1840,6 +1885,20 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 						}
 						
 						measureTool.setTarget(mouse.x, mouse.y, camera, testObjects);
+					}
+					else if(isPinning && pin) {
+						// make screenshot
+						var sData = getScreenshot();
+						sData.pinMatrix = pin.matrixWorld.toArray();
+						sData.pinObject = highlighted[0].userData.eid;
+						scope.screenshotCallback(sData);
+						
+						highlightObject(null);
+						scene.remove(pin);
+						pin = null;
+						isPinning = false;
+						webglInterface.callFunc.setNavigationMode('select');
+						scope.$applyAsync();
 					}
 					// selection
 					else {
@@ -1867,6 +1926,13 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				else if(event.button === 2) {
 					webglInterface.callFunc.setNavigationMode('select');
 					scope.$apply();
+					
+					if(isPinning && pin) {
+						scene.remove(pin);
+						pin = null;
+						isPinning = false;
+					}
+					
 					//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
 					if(!mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
 					
@@ -1956,8 +2022,9 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 			
 			webglInterface.callFunc.startMarking = function() {
 				webglInterface.callFunc.setNavigationMode(false);
-				pin = new THREE.Pin(3, 1, 0.5);
+				pin = new THREE.Pin(3, 0.5);
 				scene.add(pin);
+				isPinning = true;
 			};
 			
 			function setGizmoCoords(type, apply) {
@@ -2204,6 +2271,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					t.multiplyScalar(scale);
 					mat.compose(t,q,s);
 					obj.applyMatrix(mat);
+					obj.matrixAutoUpdate = false;
 					
 					var parentid = null;
 					if(parent && (p = scene.getObjectByName(parent, true))) {
@@ -2309,6 +2377,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					mat.compose(t,q,s);
 					mesh.applyMatrix(mat);
 					//mesh.add(edges);
+					mesh.matrixAutoUpdate = false;
 					
 					
 					mesh.name = info.content;
@@ -2412,7 +2481,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				
 			}
 			
-			scope.internalCallFunc.getScreenshot = function() {
+			function getScreenshot() {
 				var screenData = {
 					dataUrl: renderer.domElement.toDataURL("image/jpeg"),
 					cameraMatrix: camera.matrix.toArray(),
@@ -2514,6 +2583,39 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				}
 				plans[id].visible = bool;
 			}
+			
+			// add and remove pins
+			webglInterface.callFunc.addPin = function(id, pinObj) {
+				if(pins[id]) return;
+				var pin = new THREE.Pin(3, 0.5);
+				var m = pinObj.matrix;
+				pin.applyMatrix(new THREE.Matrix4().set(m[0],m[4],m[8],m[12],m[1],m[5],m[9],m[13],m[2],m[6],m[10],m[14],m[3],m[7],m[11],m[15]));
+				scene.add(pin);
+				pins[id] = pin;
+			};
+			webglInterface.callFunc.removePin = function(id) {
+				if(pins[id]) {
+					scene.remove(pins[id]);
+					delete pins[id];
+				}
+			};
+			webglInterface.callFunc.removePins = function() {
+				for(var key in pins) {
+					scene.remove(pins[key]);
+				}
+				pins = [];
+			};
+			
+			webglInterface.callFunc.setScreenshotView = function(cameraData) {
+				new TWEEN.Tween(camera.position)
+					.to(new THREE.Vector3(cameraData.matrix[12],cameraData.matrix[13],cameraData.matrix[14]), 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.start();
+				new TWEEN.Tween(controls.center)
+					.to(new THREE.Vector3(cameraData.center[0],cameraData.center[1],cameraData.center[2]), 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.start();
+			};
 			
 			webglInterface.callFunc.resize = function() {
 				resizeViewport();
@@ -2673,7 +2775,8 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				viewportSettings: '=',
 				callFunc: '=',
 				gizmoCoords: '=',
-				navigation: '='
+				navigation: '=',
+				screenshotCallback: '='
 			},
 			link: link
 		};
@@ -2986,6 +3089,38 @@ webglDirectives.directive('ngWheel',
 				}
 				element.bind('mousewheel', mousewheel);
 				element.bind('DOMMouseScroll', mousewheel); // firefox
+			}
+		};
+	});
+	
+webglDirectives.directive('syncScroll',
+	function() {
+		
+		return {
+			restrict: 'A',
+			replace: false,
+			link: function(scope, element, attrs) {
+				var scrollTop = 0;
+				var scrollHeight = 0;
+				var offsetHeight = 0;
+				
+				var elements = element.find('.'+attrs.syncScroll);
+				
+				elements.on('scroll', function(e) {
+					if(e.isTrigger) {
+						e.target.scrollTop = Math.round(scrollTop * (e.target.scrollHeight - e.target.offsetHeight) / (scrollHeight - offsetHeight));
+					}
+					else {
+						scrollTop = e.target.scrollTop;
+						scrollHeight = e.target.scrollHeight;
+						offsetHeight = e.target.offsetHeight;
+						elements.each(function(element) {
+							if(!this.isSameNode(e.target)) {
+								$(this).trigger('scroll');
+							}
+						});
+					}
+				});
 			}
 		};
 	});

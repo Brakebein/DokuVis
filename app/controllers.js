@@ -321,6 +321,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		// Screenshots, Aufgaben,KOmmentare
 		$scope.screenshots = [];
+		$scope.screenshotPins = {isVisible: false};
 		$scope.comments = [];
 		$scope.tasks = [];
 		$scope.staff= [];
@@ -514,11 +515,9 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				show: true
 			});
 		};
-		$scope.openScreenshotDetail = function(path, filename, data) {
+		$scope.openScreenshotDetail = function(data) {
 			$scope.modalParams = {
 				modalType: 'xlarge',
-				path: path,
-				filename: filename,
 				data: data
 			};
 			$modal({
@@ -615,10 +614,31 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		// lädt alle Screenshots in Liste
 		$scope.getScreenshots = function() {
 			neo4jRequest.getScreenshotsWithMarkers($scope.project).then(function(response){
-				if(response.data.exception) { console.error('neo4jRequest failed on getScreenshots()', response); return; }
+				if(response.data.exception) { Utilities.throwNeo4jException('on getScreenshots()', response); return; }
 				if(response.data) $scope.screenshots = Utilities.cleanNeo4jData(response.data);
 				console.log('Screenshots:', $scope.screenshots);
 			});
+		};
+		
+		$scope.receiveScreenshot = function(data) {
+			var tid = Utilities.getUniqueId();
+			data.path = $stateParams.project + '/screenshots/';
+			data.filename = tid + '_screenshot.jpg';
+			
+			//var data = $scope.callDirFunc.getScreenshot();
+			
+			$scope.openScreenshotDetail(data);
+		};
+		
+		$scope.togglePins = function() {
+			if($scope.screenshotPins.isVisible) {
+				for(var i=0; i<$scope.screenshots.length; i++) {
+					if($scope.screenshots[i].pin)
+						webglInterface.callFunc.addPin($scope.screenshots[i].id, $scope.screenshots[i].pin);
+				}
+			}
+			else
+				webglInterface.callFunc.removePins();
 		};
 		
 		$scope.open3DPlan = function(plan) {
@@ -778,7 +798,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			neo4jRequest.getModelsWithChildren($stateParams.project, $stateParams.subproject).then(function(response){
 				if(response.data.exception) { console.error('neo4j failed on getModelsWithChildren()', response.data); return; }
 				console.log(response.data);
-				var root = Utilities.createHierarchy(response.data)[0];
+				var root = Utilities.createHierarchy(response.data, ['file','obj'], true)[0];
 				console.log(root);
 				
 				function getNodes(nodes, parent, promise) {
@@ -807,22 +827,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			/*var time = new Date().getTime();
 			console.log(time);
 			console.log(new Base62().encode(time));*/
-		};
-		
-		$scope.makeScreenshot = function() {
-			var tid = new Base62().encode(new Date().getTime());
-			var path = $stateParams.project + '/screenshots/';
-			var filename = tid + '_screenshot.jpg';
-			
-			var data = $scope.callDirFunc.getScreenshot();
-			//console.log(dataUrl);
-			
-			$scope.openScreenshotDetail(path, filename, data);
-			/*
-			phpRequest.saveBase64Image(path, filename, screenData.dataUrl).success(function(data, status){
-				console.log(data, 'ready for neo4j');
-				$scope.openScreenshotDetail(path, filename, data);
-			});*/
 		};
 		
 		$scope.callDirFunc = {};
@@ -1026,6 +1030,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			phpRequest.searchText($stateParams.project, searchTerm).then(function(response){
 				console.log(response.data);
 			});
+			
+			Utilities.throwNeo4jException('on insertDocument()', {exception: 'SyntaxException'});
 		};
 		
 		// wenn Controller zerstört wird
@@ -1454,8 +1460,7 @@ webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'File
 		$scope.addArchive = function() {
 			var newscope = $scope.$new(false);
 			newscope.modalParams = {
-				modalType: 'small',
-				modalLevel: 'level2'
+				modalType: 'small'
 			};
 			$modal({
 				title: 'Archiv hinzufügen',
@@ -1637,7 +1642,7 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http',
 			values = event.target.attributes.title.value.match(/^bbox (\d+) (\d+) (\d+) (\d+); x_wconf (\d+)$/);
 			var bbox = [values[1], values[2], values[3], values[4]];
 			
-			var img = $('.displayImage').find('img');
+			var img = $('.displayText').find('img');
 			
 			var left = Math.floor( bbox[0] * img.width() / global[2] );
 			var width = Math.ceil( bbox[2] * img.width() / global[2] ) - left + 1;
@@ -1652,30 +1657,6 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http',
 				width: width+'px',
 				height: height+'px'
 			});
-		};
-		
-		$scope.syncScroll = function(event) {
-			
-			//console.log(event);
-			
-			var delta = event.originalEvent.wheelDelta || -event.originalEvent.detail*40 || 0;
-			
-			console.log(delta);
-			
-			var target = event.delegateTarget;
-			
-			var percentScroll = target.scrollTop / (target.scrollHeight - target.offsetHeight);
-			
-			console.log(percentScroll);
-			
-			var syncDiv;
-			if(target.className.split(" ").indexOf('displayText') !== -1)
-				syncDiv = $('.displayImage')[0];
-			else
-				syncDiv = $('.displayText')[0];
-			
-			syncDiv.scrollTop = Math.round(percentScroll * (syncDiv.scrollHeight - syncDiv.offsetHeight));
-			$scope.$applyAsync();
 		};
 		
 		$scope.toggleConfidence = function() {
@@ -1711,8 +1692,8 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http',
 		
 	}]);
 	
-webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', 'phpRequest', 'neo4jRequest', 'Utilities', '$timeout',
-	function($scope, $stateParams, phpRequest, neo4jRequest, Utilities, $timeout) {
+webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '$q', 'phpRequest', 'neo4jRequest', 'Utilities', '$timeout', '$alert',
+	function($scope, $stateParams, $q, phpRequest, neo4jRequest, Utilities, $timeout, $alert) {
 		
 		console.log('screenshotDetailCtrl init');
 		
@@ -1724,21 +1705,32 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 		
 		$scope.scMode = 'marker';
 		
+		$scope.screenshotTitle = '';
+		
+		$scope.imgWidth = $scope.params.data.width;
+		$scope.imgHeight = $scope.params.data.height;
+		$scope.borderSize = 2;
+		
+		$timeout(function() {
+			resizeModal();
+		});
+		
 		$scope.paintOptions = {
-			width: $scope.params.data.width,
-			height: $scope.params.data.height,
-			opacity: 0,
-			color: '#ff0',
+			width: $scope.params.data.drawing ? $scope.params.data.drawing.width : $scope.imgWidth,
+			height: $scope.params.data.drawing ? $scope.params.data.drawing.height : $scope.imgHeight,
+			opacity: 1.0,
+			color: 'rgba(255,255,0,1.0)', //'#ff0',
 			backgroundColor: 'rgba(255,255,255,0.0)',
 			lineWidth: 3,
-			undo: true
+			undo: true,
+			imageSrc: $scope.params.data.drawing ? 'data/' + $scope.params.data.drawing.path + $scope.params.data.drawing.file : false
 		};
 		
 		$scope.markers = [];
 		var isExisting = false;
 		
 		if(!$scope.params.data.dataUrl) {
-			$scope.params.data.dataUrl = $scope.params.path + $scope.params.filename; 
+			$scope.params.data.dataUrl = 'data/' + $scope.params.data.path + $scope.params.data.file; 
 			isExisting = true;
 		}
 		
@@ -1751,7 +1743,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 					v: m.v,
 					comment: m.comment,
 					isInserted: true,
-					styleMarker: {'width': 30, 'height': 30, 'left': m.u*$scope.params.data.width-15, 'top': m.v*$scope.params.data.height-30}
+					styleMarker: {'width': 30, 'height': 30, 'left': m.u*$scope.imgWidth-15, 'top': m.v*$scope.imgHeight-30}
 				});
 			}
 		}
@@ -1767,8 +1759,8 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 			
 			$scope.markers.push({
 				id: tid+'_screenshotMarker',
-				u: offsetX / $scope.params.data.width,
-				v: offsetY / $scope.params.data.height,
+				u: offsetX / $scope.imgWidth,
+				v: offsetY / $scope.imgHeight,
 				styleMarker: {'width': 30, 'height': 30, 'left': offsetX-16, 'top': offsetY-30},
 				comment: '',
 				taskID: '',
@@ -1792,29 +1784,6 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 			$.each($scope.markers, function(indexM){
 				if($scope.markers[indexM].id==id ){
 					$scope.markers[indexM].activeBtn = status;
-					
-					/* if($scope.markers[indexM].activeBtn == 'comment')	{
-						$scope.markerNotes = "<textarea ng-if=\"!m.isInserted\" id=\"{{'markerComment'+$index}}\" class=\"form-control\" ng-model=\"m.comment\" rows=\"3\"></textarea>\
-												<select class=\"form-control\" ng-model= \"m.taskID\">\
-													<option value=\"\" disabled=\"\" selected=\"\">Als Kommentar zu Aufgabe hinzufügen</option>\
-													<option ng-repeat= \"t in tasks\" value=\"{{t.taskID}}\">{{t.taskName}}</option>\
-												</select>";
-												return false;
-					}
-					else{
-						$scope.markerNotes="<textarea ng-if=\"!m.isInserted\" id=\"{{'markerComment'+$index}}\" class=\"form-control\" ng-model=\"m.comment\" rows=\"3\"></textarea>\
-											<div class=\"form-group\">\
-												<select class=\"form-control\" ng-model=\"m.editor\" ng-change = \"getTasksFromEditors()\">\
-												   <option value=\"\" >Bitte wählen Sie einen Bearbeiter aus</option>\
-												   <option ng-repeat= \"s in staff\" value=\"{{s.editorId}}\">{{s.editorName}}</option>\
-												 </select>\
-												 <select class=\"form-control\" ng-model =\"m.tid\">\
-													<option value=\"\" >Als Unteraufgabe anfügen an...(optional)</option>\
-													<option ng-repeat= \"t in tasksFromStaff\" value=\"{{t.taskId}}\">{{t.taskName}}</option>\
-												 </select>\
-											</div>";
-											return false;
-					} */
 					return false;
 				}
 			})
@@ -1833,30 +1802,44 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 					$scope.$parent.closeOverlayPanel();
 					return;
 				}
-				neo4jRequest.insertScreenshotMarkers($scope.$parent.project, $scope.params, newMarkers).success(function(data, status){
-					console.log(data, 'neo4j done');
-					if(data.exception == 'SyntaxException') {
-						console.error('ERROR: Neo4j SyntaxException');
-					}
-					else
-						$scope.$parent.$parent.closeModal('screenshot');
+				neo4jRequest.insertScreenshotMarkers($scope.$parent.project, $scope.params, newMarkers).then(function(response){
+					if(reponse.data.exception) { Utilities.throwNeo4jException('on insertScreenshotMarkers()', response); return; }
+					$scope.$parent.$parent.closeModal('screenshot');
+					$scope.$parent.$hide();
 				});
 				
 			}
 			else {
 				// speichere Screenshot und füge komplett neue Nodes ein
-				phpRequest.saveBase64Image($scope.params.path, $scope.params.filename, $scope.params.data.dataUrl).success(function(answer, status){
-					if(answer != 'SUCCESS') {
-						console.error(answer);
-						return;
-					}
-					neo4jRequest.insertScreenshot($stateParams.project, $stateParams.subproject, $scope.params, $scope.markers).success(function(data, status){
-						console.log(data, 'neo4j done');
-						if(data.exception == 'SyntaxException') {
-							console.error('ERROR: Neo4j SyntaxException');
+				if($scope.screenshotTitle.length < 1) {
+					Utilities.dangerAlert('Geben sie dem Screenshot einen Titel!');
+					return;
+				}
+				
+				var paintDataUrl = $('#pwCanvasMain')[0].toDataURL("image/png");
+				var paintFilename = Utilities.getUniqueId() + '_paint.png';
+				
+				phpRequest.saveBase64Image($scope.params.path, $scope.params.filename, $scope.params.data.dataUrl, true)
+					.then(function(response){
+						if(response.data !== 'SUCCESS') {
+							Utilities.throwException('PHP Exception', 'on saveBase64Image() Screenshot', response);
+							return $q.reject();
 						}
-						else
-							$scope.$parent.$hide();
+						return phpRequest.saveBase64Image($scope.params.path, paintFilename, paintDataUrl, false);
+					})
+					.then(function(response){
+						if(response.data !== 'SUCCESS') {
+							Utilities.throwException('PHP Exception', 'on saveBase64Image() Painting', response);
+							return $q.reject();
+						}
+						return neo4jRequest.insertScreenshot($stateParams.project, $stateParams.subproject, $scope.params, $scope.markers, $scope.screenshotTitle, paintFilename);
+					})
+					.then(function(response){
+						if(response.data.exception) { Utilities.throwNeo4jException('on insertScreenshot()', response); return; }
+						if(response.data.data.length === 0) {Utilities.throwNeo4jException('no screenshot inserted', response); return; }
+						console.log(response.data);
+						$scope.$parent.$parent.closeModal('screenshot');
+						$scope.$parent.$hide();
 					});
 					
 					
@@ -1864,49 +1847,32 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 							//Kommentar einfügen
 							console.log($scope.markers[indexN].taskID,$scope.markers[indexN].comment);
 							
-							if($scope.markers[indexN].activeBtn == 'comment'){
-								if($scope.markers[indexN]!= ''){
-									neo4jRequest.addCommentToTask($scope.$parent.project,$scope.markers[indexN].taskID,$scope.markers[indexN].comment).success(function(data, status){
-											console.log(data, 'neo4j comment inserted');
-											if(data.exception == 'SyntaxException') {
-												console.error('ERROR: Neo4j SyntaxException');
-											}
-										});
+								if($scope.markers[indexN].activeBtn == 'comment'){
+									if($scope.markers[indexN]!= ''){
+										neo4jRequest.addCommentToTask($scope.$parent.project,$scope.markers[indexN].taskID,$scope.markers[indexN].comment).success(function(data, status){
+												console.log(data, 'neo4j comment inserted');
+												if(data.exception == 'SyntaxException') {
+													console.error('ERROR: Neo4j SyntaxException');
+												}
+											});
+									}
 								}
-							}
-							
-							else{
-								//Aufgabe einfügen
-										
-								/* id: tid+'_screenshotMarker',
-								u: offsetX / $scope.params.data.width,
-								v: offsetY / $scope.params.data.height,
-								styleMarker: {'width': 30, 'height': 30, 'left': offsetX-16, 'top': offsetY-30},
-								comment: '',
-								taskID: '',
-								isInserted: false,
-								activeBtn: 'comment',
-								editor: '',
-								to: '',
-								from: '',
-								taskName: '', */
 								
-								console.log('taskID' + $scope.markers[indexN].taskID)
-								console.log($scope.markers[indexN].activeBtn);
-								neo4jRequest.addTask($stateParams.project, $scope.markers[indexN].taskID, tid, $scope.markers[indexN].taskName, $scope.markers[indexN].comment,$scope.markers[indexN].editor
-													, Utilities.getFormattedDate($scope.markers[indexN].from), Utilities.getFormattedDate($scope.markers[indexN].to),'priority_high', 'status_todo')
-										.then(function(response){
-										console.log(response.data);
-										})
-							}
+								else{
+									//Aufgabe einfügen
+									console.log('taskID' + $scope.markers[indexN].taskID)
+									console.log($scope.markers[indexN].activeBtn);
+									neo4jRequest.addTask($stateParams.project, $scope.markers[indexN].taskID, tid, $scope.markers[indexN].taskName, $scope.markers[indexN].comment,$scope.markers[indexN].editor
+														, Utilities.getFormattedDate($scope.markers[indexN].from), Utilities.getFormattedDate($scope.markers[indexN].to),'priority_high', 'status_todo')
+											.then(function(response){
+											console.log(response.data);
+											})
+								}
 						});
-					
-					
-					
-				});
-			}
+				}
+			};
 			
-		};
+		
 		
 		$scope.setFocusOnComment = function(m) {
 			var index = (typeof m === 'number') ? m : $scope.markers.indexOf(m);
@@ -1917,9 +1883,8 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 		$scope.updateMarker = function(position, marker) {
 			//console.log('updateMarker', position, marker);
 			if(marker) {
-				marker.u = (position.left + 15) / $scope.params.data.width;
-				marker.v = (position.top + 30) / $scope.params.data.height;
-				
+				marker.u = (position.left + 15) / $scope.imgWidth;
+				marker.v = (position.top + 30) / $scope.imgHeight;
 			}
 		};
 		
@@ -1934,6 +1899,44 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 			
 			$scope.undoVersion--;
 		};
+		
+		$scope.abort = function() {
+			// TODO nur bei Änderungen fragen
+			var scope = $scope.$new();
+			scope.clickOk = function() { $scope.$parent.$hide(); };
+			$alert({
+				templateUrl: 'partials/alerts/abort.html',
+				type: 'warning',
+				title: 'Nicht gespeichert',
+				content: 'Ohne speichern verlassen?',
+				backdrop: 'static',
+				scope: scope
+			});
+		};
+		
+		$(window).bind('resize', resizeModal);
+		function resizeModal() {
+			console.log('resizeModal');
+			var mbody = $('.screenshotDetail')[0];
+			
+			$scope.imgWidth = $scope.params.data.width;
+			$scope.imgHeight = $scope.params.data.height;
+			
+			if(mbody.offsetWidth - 30 - $scope.params.data.width < 400) {
+				$scope.imgWidth = mbody.offsetWidth - 30 - 400;
+				$scope.imgHeight = $scope.imgWidth * $scope.params.data.height / $scope.params.data.width;
+			}
+			if(mbody.offsetHeight - 30 - $scope.params.data.height < 75 && mbody.offsetHeight - 30 - $scope.imgHeight < 75) {
+				$scope.imgHeight = mbody.offsetHeight - 30 - 75;
+				$scope.imgWidth = $scope.imgHeight * $scope.params.data.width / $scope.params.data.height;
+			}
+			
+			for(var i=0; i<$scope.markers.length; i++) {
+				$scope.markers[i].styleMarker.left = $scope.markers[i].u * $scope.imgWidth - 15;
+				$scope.markers[i].styleMarker.top = $scope.markers[i].v * $scope.imgHeight - 30;
+			}
+			$scope.$applyAsync();
+		}
 		
 	}]);
 	
@@ -2827,7 +2830,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				}
 				$scope.api.data.remove(dataToRemove);
 				
-				//dataToRemove = dataToRemove.reverse();
+				
 				
 				$.each(dataToRemove,function(indexD){
 					neo4jRequest.deleteTask($stateParams.project,dataToRemove[indexD].id)

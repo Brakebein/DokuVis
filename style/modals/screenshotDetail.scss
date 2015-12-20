@@ -1,0 +1,168 @@
+// variables
+$screenshotBorder:		2px solid #000;
+$markerSize:			30px;
+$markerBadgeColor:		#3276b1;
+
+.screenshotDetail {
+	position: relative;
+	
+	>div {
+		position: absolute;
+		top: 15px;
+		bottom: 15px;
+		left: 15px;
+		right: 15px;
+	}
+	
+	.markerLayer {
+		position: absolute;
+		top: 0;
+		left: 0;
+		border: $screenshotBorder;
+		overflow: hidden;
+		z-index: 30;
+		cursor: url(../../img/map-marker_new.svg) 10 35, crosshair;
+
+		.marker {
+			position: absolute;
+			cursor: pointer;
+			
+			.markerSign {
+				width: $markerSize;
+				height: $markerSize;
+			}
+			.markerBadge {
+				position: absolute;
+				left: $markerSize - 8px;
+				top: -5px;
+				display: block;
+				background-color: $markerBadgeColor;
+			}
+		}
+		&.active {
+			z-index: 50;
+		}
+	}
+	
+	.paintLayer {
+		position: absolute;
+		top: 0;
+		left: 0;
+		border: $screenshotBorder;
+		overflow: hidden;
+		z-index: 30;
+		
+		>div {
+			position: relative;
+			width: 100%;
+			height: 100%;
+			div,canvas {
+				width: 100%;
+				height: 100%;
+			}
+		}
+		&.active {
+			z-index: 50;
+		}
+	}
+
+	.upperleftDiv {
+		position: absolute;
+		top: 0;
+		left: 0;
+		border: $screenshotBorder;
+		z-index: 10;
+		
+		>img {
+			width: 100%;
+			height: 100%;
+		}
+	}
+
+	.lowerleftDiv {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		padding: 15px 20px 0;
+		text-align: center;
+
+		.settings {
+			text-align: center;
+			padding-top: 15px;
+			
+			>div {
+				display: inline-block;
+				vertical-align: middle;
+				margin: 0 10px;
+				
+				input[type="range"] {
+					width: 200px;
+					display: inline-block;
+					vertical-align: middle;
+				}
+			}
+		}
+	}
+
+	.upperrightDiv {
+		position: absolute;
+		top: 0;
+		right: 0;
+		display: flex;
+		flex-direction: column;
+	
+		&>* {
+			padding: 10px 20px;
+		}
+		.heading {
+			flex: 0 0 auto;
+		}
+		h3 {
+			margin: 0;
+		}
+	}
+
+	.lowerrightDiv {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		padding: 15px 20px 0;
+		text-align: center;
+	}
+	
+	.markerComments {
+		flex: 1 1 auto;
+		width: 100%;
+		overflow-y: auto;
+	
+		.comment {
+			display: flex;
+			width: 100%;
+			min-height: 50px;
+			padding: 10px 0;
+			border-bottom: 1px solid #ddd;
+		
+			&:last-of-type {
+				border-bottom: none;
+			}
+			.commentLeft {
+				flex: 0 0 50px;
+				text-align: center;
+			}
+			.commentRight {
+				flex: 1 1 auto;
+			}
+			.commentBtn {
+				display: inline-block;
+				float: right;
+				cursor: pointer;
+				color: #c3c3c3;
+				font-size: 12px;
+			
+				&:hover {
+					color: #888;
+				}
+			}
+		}
+	}
+}
