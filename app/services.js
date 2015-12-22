@@ -125,6 +125,42 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					
 		}
 		
+		requests.connectTasks = function(prj,subpr,taskId,editorId){
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+' {content: {tID}}),(editor:E21:'+prj+' {content: {eId}})\
+				 CREATE (task)-[:P14]->(editor)\
+				 RETURN task,editor';
+			console.log(taskId, editorId);
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tID: taskId,
+					eId: 'e21_' + editorId
+				}
+			});
+		}
+		
+		requests.getTaskDates = function(prj,taskName){
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+')-[:P102]->(title:E35:'+prj+' {value: {tname}}),\
+			(task)-[:P3]->(taskDesc:E62),\
+			(task)-[:P14]->(person:E21)-[:P131]->(editor:E82),\
+			(task)-[:P4]->(:E52)-[:P81]->(time:E61)\
+			WITH task,title, taskDesc, time, collect(DISTINCT editor.content) as editors\
+			RETURN task.content AS id, title.value AS name, taskDesc.value AS desc, editors AS editors, time.from AS from, time.to AS to';
+			
+			console.log(taskName);
+			console.log(prj);
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tname: taskName,
+				}
+			});
+		}
+		
 		requests.addCommentToTask = function(prj,taskID,tcomment){
 			var q = '';//KOMMENTAR -->logindata: Platzhalter für späteren Verfasser
 			q += 'MATCH (task:E7:'+prj+'{content: {tID}})';
@@ -154,9 +190,11 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			(child)-[:P3]->(taskDesc:E62),\
 			(child)-[:P14]->(person:E21)-[:P131]->(editor:E82),\
 			(child)-[:P4]->(:E52)-[:P81]->(time:E61),\
+			(child)-[:P2]->(status)-[:P127]->(typeS:E55 {content: "taskStatus"}),\
+			(child)-[:P2]->(priority)-[:P127]->(typeP:E55 {content: "taskPriority"}),\
 			path = (sub)-[:P9*]->(child)\
-			WITH p, child, title, taskDesc, time, collect(editor.content) as editors\
-			RETURN {parent: p} AS parent, collect({child: child, name: title.value, desc: taskDesc.value, editors: editors, from: time.from, to: time.to}) AS children';
+			WITH p, child, title, taskDesc, time, priority,status, collect(editor.content) as editors\
+			RETURN {parent: p} AS parent, collect({child: child, name: title.value, desc: taskDesc.value,  priority: priority.content, status: status.content, editors: editors, from: time.from, to: time.to}) AS children';
 			
 
 			return $http.post(phpUrl, {
@@ -190,8 +228,6 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		}
-		
-		
 		
 		requests.addStaffToGraph = function(prj,tid,name){
 			var q = '';
@@ -237,6 +273,26 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				params: {
 					prj: prj,
 					tid: taskId
+					}
+				})
+		
+		}
+		
+		requests.addTaskDates = function(prj,taskId,from,to){
+		var q = '';
+		q+= 'MATCH (task:E7:'+prj+' {content: {tid}})-[:P4]->(:E52:'+prj+')-[:P81]->(duration:E61:'+prj+')\
+			SET duration.from ={from} , duration.to = {to}  RETURN duration';
+		
+		console.log(prj);
+		console.log(taskId);
+		
+		return $http.post(phpUrl, {
+				query: q,
+				params: {
+					prj: prj,
+					tid: taskId,
+					from: from,
+					to: to,
 					}
 				})
 		
@@ -295,24 +351,45 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				})
 		}
 		
-		/* requests.changePriority = function(prj, subprj, taskID, priorityOld,priorityNew){
+		requests.changePriority = function(prj, taskID, priorityOld, priorityNew){
 		
 			var q = '';
-			q += 'MATCH (n:'+prj+' {content: {subprj}})-[:P9]->(task:'+prj+' {content: {tid}})-[r:P2]->(priority)'
-			q += 'Delete r'
-			MATCH (n:Proj_pwLoMDJ {content: "subpwLoQXn"})-[:P9]->(task:Proj_pwLoMDJ {content: "pwLoYJM"})-[r:P2]->(priority)
-CREATE(task)-[:P2]->(prior:E55 {content: "priority_high"})
+			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r]->(priorityOld {content: {pOld}}),(priorityNew:E55:Proj_pxw9RAW {content: {pNew}})\
+				DELETE r\
+				WITH task,priorityNew\
+				CREATE (task)-[:P2]->(priorityNew)';
 			
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					subpr: subprj,
 					tid: taskID,
-					priority: priority
+					pOld: priorityOld,
+					pNew: priorityNew
 				}
 				})
 		
-		} */
+		} 
+		
+		requests.changeStatus = function(prj, taskID, statusOld, statusNew){
+		
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r]->(statusOld {content: {sOld}}),(statusNew:E55:'+prj+' {content: {sNew}})\
+				DELETE r\
+				WITH task,statusNew\
+				CREATE (task)-[:P2]->(statusNew)';
+			
+			console.log(taskID, statusOld, statusNew);
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tid: taskID,
+					sOld: statusOld,
+					sNew: statusNew
+				}
+				})
+		
+		} 
 		
 		//alle Mitarbeiter holen
 		requests.getStaffFromProject = function(prj){
@@ -1358,6 +1435,7 @@ webglServices.factory('Utilities',
 		  * generate unique id from timestamp
 		*/
 		f.getUniqueId = function() {
+			f.sleep(1);
 			return new f.Base62().encode(new Date().getTime());
 		};
 		
