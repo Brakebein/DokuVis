@@ -148,7 +148,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			(task)-[:P14]->(person:E21)-[:P131]->(editor:E82),\
 			(task)-[:P4]->(:E52)-[:P81]->(time:E61)\
 			WITH task,title, taskDesc, time, collect(DISTINCT editor.content) as editors\
-			RETURN task.content AS id, title.value AS name, taskDesc.value AS desc, editors AS editors, time.from AS from, time.to AS to';
+			RETURN task.content AS graphId, title.value AS name, taskDesc.value AS desc, editors AS editors, time.from AS from, time.to AS to';
 			
 			console.log(taskName);
 			console.log(prj);
@@ -278,18 +278,16 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		}
 		
-		requests.addTaskDates = function(prj,taskId,from,to){
+		requests.setTaskDates = function(prj,taskId,from,to){
 		var q = '';
 		q+= 'MATCH (task:E7:'+prj+' {content: {tid}})-[:P4]->(:E52:'+prj+')-[:P81]->(duration:E61:'+prj+')\
 			SET duration.from ={from} , duration.to = {to}  RETURN duration';
 		
-		console.log(prj);
 		console.log(taskId);
 		
 		return $http.post(phpUrl, {
 				query: q,
 				params: {
-					prj: prj,
 					tid: taskId,
 					from: from,
 					to: to,
