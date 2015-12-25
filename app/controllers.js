@@ -2074,11 +2074,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities, $aside) {
 	
 		$scope.project = $stateParams.project;
-		$scope.sortby = 'staff';
 		$scope.parentIsStaff= 'false';
-		$scope.staffArray = [];
-		$scope.tasksArray= []; //extra tasksArray um unique zu nutzen
-		$scope.tasksWithEditors=[];
+		$scope.sortby = 'staff';
 		
 		/*Mitarbeiter*/
 		$scope.newStaff = new Object();
@@ -2134,9 +2131,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 
 		/*Children zählen*/
 		$scope.childCounter = 0;
-		
-		$scope.dataTasks = [];
-		
+		$scope.dataTask = [];
+				
 		/* $scope.data=[
 		{"id":1,"name":"Jonas","isStaff":true,"groups":false,"children":[],"tasks":[],"highlight":false},
 		{"id":2,"name":"Martin","isStaff":true,"groups":false,"children":[],"tasks":[],"highlight":false},
@@ -2373,119 +2369,182 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		/*Tasks*/
 		
 		
-		$scope.fillDataObject = function(){
+		$scope.fillDataObject = function(sortby){
 			//Mitarbeiter einfügen
 			neo4jRequest.getStaffFromProject($stateParams.project).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromProject()', response.data); return; }
 					 if(response.data){
 						$scope.editors = Utilities.cleanNeo4jData(response.data);
+						//console.log($scope.editors);
 						}
 						return neo4jRequest.getTasksFromSubproject($stateParams.project,$stateParams.subproject)
 			}).then(function(response){ //Aufgaben holen
 				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromSubproject()', response.data); return; }
 					 if(response.data){
 						 // console.log(response.data.data); 
-						 $scope.root = Utilities.createHierarchy(response.data,['name','desc','priority','status','editors','from','to'], false)[0];
+						 $scope.root = Utilities.createHierarchy(response.data,['name','desc','priority','status','editors','editorNames','from','to'], false)[0];
 					 }
 					 
-					
-				
+				if(sortby == 'staff'){
 				//Bearbeiter hinzufügen
-				$.each($scope.editors, function(index){
-					var eId = Utilities.getUniqueId();
-					var currentEditor = $scope.editors[index].editorId;
-							//console.log({name: Utilities.cleanNeo4jData(response.data)[index].editorName});
-							$scope.data.push({id: eId,
-											graphId: $scope.editors[index].editorId,
-											name: $scope.editors[index].editorName,
-											isStaff: true,
-											'groups': false,
-											children: [],
-											tasks: []
-											});
-							
-							
-							
-				//Aufgabenstruktur hinzufügen
-				 
-						 $.each($scope.root.children, function(indexC) {
-							 
-							 if($scope.root.children[indexC].editors.indexOf(currentEditor) != -1){
-								 //console.log('gefunden');
-								var id = Utilities.getUniqueId();
-								var rowTask = {
-									id: id,
-									graphId: $scope.root.children[indexC].content,
-									name: $scope.root.children[indexC].name,
-									isStaff: false,
-									parent: eId,
-									children: [],
-									status: $scope.root.children[indexC].status,
-									priority: $scope.root.children[indexC].priority,
-									data: [],
-									editors: $scope.root.children[indexC].editors,
-									tasks: [{graphId:$scope.root.children[indexC].content,
-											name: $scope.root.children[indexC].name,
-											color: $scope.root.children[indexC].status == 'status_todo' ? '#F1C232' : '#24ff6b',
-											from: $scope.root.children[indexC].from,
-											to: $scope.root.children[indexC].to}] 
-									};
+					$.each($scope.editors, function(index){
+						var eId = Utilities.getUniqueId();
+						var currentEditor = $scope.editors[index].editorId;
+								//console.log({name: Utilities.cleanNeo4jData(response.data)[index].editorName});
+								$scope.data.push({id: eId,
+												graphId: $scope.editors[index].editorId,
+												name: $scope.editors[index].editorName,
+												isStaff: true,
+												'groups': false,
+												children: [],
+												tasks: []
+												});
 								
-								$scope.data.push(rowTask);
-
-								if($scope.root.children[indexC].children.length>0){ //wenn Kindobjekte vorhanden sind
-									pushChildren($scope.root.children[indexC].children, rowTask);
-								}
-							 }
-						 
-						 function pushChildren(children, parentRow) {
-							
-							$.each(children,function(indexR){
 								
-								 if(children[indexR].editors.indexOf(currentEditor) != -1){
+								
+					//Aufgabenstruktur hinzufügen
+					 
+							 $.each($scope.root.children, function(indexC) {
+								 
+								 if($scope.root.children[indexC].editors.indexOf(currentEditor) != -1){
+									 //console.log('gefunden');
 									var id = Utilities.getUniqueId();
-									console.log(children[indexR]); 
+									var rowTask = {
+										id: id,
+										graphId: $scope.root.children[indexC].content,
+										name: $scope.root.children[indexC].name,
+										isStaff: false,
+										parent: eId,
+										children: [],
+										status: $scope.root.children[indexC].status,
+										priority: $scope.root.children[indexC].priority,
+										data: [],
+										editors: $scope.root.children[indexC].editors,
+										tasks: [{graphId:$scope.root.children[indexC].content,
+												name: $scope.root.children[indexC].name,
+												color: $scope.root.children[indexC].status == 'status_todo' ? '#F1C232' : '#24ff6b',
+												from: $scope.root.children[indexC].from,
+												to: $scope.root.children[indexC].to}] 
+										};
 									
-									parentRow.children.push(id);
-									//console.log(parentRow);
-									
-									if(children[indexR].editors.length == 1){
-										var newRow = {	id: id,
-														graphId: children[indexR].content,
-														name: children[indexR].name,
-														isStaff: false,
-														parent: [],
-														children: [],
-														status: children[indexR].status,
-														priority: children[indexR].priority,
-														data: [],
-														editors: children[indexR].editors,
-														tasks: [{name: children[indexR].name,
-																color: '#F1C232',
-																from: children[indexR].from,
-																to: children[indexR].to}] 
-														};
-										$scope.data.push(newRow);
-										pushChildren(children[indexR].children, newRow); 
+									$scope.data.push(rowTask);
+
+									if($scope.root.children[indexC].children.length>0){ //wenn Kindobjekte vorhanden sind
+										pushChildren($scope.root.children[indexC].children, rowTask);
 									}
+								 }
+							 
+							 function pushChildren(children, parentRow) {
+								
+								$.each(children,function(indexR){
+									
+									 if(children[indexR].editors.indexOf(currentEditor) != -1){
+										var id = Utilities.getUniqueId();
+										/* console.log(children[indexR]);  */
+										
+										parentRow.children.push(id);
+										//console.log(parentRow);
+										
+										if(children[indexR].editors.length == 1){
+											var newRow = {	id: id,
+															graphId: children[indexR].content,
+															name: children[indexR].name,
+															isStaff: false,
+															parent: [],
+															children: [],
+															status: children[indexR].status,
+															priority: children[indexR].priority,
+															data: [],
+															editors: children[indexR].editors,
+															tasks: [{name: children[indexR].name,
+																	color: '#F1C232',
+																	from: children[indexR].from,
+																	to: children[indexR].to}] 
+															};
+											$scope.data.push(newRow);
+											pushChildren(children[indexR].children, newRow); 
+										}
+									}
+								});	
 								}
-							});	
-							
-						}	
-						});
-						/* console.log($scope.root);*/
-						console.log($scope.data); 
+							});
 					});
-				});	
+					console.log($scope.data);
+				}
+						
+							else{
+								$.each($scope.root.children, function(indexC) {
+									 //console.log('gefunden');
+									var id = Utilities.getUniqueId();
+									var rowTask = {
+										id: id,
+										graphId: $scope.root.children[indexC].content,
+										name: $scope.root.children[indexC].name,
+										isStaff: false,
+										parent: [],
+										children: [],
+										status: $scope.root.children[indexC].status,
+										priority: $scope.root.children[indexC].priority,
+										data: [],
+										editors: $scope.root.children[indexC].editorNames,
+										tasks: [{graphId:$scope.root.children[indexC].content,
+												name: $scope.root.children[indexC].name,
+												color: $scope.root.children[indexC].status == 'status_todo' ? '#F1C232' : '#24ff6b',
+												from: $scope.root.children[indexC].from,
+												to: $scope.root.children[indexC].to}] 
+										};
+									
+									$scope.dataTask.push(rowTask);
+
+									if($scope.root.children[indexC].children.length>0){ //wenn Kindobjekte vorhanden sind
+										pushChildren($scope.root.children[indexC].children, rowTask);
+									}
+								 
+							 
+							 function pushChildren(children, parentRow) {
+								
+								$.each(children,function(indexR){
+									
+										var id = Utilities.getUniqueId();
+										console.log(children[indexR]); 
+										
+										parentRow.children.push(id);
+										//console.log(parentRow);
+										
+										if(children[indexR].editors.length == 1){
+											var newRow = {	id: id,
+															graphId: children[indexR].content,
+															name: children[indexR].name,
+															isStaff: false,
+															parent: [],
+															children: [],
+															status: children[indexR].status,
+															priority: children[indexR].priority,
+															data: [],
+															editors: children[indexR].editorNames,
+															tasks: [{name: children[indexR].name,
+																	color: '#F1C232',
+																	from: children[indexR].from,
+																	to: children[indexR].to}] 
+															};
+											$scope.dataTask.push(newRow);
+											pushChildren(children[indexR].children, newRow); 
+										}
+									
+								});							
+							}
+						console.log($scope.root);
+						console.log($scope.data); 
+					});	
+				}
+		})
 		}
-				
+						
 		$scope.addNewTask = function (newTask){	
 			var gid = Utilities.getUniqueId();
 			var tid = Utilities.getUniqueId();
 			var hier= $scope.api.tree.getHierarchy();
 			/* console.log(hier.ancestors(row)[hier.ancestors(row).length-1].model.name); */
-			
-			if($scope.sortby == 'staff'){
 				$.each($scope.data,function(index){
 					
 					if($scope.data[index].name == $scope.newTask.task){
@@ -2568,15 +2627,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 
 								}
 						}
-				
-					
-				}
-		else{
-			alert('Bitte ändern Sie die Sortierung!');
-			}
 		}
 				
-		
 		$scope.getIndex = function(event, ui, indexStaff){
 			/*console.log(indexStaff);*/
 			$scope.indexDnD = indexStaff;
@@ -2647,136 +2699,29 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		}
 		
 		$scope.sortByTasks = function(){	
-	
 			if($scope.sortby == 'staff'){
-			/* $.each($scope.data,function(index){ // Array mit Aufgaben anlegen
-					if($scope.data[index].isStaff == false/* && $scope.parentIsStaff($scope.data[index].parent)*/){// ist Oberaufgabe
-						$scope.tasksArray.push($scope.data[index].name);
-					}
-				});
-			
-			console.log($scope.tasksArray);
-			$scope.tasksArray = $.unique($scope.tasksArray);	
-			$scope.tasksArray.reverse();
-			console.log($scope.tasksArray);
-			
-			
-			//array mit tasks und editors bauen
-				//tasksArray einträge werden aufgabenobjekte
-				$.each($scope.tasksArray,function(indexT){
-					$scope.dataTasks.push({name: $scope.tasksArray[indexT], children: [], editors: []});
-					
-				});
-				
-				console.log($scope.dataTasks);
-				
-				//aufgabenobjekte bekommen editors
-				/*	console.log($scope.data);*/
-			$.each($scope.dataTasks,function(indexT){
-				$.each($scope.data,function(indexD){ 
-				//Oberaufgaben bekommen als Editor Parentobjekte
-					if($scope.dataTasks[indexT].name == $scope.data[indexD].name /* && $scope.parentIsStaff($scope.data[indexD].parent) */){
-						$scope.dataTasks[indexT].id= $scope.data[indexD].id;
-						$scope.dataTasks[indexT].isStaff= $scope.data[indexD].isStaff;
-						$scope.dataTasks[indexT].parent= '';
-						$scope.dataTasks[indexT].children = $scope.dataTasks[indexT].children.concat($scope.data[indexD].children);
-						$scope.dataTasks[indexT].status= $scope.data[indexD].status;
-						$scope.dataTasks[indexT].priority= $scope.data[indexD].priority;
-						$scope.dataTasks[indexT].hasData= $scope.data[indexD].hasData;
-						$scope.dataTasks[indexT].tasks = $scope.data[indexD].tasks;
-						$scope.dataTasks[indexT].editors = $scope.dataTasks[indexT].editors.concat($scope.getStaffById($scope.data[indexD].editors));
-					}
-				});
-			});	
-			//children auf dopplungen prüfen
-			$.each($scope.dataTasks,function(indexD){
-				$scope.removeDoubleChildren($scope.dataTasks[indexD].children);
-			});
-			
-			console.log($scope.dataTasks);
-			//Datenarray umschalten, Spalte hinzufügen
-			$scope.options.columns.push('model.editors');
-			$scope.options.useData = $scope.dataTasks;
-			$scope.sortby = 'task';
-			console.log($scope.dataTasks); */
-			};
+				console.log($scope.data);
+				$scope.dataTask = [];
+				$scope.fillDataObject('task');
+				$scope.options.columns.push('model.editors');
+				$scope.options.useData = $scope.dataTask;
+				console.log($scope.data);
+				$scope.sortby = 'task';
+			}
 		}
 		
 		$scope.sortByStaff = function(){
 			if($scope.sortby == 'task'){
-				$scope.tasksArray= [];
-				$scope.tasksWithEditors= [];
-				$scope.dataTasks= [];
+				$scope.data = [];
 				$scope.options.useData = $scope.data;
+				console.log($scope.data);
+				$scope.fillDataObject('staff');
 				$scope.options.columns.splice($scope.options.columns.length-1,1);
 				$scope.sortby = 'staff';
-			};
 		}
-
-		$scope.getStaffById= function(pid){
-			/*console.log('pid' + pid);*/
-			var tmp = '';
-				$.each($scope.data, function(indexD){
-					if(pid == $scope.data[indexD].id){
-						tmp = $scope.data[indexD].name;
-						/*console.log(tmp);*/
-					}
-			});	
-			return tmp;
-		}
-
-		$scope.removeDoubleChildren = function(children){ 
-			//existiert childid in Datenobjekt, wenn nicht entfernen
-			//Länge anpassen
-			var length = children.length;
-			for(i = 0; i<length-1; i++){
-					if(!$scope.childExists(children[i])){
-						children.splice(i,1);
-						length--;
-						}
-			};
-		}
-		
-		$scope.childExists = function(childID){
-			found = false;
-			$.each($scope.dataTasks, function(index){
-				if(childID == $scope.dataTasks[index].id){
-					found = true;
-				}
-			});
-			
-			return found;
-		}
-
-		/* $scope.getChildrensEditor = function(id){
-			var editors = [];
-	
-				$.each($scope.data,function(indexD){
-						//jedes childrenobjekt mit id vergleichen
-						if($scope.data[indexD].children.indexOf(id) !== -1){
-						//console.log('child gefunden');
-						editors.push($scope.getParentById($scope.data[indexD].parent)); //$scope.getParentById($scope.data[indexD].parent)
-						//console.log('editors ' + editors);
-					 	}
-				});	
-			
-			//rückgabe array aller bearbeiter
-			return editors;
-		} */
-		
-		$scope.parentIsStaff = function(pid){ 
-				if($scope.staffArray.indexOf(pid)!== -1){
-				return true;
-			}	
-			else{
-				return false;
-			}
-				
-			
 		}
 		
 		$scope.changeStatus = function(row){
-			if($scope.sortby == 'staff'){
 				$.each($scope.data,function(index){
 					if(row.model.id == $scope.data[index].id){
 					console.log(row.model)
@@ -2810,15 +2755,11 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 						
 					}
 				});
-			}
-			else{
-				alert('Bitte ändern Sie die Sortierung!');
-			}
+			
 		};
 		
 		$scope.changePriority = function(row){
-			
-			if($scope.sortby == 'staff'){
+			console.log(row.model);
 				$.each($scope.data,function(index){
 					if(row.model.id == $scope.data[index].id){
 						
@@ -2828,6 +2769,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_low','priority_medium') .then(function(response){
 								if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
 								if(response.data){
+									console.log(response.data);
 									}
 							});
 							
@@ -2840,6 +2782,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_medium','priority_high') .then(function(response){
 								if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
 								if(response.data){
+									console.log(response.data);
 									}
 							});
 							return false;
@@ -2851,16 +2794,13 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_high','priority_low') .then(function(response){
 								if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
 								if(response.data){
+									console.log(response.data);
 									}
 							});
 							return false;
 						}
 					}
 				});
-			}
-		else{
-				alert('Bitte ändern Sie die Sortierung!');
-			}
 		};	
 		
 		$scope.deleteTask = function(row) {
@@ -3111,7 +3051,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	
 	//initiiere Staff
 	$scope.getAllStaff();
-	$scope.fillDataObject();
+	$scope.fillDataObject('staff');
 	$scope.getStaffInGantt();
 	console.log($scope.data);
 	}]);

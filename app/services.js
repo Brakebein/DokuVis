@@ -193,8 +193,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			(child)-[:P2]->(status)-[:P127]->(typeS:E55 {content: "taskStatus"}),\
 			(child)-[:P2]->(priority)-[:P127]->(typeP:E55 {content: "taskPriority"}),\
 			path = (sub)-[:P9*]->(child)\
-			WITH p, child, title, taskDesc, time, priority,status, collect(editor.content) as editors\
-			RETURN {parent: p} AS parent, collect({child: child, name: title.value, desc: taskDesc.value,  priority: priority.content, status: status.content, editors: editors, from: time.from, to: time.to}) AS children';
+			WITH p, child, title, taskDesc, time, priority,status, collect(editor.content) as editors,collect(editor.value) as editorNames \
+			RETURN {parent: p} AS parent, collect({child: child, name: title.value, desc: taskDesc.value,  priority: priority.content, status: status.content, editors: editors, editorNames: editorNames, from: time.from, to: time.to}) AS children';
 			
 
 			return $http.post(phpUrl, {
@@ -351,8 +351,11 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		requests.changePriority = function(prj, taskID, priorityOld, priorityNew){
 		
+			console.log(taskID);
+			console.log(priorityOld);
+			console.log(priorityNew);
 			var q = '';
-			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r]->(priorityOld {content: {pOld}}),(priorityNew:E55:Proj_pxw9RAW {content: {pNew}})\
+			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r]->(priorityOld {content: {pOld}}),(priorityNew:E55:'+prj+' {content: {pNew}})\
 				DELETE r\
 				WITH task,priorityNew\
 				CREATE (task)-[:P2]->(priorityNew)';
@@ -389,6 +392,21 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		} 
 		
+		/* requests.getEditorsFromTasks = function(prj,subprj){
+		
+			var q = '';
+			q += 'MATCH (sub:E7:'+prj+' {content: {subprj}})-[:P9*]->(task:E7:'+prj+')-[:P102]->(name:E35:'+prj+'),\
+			(task)-[:P14]->(type)-[:P131]->(editors)\
+			RETURN task.content AS graphId,name.value AS name, collect(editors.content) AS editorsId, collect(editors.value) AS editorsName';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					subprj: subprj,
+				}
+				})
+		
+		}  */
 		//alle Mitarbeiter holen
 		requests.getStaffFromProject = function(prj){
 		var q = '';
