@@ -273,11 +273,13 @@
 }
 
 .parent {
+	font-style: normal;
 	font-size: 15px;
 	font-weight: bold;
 }
 .child {
-	cursor: pointer;
+	font-style: normal;
+	font-size: 15px;
 }
 
 .child:hover {
