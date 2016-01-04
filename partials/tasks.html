@@ -1,6 +1,6 @@
 <div class="tasksLeft">
-	<div class = "overview">      
-		
+	 <div class = "overview">      
+		<!-- <button ng-click="resizerValue = 800">resizerAnim</button> -->
 		<h2 id = "title" >Projektübersicht</h2>
 		
 		<div class = "col-md-2" id = "search">
@@ -16,10 +16,9 @@
 		
 	</div>
 	<hr/>
+	
 	<div class = "optionsHeader">
-			
-		
-			
+
 			<div class = "col-md-2" id= "from">
 				<div class="form-group" >
 					<div class="input-group" >
@@ -48,9 +47,7 @@
 	  </div>
 					
 
-<div class = "container-fluid" data-drop="true" jqyoui-droppable="{multiple:true, onDrop: 'addNewStaffToGantt'}">
-		
-			
+	<div class = "container-fluid" data-drop="true" jqyoui-droppable="{multiple:true, onDrop: 'addNewStaffToGantt'}">
 			<div gantt 
 				 data= "options.useData"
 				 filter-task="{'name': options.filterTask}"
@@ -95,25 +92,22 @@
 		       </gantt-groups>
 			  
 			  <gantt-bounds></gantt-bounds>
-		     <!-- <gantt-progress></gantt-progress>-->
+		  
 		      <gantt-sortable enabled = "true"></gantt-sortable>
 			  <gantt-movable allow-row-switching="false"></gantt-movable>
 			  <gantt-tooltips content = "options.contentTooltips"></gantt-tooltips>
-			 <!-- <gantt-draw-task enabled="enabled"
-                                            move-threshold="2" task-factory="drawTaskFactory"></gantt-draw-task>-->
+			 
 			  <gantt-overlap></gantt-overlap>
 			  <gantt-resize-sensor></gantt-resize-sensor>
 			</div>
 		<hr/>
-			
-		<!--</div>-->
 	</div>
 	
 	<div class = "optionsFooter">
 		<div class = "row">
-		<div class = "col-md-2" > <!--id= "staff"-->
+		<div class = "col-md-2" > 
 			<div class="input-group" >
-				<button class="btn btn-info btn-md" data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" backdrop = 'false' data-template-url="partials/aside/asideStaff.html"">
+				<button class="btn btn-info btn-md" ng-click = "resizerValue = 1050" > <!-- data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" backdrop = 'false' data-template-url="partials/aside/asideStaff.html"" -->
     			<span class="fa fa-user-plus"></span> Mitarbeiter hinzufügen
     			</button>					
 			</div>	
@@ -123,59 +117,17 @@
 		<button type="button" class="btn btn-default" ng-click="sortByTasks()"><span class="glyphicon glyphicon-sort"></span> Nach Aufgaben sortieren</button>		
 		<button type="button" class="btn btn-default" ng-click="sortByStaff()"><span class="glyphicon glyphicon-sort"></span> Nach Mitarbeitern sortieren</button>
 			
-		<!-- <p>{{data}}</p> -->
+		
 		</div>
 		
 	</div>
 	
-	
-
-				
-			<!--<div class="panel-group" data-start-collapsed="true" bs-collapse>
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a href=""  bs-collapse-toggle>Suchen</a>
-                                </h4>
-                            </div>
-                           
-                            <div class="panel-collapse" bs-collapse-target>
-                                <div class="panel-body">
-                                     <div class = "container-fluid">	
-										 <div class="row">
-									        <div class="form-inline">
-									         
-										         <div class="form-group text-center">
-										   <div class="form-group text-center">
-												      	<label class="control-label"><i class="fa fa-search"></i> Skalierung</label><br>
-												      	<button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" bs-options="s for s in ['day','week', '2 weeks', 'month', 'quarter', '6 months', 'year']" bs-select></button>
-												      </div>
-												      
-												      <div class="form-group text-center">
-												      	<label class="control-label"><i class="fa fa-sort"></i> Sortieren</label><br>
-												      	<button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.sortMode" bs-options="m.value as m.label for m in [{label: 'disabled', value: undefined}, {label: 'name', value: 'model.name'}, {label: 'from', value: 'from'}, {label: 'to', value: 'to'}]" bs-select></button>
-												     </div>
-
-												    <div class="form-group input-append text-center">
-												    	<label class="control-label"><i class="fa fa-filter"></i> Aufgaben durchsuchen</label><br>
-												    	<input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterTask">
-												    </div>
-												    
-												    <div class="form-group input-append text-center">
-												    	<label class="control-label"><i class="fa fa-filter"></i> Bearbeiter durchsuchen</label><br>
-												        <input type="text" class="form-control" style="width: 15em; text-align: left" ng-model="options.filterRow">
-												    </div>	
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>				-->
 </div>
 
 
-<!--<div class="tasksRight">	
+<div class="tasksRight">	
+
+	
 	<div class="sidePanelSidemenu">
 	
 		<div title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
@@ -184,8 +136,9 @@
 		<div title="Kommentare" class="smBtn" ng-class="views.activeSide=='comments'?'active':''" ng-click="views.activeSide = 'comments'">
 			<span class="glyphicon glyphicon-comment"></span>
 		</div>
-		
-		
+		<div title="Neue Aufgabe" class="smBtn" ng-class="views.activeSide=='newTask'?'active':''" ng-click="views.activeSide = 'newTask'">
+			<span class="glyphicon glyphicon-tasks"></span>
+		</div>
 	</div>
 	
 
@@ -214,7 +167,7 @@
 				<tbody>
 					<tr ng-repeat="s in staff" >
 						
-						<td><a data-drag="true" ng-model="staff" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep', onDrag: 'getIndex(s.tableId)'}" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
+						<td><a data-drag="true" ng-model="staff" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep', onStart: 'getIndex($index)'}" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
 						<td><a href="#" editable-text ="s.surname" onbeforesave = "updateSurname($data,s.sid)">{{s.surname}}</a></td>
 						<td><a href="#" editable-text ="s.mail" onbeforesave = "updateMail($data,s.sid)">{{s.mail}}</a></td>
 						<td><a href="#" editable-text ="s.role" onbeforesave = "updateRole($data,s.sid)">{{s.role}}</a></td>
@@ -223,8 +176,8 @@
 						<td><button type="button" class="btn btn-default" ng-click=removeStaff(s.sid)>Löschen</button></td>
 						
 					</tr>
-					 <p>{{staffIndex}}</p>
-			
+					 
+					
 					
 				</tbody>
 				</table>
@@ -239,7 +192,6 @@
                            
                             <div class="panel-collapse" bs-collapse-target>
                                 <div class="panel-body">
-									
 										<div class="form-inline">
 											
 													<div class="form-group text-center">
@@ -273,7 +225,7 @@
 											
 												<div class="form-group text-center">
 											   		<label class="control-label">Hinzufügen</label><br>
-													<button class="btn btn-primary" ng-click="addNewStaff()" >Hinzufügen</button>
+													<button class="btn btn-primary" ng-click="addNewStaffToProject()" >Hinzufügen</button>
 												</div>
 											
 											
@@ -304,18 +256,74 @@
 		</div>
 		
 		<div class="sideContent">
-				
+			<ul ng-repeat ="d in comments" style="list-style-type:none">
+				<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.desc}}</li>
+				<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.date}}</li>
+				<!-- <li ng-class-odd="'odd'" ng-class-even="'even'">{{d.author}}</li> -->
+				<li><br/></li>
+		</ul>
 				
 		</div>
 		
 		<div class="sideFooter">
-			
+			<div class="container-fluid">
+				<form ng-submit="addComment()">
+				<input type="text" class="form-control" ng-model="newComment.text" placeholder="Kommentar hinzufügen">
+				
+			  </form>
+			</div>       
 		</div>
 	</div>	
 	
+	<div ng-if="views.activeSide == 'newTask'" class="sideContainer">
+		
+		<div class="sideHeader">
+			<h4>Neue Aufgabe</h4>
+			<hr/>
+			
+		</div>
+		
+		<div class="sideContent">
+			<div class="form-group text-left">
+				<label class="control-label">Bearbeiter</label><br>
+				<input type="text" class="form-control" style="width: 8em" ng-model="newTask.staff">
+			</div>
+			
+			<div class="form-group text-left">
+				<label class="control-label">Aufgabe</label><br>
+				<input type="text" class="form-control" style="width: 10em" ng-model="newTask.task" placeholder="Aufgabe">
+			</div>
+			
+			
+		<div class="form-group text-left">
+				<label class="control-label">Von</label><br>
+				<input type="text" class="form-control" style="width: 6em" ng-model="newTask.from" placeholder="Von" bs-datepicker>
+			</div>
+			
+			<div class="form-group text-left">
+				<label for="to" class="control-label">Bis</label><br>
+				<input type="text" id = "to" class="form-control" style="width: 6em" ng-model="newTask.to" placeholder="Bis" bs-datepicker>
+			</div>
+			
+			 <label>Beschreibung</label>
+			<textarea class="form-control" rows="3" ng-model="newTask.desc"></textarea>
+				   
+			<div class="form-group text-left">
+				<label  class="control-label">Hinzufügen</label><br>
+				<button type="button" class="btn btn-primary" ng-click="addNewTask(newTask)" >Neue Aufgabe hinzufügen</button>
+			</div>
+
+		</div>
+		
+		<div class="sideFooter">
+      
+		</div>
+		
+	</div>	
+	 
 </div>	
 
-<div class="resizer-vTask" resizer="vertical" resizer-width="6" resizer-left=".tasksLeft" resizer-left-min="780" resizer-right=".tasksRight" resizer-right-min="0"></div>-->
+<div class="resizer-vTask" resizer="vertical" resizer-width="6" resizer-left=".tasksLeft" resizer-left-min="780" resizer-right=".tasksRight" resizer-right-min="0" resizer-anim="resizerValue"></div>
 
 
 	

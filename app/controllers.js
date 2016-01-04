@@ -516,7 +516,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			});
 		};
 		$scope.openScreenshotDetail = function(data) {
-			alert('test');
+			
 			$scope.modalParams = {
 				modalType: 'xlarge',
 				data: data
@@ -2286,8 +2286,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             maxHeight: true,
             width: true,
             rowContent: '<i ng-hide ="row.model.isStaff" ng-class="row.model.hasData == true ?  \'fa fa-commenting-o\' : \'fa fa-pencil\'" \
-							ng-click="scope.showAsideForComment(row)"></i>\
-							<i ng-class = "row.model.isStaff == true ? \'parent\': \'child\' " ng-click= "scope.showAsideForComment(row)"> \
+							ng-click="scope.openComment(row)"></i>\
+							<i ng-class = "row.model.isStaff == true ? \'parent\': \'child\'"> \
 							{{row.model.name}}</i> <i class= "fa fa-plus" ng-click="scope.showAsideForTask(row)"></i> ',
 							/*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
             taskContent: '{{task.model.name}}', 
@@ -2381,17 +2381,17 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 						return $stateParams.subproject == 'master' ? neo4jRequest.getTasksFromSubproject($stateParams.project,$stateParams.project) : neo4jRequest.getTasksFromSubproject($stateParams.project,$stateParams.subproject)
 			}).then(function(response){ //Aufgaben holen
 				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromSubproject()', response.data); return; }
-					 console.log(response.data.data);
+					 //console.log(response.data.data);
 					 if(response.data.data.length > 0){
 						 
 						 //$scope.root = Utilities.createHierarchy(response.data,['name','desc','priority','status','editors','editorNames','from','to'], false)[1];
 						 
-						 console.log(Utilities.createHierarchy(response.data, false).length);
+						// console.log(Utilities.createHierarchy(response.data, false).length);
 						 $scope.root = [];
 						 for(i = 0; i < Utilities.createHierarchy(response.data, false).length; i++){
 								$scope.root.push(Utilities.createHierarchy(response.data,['name','desc','priority','status','editors','editorNames','from','to'], false)[i]);
 							};
-							console.log($scope.root.length);
+							//console.log($scope.root.length);
 					 }
 					 else{
 						 $scope.root = [];
@@ -2904,6 +2904,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		$scope.showAsideForTask = function(row){
 			var hier= $scope.api.tree.getHierarchy();
+			$scope.resizerValue = 1050;
+			$scope.views.activeSide = 'newTask';
 			if(row.model.isStaff == true){
 				$scope.newTask.ids.gantt = row.model.id
 				$scope.newTask.ids.graph= row.model.graphId; //klcik auf Bearbeiter speichert BearbeiterId direkt
@@ -2919,15 +2921,15 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				$scope.newTask.isStaff = row.model.isStaff;
 			}
 			//console.log($scope.newTask.clickedElement);
-			var aside = $aside({scope: $scope, templateUrl: 'partials/aside/asideTasks.html', placement: 'right', animation: 'am-fade-and-slide-right', container: '.tasksLeft' , backdrop: false});
-			aside.show();
+			//var aside = $aside({scope: $scope, templateUrl: 'partials/aside/asideTasks.html', placement: 'right', animation: 'am-fade-and-slide-right', container: '.tasksLeft' , backdrop: false});
+			//aside.show();
 		}
 		
-		$scope.showAsideForComment = function(row){
-			$scope.taskNameForComment= row.model.name;
-			$scope.taskIdForComment= row.model.graphId; //--> dient der Indexermittlung der Aufgabe
-			/* console.log($scope.taskNameForComment);*/
-			// console.log($scope.taskIdForComment); 
+		$scope.openComment = function(row){
+			$scope.resizerValue = 1050;
+			$scope.views.activeSide = 'comments';
+			
+
 			
 		/* 	$.each($scope.data,function(index){
 				if($scope.data[index].id == $scope.taskIdForComment){ //-->in allen Aufgaben mit gleichem Namen steht Kommenta
@@ -2943,10 +2945,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 								$scope.comments = Utilities.cleanNeo4jData(response.data);
 								console.log($scope.comments);
 								}
-						});
-			
-			var aside = $aside({scope: $scope, templateUrl: 'partials/aside/asideComments.html', placement: 'right', animation: 'am-fade-and-slide-right', container: '.tasksLeft' , backdrop: false});
-			aside.show();
+						});			
 		}
 		
 		$scope.addComment = function(){
