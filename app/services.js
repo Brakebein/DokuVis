@@ -814,13 +814,15 @@ CREATE(task)-[:P2]->(prior:E55 {content: "priority_high"})
 		requests.getModelsWithChildren = function(prj, subprj) {
 			
 			var q = 'MATCH (root:E22:'+prj+' {content:{esub}}), (tsp:E55:'+prj+' {content:"subproject"}),';
-			q += ' (p:E22:'+prj+')-[:P46]->(c:E22)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75),';
-			q += ' path = (root)-[:P46*]->(c)';
+			q += ' path = (root)-[:P46*]->(c:E22)';
 			if(subprj === 'master')
 				q += ' WHERE all(n in nodes(path) WHERE NOT (n)<-[:P15]-(:E7)-[:P2]->(tsp))';
 			else		
 				q += ' WHERE all(n in nodes(path) WHERE not n.content = "e22_root_master")';
 			q += ' AND any(n in nodes(path) WHERE n.content = {esub})';
+			
+			q += ' WITH c';
+			q += ' MATCH (p:E22:'+prj+')-[:P46]->(c)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)';
 			
 			q += ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile}) AS children';
 			
@@ -909,18 +911,18 @@ CREATE(task)-[:P2]->(prior:E55 {content: "priority_high"})
 				query: q,
 				params: {
 					e22id: 'e22_root_'+subprj,
-					e73id: objData.data.pinObject,
+					e73id: objData.pinObject,
 					e36content: {
 						content: 'e36_' + objData.filename,
-						cameraCenter: objData.data.cameraCenter,
-						cameraFOV: objData.data.cameraFOV,
-						cameraMatrix: objData.data.cameraMatrix,
-						pinMatrix: objData.data.pinMatrix
+						cameraCenter: objData.cameraCenter,
+						cameraFOV: objData.cameraFOV,
+						cameraMatrix: objData.cameraMatrix,
+						pinMatrix: objData.pinMatrix
 					},
 					e75content: {
 						content: objData.filename,
 						path: objData.path,
-						width: objData.data.width,
+						width: objData.width,
 						height: objData.data.height
 					},
 					e35content: {
@@ -931,8 +933,8 @@ CREATE(task)-[:P2]->(prior:E55 {content: "priority_high"})
 					painte75content: {
 						content: paintFile,
 						path: objData.path,
-						width: objData.data.width,
-						height: objData.data.height
+						width: objData.width,
+						height: objData.height
 					}
 				}
 			});
@@ -1098,7 +1100,7 @@ webglServices.factory('phpRequest',
 
 
 webglServices.factory('mysqlRequest',
-	function($http) {
+	function($http, API) {
 	
 		var requests = {};
 		
@@ -1107,7 +1109,12 @@ webglServices.factory('mysqlRequest',
 		 */
 		// neues Projekt anlegen
 		requests.newProjectEntry = function(proj, name, desc) {
-			return $http.post('php/mysql/newProjectEntry.php', {
+			// return $http.post('php/mysql/newProjectEntry.php', {
+				// proj: proj,
+				// name: name,
+				// description: desc
+			// });
+			return $http.post(API + 'projects/new', {
 				proj: proj,
 				name: name,
 				description: desc
@@ -1127,7 +1134,8 @@ webglServices.factory('mysqlRequest',
 		};
 		// alle Projekte auflisten
 		requests.getAllProjects = function() {
-			return $http.post('php/mysql/getAllProjects.php', {});
+			//return $http.post('php/mysql/getAllProjects.php', {});
+			return $http.get(API + 'auth/projects', {});
 		};
 		// Projekt editieren
 		requests.updateProjectDescription = function(desc,id) {
@@ -1493,7 +1501,7 @@ webglServices.factory('Utilities',
 				type: 'danger',
 				duration: 5
 			});
-			console.error(title+': '+message, data);
+			console.error(title+': '+message, data, "\n"+(new Error).stack.split("\n")[2]);
 		};
 		f.throwNeo4jException = function(message, data) {
 			$alert({
@@ -1503,6 +1511,15 @@ webglServices.factory('Utilities',
 				duration: 5
 			});
 			console.error('Neo4jException: '+message, data);
+		};
+		f.throwApiException = function(message, data) {
+			$alert({
+				title: 'API Exception:',
+				content: message,
+				type: 'danger',
+				duration: 5
+			});
+			console.error('API Exception: '+message, data);
 		};
 		
 		return f;

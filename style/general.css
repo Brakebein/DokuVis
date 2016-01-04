@@ -1,9 +1,12 @@
 .no_margin {
 	margin: 0;
 }
-
 .margin20 {
 	margin: 20px;
+}
+.navFormMargin {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .overflowauto {

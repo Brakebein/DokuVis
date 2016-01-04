@@ -1,4 +1,4 @@
-var webglApp = angular.module('webglApp', [
+var dokuvisApp = angular.module('dokuvisApp', [
 	'webglControllers',
 	'webglDirectives',
 	'webglServices',
@@ -16,26 +16,36 @@ var webglApp = angular.module('webglApp', [
 	'textAngular',
 	'ngTagsInput'
 ]);
-webglApp.constant('API', 'api/');
-webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
-	function($stateProvider, $urlRouterProvider, $modalProvider, $alertProvider, $tooltipProvider) {
+dokuvisApp.constant('API', 'api/');
+dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
+	function($stateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
-		$urlRouterProvider.otherwise('/intro');
+		$httpProvider.interceptors.push('TokenInterceptor');
+		
+		$urlRouterProvider.otherwise('/home');
 		
 		// TODO: resolve functions
 		//    -> check user login
 		//    -> check if user is part of project
 		
 		$stateProvider
-			.state('intro', {
-				url: '/intro',
-				templateUrl: 'partials/intro.html',
-				controller: 'introCtrl'
+			.state('home', {
+				url: '/home',
+				templateUrl: 'partials/home.html',
+				controller: 'homeCtrl'
+			})
+			.state('register', {
+				url: '/register',
+				templateUrl: 'partials/register.html',
+				controller: 'registerCtrl'
 			})
 			.state('projectlist', {
 				url: '/projects',
 				templateUrl: 'partials/projects.html',
-				controller: 'projectlistCtrl'
+				controller: 'projectlistCtrl',
+				resolve: {
+					authenticate: authenticate
+				}
 			})
 			.state('project', {
 				url: '/:project/:subproject',
@@ -43,6 +53,7 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$ale
 				controller: 'projectCtrl',
 				css: 'style/project.css',
 				resolve: {
+					authenticate: authenticate,
 					checkProject: function($state, $stateParams, $q, mysqlRequest) {
 						return mysqlRequest.getProjectEntry($stateParams.project).then(function(response){
 							//console.log(response, $stateParams);
@@ -116,11 +127,42 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$ale
 		});
 		
 		
+		function authenticate($q, $state, $window, $timeout, AuthenticationFactory) {
+			if(AuthenticationFactory.isLogged) {
+				// check if user object exists else fetch it. this is incase of a page refresh
+				if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;
+				if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;
+				if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
+				$q.when();
+			}
+			else {
+				$timeout(function() {
+					$state.go('home');
+				});
+				$q.reject();
+			}
+		}
 		
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
-
-webglApp.filter('filterEditor', function(){
+	
+dokuvisApp.run(function($rootScope, $state, AuthenticationFactory) {
+	// when the page refreshes, check if the user is already logged in
+	AuthenticationFactory.check();
+	
+	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+		$rootScope.isLogged = AuthenticationFactory.isLogged;
+		$rootScope.userName = AuthenticationFactory.userName;
+		$rootScope.role = AuthenticationFactory.userRole;
+		// if the user is already logged in, take him to the home page
+		if(AuthenticationFactory.isLogged && $state.is('login')) {
+			console.log('change2');
+			$state.go('home');
+		}
+	});
+});
+	
+dokuvisApp.filter('filterEditor', function(){
 	return function(items, search) {
 		if(!search) return items;
 		return items.filter(function(element, index, array) {

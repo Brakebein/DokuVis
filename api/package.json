@@ -1,0 +1,23 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apoc": "^2.1.6",
+    "bcryptjs": "^2.3.0",
+    "body-parser": "^1.14.2",
+    "express": "^4.13.3",
+    "express-jwt": "^3.3.0",
+    "jwt-simple": "^0.4.0",
+    "mysql": "^2.10.0",
+    "node-neo4j": "^2.0.3",
+    "request": "^2.67.0"
+  }
+}

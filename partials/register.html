@@ -1,0 +1,51 @@
+<div ng-include="'partials/navbar.html'"></div>
+
+<div class="container">
+
+	<h2>Registrierung</h2>
+	<hr/>
+	
+	<div class="col-md-offset-3 col-md-6">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Registrierung</h3>
+		</div>
+		<div class="panel-body">
+	
+			<form class="form-horizontal" ng-submit="register()">
+				<div class="form-group">
+					<label for="registerEmail" class="control-label col-sm-4">Email</label>
+					<div class="col-sm-8">
+						<input type="email" class="form-control" id="registerEmail" placeholder="Email" ng-model="userRegister.email"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="registerName" class="control-label col-sm-4">Nutzername</label>
+					<div class="col-sm-8">
+						<input type="text" class="form-control" id="registerName" placeholder="Nutzername" ng-model="userRegister.name"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="registerPassword1" class="control-label col-sm-4">Password</label>
+					<div class="col-sm-8">
+						<input type="password" class="form-control" id="registerPassword1" placeholder="Password" ng-model="userRegister.password1"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="registerPassword2" class="control-label col-sm-4">Password (wiederholen)</label>
+					<div class="col-sm-8">
+						<input type="password" class="form-control" id="registerPassword2" placeholder="Password (wiederholen)" ng-model="userRegister.password2"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-4 col-sm-8">
+						<button type="submit" class="btn btn-default">Registrieren</button>
+					</div>
+				</div>
+			</form>
+
+		</div>
+	</div>
+	</div>
+	
+</div>

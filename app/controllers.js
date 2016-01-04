@@ -17,9 +17,101 @@ app.run(function(editableOptions) {
   editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
 });
 
+webglControllers.controller('navCtrl', ['$scope', '$state', '$window', 'UserAuthFactory', 'AuthenticationFactory', 'Utilities',
+	function($scope, $state, $window, UserAuthFactory, AuthenticationFactory, Utilities) {
+		
+		$scope.user = {
+			email: '',
+			password: ''
+		};
+		
+		$scope.login = function() {
+			var email = $scope.user.email,
+				password = $scope.user.password;
+			
+			if(email !== undefined && password !== undefined && email.length > 0 && password.length > 0) {
+				UserAuthFactory.login(email, password)
+					.success(function(data) {
+						AuthenticationFactory.isLogged = true;
+						AuthenticationFactory.user = data.user.email;
+						AuthenticationFactory.userName = data.user.name;
+						AuthenticationFactory.userRole = data.user.role;
+						
+						$window.localStorage.token = data.token;
+						$window.localStorage.user = data.user.email;
+						$window.localStorage.userName = data.user.name;
+						$window.localStorage.userRole = data.user.role;
+						
+						$state.go('projectlist');
+					})
+					.error(function(status) {
+						Utilities.throwException('Login', 'failed');
+					});
+			}
+			else {
+				Utilities.throwException('Login', 'Ungültige Eingaben');
+			}
+		};
+		
+		$scope.logout = function() {
+			UserAuthFactory.logout();
+		};
+		
+	}]);
+	
+webglControllers.controller('registerCtrl', ['$scope', '$state', '$window', 'UserAuthFactory', 'AuthenticationFactory', 'Utilities',
+	function($scope, $state, $window, UserAuthFactory, AuthenticationFactory, Utilities) {
+		
+		$scope.userRegister = {
+			email: '',
+			name: '',
+			password1: '',
+			password2: ''
+		};
+		
+		$scope.register = function() {
+			var email = $scope.userRegister.email,
+				username = $scope.userRegister.name,
+				password1 = $scope.userRegister.password1,
+				password2 = $scope.userRegister.password2;
+			
+			if(password1 !== password2) { Utilities.throwException('Fehler', 'Die Passwörter stimmen nicht überein!'); return; }
+			if(email.length === 0) { Utilities.throwException('Fehler', 'Bitte geben Sie eine Emailadresse ein!'); return; }
+			if(username.length === 0) { Utilities.throwException('Fehler', 'Bitte geben Sie einen Nutzernamen ein!'); return; }
+			if(password1.length === 0) { Utilities.throwException('Fehler', 'Bitte geben Sie ein Passwort ein!'); return; }
+			
+			/*
+			if(email !== undefined && password !== undefined && email.length > 0 && password.length > 0) {
+				UserAuthFactory.login(email, password)
+					.success(function(data) {
+						AuthenticationFactory.isLogged = true;
+						AuthenticationFactory.user = data.user.email;
+						AuthenticationFactory.userName = data.user.name;
+						AuthenticationFactory.userRole = data.user.role;
+						
+						$window.localStorage.token = data.token;
+						$window.localStorage.user = data.user.email;
+						$window.localStorage.userName = data.user.name;
+						$window.localStorage.userRole = data.user.role;
+						
+						$state.go('projectlist');
+					})
+					.error(function(status) {
+						Utilities.throwException('Login', 'failed');
+					});
+			}
+			else {
+				Utilities.throwException('Login', 'Ungültige Eingaben');
+			}*/
+		};
+		
+		$scope.logout = function() {
+			UserAuthFactory.logout();
+		};
+		
+	}]);
 
-
-webglControllers.controller('introCtrl', ['$scope', '$http',
+webglControllers.controller('homeCtrl', ['$scope', '$http',
 	function($scope, $http) {
 		
 	}]);
@@ -39,15 +131,21 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpReq
 		
 		$scope.getAllProjects = function() {
 			mysqlRequest.getAllProjects().then(function(response){
-				if(!response.data) { console.error('mysqlRequest failed on getAllProjects()', response); return; }
+				if(response.status === 401) { Utilities.throwApiException('unauthorized on getAllProjects()', response); return; }
+				if(response.data === 'INVALID') { Utilities.throwApiException('on getAllProjects()', response); return; }
+				if(response.data.status && response.data.status === 404) { Utilities.throwApiException('on getAllProjects()', response); return; }
 				console.log(response);
-				$scope.projects = response.data;
+				if(response.data instanceof Array)
+					$scope.projects = response.data;
+				else
+					$scope.projects = [];
 			});
 		};
 		
 		$scope.createNewProject = function() {
-			if($scope.newProject.name == '') {
+			if($scope.newProject.name.length < 1) {
 				$scope.newProject.nameError = true;
+				Utilities.dangerAlert('Geben sie dem Projekt einen Namen!');
 				return;
 			}
 			else
@@ -57,6 +155,10 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpReq
 			var prj = 'Proj_' + tid;
 			console.log('create '+prj);
 			
+			mysqlRequest.newProjectEntry(prj, $scope.newProject.name, $scope.newProject.description).then(function(response){
+				console.log(response);
+			});
+			/*
 			phpRequest.createProjectFolders(prj)
 				.then(function(response){
 					if(response.data !== 'SUCCESS') {
@@ -81,7 +183,7 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpReq
 					$scope.newProject.name = '';
 					$scope.newProject.description = '';
 					$scope.getAllProjects();
-				});
+				});*/
 		};
 		
 		$scope.deleteProject = function(prj) {
@@ -556,6 +658,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		$scope.getAllDocuments = function() {
 			neo4jRequest.getAllDocuments($stateParams.project, $stateParams.subproject).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest failed on getAllDocuments()', response.data); return; }
+				console.log(response.data);
 				if(response.data) $scope.sourceResults = Utilities.cleanNeo4jData(response.data, true);
 				console.log('Dokumente:', $scope.sourceResults);
 			});
@@ -987,6 +1090,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function(event) {
 			//webglInterface.clearLists();
+			webglInterface.callFunc.removePins();
 			console.log('destroy explorerCtrl');
 		});
 		
@@ -1696,7 +1800,6 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 			}
 		}
 		
-		
 		$scope.setMarker = function(event) {
 			//console.log(event);
 			if(event.target != event.delegateTarget || event.button !== 0) return;
@@ -1749,20 +1852,20 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 				var paintDataUrl = $('#pwCanvasMain')[0].toDataURL("image/png");
 				var paintFilename = Utilities.getUniqueId() + '_paint.png';
 				
-				phpRequest.saveBase64Image($scope.params.path, $scope.params.filename, $scope.params.data.dataUrl, true)
+				phpRequest.saveBase64Image($scope.params.data.path, $scope.params.data.filename, $scope.params.data.dataUrl, true)
 					.then(function(response){
 						if(response.data !== 'SUCCESS') {
 							Utilities.throwException('PHP Exception', 'on saveBase64Image() Screenshot', response);
 							return $q.reject();
 						}
-						return phpRequest.saveBase64Image($scope.params.path, paintFilename, paintDataUrl, false);
+						return phpRequest.saveBase64Image($scope.params.data.path, paintFilename, paintDataUrl, false);
 					})
 					.then(function(response){
 						if(response.data !== 'SUCCESS') {
 							Utilities.throwException('PHP Exception', 'on saveBase64Image() Painting', response);
 							return $q.reject();
 						}
-						return neo4jRequest.insertScreenshot($stateParams.project, $stateParams.subproject, $scope.params, $scope.markers, $scope.screenshotTitle, paintFilename);
+						return neo4jRequest.insertScreenshot($stateParams.project, $stateParams.subproject, $scope.params.data, $scope.markers, $scope.screenshotTitle, paintFilename);
 					})
 					.then(function(response){
 						if(response.data.exception) { Utilities.throwNeo4jException('on insertScreenshot()', response); return; }

@@ -1,20 +1,41 @@
-<nav class="navbar navbar-default no_margin" role="navigation">
-	<!-- Brand and toggle get grouped for better mobile display -->
-	<div class="navbar-header">
-		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-		<span class="sr-only">Toggle navigation</span>
-		<span class="icon-bar"></span>
-		<span class="icon-bar"></span>
-		<span class="icon-bar"></span>
-		</button>
-		<a class="navbar-brand" ui-sref="intro">DokuVis</a>
-	</div>
+<nav class="navbar navbar-default" role="navigation" ng-controller="navCtrl">
+	<div class="container">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" ui-sref="home">DokuVis</a>
+		</div>
 
-	<!-- Collect the nav links, forms, and other content for toggling -->
-	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-		<ul class="nav navbar-nav">
-			<li><a ui-sref="projectlist">Projekte</a></li>
-			<!--<li><a href="#/explorer">Explorer</a></li>-->
-		</ul>
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li ui-sref-active="active"><a ui-sref="projectlist">Projekte</a></li>
+				<!--<li><a href="#/explorer">Explorer</a></li>-->
+			</ul>
+			
+			<button ng-show="isLogged" class="btn btn-default btn-sm navbar-btn navbar-right" ng-click="logout()"><i class="glyphicon glyphicon-log-out"></i> Abmelden</button>
+			<p ng-show="isLogged" class="navbar-text navbar-right"></p>
+			<p ng-show="isLogged" class="navbar-text navbar-right">{{userName}}</p>
+			
+			<!-- login form -->
+			<button ng-hide="isLogged" class="btn btn-default btn-sm navbar-btn navbar-right" ui-sref="register">Registrieren</button>
+			<form ng-hide="isLogged" class="navbar-form navbar-right navFormMargin" ng-submit="login()">
+				<div class="form-group">
+					<input type="email" class="form-control input-sm" name="email" placeholder="Email" ng-model="user.email"/>
+				</div>
+				<div class="form-group">
+					<input type="password" class="form-control input-sm" name="password" placeholder="Password" ng-model="user.password"/>
+				</div>
+				<button type="submit" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-log-in"></i> Anmelden</button>
+			</form>
+			
+			
+		</div>
+		
 	</div>
 </nav>
