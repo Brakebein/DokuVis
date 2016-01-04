@@ -184,6 +184,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		requests.getTasksFromSubproject = function(prj,subprj){
 			var q = '';
+			
+			
 			q = 'MATCH (sub:E7:'+prj+' {content: {subprj}}),\
 			(p:E7:'+prj+')-[:P9]->(child:E7),\
 			(child)-[:P102]->(title:E35),\
@@ -297,6 +299,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		}
 		
 		requests.deleteTask = function(prj,taskId){
+			
 			var q = '';
 			
 			/* q+= 'MATCH (start:E7:'+prj+' {content: {tid}}), (p:E7:'+prj+'),(p)-[:P9]->(child),path = (start)-[:P9*]->(child),\
@@ -327,8 +330,6 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			(start)<-[c1]-(lingObjectS:E33),(lingObjectS:E3)-[d1]->(commentS:E62),(lingObjectS:E33)<-[e1]-(eventS:E65)-[f1]->(timespanCS:E52)-[g1]->(timeCS:E61)
 			DELETE start,child,desc,name,timespan,time,lingObject,comment,event,timespanC,timeC,creation,timespanCreation,timeCreation,creator,
 			nameS,descS,creationS,creatorS,timespanCreationS,timeCreationS,timespanS,timeS,lingObjectS,commentS,eventS,timespanCS,timeCS,f,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,i2,x2,a1,b1,c1,d1,e1,f1,g1,q1,p1*/
-			
-			console.log(taskId);
 				
 			q += 'MATCH (task:E7:'+prj+' {content: {tid}})-[g]-(),\
 				(task)-[r]->(timespan:E52)-[s]->(time:E61),\
@@ -337,8 +338,6 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				OPTIONAL MATCH\
 				(task)<-[a]-(lingObject:E33), (lingObject)-[b]->(comment:E62),(lingObject)<-[c]-(event:E65)-[d]->(timespanC:E52)-[e]->(timeC:E61)\
 				DELETE task,name,timespan,time,creation,timespanCreation,timeCreation,creator,lingObject,event,timespan,timeC,desc,r,s,t,u,v,w,x,a,b,c,d,e,f,g,x2';
-	
-			console.log(q);
 			
 			return $http.post(phpUrl, {
 				query: q,
@@ -349,11 +348,21 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				})
 		}
 		
-		requests.changePriority = function(prj, taskID, priorityOld, priorityNew){
+		requests.deleteStaff = function(prj, staffId){
+			var q = '';
+			q += 'MATCH (editor:E21:'+prj+' {content:{sid}})-[r]->(editorDates:E82), (editor)-[a]-()\
+					DELETE editor,editorDates, r,a';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					sid: 'e21_' + staffId,
+				}
+				})
 		
-			console.log(taskID);
-			console.log(priorityOld);
-			console.log(priorityNew);
+		} 
+		
+		requests.changePriority = function(prj, taskID, priorityOld, priorityNew){
 			var q = '';
 			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r]->(priorityOld {content: {pOld}}),(priorityNew:E55:'+prj+' {content: {pNew}})\
 				DELETE r\

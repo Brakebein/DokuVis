@@ -2089,6 +2089,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.staffExists= false;
 		
 		/*Tasks*/
+		$scope.root = [];
 		
 		$scope.newTask = new Object();
 		$scope.newTask.ids = new Object();
@@ -2375,14 +2376,25 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromProject()', response.data); return; }
 					 if(response.data){
 						$scope.editors = Utilities.cleanNeo4jData(response.data);
-						//console.log($scope.editors);
+						console.log($stateParams.subproject);
 						}
-						return neo4jRequest.getTasksFromSubproject($stateParams.project,$stateParams.subproject)
+						return $stateParams.subproject == 'master' ? neo4jRequest.getTasksFromSubproject($stateParams.project,$stateParams.project) : neo4jRequest.getTasksFromSubproject($stateParams.project,$stateParams.subproject)
 			}).then(function(response){ //Aufgaben holen
 				if(response.data.exception) { console.error('neo4jRequest Exception on getTasksFromSubproject()', response.data); return; }
-					 if(response.data){
-						 // console.log(response.data.data); 
-						 $scope.root = Utilities.createHierarchy(response.data,['name','desc','priority','status','editors','editorNames','from','to'], false)[0];
+					 console.log(response.data.data);
+					 if(response.data.data.length > 0){
+						 
+						 //$scope.root = Utilities.createHierarchy(response.data,['name','desc','priority','status','editors','editorNames','from','to'], false)[1];
+						 
+						 console.log(Utilities.createHierarchy(response.data, false).length);
+						 $scope.root = [];
+						 for(i = 0; i < Utilities.createHierarchy(response.data, false).length; i++){
+								$scope.root.push(Utilities.createHierarchy(response.data,['name','desc','priority','status','editors','editorNames','from','to'], false)[i]);
+							};
+							console.log($scope.root.length);
+					 }
+					 else{
+						 $scope.root = [];
 					 }
 					 
 				if(sortby == 'staff'){
@@ -2399,38 +2411,38 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 												children: [],
 												tasks: []
 												});
-								
-								
-								
+
 					//Aufgabenstruktur hinzufügen
-					 
-							 $.each($scope.root.children, function(indexC) {
+						
+					for(j = 0; j < $scope.root.length; j++){
+						if($scope.root[j].children){
+							 $.each($scope.root[j].children, function(indexC) {
 								 
-								 if($scope.root.children[indexC].editors.indexOf(currentEditor) != -1){
+								 if($scope.root[j].children[indexC].editors.indexOf(currentEditor) != -1){
 									 //console.log('gefunden');
 									var id = Utilities.getUniqueId();
 									var rowTask = {
 										id: id,
-										graphId: $scope.root.children[indexC].content,
-										name: $scope.root.children[indexC].name,
+										graphId: $scope.root[j].children[indexC].content,
+										name: $scope.root[j].children[indexC].name,
 										isStaff: false,
 										parent: eId,
 										children: [],
-										status: $scope.root.children[indexC].status,
-										priority: $scope.root.children[indexC].priority,
+										status: $scope.root[j].children[indexC].status,
+										priority: $scope.root[j].children[indexC].priority,
 										data: [],
-										editors: $scope.root.children[indexC].editors,
-										tasks: [{graphId:$scope.root.children[indexC].content,
-												name: $scope.root.children[indexC].name,
-												color: $scope.root.children[indexC].status == 'status_todo' ? '#F1C232' : '#24ff6b',
-												from: $scope.root.children[indexC].from,
-												to: $scope.root.children[indexC].to}] 
+										editors: $scope.root[j].children[indexC].editors,
+										tasks: [{graphId:$scope.root[j].children[indexC].content,
+												name: $scope.root[j].children[indexC].name,
+												color: $scope.root[j].children[indexC].status == 'status_todo' ? '#F1C232' : '#24ff6b',
+												from: $scope.root[j].children[indexC].from,
+												to: $scope.root[j].children[indexC].to}] 
 										};
 									
 									$scope.data.push(rowTask);
 
-									if($scope.root.children[indexC].children.length>0){ //wenn Kindobjekte vorhanden sind
-										pushChildren($scope.root.children[indexC].children, rowTask);
+									if($scope.root[j].children[indexC].children.length>0){ //wenn Kindobjekte vorhanden sind
+										pushChildren($scope.root[j].children[indexC].children, rowTask);
 									}
 								 }
 							 
@@ -2468,36 +2480,40 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 								});	
 								}
 							});
+					}
+					}
 					});
-					console.log($scope.data);
+					//console.log($scope.data);
 				}
 						
 							else{
-								$.each($scope.root.children, function(indexC) {
+								console.log($scope.root.length);
+								for(j = 0; j < $scope.root.length; j++){
+								$.each($scope.root[j].children, function(indexC) {
 									 //console.log('gefunden');
 									var id = Utilities.getUniqueId();
 									var rowTask = {
 										id: id,
-										graphId: $scope.root.children[indexC].content,
-										name: $scope.root.children[indexC].name,
+										graphId: $scope.root[j].children[indexC].content,
+										name: $scope.root[j].children[indexC].name,
 										isStaff: false,
 										parent: [],
 										children: [],
-										status: $scope.root.children[indexC].status,
-										priority: $scope.root.children[indexC].priority,
+										status: $scope.root[j].children[indexC].status,
+										priority: $scope.root[j].children[indexC].priority,
 										data: [],
-										editors: $scope.root.children[indexC].editorNames,
-										tasks: [{graphId:$scope.root.children[indexC].content,
-												name: $scope.root.children[indexC].name,
-												color: $scope.root.children[indexC].status == 'status_todo' ? '#F1C232' : '#24ff6b',
-												from: $scope.root.children[indexC].from,
-												to: $scope.root.children[indexC].to}] 
+										editors: $scope.root[j].children[indexC].editorNames,
+										tasks: [{graphId:$scope.root[j].children[indexC].content,
+												name: $scope.root[j].children[indexC].name,
+												color: $scope.root[j].children[indexC].status == 'status_todo' ? '#F1C232' : '#24ff6b',
+												from: $scope.root[j].children[indexC].from,
+												to: $scope.root[j].children[indexC].to}] 
 										};
 									
 									$scope.dataTask.push(rowTask);
 
-									if($scope.root.children[indexC].children.length>0){ //wenn Kindobjekte vorhanden sind
-										pushChildren($scope.root.children[indexC].children, rowTask);
+									if($scope.root[j].children[indexC].children.length>0){ //wenn Kindobjekte vorhanden sind
+										pushChildren($scope.root[j].children[indexC].children, rowTask);
 									}
 								 
 							 
@@ -2533,9 +2549,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 									
 								});							
 							}
-						console.log($scope.root);
-						console.log($scope.data); 
+						// console.log($scope.root);
+						// console.log($scope.data); 
 					});	
+							}
 				}
 		})
 		}
@@ -2650,7 +2667,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				}
 				else{
 					$scope.data.push({graphId: $scope.staff[$scope.indexDnD].sid, name: $scope.staff[$scope.indexDnD].name, isStaff: true, 'groups': false, children: [], tasks:[]});
-					$scope.staffArray.push($scope.staff[$scope.indexDnD].sid);
+					//$scope.staffArray.push($scope.staff[$scope.indexDnD].sid);
 					
 					
 					neo4jRequest.addStaffToGraph($stateParams.project, $scope.staff[$scope.indexDnD].sid, $scope.staff[$scope.indexDnD].name) .then(function(response){
@@ -2700,12 +2717,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		$scope.sortByTasks = function(){	
 			if($scope.sortby == 'staff'){
-				console.log($scope.data);
 				$scope.dataTask = [];
 				$scope.fillDataObject('task');
 				$scope.options.columns.push('model.editors');
 				$scope.options.useData = $scope.dataTask;
-				console.log($scope.data);
 				$scope.sortby = 'task';
 			}
 		}
@@ -2722,142 +2737,159 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		}
 		
 		$scope.changeStatus = function(row){
+			var statusChanged = false;
+			
 				$.each($scope.data,function(index){
-					if(row.model.id == $scope.data[index].id){
-					console.log(row.model)
-						if($scope.data[index].status == 'status_todo'){
-							if(confirm("Ist die Aufgabe wirklich erledigt?")){
-								$scope.data[index].status = 'status_done';
-								$scope.data[index].tasks[0].color = '#24ff6b';
+					if(row.model.graphId == $scope.data[index].graphId){
+						switch($scope.data[index].status){
+							case 'status_todo' :
+								console.log(row.model);
+								if(confirm("Ist die Aufgabe wirklich erledigt?")){
+									
+
+									if(statusChanged == false){ 
+										neo4jRequest.changeStatus($stateParams.project, row.model.graphId, 'status_todo','status_done') .then(function(response){
+											if(response.data.exception) { console.error('neo4jRequest Exception on changeStatus()', response.data); return; }
+											if(response.data){
+												console.log(response.data);
+												$scope.data[index].status = 'status_done';
+												$scope.data[index].tasks[0].color = '#24ff6b';
+												}
+											});
+											statusChanged = true;
+										}
+									}
+								break;
 								
-									neo4jRequest.changeStatus($stateParams.project, row.model.graphId, 'status_todo','status_done') .then(function(response){
-										if(response.data.exception) { console.error('neo4jRequest Exception on changeStatus()', response.data); return; }
-										if(response.data){
-											console.log(response.data);
-											}
-									});
-								}
-							return false;
-							}
 						
-						else{
-							$scope.data[index].status = 'status_todo';
-								$scope.data[index].tasks[0].color = '#F1C232';
-								
+						case 'status_done':
+							
+								if(statusChanged == false){
 								neo4jRequest.changeStatus($stateParams.project, row.model.graphId, 'status_done','status_todo') .then(function(response){
 									if(response.data.exception) { console.error('neo4jRequest Exception on changeStatus()', response.data); return; }
 									if(response.data){
 										console.log(response.data);
+										$scope.data[index].status = 'status_todo';
+										$scope.data[index].tasks[0].color = '#F1C232';
+								
 										}
 								});
-							return false;
-						}
+								statusChanged = true;
+							
+								}
 						
+						break;
+						}
 					}
 				});
-			
-		};
+			};
 		
 		$scope.changePriority = function(row){
-			console.log(row.model);
+			var statusChanged = false;
+			
 				$.each($scope.data,function(index){
-					if(row.model.id == $scope.data[index].id){
-						
-						if($scope.data[index].priority == 'priority_low'){
-							$scope.data[index].priority = 'priority_medium';
+					if(row.model.graphId == $scope.data[index].graphId){
+						switch($scope.data[index].priority) {
 							
-							neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_low','priority_medium') .then(function(response){
-								if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
-								if(response.data){
-									console.log(response.data);
-									}
-							});
+							case 'priority_low':
+								$scope.data[index].priority = 'priority_medium';
+								if(statusChanged == false){ 
+									neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_low','priority_medium') .then(function(response){
+										if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
+										if(response.data){
+											console.log("priority changed");
+											}
+									});
+									statusChanged = true;
+								}
+								break;
 							
-							return false;
-						}
-						
-						if($scope.data[index].priority == 'priority_medium'){
-							$scope.data[index].priority = 'priority_high';
-							
-							neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_medium','priority_high') .then(function(response){
-								if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
-								if(response.data){
-									console.log(response.data);
-									}
-							});
-							return false;
-						}
-						
-						if($scope.data[index].priority == 'priority_high'){
-							$scope.data[index].priority = 'priority_low';
-							
-							neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_high','priority_low') .then(function(response){
-								if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
-								if(response.data){
-									console.log(response.data);
-									}
-							});
-							return false;
+							case 'priority_medium':
+								$scope.data[index].priority = 'priority_high';
+								if(statusChanged == false){ 
+									neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_medium','priority_high') .then(function(response){
+										if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
+										if(response.data){
+											console.log("priority changed");
+											}
+									});
+									statusChanged = true;
+								}
+								break;
+								
+							case 'priority_high':
+								$scope.data[index].priority = 'priority_low';							
+								if(statusChanged == false){ 
+									neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_high','priority_low') .then(function(response){
+										if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
+										if(response.data){
+											console.log("priority changed");
+											}
+									});
+									statusChanged = true;
+								}
+								break;
 						}
 					}
 				});
 		};	
 		
-		$scope.deleteTask = function(row) {
-			
-			//console.log('data vorher');
-			//console.log($scope.data);
-			
+		$scope.deleteTask = function(row) { //hier uach Bearbeiter löschen
 			var removeFromGantt = [];
 			var hier= $scope.api.tree.getHierarchy();
 			var removeFromGraph = [];
 			
-			if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
-				
-				if(hier.children(row)){ //wenn oberaufgabe gelöscht werden soll
+				if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
 					
-					$.each(hier.descendants(row),function(indexC){ //alle childrenobjekte raussuchen und zum löschen übergeben
-						removeFromGantt.push({'id': hier.descendants(row)[indexC].model.id});
-						removeFromGraph.push({'gid': hier.descendants(row)[indexC].model.graphId});
-					});
-					removeFromGantt.splice(0,0,{'id': row.model.id}); //Elternobjekt zum löschen übergeben
-					removeFromGraph.splice(0,0,{'gid': row.model.graphId});
-					
-				}
-				else{
-					if(hier.parent(row).model.children.length == 1){
+					if(hier.children(row)){ //wenn oberaufgabe gelöscht werden sol
+						$.each(hier.descendants(row),function(indexC){ //alle childrenobjekte raussuchen und zum löschen übergeben
+							removeFromGantt.push({'id': hier.descendants(row)[indexC].model.id});
+							removeFromGraph.push({'gid': hier.descendants(row)[indexC].model.graphId});
+						});
+						removeFromGantt.splice(0,0,{'id': row.model.id}); //Elternobjekt zum löschen übergeben
+						removeFromGraph.splice(0,0,{'gid': row.model.graphId});
 						
-						hier.parent(row).model.tasks.push({name: hier.parent(row).model.name, color: '#F1C232',from: row.model.tasks[0].from,to: row.model.tasks[0].to});
-						
-						neo4jRequest.setTaskDates($stateParams.project,hier.parent(row).model.graphId, row.model.tasks[0].from, row.model.tasks[0].to)
-						.then(function(response){
+					}
+					else{
+						if(hier.parent(row)){
+							if(hier.parent(row).model.children.length == 1){ //prüfen, ob letztes Kindelement, wenn ja, kopieren der Daten auf Parentaufgabe
+								hier.parent(row).model.tasks.push({name: hier.parent(row).model.name, color: '#F1C232',from: row.model.tasks[0].from,to: row.model.tasks[0].to});
+								
+								neo4jRequest.setTaskDates($stateParams.project,hier.parent(row).model.graphId, row.model.tasks[0].from, row.model.tasks[0].to)
+								.then(function(response){
+									console.log(response.data);
+								}); 
+							}
+						}
+						removeFromGantt.push({'id': row.model.id}); 
+						removeFromGraph.push({'gid': row.model.graphId});
+						if(hier.children(row)){
+							hier.parent(row).model.children.splice(hier.parent(row).model.children.indexOf(row.model.id,1)); //childrenobjekt in parent löschen
+						}
+					}
+					$scope.api.data.remove(removeFromGantt); // aus Gantt löschen
+
+					$.each(removeFromGraph,function(indexD){ // Tasks aus Graph löschen
+						neo4jRequest.deleteTask($stateParams.project,removeFromGraph[indexD].gid)
+							.then(function(response){
+								console.log($stateParams.project);
+								console.log(removeFromGraph[indexD]);
 							console.log(response.data);
-						}); 
+							}); 
+					}); 
+					
+					if(row.model.isStaff){// Bearbeiter löschen
+						neo4jRequest.deleteStaff($stateParams.project,row.model.graphId)
+							.then(function(response){
+								console.log($stateParams.project);
+							console.log(response.data);
+							}); 
 					}
 					
-					removeFromGantt.push({'id': row.model.id}); 
-					removeFromGraph.push({'gid': row.model.graphId});
-					if(hier.children(row)){
-						hier.parent(row).model.children.splice(hier.parent(row).model.children.indexOf(row.model.id,1)); //childrenobjekt in parent löschen
-					}
+					
+					console.log('data nacher');
+					console.log($scope.data);
 				}
-				$scope.api.data.remove(removeFromGantt);
-				
-				
-				
-				$.each(removeFromGraph,function(indexD){
-					neo4jRequest.deleteTask($stateParams.project,removeFromGraph[indexD].gid)
-						.then(function(response){
-							console.log($stateParams.project);
-							console.log(removeFromGraph[indexD]);
-						console.log(response.data);
-						}); 
-				});
-				
-				console.log('data nacher');
-				console.log($scope.data);
-			}
-			
         };
 		
 		$scope.countChildren = function(row,length, hier){
