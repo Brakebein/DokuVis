@@ -1820,20 +1820,20 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 				var paintDataUrl = $('#pwCanvasMain')[0].toDataURL("image/png");
 				var paintFilename = Utilities.getUniqueId() + '_paint.png';
 				
-				phpRequest.saveBase64Image($scope.params.path, $scope.params.filename, $scope.params.data.dataUrl, true)
+				phpRequest.saveBase64Image($scope.params.path, $scope.params.data.filename, $scope.params.data.dataUrl, true)
 					.then(function(response){
 						if(response.data !== 'SUCCESS') {
 							Utilities.throwException('PHP Exception', 'on saveBase64Image() Screenshot', response);
 							return $q.reject();
 						}
-						return phpRequest.saveBase64Image($scope.params.path, paintFilename, paintDataUrl, false);
+						return phpRequest.saveBase64Image($scope.params.data.path, paintFilename, paintDataUrl, false);
 					})
 					.then(function(response){
 						if(response.data !== 'SUCCESS') {
 							Utilities.throwException('PHP Exception', 'on saveBase64Image() Painting', response);
 							return $q.reject();
 						}
-						return neo4jRequest.insertScreenshot($stateParams.project, $stateParams.subproject, $scope.params, $scope.markers, $scope.screenshotTitle, paintFilename);
+						return neo4jRequest.insertScreenshot($stateParams.project, $stateParams.subproject, $scope.params.data, $scope.markers, $scope.screenshotTitle, paintFilename);
 					})
 					.then(function(response){
 						if(response.data.exception) { Utilities.throwNeo4jException('on insertScreenshot()', response); return; }
