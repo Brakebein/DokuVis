@@ -116,7 +116,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 			var renderSSAO = false;
 			
 			// für Navigation
-			var mouseDownCoord;
+			var mouseDownCoord = new THREE.Vector2();
 			var isMouseDown = false;
 			var isRotatingView = false;
 			var isZoomingView = false;
@@ -1759,6 +1759,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					}
 					// area selection
 					else if(event.button === 0 && scope.navigation.select){
+						if(mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
 						var css = {};
 						if(event.offsetX - mouseDownCoord.x > 0) {
 							css.left = mouseDownCoord.x;
@@ -1934,7 +1935,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					}
 					
 					//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
-					if(!mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
+					//if(!mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
 					
 					
 				}

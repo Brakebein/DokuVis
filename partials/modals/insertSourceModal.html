@@ -43,8 +43,10 @@
 				<tbody>
 					<tr ng-if="uploadType == 'source'" ng-repeat="item in uploader.queue">
 						<td width="300">
-							<strong>{{ item.file.name }}</strong>
-							&emsp; <small>{{ item.file.size/1024/1024|number:2 }} MB</small>
+							<div>
+								<strong>{{ item.file.name }}</strong>
+								&emsp; <small>{{ item.file.size/1024/1024|number:2 }}&nbsp;MB</small>
+							</div>
 							<div ng-show="uploader.isHTML5 && item.file.type != 'application/pdf'" ng-thumb="{ file: item._file, width: 270 }"></div>
 							<img ng-show="item.file.type == 'application/pdf'" src="img/pdf-icon.png"/>
 						</td>
@@ -66,6 +68,7 @@
 									<div ng-if="item.sourceType == 'text'" class="col-sm-3" bs-tooltip="{title: 'Sprache'}">
 										<select class="form-control input-sm" ng-model="item.language">
 											<option value="de">Deutsch</option>
+											<option value="de_frak">Deutsch (Fraktur)</option>
 											<option value="en">Englisch</option>
 										</select>
 									</div>

@@ -1,19 +1,18 @@
 var jwt = require('jwt-simple');
+var Promise = require('bluebird');
 var bcrypt = require('bcryptjs');
 var config = require('../config');
-var mysql = require('mysql');
-var connection = mysql.createConnection({
+var mysql = require('promise-mysql');
+
+var connection;
+mysql.createConnection({
 	host: config.database.host,
 	user: config.database.user,
 	password: config.database.password,
 	database: config.database.database
+}).then(function(conn) {
+	connection = conn;
 });
-
-var validateSql = '\
-	SELECT email, name, password, role FROM users \
-	INNER JOIN user_role ON users.id = user_role.user_id \
-	INNER JOIN roles ON roles.id = user_role.role_id \
-	AND email = ?';
 
 var auth = {
 	
@@ -32,23 +31,20 @@ var auth = {
 		}
 		
 		// Fire a query to your DB and check if the credentials are valid
-		auth.validate(email, password, function(dbUserObj) {
-		
-			if(!dbUserObj) {
+		auth.validate(email, password)
+			.then(function(dbUserObj) {
+				// If authentication is success, we will generate a token
+				// and dispatch it to the client
+				if(dbUserObj)
+					res.json(genToken(dbUserObj));
+			}, function(reason) {
 				res.status(401);
 				res.json({
 					"status": 401,
 					"message": 'Invalid credentials #7'
 				});
 				return;
-			}
-			
-			if(dbUserObj) {
-				// If authentication is success, we will generate a token
-				// and dispatch it to the client
-				res.json(genToken(dbUserObj));
-			}
-		});
+			});
 	},
 	
 	register: function(req, res) {
@@ -71,52 +67,50 @@ var auth = {
 		var salt = bcrypt.genSaltSync(10);
 		var hash = bcrypt.hashSync(password, salt);
 		
-		var sql = mysql.format('INSERT INTO users(email, name, password) VALUES(?,?,?)', [email, username, hash]);
-		connection.query(sql, function(err, results) {
-			if(err) throw err;
-			console.log(results.insertId);
-			
-			// Fire a query to your DB and check if the credentials are valid
-			auth.validate(email, password, function(dbUserObj) {
-				console.log(dbUserObj);
+		connection.query('INSERT INTO users(email, name, password) VALUES(?,?,?)', [email, username, hash])
+			.then(function(result) {
+				console.log('id: ' + result.insertId);
 				
-				if(!dbUserObj) {
-					res.status(401);
-					res.json({
-						"status": 401,
-						"message": 'Invalid credentials #2'
-					});
-					return;
-				}
-				
-				if(dbUserObj) {
-					// If authentication is success, we will generate a token
-					// and dispatch it to the client
+				// Fire a query to your DB and check if the credentials are valid
+				return auth.validate(email, password);
+			})
+			.then(function(dbUserObj) {
+				// If authentication is success, we will generate a token
+				// and dispatch it to the client
+				if(dbUserObj)
 					res.json(genToken(dbUserObj));
-				}
+			}, function(reason) {
+				res.status(401);
+				res.json({
+					"status": 401,
+					"message": 'Invalid credentials #7'
+				});
+				return;
+			})
+			.catch(function(err) {
+				if(err) throw err;
 			});
-		});
 	},
 	
-	validate: function(email, password, next) {
-		var sql = mysql.format(validateSql, [email]);
-		connection.query(sql , function(err, rows, fields) {
-			if(rows.length === 0) next(null);
-			else {
-				if(bcrypt.compareSync(password, rows[0].password))
-					next(rows[0]);
-				else
-					next(null);
-			}
-		});
+	validate: function(email, password) {
+		return connection.query('SELECT email, name, password FROM users WHERE email = ?', [email])
+			.then(function(rows) {
+				if(rows.length === 0) return Promise.reject();
+				else {
+					if(bcrypt.compareSync(password, rows[0].password))
+						return rows[0];
+					else
+						return Promise.reject();
+				}
+			});
 	},
 	
 	validateUser: function(email) {
-		var sql = mysql.format(validateSql, [email]);
-		return connection.query(sql , function(err, rows, fields) {
-			if(rows.length === 0) return null;
-			else return rows[0];
-		});
+		return connection.query('SELECT email, name, password FROM users WHERE email = ?', [email])
+			.then(function(rows) {
+				if(rows.length === 0) return Promise.reject();
+				else return rows[0];
+			});
 	}
 	
 };

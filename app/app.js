@@ -14,9 +14,12 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'ngScrollbars',
 	'ngDragDrop',
 	'textAngular',
-	'ngTagsInput'
+	'ngTagsInput',
+	'minicolors'
 ]);
+
 dokuvisApp.constant('API', 'api/');
+
 dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
 	function($stateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
@@ -54,31 +57,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				css: 'style/project.css',
 				resolve: {
 					authenticate: authenticate,
-					checkProject: function($state, $stateParams, $q, mysqlRequest) {
-						return mysqlRequest.getProjectEntry($stateParams.project).then(function(response){
-							//console.log(response, $stateParams);
-							if(response.data === 'NO ENTRY') {
-								$state.go('projectlist');
-								return $q.reject();
-							}
-						});
-					},
-					checkSubproject: function($state, $stateParams, $q, neo4jRequest) {
-						if($stateParams.subproject === 'master')
-							return $q.resolve();
-						else {
-							return neo4jRequest.getSubprojectInfo($stateParams.project, $stateParams.subproject).then(function(response){
-								if(response.data.exception) {
-									console.error('neo4jRequest Exception on getSubprojectInfo()', response.data);
-									return $q.reject();
-								}
-								if(response.data.data.length === 0) {
-									$state.go('project.home', {subproject: 'master'});
-									return $q.reject();
-								}
-							});
-						}
-					}
+					checkProject: checkProject,
+					checkSubproject: checkSubproject
 				}
 			})
 			.state('project.home', {
@@ -97,7 +77,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					'style/modals/insertSource.css',
 					'style/modals/sourceDetail.min.css',
 					'style/modals/screenshotDetail.min.css',
-					'style/modals/indexEdit.css'
+					'style/modals/indexEdit.css',
+					'style/modals/categoryEdit.css'
 				]
 			})
 			.state('project.tasks', {
@@ -126,13 +107,13 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 			delay: {show: 500, hide: 100}
 		});
 		
-		
+		// resolve functions
 		function authenticate($q, $state, $window, $timeout, AuthenticationFactory) {
 			if(AuthenticationFactory.isLogged) {
 				// check if user object exists else fetch it. this is incase of a page refresh
 				if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;
 				if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;
-				if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
+				//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
 				$q.when();
 			}
 			else {
@@ -140,6 +121,34 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					$state.go('home');
 				});
 				$q.reject();
+			}
+		}
+		
+		function checkProject($state, $stateParams, $q, $rootScope, APIRequest) {
+			return APIRequest.getProjectEntry($stateParams.project).then(function(response){
+				console.log(response, $stateParams);
+				if(response.data === 'NO ENTRY') {
+					$state.go('projectlist');
+					return $q.reject();
+				}
+				$rootScope.userRole = response.data.role;
+			});
+		}
+		
+		function checkSubproject($state, $stateParams, $q, neo4jRequest) {
+			if($stateParams.subproject === 'master')
+				return $q.resolve();
+			else {
+				return neo4jRequest.getSubprojectInfo($stateParams.project, $stateParams.subproject).then(function(response){
+					if(response.data.exception) {
+						console.error('neo4jRequest Exception on getSubprojectInfo()', response.data);
+						return $q.reject();
+					}
+					if(response.data.data.length === 0) {
+						$state.go('project.home', {subproject: 'master'});
+						return $q.reject();
+					}
+				});
 			}
 		}
 		
@@ -153,7 +162,7 @@ dokuvisApp.run(function($rootScope, $state, AuthenticationFactory) {
 	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
 		$rootScope.isLogged = AuthenticationFactory.isLogged;
 		$rootScope.userName = AuthenticationFactory.userName;
-		$rootScope.role = AuthenticationFactory.userRole;
+		//$rootScope.role = AuthenticationFactory.userRole;
 		// if the user is already logged in, take him to the home page
 		if(AuthenticationFactory.isLogged && $state.is('login')) {
 			console.log('change2');

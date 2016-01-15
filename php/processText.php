@@ -21,6 +21,7 @@ if ( !empty( $_FILES ) ) {
 	else {
 		$tessLangMap = [
 			'de' => 'deu',
+			'de_frak' => 'deu_frak',
 			'en' => 'eng',
 			'fr' => 'fra',
 			'es' => 'spa',
@@ -55,7 +56,7 @@ if ( !empty( $_FILES ) ) {
 			or exit('ERROR: mkdir() failed on'.$pureNewFileName);
 		
 		// pdf in jpg extrahieren
-		$res = system($pGhostscript.' -dNOPAUSE -dBATCH -sDEVICE=jpeg -sOutputFile="'.$pTemp.$DS.$pureNewFileName.$DS.$newFileName.'-%04d.jpg" '.$pTemp.$DS.$newFileName);
+		$res = system($pGhostscript.' -dNOPAUSE -dBATCH -sDEVICE=jpeg -r300 -sOutputFile="'.$pTemp.$DS.$pureNewFileName.$DS.$newFileName.'-%04d.jpg" '.$pTemp.$DS.$newFileName);
 		echo $res;
 		
 		// Dateien im Ordner durchgehen
@@ -77,10 +78,12 @@ if ( !empty( $_FILES ) ) {
 			$res = system($pTesseract.' --tessdata-dir '.$pTessData.' -l '.$lang.' '.$pTemp.$DS.$pureNewFileName.$DS.$file.' '.$pTemp.$DS.$pureNewFileName.$DS.$file.' hocr');
 			echo $res;
 			
-			$pageName = substr($file, 0, strrpos($file, ".")).'.hocr';
+			$pageName = substr($file, 0, strrpos($file, "."));
 			
-			rename($pTemp.$DS.$pureNewFileName.$DS.$file.'.hocr', $upath.$pageName)
+			rename($pTemp.$DS.$pureNewFileName.$DS.$file.'.hocr', $upath.$pageName.'.hocr')
 				or exit('ERROR: rename() failed on '+$pageCount+'.hocr');
+			rename($pTemp.$DS.$pureNewFileName.$DS.$file, $upath.$pageName.'.jpg')
+				or exit('ERROR: rename() failed on '+$pageCount+'.jpg');
 			
 			array_push($pages, $pageName);
 			$pageCount++;

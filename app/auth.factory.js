@@ -18,10 +18,10 @@ dokuvisApp.factory('AuthenticationFactory',
 
 // responsible for contacting the login endpoint and validating the user (and logging out the user)	
 dokuvisApp.factory('UserAuthFactory',
-	function($window, $state, $http, AuthenticationFactory) {
+	function($window, $state, $http, AuthenticationFactory, API) {
 		return {
 			login: function(email, password) {
-				return $http.post('api/login', {
+				return $http.post(API + 'login', {
 					email: email,
 					password: password
 				});
@@ -31,15 +31,22 @@ dokuvisApp.factory('UserAuthFactory',
 					AuthenticationFactory.isLogged = false;
 					delete AuthenticationFactory.user;
 					delete AuthenticationFactory.userName;
-					delete AuthenticationFactory.userRole;
+					//delete AuthenticationFactory.userRole;
 					
 					delete $window.localStorage.token;
 					delete $window.localStorage.user;
 					delete $window.localStorage.userName;
-					delete $window.localStorage.userRole;
+					//delete $window.localStorage.userRole;
 					
 					$state.go('home');
 				}
+			},
+			register: function(email, username, password) {
+				return $http.post(API + 'register', {
+					email: email,
+					username: username,
+					password: password
+				});
 			}
 		};
 	});

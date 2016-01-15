@@ -13,10 +13,10 @@
 			<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="data/{{item.file.path + (item.file.display || item.file.img1024 || item.file.name)}}"/>
 			<div ng-if="item.type == 'text' && !textEdit" class="displayText" sync-scroll="vertical-scroll">
 				<div class="vertical-scroll text" ng-mouseover="highlight($event)">
-					<div ng-include="'data/' + item.file.path + item.file.display[pageNr]"></div>
+					<div ng-include="'data/' + item.file.path + item.file.display[pageNr] + '.hocr'"></div>
 				</div>
 				<div class="vertical-scroll image">
-					<img src="data/Proj_puuD1TP/texts/pdf_image.jpg"/>
+					<img ng-src="{{'data/' + item.file.path + item.file.display[pageNr] + '.jpg' || 'data/Proj_puuD1TP/texts/pdf_image.jpg'}}"/>
 					<div id="wordRect"></div>
 				</div>
 			</div>

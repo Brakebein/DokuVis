@@ -20,16 +20,17 @@
 					<th width="200">Name</th>
 					<th>Beschreibung</th>
 					<th width="100"></th>
+					<th width="100">Rechte</th>
 					<th width="100"></th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr ng-repeat="p in projects | orderBy: 'name'">
-					<!--<td>{{p.pid}}</td>-->
-					<td>{{p.name}}</td>
+					<td ui-sref="project.home({ project: p.proj, subproject: 'master' })" target="_blank">{{p.name}}</td>
 					<td> <a href="#" editable-text ="p.description" onaftersave = "updateProjectDescription($data,p.pid)">{{p.description}}</a></td> <!--ng-click="editProject(p.description,$event)"-->
 					<td><a ui-sref="project.home({ project: p.proj, subproject: 'master' })" target="_blank">öffnen</a></td>
-					<td><a ng-click="deleteProject(p.proj)" href="#">löschen</a></td>
+					<td>{{p.role}}</td>
+					<td><a ng-show="p.role === 'superadmin'" ng-click="" href="#"><i class="glyphicon glyphicon-pencil"></i></a> <a ng-show="p.role === 'superadmin'" ng-click="deleteProject(p.proj)" href="#"><i class="glyphicon glyphicon-trash"></i></a></td>
 					
 				</tr>
 				
@@ -46,7 +47,7 @@
 			<h3 class="panel-title">Neues Projekt</h3>
 		</div>
 		<div class="panel-body">
-			<form>
+			<form ng-submit="createNewProject()">
 				<div class="form-group" ng-class="newProject.nameError?'has-error':''">
 					<label for="projName" class="control-label">Projektname</label>
 					<input type="text" class="form-control" id="projName" ng-model="newProject.name"/>
@@ -55,7 +56,7 @@
 					<label for="projDescription">Beschreibung (optional)</label>
 					<textarea class="form-control" rows="3" id="projDescription" ng-model="newProject.description"></textarea>
 				</div>
-				<button class="btn btn-default" ng-click="createNewProject()">Projekt erstellen</button>
+				<button type="submit" class="btn btn-default">Projekt erstellen</button>
 			</form>
 		</div>
 	</div>

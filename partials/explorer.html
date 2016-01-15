@@ -126,15 +126,15 @@
 
 	<div class="sidePanelSidemenu">
 	
-		<div title="Objekte" class="smBtn" ng-class="views.activeSide=='objlist'?'active':''" ng-click="views.activeSide = 'objlist'">
+		<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide=='objlist'}" ng-click="views.activeSide = 'objlist'">
 			<span class="glyphicon glyphicon-list"></span>
 		</div>
-		<div title="Kommentare" class="smBtn" ng-class="views.activeSide=='comments'?'active':''" ng-click="views.activeSide = 'comments'">
+		<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide=='comments'}" ng-click="views.activeSide = 'comments'">
 			<span class="glyphicon glyphicon-comment"></span>
 		</div>
-		<!--<div title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
-			<span class="glyphicon glyphicon-user"></span>
-		</div>-->
+		<div title="Eigenschaften" class="smBtn" ng-class="{'active': views.activeSide=='objproperties'}" ng-click="views.activeSide = 'objproperties'">
+			<span class="glyphicon glyphicon-list-alt"></span>
+		</div>
 		
 	</div>
 	
@@ -151,7 +151,7 @@
 			</div>
 		</div>
 		
-		<div class="sideContent">
+		<div class="sideContent smallFont">
 				
 				<h5>Objekte</h5>
 				
@@ -217,7 +217,7 @@
 			
 		</div>
 		
-		<div class="sideContent">
+		<div class="sideContent smallFont">
 		
 		
 			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s)" ng-mouseenter="!screenshotPins.isVisible && wi.callFunc.addPin(s.id,s.pin)" ng-mouseleave="!screenshotPins.isVisible && wi.callFunc.removePin(s.id)">
@@ -239,7 +239,10 @@
 			<!--<button class="btn btn-default" ng-click="makeScreenshot()">Screenshot erstellen</button>-->
 		</div>
 		
-	</div>	
+	</div>
+	
+	<!-- Objekteigenschaften -->
+	<div ng-show="views.activeSide == 'objproperties'" class="sideContainer" ng-include="'partials/sideObjectProperties.html'"></div>
 	
 
 </div>

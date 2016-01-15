@@ -1,5 +1,90 @@
 var webglServices = angular.module('webglServices', []);
 
+webglServices.factory('APIRequest',
+	function($http, API, $stateParams) {
+	
+		var requests = {};
+		
+		/**
+		  * Projekte
+		 */
+		// neues Projekt anlegen
+		requests.createProject = function(proj, name, desc, email, username) {
+			return $http.post(API + 'auth/project', {
+				proj: proj,
+				name: name,
+				description: desc,
+				email: email,
+				username: username
+			});
+		};
+		// Projekt Info
+		requests.getProjectEntry = function(proj) {
+			return $http.get(API + 'auth/project/' + proj);
+		};
+		// Projekt löschen
+		requests.deleteProject = function(prj) {
+			return $http.delete(API + 'auth/project/' + prj);
+		};
+		// alle Projekte auflisten
+		requests.getAllProjects = function() {
+			return $http.get(API + 'auth/projects');
+		};
+		
+		/**
+		  * Models
+		*/
+		requests.getModels = function() {
+			return $http.get(API + 'auth/project/'+$stateParams.project+'/'+$stateParams.subproject+'/models');
+		};
+		
+		/**
+		  * Kategorien
+		*/
+		// alle Kategorien
+		requests.getAllCategories = function() {
+			return $http.get(API + 'auth/project/'+$stateParams.project+'/categories');
+		};
+		// neue Kategorie
+		requests.createCategory = function(id, value) {
+			return $http.post(API + 'auth/project/'+$stateParams.project+'/category', {
+				id: id,
+				value: value
+			});
+		};
+		// update Kategorie
+		requests.updateCategory = function(id, value) {
+			return $http.put(API + 'auth/project/'+$stateParams.project+'/category/' + id, {
+				value: value
+			});
+		};
+		// lösche Kategorie
+		requests.deleteCategory = function(id) {
+			return $http.delete(API + 'auth/project/'+$stateParams.project+'/category/' + id);
+		};
+		// neues Attribut
+		requests.createCategoryAttribute = function(cid, attribute) {
+			return $http.post(API + 'auth/project/'+$stateParams.project+'/category/' + cid + '/attribute', {
+				id: attribute.id,
+				value: attribute.value,
+				color: attribute.color
+			});
+		};
+		// update Attribut
+		requests.updateCategoryAttribute = function(cid, id, value, color) {
+			return $http.put(API + 'auth/project/'+$stateParams.project+'/category/' + cid + '/attribute/' + id, {
+				value: value,
+				color: color
+			});
+		};
+		// lösche Attribut
+		requests.deleteCategoryAttribute = function(cid, id) {
+			return $http.delete(API + 'auth/project/'+$stateParams.project+'/category/' + cid + '/attribute/' + id);
+		};
+		
+		return requests;
+	});
+
 webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 	function($http, Utilities) {
 		
@@ -683,7 +768,8 @@ CREATE(task)-[:P2]->(prior:E55 {content: "priority_high"})
 			
 			if(formData.sourceType == 'text') {
 				q += ' CREATE (e31)-[:P70]->(e33:E33:'+prj+' {content: "e33_e31_"+{newFileName}})';
-				q += ' MERGE (e33)-[:P72]->(e56:E56:'+prj+' {content: {language}})';
+				q += ' MERGE (e56:E56:'+prj+' {content: {language}})';
+				q += ' CREATE (e33)-[:P72]->(e56)';
 				q += ' SET e75.contentDisplay = {pages}';
 			}
 			if(formData.sourceType == 'plan' || formData.sourceType == 'picture') {
@@ -887,7 +973,7 @@ CREATE(task)-[:P2]->(prior:E55 {content: "priority_high"})
 			q += 'MATCH (tscreen:E55:'+prj+' {content: "screenshot"})';
 			q += ',(tscomment:E55:'+prj+' {content: "screenshotComment"})';
 			
-			if(objData.data.pinObject)
+			if(objData.pinObject)
 				q += ',(e73:E73:'+prj+' {content: {e73id}})<-[:P106]-(:E36)-[:P138]->(e22:E22)';
 			else
 				q += ',(e22:E22:'+prj+' {content: {e22id}})';
@@ -923,7 +1009,7 @@ CREATE(task)-[:P2]->(prior:E55 {content: "priority_high"})
 						content: objData.filename,
 						path: objData.path,
 						width: objData.width,
-						height: objData.data.height
+						height: objData.height
 					},
 					e35content: {
 						content: Utilities.getUniqueId()+'_screenshotTitle',
@@ -1108,23 +1194,18 @@ webglServices.factory('mysqlRequest',
 		  * Projekte
 		 */
 		// neues Projekt anlegen
-		requests.newProjectEntry = function(proj, name, desc) {
-			// return $http.post('php/mysql/newProjectEntry.php', {
-				// proj: proj,
-				// name: name,
-				// description: desc
-			// });
-			return $http.post(API + 'projects/new', {
+		requests.newProjectEntry = function(proj, name, desc, email, name) {
+			return $http.post(API + 'auth/projects', {
 				proj: proj,
 				name: name,
-				description: desc
+				description: desc,
+				email: email,
+				username: username
 			});
 		};
 		// Projekt Info
 		requests.getProjectEntry = function(proj) {
-			return $http.post('php/mysql/getProjectEntry.php', {
-				proj: proj
-			});
+			return $http.get(API + 'auth/projects/'+proj);
 		};
 		// Projekt löschen
 		requests.removeProjectEntry = function(proj) {
@@ -1134,8 +1215,7 @@ webglServices.factory('mysqlRequest',
 		};
 		// alle Projekte auflisten
 		requests.getAllProjects = function() {
-			//return $http.post('php/mysql/getAllProjects.php', {});
-			return $http.get(API + 'auth/projects', {});
+			return $http.get(API + 'auth/projects');
 		};
 		// Projekt editieren
 		requests.updateProjectDescription = function(desc,id) {
@@ -1145,6 +1225,7 @@ webglServices.factory('mysqlRequest',
 			});
 		};
 		
+		// staff
 		requests.getAllStaff = function() {
 			return $http.post('php/mysql/getAllStaff.php', {});
 		};
@@ -1519,7 +1600,7 @@ webglServices.factory('Utilities',
 				type: 'danger',
 				duration: 5
 			});
-			console.error('API Exception: '+message, data);
+			console.error('API Exception: '+message, data, "\n"+(new Error).stack.split("\n")[2]);
 		};
 		
 		return f;

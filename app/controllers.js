@@ -29,29 +29,27 @@ webglControllers.controller('navCtrl', ['$scope', '$state', '$window', 'UserAuth
 			var email = $scope.user.email,
 				password = $scope.user.password;
 			
-			if(email !== undefined && password !== undefined && email.length > 0 && password.length > 0) {
-				UserAuthFactory.login(email, password)
-					.success(function(data) {
-						AuthenticationFactory.isLogged = true;
-						AuthenticationFactory.user = data.user.email;
-						AuthenticationFactory.userName = data.user.name;
-						AuthenticationFactory.userRole = data.user.role;
-						
-						$window.localStorage.token = data.token;
-						$window.localStorage.user = data.user.email;
-						$window.localStorage.userName = data.user.name;
-						$window.localStorage.userRole = data.user.role;
-						
-						$state.go('projectlist');
-					})
-					.error(function(status) {
-						Utilities.throwException('Login', 'failed');
-					});
-			}
-			else {
-				Utilities.throwException('Login', 'Ungültige Eingaben');
-			}
-		};
+			if(email.length === 0) { Utilities.dangerAlert('Ungültige Emailadresse!'); return; }
+			if(password.length === 0) { Utilities.dangerAlert('Ungültiges Passwort!'); return; }
+			
+			UserAuthFactory.login(email, password)
+				.success(function(data) {
+					AuthenticationFactory.isLogged = true;
+					AuthenticationFactory.user = data.user.email;
+					AuthenticationFactory.userName = data.user.name;
+					//AuthenticationFactory.userRole = data.user.role;
+					
+					$window.localStorage.token = data.token;
+					$window.localStorage.user = data.user.email;
+					$window.localStorage.userName = data.user.name;
+					//$window.localStorage.userRole = data.user.role;
+					
+					$state.go('projectlist');
+				})
+				.error(function(status) {
+					Utilities.throwException('Login', 'failed', status);
+				});
+	};
 		
 		$scope.logout = function() {
 			UserAuthFactory.logout();
@@ -75,49 +73,39 @@ webglControllers.controller('registerCtrl', ['$scope', '$state', '$window', 'Use
 				password1 = $scope.userRegister.password1,
 				password2 = $scope.userRegister.password2;
 			
-			if(password1 !== password2) { Utilities.throwException('Fehler', 'Die Passwörter stimmen nicht überein!'); return; }
-			if(email.length === 0) { Utilities.throwException('Fehler', 'Bitte geben Sie eine Emailadresse ein!'); return; }
-			if(username.length === 0) { Utilities.throwException('Fehler', 'Bitte geben Sie einen Nutzernamen ein!'); return; }
-			if(password1.length === 0) { Utilities.throwException('Fehler', 'Bitte geben Sie ein Passwort ein!'); return; }
+			if(password1 !== password2) { Utilities.dangerAlert('Die Passwörter stimmen nicht überein!'); return; }
+			if(email.length === 0) { Utilities.dangerAlert('Bitte geben Sie eine Emailadresse ein!'); return; }
+			if(username.length === 0) { Utilities.dangerAlert('Bitte geben Sie einen Nutzernamen ein!'); return; }
+			if(password1.length < 5) { Utilities.dangerAlert('Passwort hat nicht genügend Zeichen (mind. 6)!'); return; }
 			
-			/*
-			if(email !== undefined && password !== undefined && email.length > 0 && password.length > 0) {
-				UserAuthFactory.login(email, password)
-					.success(function(data) {
-						AuthenticationFactory.isLogged = true;
-						AuthenticationFactory.user = data.user.email;
-						AuthenticationFactory.userName = data.user.name;
-						AuthenticationFactory.userRole = data.user.role;
-						
-						$window.localStorage.token = data.token;
-						$window.localStorage.user = data.user.email;
-						$window.localStorage.userName = data.user.name;
-						$window.localStorage.userRole = data.user.role;
-						
-						$state.go('projectlist');
-					})
-					.error(function(status) {
-						Utilities.throwException('Login', 'failed');
-					});
-			}
-			else {
-				Utilities.throwException('Login', 'Ungültige Eingaben');
-			}*/
-		};
-		
-		$scope.logout = function() {
-			UserAuthFactory.logout();
+			UserAuthFactory.register(email, username, password1)
+				.success(function(data) {
+					AuthenticationFactory.isLogged = true;
+					AuthenticationFactory.user = data.user.email;
+					AuthenticationFactory.userName = data.user.name;
+					//AuthenticationFactory.userRole = data.user.role;
+					
+					$window.localStorage.token = data.token;
+					$window.localStorage.user = data.user.email;
+					$window.localStorage.userName = data.user.name;
+					//$window.localStorage.userRole = data.user.role;
+					
+					$state.go('projectlist');
+				})
+				.error(function(status) {
+					Utilities.throwException('Register', 'failed', status);
+				});
 		};
 		
 	}]);
 
-webglControllers.controller('homeCtrl', ['$scope', '$http',
-	function($scope, $http) {
+webglControllers.controller('homeCtrl', ['$scope',
+	function($scope) {
 		
 	}]);
 	
-webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpRequest', 'mysqlRequest', 'neo4jRequest', 'Utilities',
-	function($scope, $http, $q, phpRequest, mysqlRequest, neo4jRequest, Utilities) {
+webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpRequest', 'mysqlRequest', 'neo4jRequest', 'APIRequest', 'Utilities', 'AuthenticationFactory',
+	function($scope, $http, $q, phpRequest, mysqlRequest, neo4jRequest, APIRequest, Utilities, AuthenticationFactory) {
 		
 		// TODO: index.config und blacklist.txt in Projektordner verschieben beim Anlegen
 		
@@ -130,19 +118,19 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpReq
 		$scope.newProject.description = '';
 		
 		$scope.getAllProjects = function() {
-			mysqlRequest.getAllProjects().then(function(response){
-				if(response.status === 401) { Utilities.throwApiException('unauthorized on getAllProjects()', response); return; }
-				if(response.data === 'INVALID') { Utilities.throwApiException('on getAllProjects()', response); return; }
-				if(response.data.status && response.data.status === 404) { Utilities.throwApiException('on getAllProjects()', response); return; }
+			APIRequest.getAllProjects().then(function(response){
 				console.log(response);
 				if(response.data instanceof Array)
 					$scope.projects = response.data;
 				else
 					$scope.projects = [];
+			}, function(err) {
+				Utilities.throwApiException('on getAllProjects()', err);
 			});
 		};
 		
 		$scope.createNewProject = function() {
+			// Eingabe überprüfen
 			if($scope.newProject.name.length < 1) {
 				$scope.newProject.nameError = true;
 				Utilities.dangerAlert('Geben sie dem Projekt einen Namen!');
@@ -155,8 +143,20 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpReq
 			var prj = 'Proj_' + tid;
 			console.log('create '+prj);
 			
-			mysqlRequest.newProjectEntry(prj, $scope.newProject.name, $scope.newProject.description).then(function(response){
+			APIRequest.createProject(prj, $scope.newProject.name, $scope.newProject.description, AuthenticationFactory.user, AuthenticationFactory.userName).then(function(response) {
 				console.log(response);
+				$scope.newProject.name = '';
+				$scope.newProject.description = '';
+				$scope.getAllProjects();
+			}, function(err) {
+				Utilities.throwApiException('on createProject()', err);
+			});
+			
+			/*
+			mysqlRequest.newProjectEntry(prj, $scope.newProject.name, $scope.newProject.description, AuthenticationFactory.user, AuthenticationFactory.userName).then(function(response){
+				console.log(response);
+			}, function(err) {
+				console.error(err);
 			});
 			/*
 			phpRequest.createProjectFolders(prj)
@@ -173,7 +173,7 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpReq
 				})
 				.then(function(response){
 					console.log(response.data);
-					return mysqlRequest.newProjectEntry(prj, $scope.newProject.name, $scope.newProject.description);
+					return mysqlRequest.newProjectEntry(prj, $scope.newProject.name, $scope.newProject.description, AuthenticationFactory.user);
 				})
 				.then(function(response){
 					if(response.data !== 'SUCCESS') {
@@ -187,6 +187,16 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpReq
 		};
 		
 		$scope.deleteProject = function(prj) {
+			
+			console.log('delete '+prj);
+			
+			APIRequest.deleteProject(prj).then(function(response) {
+				console.log(response);
+				$scope.getAllProjects();
+			}, function(err) {
+				Utilities.throwApiException('on deleteProject()', err);
+			});
+			/*
 			neo4jRequest.deleteAllProjectNodes(prj)
 				.then(function(response){
 					console.log(response.data);
@@ -210,7 +220,7 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpReq
 					}
 					console.warn('Projekt gelöscht');
 					$scope.getAllProjects();
-				});
+				});*/
 		};
 		
 		$scope.updateProjectDescription = function(data,id) {
@@ -230,8 +240,8 @@ webglControllers.controller('projectlistCtrl', ['$scope', '$http', '$q', 'phpReq
 		
 	}]);
 
-webglControllers.controller('projectCtrl', ['$scope', '$stateParams', '$document', '$timeout',
-	function($scope, $stateParams, $document, $timeout) {
+webglControllers.controller('projectCtrl',
+	function($scope, $state, $stateParams, $window) {
 	
 		console.log('projectCtrl init');
 		
@@ -239,6 +249,10 @@ webglControllers.controller('projectCtrl', ['$scope', '$stateParams', '$document
 	
 		$scope.project = $stateParams.project;
 		
+		$scope.toProjectList = function() {
+			var url = $state.href('projectlist');
+			$window.open(url, '_blank');
+		};
 		
 		// TODO: Überprüfen, ob Nutzer Zugriff auf Projekt hat
 		// Zugriffsrechte und Rolle auslesen
@@ -252,7 +266,7 @@ webglControllers.controller('projectCtrl', ['$scope', '$stateParams', '$document
 			$('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
 		});
 		
-	}]);
+	});
 	
 webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlRequest', 'neo4jRequest', 'Utilities',
 	function($scope, $stateParams, mysqlRequest, neo4jRequest, Utilities) {
@@ -384,8 +398,8 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 		
 	}]);
 	
-webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', '$q', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface', '$modal',
-	function($scope, $stateParams, $timeout, $sce, $q, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface, $modal) {
+webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface', '$modal',
+	function($scope, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface, $modal) {
 
 		// Initialisierung von Variablen
 		$scope.project = $stateParams.project;
@@ -394,7 +408,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		$scope.views = new Object();
 		$scope.views.activeMain = '3dview';
-		$scope.views.activeSide = 'objlist';
+		$scope.views.activeSide = 'objproperties';
 		// $scope.views.activeSide = 'comments';
 		$scope.views.enhancedOptions = {};
 		$scope.views.enhancedOptions.show = false;
@@ -500,7 +514,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		$scope.marksOpacity = 50;
 		
-		
+		// Properties
+		$scope.categories = [];
 		
 		
 		phpRequest.getSvgContent('img/plus-sign.svg').success(function(data, status) {
@@ -592,6 +607,17 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				controller: 'indexEditCtrl',
 				scope: $scope,
 				show: true
+			});
+		};
+		$scope.openCategoryEdit = function() {
+			$scope.modalParams = {};
+			$modal({
+				title: 'Kategorien verwalten',
+				templateUrl: 'partials/modals/_modalTpl.html',
+				contentTemplate: 'partials/modals/categoryEditModal.html',
+				controller: 'categoryEditCtrl',
+				scope: $scope,
+				show: true 
 			});
 		};
 				
@@ -848,17 +874,15 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		};
 		
 		$scope.loadModelsWithChildren = function() {
-			neo4jRequest.getModelsWithChildren($stateParams.project, $stateParams.subproject).then(function(response){
-				if(response.data.exception) { console.error('neo4j failed on getModelsWithChildren()', response.data); return; }
+			// neo4jRequest.getModelsWithChildren($stateParams.project, $stateParams.subproject).then(function(response){
+				// if(response.data.exception) { console.error('neo4j failed on getModelsWithChildren()', response.data); return; }
+				// console.log(response.data);
+			APIRequest.getModels().then(function(response) {
 				console.log(response.data);
-				var root = Utilities.createHierarchy(response.data, ['file','obj'], true)[0];
+				var root = Utilities.createHierarchy(response.data, ['file','obj','categories'], true)[0];
 				console.log(root);
 				
 				function getNodes(nodes, parent, promise) {
-					// for(var i=0; i<nodes.length; i++) {
-						// $scope.callDirFunc.loadCTMIntoScene(nodes[i].obj, nodes[i].file, parent);
-						// getNodes(nodes[i].children, nodes[i].obj.content);
-					// }
 					var cdefer = $q.defer();
 					nodes.reduce(function(cur, next) {
 						return cur.then(function() {
@@ -868,9 +892,12 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 					}, promise).then(function(){ cdefer.resolve(); });
 					return cdefer.promise;
 				}
-				if(root)
+
+			if(root)
 					getNodes(root.children, 0, $q.resolve());
 				
+			}, function(err) {
+				Utilities.throwApiException('on getModels()', err);
 			});
 		};
 		
@@ -1061,13 +1088,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		$scope.$watch('filteredSourceResults', function(value) {
 			console.log('filteredSourceResults', value);
 		});
-				
-		// oninit Funktionsaufrufe
-		$timeout(function() {
-			$scope.getAllDocuments();
-			$scope.getScreenshots();
-			//$scope.loadModelsWithChildren();
-		}, 500);
 		
 		$scope.getIndex = function() {
 			phpRequest.getIndex($stateParams.project).then(function(response){
@@ -1086,6 +1106,23 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			
 			Utilities.throwNeo4jException('on insertDocument()', {exception: 'SyntaxException'});
 		};
+		
+		function getAllCategories() {
+			APIRequest.getAllCategories().then(function(response) {
+				$scope.categories = Utilities.cleanNeo4jData(response.data);
+				console.log('Categories:', $scope.categories);
+			}, function(err) {
+				Utilities.throwApiException('on getAllCategories()', err);
+			});
+		};
+		
+		// oninit Funktionsaufrufe
+		$timeout(function() {
+			$scope.getAllDocuments();
+			$scope.getScreenshots();
+			getAllCategories();
+			//$scope.loadModelsWithChildren();
+		}, 500);
 		
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function(event) {
@@ -1165,6 +1202,107 @@ webglControllers.controller('indexEditCtrl', ['$scope', '$stateParams', 'phpRequ
 		
 	}]);
 
+webglControllers.controller('categoryEditCtrl',
+	function($scope, $stateParams, APIRequest, Utilities, APIRequest) {
+		
+		$scope.categories = [];
+		
+		// color picker settings
+		$scope.minicolors = {
+			control: 'wheel',
+			opacity: true,
+			position: 'bottom left',
+			format: 'rgb',
+			changeDelay: 200
+		};
+		
+		
+		function getAllCategories() {
+			APIRequest.getAllCategories().then(function(response) {
+				console.log(response);
+				$scope.categories = Utilities.cleanNeo4jData(response.data);
+			}, function(err) {
+				Utilities.throwApiException('on getAllCategories()', err);
+			});
+		};
+		getAllCategories();
+		
+		$scope.addCategory = function() {
+			if(!$scope.newCategory) return;
+			var category = {
+				value: $scope.newCategory,
+				id: Utilities.getUniqueId() + '_category',
+				attributes: []
+			};
+			
+			APIRequest.createCategory(category.id, category.value).then(function(response) {
+				$scope.categories.push(category);
+				$scope.newCategory = '';
+			}, function(err) {
+				Utilities.throwApiException('on createCategory()', err);
+			});
+		};
+		
+		$scope.removeCategory = function(category) {
+			APIRequest.deleteCategory(category.id).then(function(response) {
+				$scope.categories.splice($scope.categories.indexOf(category), 1);
+			}, function(err) {
+				Utilities.throwApiException('on deleteCategory()', err);
+			});
+		};
+		
+		$scope.updateCategory = function(cid, value) {
+			APIRequest.updateCategory(cid, value).then(function(response) {}, function(err) {
+				Utilities.throwApiException('on updateCategory()', err);
+			});
+		};
+		
+		$scope.addAttribute = function(category) {
+			if(!category.newAttribute) return;
+			var attribute = {
+				value: category.newAttribute,
+				id: Utilities.getUniqueId() + '_categoryAttr',
+				color: getRandomColor()
+			};
+			
+			APIRequest.createCategoryAttribute(category.id, attribute).then(function(response) {
+				category.attributes.push(attribute);
+				category.newAttribute = '';
+			}, function(err) {
+				Utilities.throwApiException('on createCategoryAttribute()', err);
+			});
+		};
+		
+		$scope.removeAttribute = function(category, attribute) {
+			APIRequest.deleteCategoryAttribute(category.id, attribute.id).then(function(response) {
+				category.attributes.splice(category.attributes.indexOf(attribute), 1);
+			}, function(err) {
+				Utilities.throwApiException('on deleteCategoryAttribute()', err);
+			});
+		};
+		
+		$scope.updateAttribute = function(cid, id, value) {
+			APIRequest.updateCategoryAttribute(category.id, attribute.id, value).then(function(response) {}, function(err) {
+				Utilities.throwApiException('on updateCategoryAttribute()', err);
+			});
+		};
+		
+		$scope.updateColor = function(cid, id, value) {
+			APIRequest.updateCategoryAttribute(cid, id, null, value).then(function(response) {}, function(err) {
+				Utilities.throwApiException('on updateCategoryAttribute()', err);
+			});
+		};
+		
+		var getRandomColor = function () {
+			var letters = '0123456789ABCDEF'.split('');
+			var color = '#';
+			for (var i = 0; i < 6; i++ ) {
+				color += letters[Math.round(Math.random() * 15)];
+			}
+			return color;
+        };
+		
+	});
 
 webglControllers.controller('insertSourceCtrl', ['$scope', '$stateParams', 'FileUploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal',
 	function($scope, $stateParams, FileUploader, neo4jRequest, Utilities, $timeout, $modal) {
@@ -1837,7 +1975,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 					return;
 				}
 				neo4jRequest.insertScreenshotMarkers($scope.$parent.project, $scope.params, newMarkers).then(function(response){
-					if(reponse.data.exception) { Utilities.throwNeo4jException('on insertScreenshotMarkers()', response); return; }
+					if(response.data.exception) { Utilities.throwNeo4jException('on insertScreenshotMarkers()', response); return; }
 					$scope.$parent.$parent.closeModal('screenshot');
 					$scope.$parent.$hide();
 				});
@@ -3116,4 +3254,4 @@ function getElementInHierarchy(node, content) {
 	}
 	return undefined;
 }
-
+

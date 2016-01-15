@@ -16,6 +16,9 @@
 .floatleft {
 	float: left;
 }
+.floatright {
+	float: right;
+}
 
 .pointer {
 	cursor: pointer;

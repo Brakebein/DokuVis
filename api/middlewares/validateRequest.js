@@ -21,18 +21,10 @@ module.exports = function(req, res, next) {
 			
 			// authorize the user to see if he can access our resources
 			
-			var dbUser = validateUser(key); // the key would be logged in user's username
-			
-			if(dbUser) {
+			// the key would be logged in user's username
+			return validateUser(key).then(function(dbUser) {
 				next();
-				// res.status(403);
-				// res.json({
-					// "status": 403,
-					// "message": "Not Authorized"
-				// });
-				return;
-			}
-			else {
+			}, function(reason) {
 				// no user with this name exists
 				res.status(401);
 				res.json({
@@ -40,7 +32,7 @@ module.exports = function(req, res, next) {
 					"message": "Invalid User #3"
 				});
 				return;
-			}
+			});
 		}
 		catch(err) {
 			res.status(500);

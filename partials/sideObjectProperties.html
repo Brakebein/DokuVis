@@ -1,0 +1,61 @@
+<div class="sideHeader">
+	<h4>Eigenschaften</h4>
+	<hr/>
+	
+	<p>Keine Objekte ausgewählt!</p>
+	
+</div>
+<div class="sideContent">
+	
+	<div class="panel panel-default">
+		<div class="panel-heading">Existenz</div>
+		<div class="panel-body">
+			<label class="control-label col-sm-3">Daseinsbeginn</label>
+			<div class="col-sm-3">
+				<input type="text" class="form-control input-sm"/>
+			</div>
+			<label class="control-label col-sm-3">Daseinsende</label>
+			<div class="col-sm-3">
+				<input type="text" class="form-control input-sm"/>
+			</div>
+		</div>
+	</div>
+	
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<a href="" style="float:right;" ng-click="openCategoryEdit()">Kategorien verwalten <i class="fa fa-cog"></i></a>
+			Kategorie
+		</div>
+		<div class="panel-body">
+			<span ng-show="!categories.length">Keine Kategorien vorhanden!</span>
+			<table ng-show="categories.length" class="table table-striped">
+				<thead>
+					<tr>
+						<th width="40%">Kategorie</th>
+						<th width="40%">Attribut</th>
+						<th width="20%"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="c in categories">
+						<td>{{c.value}}</td>
+						<td>
+							<select class="form-control input-sm">
+								<option>&lt;Beibehalten&gt;</option>
+								<option>&lt;Nicht zugewiesen&gt;</option>
+								<option ng-repeat="a in c.attributes">{{a.value}}</option>
+							</select>
+						</td>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	
+	
+</div>
+<div class="sideFooter">
+	<button class="btn btn-primary">Speichern</button>
+</div>
