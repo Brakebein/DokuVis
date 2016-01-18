@@ -620,7 +620,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 						var o = selected[i];
 						if(o.userData.type === 'object' || o.userData.type === 'plan')
 							rejectSelectionMat(o);
-						webglInterface.deselectListEntry(o.id, o.userData.type);
+						webglInterface.deselectListEntry(o.id, o.userData);
 						deselectChildren(o.children);
 					}
 					selected = [];
@@ -629,7 +629,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				if(obj && !onlyDeselect && selected.indexOf(obj) === -1) {
 					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
 						assignSelectionMat(obj);
-					webglInterface.selectListEntry(obj.id, obj.userData.type);
+					webglInterface.selectListEntry(obj.id, obj.userData);
 					selectChildren(obj.children);
 					
 					selected.push(obj);
@@ -639,7 +639,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				else if(obj && !onlyDeselect && selected.indexOf(obj) !== -1) {
 					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
 						rejectSelectionMat(obj);
-					webglInterface.deselectListEntry(obj.id, obj.userData.type);
+					webglInterface.deselectListEntry(obj.id, obj.userData);
 					deselectChildren(obj.children);
 					selected.splice(selected.indexOf(obj), 1);
 				}
@@ -650,7 +650,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					var o = children[i];
 					if(o.userData.type === 'object')
 						assignSelectionMat(o);
-					webglInterface.selectListEntry(o.id);
+					webglInterface.selectListEntry(o.id, o.userData);
 					selectChildren(o.children);
 				}
 			}
@@ -659,7 +659,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					var o = children[i];
 					if(o.userData.type === 'object')
 						rejectSelectionMat(o);
-					webglInterface.deselectListEntry(o.id);
+					webglInterface.deselectListEntry(o.id, o.userData);
 					deselectChildren(o.children);
 				}
 			}
@@ -2238,9 +2238,12 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				
 			};
 			
-			scope.internalCallFunc.loadCTMIntoScene = function(info, file, parent) {
+			scope.internalCallFunc.loadCTMIntoScene = function(child, parent) {
 				
 				var defer = $q.defer();
+				
+				var info = child.obj;
+				var file = child.file;
 				
 				var m = info.matrix;
 				var mat = new THREE.Matrix4();
@@ -2267,6 +2270,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					obj.userData.eid = info.content;
 					obj.userData.type = info.type;
 					obj.userData.layer = info.layer;
+					obj.userData.categories = child.categories;
 					
 					// only scale translation
 					t.multiplyScalar(scale);
@@ -2296,7 +2300,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					return defer.promise;
 				}
 				else if(info.type === 'object') {
-					ctmloader.load('data/'+file.path+file.content, ctmHandler, {useWorker: false});
+					ctmloader.load('data/' + file.path + file.content, ctmHandler, {useWorker: false});
 					defer.resolve();
 					return defer.promise;
 				}
@@ -2334,9 +2338,9 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					
 					if(file.edges) {
 						// lade und entpacke geometry für edges
-						JSZipUtils.getBinaryContent('data/'+file.path+file.edges, function(err, data) {
+						JSZipUtils.getBinaryContent('data/' + file.path + file.edges, function(err, data) {
 							var zip = new JSZip(data);
-							var vobj = JSON.parse(zip.file(file.content+'.json').asText());
+							var vobj = JSON.parse(zip.file(file.content + '.json').asText());
 							
 							var floatarray = new Float32Array(vobj.data.attributes.position.array);
 							var egeo = new THREE.BufferGeometry();
@@ -2356,7 +2360,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 						scene.add(edges);
 						
 						var zip = new JSZip();
-						zip.file(file.content+'.json', JSON.stringify(edges.geometry.toJSON()));
+						zip.file(file.content + '.json', JSON.stringify(edges.geometry.toJSON()));
 						var zipdata = zip.generate({compression:'DEFLATE'});
 						phpRequest.saveGeoToJson(file.path, file.content, zipdata).then(function(response){
 							if(response.data !== 'SUCCESS') {
@@ -2386,6 +2390,7 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 					mesh.userData.eid = info.content;
 					mesh.userData.type = info.type;
 					mesh.userData.layer = info.layer;
+					mesh.userData.categories = child.categories;
 					//mesh.userData.originalMat = origMat;
 					mesh.userData.unsafe = isUnsafe;
 					
@@ -2584,6 +2589,36 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				}
 				plans[id].visible = bool;
 			}
+			
+			// colora all objects by its assigned category attribute
+			webglInterface.colorByCategory = function(category) {
+				console.log(category);
+				for(var i=0; i<category.attributes.length; i++) {
+					if(category.attributes[i].id === 0 || category.attributes[i].id === -1) continue;
+					var cValues = category.attributes[i].color.match(/\d+(\.\d+)?/g);
+					var newMat = new THREE.MeshLambertMaterial({
+						name: category.attributes[i].id,
+						color: new THREE.Color(parseInt(cValues[0])/255, parseInt(cValues[1])/255, parseInt(cValues[2])/255),
+						side: THREE.DoubleSide
+					});
+					var opacity = parseFloat(cValues[3]);
+					if(opacity !== 1.0) {
+						newMat.transparent = true;
+						newMat.opacity = opacity;
+					}
+					materials[category.attributes[i].id] = newMat;
+					console.log(newMat);
+				}
+				for(var key in objects) {
+					var userData = objects[key].mesh.userData;
+					if(userData.type === 'object') {
+						if(userData.categories[category.id] && userData.categories[category.id].attrId)
+							objects[key].mesh.material = materials[userData.categories[category.id].attrId];
+						else
+							objects[key].mesh.material = materials['defaultDoublesideMat'];
+					}
+				}
+			};
 			
 			// add and remove pins
 			webglInterface.callFunc.addPin = function(id, pinObj) {

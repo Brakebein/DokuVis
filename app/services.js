@@ -1638,6 +1638,8 @@ webglServices.factory('webglInterface',
 		wi.layers = [];
 		wi.hierarchList = [];
 		
+		wi.selected = [];
+		
 		wi.plans = [];
 		
 		var layerDict = {};
@@ -1771,16 +1773,18 @@ webglServices.factory('webglInterface',
 			}
 		}
 		
-		wi.selectListEntry = function(id, type) {
-			var item = (type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
+		wi.selectListEntry = function(id, userData) {
+			var item = (userData.type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
 			item.selected = true;
+			wi.selected.push(userData);
 			if(item.parent) expandParents(item.parent);
 			$rootScope.$applyAsync();
 		};
 		
-		wi.deselectListEntry = function(id, type) {
-			var item = (type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
+		wi.deselectListEntry = function(id, userData) {
+			var item = (userData.type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
 			item.selected = false;
+			wi.selected.splice(wi.selected.indexOf(userData), 1);
 			$rootScope.$applyAsync();
 		};
 		

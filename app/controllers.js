@@ -516,6 +516,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		// Properties
 		$scope.categories = [];
+		$scope.activeCategory = null;
 		
 		
 		phpRequest.getSvgContent('img/plus-sign.svg').success(function(data, status) {
@@ -627,6 +628,8 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 				$scope.getAllDocuments();
 			if(update === 'screenshot')
 				$scope.getScreenshots();
+			if(update === 'category')
+				getAllCategories();
 			
 			$scope.overlayParams.params = {}
 			$scope.overlayParams.url = '';
@@ -886,7 +889,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 					var cdefer = $q.defer();
 					nodes.reduce(function(cur, next) {
 						return cur.then(function() {
-							var p = $scope.callDirFunc.loadCTMIntoScene(next.obj, next.file, parent);
+							var p = $scope.callDirFunc.loadCTMIntoScene(next, parent);
 							return getNodes(next.children, next.obj.content, p);
 						});
 					}, promise).then(function(){ cdefer.resolve(); });
@@ -1109,12 +1112,49 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		
 		function getAllCategories() {
 			APIRequest.getAllCategories().then(function(response) {
-				$scope.categories = Utilities.cleanNeo4jData(response.data);
+				var cats = Utilities.cleanNeo4jData(response.data);
+				for(var i=0; i<cats.length; i++) {
+					cats[i].attributes.push({id: 0, value: '<Nicht zugewiesen>'});
+					cats[i].attributes.push({id: -1, value: '<Beibehalten>'});
+				}
+				$scope.categories = cats;
 				console.log('Categories:', $scope.categories);
 			}, function(err) {
 				Utilities.throwApiException('on getAllCategories()', err);
 			});
 		};
+		
+		$scope.updateCategoryAttr = function(c) {
+			console.log(c);
+		};
+		
+		$scope.$watch('wi.selected', function(newValue) {
+			if(newValue.length) {
+				for(var i=0; i<newValue.length; i++) {
+					var selObj = newValue[i];
+					for(var j=0; j<$scope.categories.length; j++) {
+						if(i === 0) {
+							if(selObj.categories[$scope.categories[j].id])
+								$scope.categories[j].selected = selObj.categories[$scope.categories[j].id].attrId;
+							else {
+								$scope.categories[j].selected = 0;
+							}
+						}
+						else {
+							if( selObj.categories[$scope.categories[j].id] && 
+								selObj.categories[$scope.categories[j].id].attrId !== $scope.categories[j].selected || 
+								$scope.categories[j].selected !== 0 )
+								$scope.categories[j].selected = -1;
+						}
+					}
+				}
+			}
+			else {
+				for(var i=0; i<$scope.categories.length; i++) {
+					$scope.categories[i].selected = null;
+				}
+			}
+		}, true);
 		
 		// oninit Funktionsaufrufe
 		$timeout(function() {
