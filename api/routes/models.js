@@ -45,6 +45,30 @@ var models = {
 				utils.error.neo4j(res, err, '#cypher');
 			});		
 		
+	},
+	
+	assignCategory: function(req, res) {
+		console.log(req.body.objects);
+		var prj = req.params.id;
+		var q = 'MATCH (attrNew:E55:'+prj+' {content: {attrId}})-[:P127]->(cat:E55)-[:P127]->(:E55 {content: "category"}), \
+			(e73:E73:'+prj+')<-[:P106]-(:E36)-[:P138]->(e22:E22) \
+			WHERE e73.content IN {objects} \
+			OPTIONAL MATCH (e22)-[tr:P2]->(attrOld:E55)-[:P127]->(cat) \
+			DELETE tr';
+			if(req.body.attrId) q += ' CREATE (e22)-[:P2]->(attrNew)';
+			q += ' RETURN e22';
+		var params = {
+			objects: req.body.objects,
+			attrId: req.body.attrId
+		};
+		
+		neo4j.cypher(q, params)
+			.then(function(response) {
+				if(response.exception) { utils.error.neo4j(res, response, '#models.assignCategory'); return; }
+				res.json(response);
+			}).catch(function(err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
 	}
 	
 };

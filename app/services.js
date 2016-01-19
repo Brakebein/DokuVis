@@ -38,6 +38,14 @@ webglServices.factory('APIRequest',
 			return $http.get(API + 'auth/project/'+$stateParams.project+'/'+$stateParams.subproject+'/models');
 		};
 		
+		requests.assignCategoryToObjects = function(e73ids, attrId) {
+			return $http.post(API + 'auth/project/'+$stateParams.project+'/'+$stateParams.subproject+'/assignCategory', {
+				objects: e73ids,
+				attrId: attrId
+			});
+		};
+		
+		
 		/**
 		  * Kategorien
 		*/
@@ -1618,13 +1626,16 @@ webglServices.factory('webglInterface',
 		
 		// Einstellungen
 		wi.viewportSettings = {};
-		wi.viewportSettings.shading = ['color', 'grey', 'transparent', 'onlyEdges', 'xray'];
+		wi.viewportSettings.shading = ['color', 'grey', 'transparent', 'onlyEdges', 'xray', 'Custom'];
 		wi.viewportSettings.shadingSel = wi.viewportSettings.shading[0];
 		wi.viewportSettings.edges = true;
 		wi.viewportSettings.camera = ['Perspective', 'Top', 'Front', 'Back', 'Left', 'Right', 'Custom'];
 		wi.viewportSettings.cameraSel = wi.viewportSettings.camera[0];
 		
 		wi.unsafeSettings = {};
+		
+		wi.categories = [];
+		wi.activeCategory;
 		
 		wi.vizSettings = {};
 		wi.vizSettings.opacitySelected = 100;
@@ -1773,6 +1784,7 @@ webglServices.factory('webglInterface',
 			}
 		}
 		
+		// selection
 		wi.selectListEntry = function(id, userData) {
 			var item = (userData.type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
 			item.selected = true;
@@ -1792,6 +1804,13 @@ webglServices.factory('webglInterface',
 			item.expand = true;
 			if(item.parent) expandParents(item.parent);
 		}
+		
+		// category
+		wi.visualizeCategory = function(category) {
+			wi.callFunc.setShading('Custom');
+			wi.callFunc.colorByCategory(category);
+			wi.activeCategory = category;
+		};
 		
 		return wi;
 		

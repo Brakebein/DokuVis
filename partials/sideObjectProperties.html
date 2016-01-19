@@ -29,8 +29,8 @@
 			Kategorien
 		</div>
 		<div class="panel-body">
-			<span ng-show="!categories.length">Keine Kategorien vorhanden!</span>
-			<table ng-show="categories.length" class="table table-striped">
+			<span ng-show="!wi.categories.length">Keine Kategorien vorhanden!</span>
+			<table ng-show="wi.categories.length" class="table table-striped">
 				<thead>
 					<tr>
 						<th width="40%">Kategorie</th>
@@ -39,12 +39,12 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat="c in categories">
+					<tr ng-repeat="c in wi.categories">
 						<td>{{c.value}}</td>
 						<td>
 							<select class="form-control input-sm" ng-options="attr.id as attr.value for attr in c.attributes" ng-model="c.selected" ng-change="updateCategoryAttr(c)"></select>
 						</td>
-						<td><i class="glyphicon glyphicon-eye-open" ng-click="wi.colorByCategory(c)"></i></td>
+						<td><i class="glyphicon glyphicon-eye-open" ng-click="wi.visualizeCategory(c)"></i></td>
 					</tr>
 				</tbody>
 			</table>

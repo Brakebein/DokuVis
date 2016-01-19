@@ -1110,48 +1110,78 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			Utilities.throwNeo4jException('on insertDocument()', {exception: 'SyntaxException'});
 		};
 		
+		// Kategorien
 		function getAllCategories() {
 			APIRequest.getAllCategories().then(function(response) {
 				var cats = Utilities.cleanNeo4jData(response.data);
 				for(var i=0; i<cats.length; i++) {
 					cats[i].attributes.push({id: 0, value: '<Nicht zugewiesen>'});
 					cats[i].attributes.push({id: -1, value: '<Beibehalten>'});
+					if(webglInterface.activeCategory && webglInterface.activeCategory.id === cats[i].id)
+						webglInterface.activeCategory = cats[i];
 				}
-				$scope.categories = cats;
-				console.log('Categories:', $scope.categories);
+				webglInterface.categories = cats;
+				if(webglInterface.activeCategory)
+					webglInterface.visualizeCategory(webglInterface.activeCategory);
+				console.log('Categories:', webglInterface.categories);
 			}, function(err) {
 				Utilities.throwApiException('on getAllCategories()', err);
 			});
 		};
 		
+		// weise neue Kategorie zu
 		$scope.updateCategoryAttr = function(c) {
-			console.log(c);
+			if(c.selectec === -1) return;
+			
+			var e73ids = [];
+			for(var i=0; i<webglInterface.selected.length; i++) {
+				e73ids.push(webglInterface.selected[i].eid);
+			}
+			
+			APIRequest.assignCategoryToObjects(e73ids, c.selected).then(function(response) {
+				for(var i=0; i<webglInterface.selected.length; i++) {
+					if(c.selected)
+						webglInterface.selected[i].categories[c.id] = {
+							catId: c.id,
+							catValue: c.value,
+							attrId: c.selected
+						};
+					else
+						delete webglInterface.selected[i].categories[c.id];
+				}
+				if($scope.activeCategory === c)
+					webglInterface.visualizeCategory(c);
+			}, function(err) {
+				Utilities.throwApiException('on assignCategoryToObjects()', err);
+			});
 		};
 		
+		// zeige Kategoriezuweisung an je nach Auswahl der Objekte
 		$scope.$watch('wi.selected', function(newValue) {
 			if(newValue.length) {
 				for(var i=0; i<newValue.length; i++) {
 					var selObj = newValue[i];
-					for(var j=0; j<$scope.categories.length; j++) {
+					for(var j=0; j<webglInterface.categories.length; j++) {
 						if(i === 0) {
-							if(selObj.categories[$scope.categories[j].id])
-								$scope.categories[j].selected = selObj.categories[$scope.categories[j].id].attrId;
+							if(selObj.categories[webglInterface.categories[j].id])
+								webglInterface.categories[j].selected = selObj.categories[webglInterface.categories[j].id].attrId;
 							else {
-								$scope.categories[j].selected = 0;
+								webglInterface.categories[j].selected = 0;
 							}
 						}
 						else {
-							if( selObj.categories[$scope.categories[j].id] && 
-								selObj.categories[$scope.categories[j].id].attrId !== $scope.categories[j].selected || 
-								$scope.categories[j].selected !== 0 )
-								$scope.categories[j].selected = -1;
+							if( selObj.categories[webglInterface.categories[j].id] && 
+								selObj.categories[webglInterface.categories[j].id].attrId !== webglInterface.categories[j].selected || 
+								!selObj.categories[webglInterface.categories[j].id] &&
+								webglInterface.categories[j].selected !== 0 )
+								webglInterface.categories[j].selected = -1;
 						}
 					}
 				}
 			}
 			else {
-				for(var i=0; i<$scope.categories.length; i++) {
-					$scope.categories[i].selected = null;
+				for(var i=0; i<webglInterface.categories.length; i++) {
+					webglInterface.categories[i].selected = null;
 				}
 			}
 		}, true);

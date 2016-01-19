@@ -1405,7 +1405,9 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				
 				var uncoverObj = ['onlyEdges'].indexOf(currentShading) !== -1 ? true : false;
 				var uncoverEdge = webglInterface.viewportSettings.edges ? ['xray'].indexOf(currentShading) !== -1 ? true : false : false;
+				if(currentShading === 'Custom') webglInterface.activeCategory = null;
 				currentShading = value;
+				webglInterface.viewportSettings.shadingSel = value;
 				
 				switch(value) {
 					case 'color':
@@ -2590,24 +2592,34 @@ webglDirectives.directive('webglView', ['$stateParams', '$timeout', 'webglContex
 				plans[id].visible = bool;
 			}
 			
-			// colora all objects by its assigned category attribute
-			webglInterface.colorByCategory = function(category) {
+			// color all objects by its assigned category attribute
+			webglInterface.callFunc.colorByCategory = function(category) {
 				console.log(category);
 				for(var i=0; i<category.attributes.length; i++) {
 					if(category.attributes[i].id === 0 || category.attributes[i].id === -1) continue;
 					var cValues = category.attributes[i].color.match(/\d+(\.\d+)?/g);
-					var newMat = new THREE.MeshLambertMaterial({
-						name: category.attributes[i].id,
-						color: new THREE.Color(parseInt(cValues[0])/255, parseInt(cValues[1])/255, parseInt(cValues[2])/255),
-						side: THREE.DoubleSide
-					});
+					
+					var mat;
+					if(materials[category.attributes[i].id]) {
+						mat = materials[category.attributes[i].id];
+						mat.color.setRGB(parseInt(cValues[0])/255, parseInt(cValues[1])/255, parseInt(cValues[2])/255);
+					}
+					else
+						mat = new THREE.MeshLambertMaterial({
+							name: category.attributes[i].id,
+							color: new THREE.Color(parseInt(cValues[0])/255, parseInt(cValues[1])/255, parseInt(cValues[2])/255),
+							side: THREE.DoubleSide
+						});
 					var opacity = parseFloat(cValues[3]);
 					if(opacity !== 1.0) {
-						newMat.transparent = true;
-						newMat.opacity = opacity;
+						mat.transparent = true;
+						mat.opacity = opacity;
 					}
-					materials[category.attributes[i].id] = newMat;
-					console.log(newMat);
+					else
+						mat.transparent = false;
+					
+					materials[category.attributes[i].id] = mat;
+					console.log(mat);
 				}
 				for(var key in objects) {
 					var userData = objects[key].mesh.userData;
