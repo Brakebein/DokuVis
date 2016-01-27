@@ -81,7 +81,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		//Tasks
-		requests.addTask =  function(prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus){
+		requests.addTask =  function(prj,subprj,taskId,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus){
 
 			var q = '';
 			q += 'MATCH (sub:E7:'+prj+' {content: {e7id}})';
@@ -90,7 +90,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += ',(tprior:E55:'+prj+'{content: {priority}})';
 			q += ',(tstatus:E55:'+prj+'{content: {status}})';
 			q += ',(editor:E21:'+prj+'{content: {editor}})';
-			q += 'CREATE (e7:E7:'+prj+'{content: {tID}})-[:P2]->(ttask)'; //Activity-->Task
+			q += 'CREATE (e7:E7:'+prj+'{content: {tId}})-[:P2]->(ttask)'; //Activity-->Task
 			q += 'CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(ttdesc)'; 
 			q += 'CREATE (e7)-[:P4]->(e52:E52:'+prj+' {content:{e52idDuration}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to}})'; 
 			q += 'CREATE(e7)-[:P102]->(e35:E35:'+prj+' {value: {title}})'; 
@@ -101,21 +101,23 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += 'CREATE (e61n:E61:'+prj+'{content: {currentDate}})<-[:P82]-(e52n:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})'; 
 			q += 'CREATE (e65)-[:P94]->(e7)';
 			q += 'CREATE (sub)-[:P9]->(e7)'
+					console.log(taskId);
+					console.log(subprj);
 					
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
 					e7id: subprj,
-					tID: taskID,
+					tId: taskId,
 					desc: tdesc,
-					descId: taskID + '_taskDesc',
+					descId: taskId + '_taskDesc',
 					editor: 'e21_' + teditor,
-					e52idDuration: 'e52_' + taskID + '_duration', //in Diagramm ändern
-					e52id: 'e52_' + taskID,
+					e52idDuration: 'e52_' + taskId + '_duration', //in Diagramm ändern
+					e52id: 'e52_' + taskId,
 					from: tfrom,
 					to: tto,
 					title: ttitle,
-					createTask: 'e65_'+ taskID + '_creation',
+					createTask: 'e65_'+ taskId + '_creation',
 					currentDate: new Date(), 
 					priority: tpriority,
 					status: tstatus,
@@ -124,6 +126,37 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});	
 					
 		}
+		
+		requests.editTask = function(prj,newTask){
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+' {content: {tId}})-[:P4]->(E52:'+prj+')-[:P81]->(duration:E61:'+prj+'),\
+			(task)-[:P3]->(taskDesc:E62),\
+			(task)-[:P102]->(taskName),\
+			(task)-[r]->(editorOld:E21),\
+			(editorNew:E21:'+prj+' {content: {newEditor}})\
+			SET duration.from = {from}, duration.to = {to}, taskName.value = {name}, taskDesc.value = {desc}\
+			WITH task,duration, taskDesc,taskName, r,editorOld, editorNew\
+			DELETE r\
+			WITH task,duration, taskDesc,taskName,editorNew\
+			CREATE (task)-[:P14]->(editorNew)\
+			WITH task, duration, taskDesc,taskName,editorNew\
+			RETURN task,duration,taskName,taskDesc,editorNew';
+			
+			console.log(newTask.staffId);
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tId: newTask.ids.graph,
+					staffId: newTask.staffId,
+					from: newTask.from,
+					to: newTask.to,
+					name: newTask.task,
+					desc: newTask.desc,
+					newEditor: 'e21_' + newTask.staffId
+				}
+				});
+		};
 		
 		requests.connectTasks = function(prj,subpr,taskId,editorId){
 			var q = '';
@@ -161,9 +194,9 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		}
 		
-		requests.addCommentToTask = function(prj,taskID,tcomment){
+		requests.addCommentToTask = function(prj,taskId,tcomment){
 			var q = '';//KOMMENTAR -->logindata: Platzhalter für späteren Verfasser
-			q += 'MATCH (task:E7:'+prj+'{content: {tID}})';
+			q += 'MATCH (task:E7:'+prj+'{content: {tId}})';
 			q += 'CREATE (e62:E62:'+prj+'{value: {comment}})<-[:P3]-(e33:E33:'+prj+' {value: {lingObj}})<-[:P94]-(e65:E65:'+prj+' {value: {createComment}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})';
 			q += 'CREATE (e52:E52:'+prj+'{value: {timeSpanID}})-[:P82]->(e61:E61:'+prj+'{value:{currentDate}})';
 			q += 'CREATE (e65)-[:P4]->(e52)';
@@ -171,13 +204,13 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					tID: taskID,
+					tId: taskId,
 					comment: tcomment,
 					currentDate: new Date, 
-					lingObj: 'e33_'+ taskID,
-					createComment: 'e65_e33_' + taskID,
-					timeSpanID:'e65_e33_e52' + taskID,
-					logindata: 'logindata_' +  new Date().getTime() //vorläufige eindeutige ID, wird später durch eingeloggt person ersetzt
+					lingObj: 'e33_'+ taskId,
+					createComment: 'e65_e33_' + taskId,
+					timeSpanID:'e65_e33_e52' + taskId,
+					logindata: 'logindata_' +  Utilities.getUniqueId() //vorläufige eindeutige ID, wird später durch eingeloggt person ersetzt
 				}
 			});
 		}
@@ -195,8 +228,9 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			(child)-[:P2]->(status)-[:P127]->(typeS:E55 {content: "taskStatus"}),\
 			(child)-[:P2]->(priority)-[:P127]->(typeP:E55 {content: "taskPriority"}),\
 			path = (sub)-[:P9*]->(child)\
-			WITH p, child, title, taskDesc, time, priority,status, collect(editor.content) as editors,collect(editor.value) as editorNames \
-			RETURN {parent: p} AS parent, collect({child: child, name: title.value, desc: taskDesc.value,  priority: priority.content, status: status.content, editors: editors, editorNames: editorNames, from: time.from, to: time.to}) AS children';
+			OPTIONAL MATCH (p)-[:P1]->(subtitle)\
+			WITH subtitle, p, child, title, taskDesc, time, priority,status, collect(editor.content) as editors,collect(editor.value) as editorNames \
+			RETURN {parent: p, title: subtitle} AS parent, collect({child: child, name: title.value, desc: taskDesc.value,  priority: priority.content, status: status.content, editors: editors, editorNames: editorNames, from: time.from, to: time.to}) AS children';
 			
 
 			return $http.post(phpUrl, {
@@ -248,16 +282,31 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});		
 		}
 		
-		requests.getCommentsFromTask = function(taskID){
+		requests.getCommentsFromTask = function(taskId){
 			var q = '';
-			q += 'MATCH (task:E7 {content: {tid}})<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)';
+			q += 'MATCH (task:E7 {content: {tId}})<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)';
 			q += 'OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)';
 			q += 'RETURN creationDate.value AS date, commentDesc.value AS desc';
 			
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					tid: taskID,
+					tId: taskId,
+				}
+				})
+		}
+		
+		requests.countCommentsFromTask = function(taskId){
+			
+			var q = '';
+			q += 'MATCH (task:E7 {content: {tId}})<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)';
+			q += 'OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)';
+			q += 'RETURN count(commentDesc.value)';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tId: taskId,
 				}
 				})
 		}
@@ -333,11 +382,12 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				
 			q += 'MATCH (task:E7:'+prj+' {content: {tid}})-[g]-(),\
 				(task)-[r]->(timespan:E52)-[s]->(time:E61),\
-				(task)<-[t]-(creation:E65)-[u]->(timespanCreation:E52)-[v]->(timeCreation:E61),(creation:E65)-[w]->(creator:E21),\
+				(task)<-[t]-(creation:E65)-[u]->(timespanCreation:E52)-[v]->(timeCreation:E61),(creation:E65)-[w]->(),\
 				(task)-[x]->(desc:E62)-[x2]-(),(task)-[f]->(name:E35)\
 				OPTIONAL MATCH\
-				(task)<-[a]-(lingObject:E33), (lingObject)-[b]->(comment:E62),(lingObject)<-[c]-(event:E65)-[d]->(timespanC:E52)-[e]->(timeC:E61)\
-				DELETE task,name,timespan,time,creation,timespanCreation,timeCreation,creator,lingObject,event,timespan,timeC,desc,r,s,t,u,v,w,x,a,b,c,d,e,f,g,x2';
+				(task)<-[a]-(lingObject:E33), (lingObject)-[b]->(comment:E62),(lingObject)<-[c]-(event:E65)-[d]->(timespanC:E52)-[e]->(timeC:E61),(event)-[h]->()\
+				DELETE task,name,timespan,time,creation,timespanCreation,timeCreation,lingObject,event,timespan,timeC,desc,r,s,t,u,v,w,x,a,b,c,d,e,f,g,h,x2';
+			console.log(taskId)
 			
 			return $http.post(phpUrl, {
 				query: q,
@@ -401,21 +451,6 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		} 
 		
-		/* requests.getEditorsFromTasks = function(prj,subprj){
-		
-			var q = '';
-			q += 'MATCH (sub:E7:'+prj+' {content: {subprj}})-[:P9*]->(task:E7:'+prj+')-[:P102]->(name:E35:'+prj+'),\
-			(task)-[:P14]->(type)-[:P131]->(editors)\
-			RETURN task.content AS graphId,name.value AS name, collect(editors.content) AS editorsId, collect(editors.value) AS editorsName';
-			
-			return $http.post(phpUrl, {
-				query: q,
-				params: {
-					subprj: subprj,
-				}
-				})
-		
-		}  */
 		//alle Mitarbeiter holen
 		requests.getStaffFromProject = function(prj){
 		var q = '';
@@ -1014,7 +1049,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += 'MATCH (tscreen:E55:'+prj+' {content: "screenshot"})';
 			q += ',(tscomment:E55:'+prj+' {content: "screenshotComment"})';
 			
-			if(objData.data.pinObject)
+			if(objData.pinObject)
 				q += ',(e73:E73:'+prj+' {content: {e73id}})<-[:P106]-(:E36)-[:P138]->(e22:E22)';
 			else
 				q += ',(e22:E22:'+prj+' {content: {e22id}})';
@@ -1038,19 +1073,19 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				query: q,
 				params: {
 					e22id: 'e22_root_'+subprj,
-					e73id: objData.data.pinObject,
+					e73id: objData.pinObject,
 					e36content: {
 						content: 'e36_' + objData.filename,
-						cameraCenter: objData.data.cameraCenter,
-						cameraFOV: objData.data.cameraFOV,
-						cameraMatrix: objData.data.cameraMatrix,
-						pinMatrix: objData.data.pinMatrix
+						cameraCenter: objData.cameraCenter,
+						cameraFOV: objData.cameraFOV,
+						cameraMatrix: objData.cameraMatrix,
+						pinMatrix: objData.pinMatrix
 					},
 					e75content: {
 						content: objData.filename,
 						path: objData.path,
-						width: objData.data.width,
-						height: objData.data.height
+						width: objData.width,
+						height: objData.height
 					},
 					e35content: {
 						content: Utilities.getUniqueId()+'_screenshotTitle',
@@ -1060,8 +1095,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					painte75content: {
 						content: paintFile,
 						path: objData.path,
-						width: objData.data.width,
-						height: objData.data.height
+						width: objData.width,
+						height: objData.height
 					}
 				}
 			});
@@ -1566,6 +1601,9 @@ webglServices.factory('Utilities',
 				/*parent.file = data.data[i][0].file.data;
 				parent.obj = data.data[i][0].obj.data;*/
 				parent.content = data.data[i][0].parent.data.content;
+				if(data.data[i][0].title){
+					parent.parentName = data.data[i][0].title.data.content;
+				}
 				parent.children = [];
 				for(var j=0, m=data.data[i][1].length; j<m; j++) {
 					var child = {};

@@ -67,21 +67,57 @@
 }
 
 .sideContainer .sideHeader {
+	/* background-color: red; */
 	flex: 0 0 auto;
 	width: 100%;
-	padding: 20px;
+	margin-bottom: 5px;
+	margin-left: 10px;
 }
+
+/* .sideContainer .sideHeader#fa-times{
+	position: absolute;
+	right: 5%;
+	opacity: 0.5;
+} */
+.fa-times{
+	position: absolute;
+	right: 8%;
+	opacity: 0.5;
+	margin: 5px;
+}
+
+.fa-times:hover{
+	cursor: pointer;
+	opacity: 1.0;
+} 
+
 .sideContainer .sideContent {
 	flex: 1 1 auto;
 	width: 100%;
-	padding: 0 20px;
+	margin-left: 5px;
 	overflow-y: auto;
 	font-size: 8pt;
 }
+
+.sideContainer .sideContent .comments{
+	flex: 1 1 auto;
+	width: 100%;
+	margin-top: 10px;
+	margin-left: 0px;
+	overflow-y: auto;
+	font-size: 10pt;
+}
+
+.sideContainer .sideContent .desc{
+	margin: 5px;
+	font-size: 15px;
+}
+
 .sideContainer .sideFooter {
 	flex: 0 0 auto;
 	width: 100%;
-	padding: 20px;
+	padding-left: 5px;
+	padding-bottom: 20px;
 }
 
 
@@ -162,15 +198,6 @@
 	opacity: 1.0;
 }
 
-.fa-times{
-	opacity: 0.5;
-}
-
-.fa-times:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
-
 .glyphicon-ok{
 	opacity: 0.5;
 }
@@ -225,6 +252,21 @@
 .tasksLeft .optionsHeader{
 	height: 20px;
 	margin-bottom: 20px;
+}
+
+.tasksLeft .optionsHeader #add{
+	position: absolute;
+	left: 0.3%;
+}
+
+.tasksLeft .optionsHeader #order{
+	position: absolute;
+	left: 4%;
+}
+
+.tasksLeft .optionsHeader #subprj{
+	position: absolute;
+	left: 7.5%;
 }
 
 .tasksLeft .optionsHeader #from{

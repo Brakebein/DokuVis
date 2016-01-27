@@ -1,12 +1,12 @@
-<?php
+﻿<?php
 
 // OpenCTM Converter
 $pCTMConverter = '\'C:\\Program Files (x86)\\OpenCTM 1.0.3\\bin\\ctmconv.exe\'';
 
-// ImageMagick
-$pImagickConvert = 'C:\\ServerTools\\ImageMagick-6.9.2-4-Q16-x64\\convert.exe';
-$pImagickMogrify = 'C:\\ServerTools\\ImageMagick-6.9.2-4-Q16-x64\\mogrify.exe';
-$pImagickIdentify = 'C:\\ServerTools\\ImageMagick-6.9.2-4-Q16-x64\\identify.exe';
+// ImageMagickC:\Program Files\ImageMagick-6.9.2-Q16
+$pImagickConvert = "\"C:\\Program Files\\ImageMagick-6.9.2-Q16\\convert.exe\"";
+$pImagickMogrify = "\"C:\\Program Files\\ImageMagick-6.9.2-Q16\\mogrify.exe\"";
+$pImagickIdentify = "\"C:\\Program Files\\ImageMagick-6.9.2-Q16\\identify.exe\"";
 
 // Tesseract - Texterkennung
 $pTesseract = 'C:\\ServerTools\\Tesseract-3.03\\tesseract.exe';
