@@ -2549,6 +2549,7 @@
                 <File name="php\mysql\updateProjectDescription.php" />
                 <File name="php\mysql\updateRole.php" />
                 <File name="php\mysql\updateSurname.php" />
+                <File name="php\mysql\getAllRoles.php" />
             </Folder>
             <File name="php\createProjectFolders.php" />
             <File name="php\createThumb.php" />

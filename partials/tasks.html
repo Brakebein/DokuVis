@@ -1,37 +1,63 @@
 <div class="tasksLeft">
-	 <div class = "overview">      
+	
+	<div class = "overview">      
 		<!-- <button ng-click="resizerValue = 800">resizerAnim</button> -->
-		<h2 id = "title" >Projektübersicht</h2>
+		<h2 id = "title" >Projektübersicht {{recentPrjName}}</h2>
 		
 		<div class = "col-md-2" id = "search">
 			<div class="form-group">
 				<div class="input-group" >								    
-					<input type="text" class="form-control"  ng-model="options.filterTask">
+					<input type="text" class="form-control"  ng-model="options.filterRow" bs-tooltip="tooltip[6]" placement="left">
 					<div class="input-group-addon"><span class="fa fa-search"></span></div>
 				</div>
 			</div>
 		</div>
-			
-		
 		
 	</div>
 	<hr/>
 	
+	
 	<div class = "optionsHeader">
+		
+			<div class = "col-md-2" id= "add">
+				<div class="input-group" >
+						<button ng-if = "sortby == 'staff'" class="btn btn-info btn-md gradient" ng-click = "openStaff()" bs-tooltip="tooltip[0]"> 
+						<span class="fa fa-user-plus"></span>
+						</button>		
 
+						<button ng-if = "sortby == 'task'" class="btn btn-info btn-md" ng-click = "openTask()" bs-tooltip="tooltip[1]"> 
+						<span class="fa fa-user-plus"></span>
+						</button>		
+						
+				</div>
+			</div>
+
+			<div class = "col-md-2" id= "order">
+				<button ng-if = "sortby == 'staff'" type="button" bs-tooltip="tooltip[2]" class="btn btn-info btn-md gradient" ng-click="changeOrder()"><span class="glyphicon glyphicon-sort"></span></button>
+				<button ng-if = "sortby == 'task'" type="button" bs-tooltip="tooltip[3]" class="btn btn-info btn-md gradient" ng-click="changeOrder()"><span class="glyphicon glyphicon-sort"></span></button>
+			</div>
+		
+			 <div class = "col-md-2" id= "subprj">
+				<div class="input-group" >
+					<button ng-if = "subproject == 'master'" class="btn btn-info btn-md gradient" ng-click = "showSubprj()" bs-tooltip="tooltip[11]"> 
+					<span class="fa fa-folder-open"></span>
+					</button>	
+				</div>
+			</div> 
+		
 			<div class = "col-md-2" id= "from">
 				<div class="form-group" >
 					<div class="input-group" >
 		      			<div class="input-group-addon" ><</div>
-							<input type="text" class="form-control" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1"  bs-datepicker>
+							<input type="text" class="form-control" bs-tooltip="tooltip[4]" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1"  bs-datepicker data-autoclose=true data-date-format="dd.MM.yy" data-iconLeft='glyphicon glyphicon-chevron-left'>
 					</div>
 				</div>
 			</div>
 			
 			<div class = "col-md-1" id = "zoom">
 				<div class="input-group">
-							<input type="number"ng-model="options.zoom" step="0.1" min="0.1" max="5" class= "form-control"/>
-							<span class="input-group-addon"><span class="fa fa-search-plus"></span></span>
+					<input type="number" bs-tooltip="tooltip[5]" style="width: 5em" ng-model="options.zoom" step="0.1" min="0.1" max="5" class= "form-control"/>
+					<span class="input-group-addon"><span class="fa fa-search-plus"></span></span>
 				</div>
 			</div>
 			
@@ -39,11 +65,12 @@
 			<div class = "col-md-2" id = "to">
 				<div class="form-group" >
 					<div class='input-group'>
-				    		<input type="text"  class="form-control" ng-model="options.toDate" min-date="{{options.fromDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" bs-datepicker>
+				    		<input type="text"  class="form-control" bs-tooltip="tooltip[4]" placement="left" ng-model="options.toDate" min-date="{{options.fromDate}}" data-date-format="dd.MM.yy" start-week="1" bs-datepicker data-autoclose=true>
 				        	<div class="input-group-addon">></div>
 				    </div>
 				</div>
-			</div>	
+			</div>			
+		
 	  </div>
 					
 
@@ -104,30 +131,32 @@
 	</div>
 	
 	<div class = "optionsFooter">
-		<div class = "row">
-		<div class = "col-md-2" > 
-			<div class="input-group" >
-				<button class="btn btn-info btn-md" ng-click = "resizerValue = 1050" > <!-- data-placement="right" data-animation = "am-fade-and-slide-right" bs-aside="aside" data-container=".tasksLeft" backdrop = 'false' data-template-url="partials/aside/asideStaff.html"" -->
-    			<span class="fa fa-user-plus"></span> Mitarbeiter hinzufügen
-    			</button>					
-			</div>	
-		</div>
-		
+		<!-- <div class = "row">
+			<div class = "col-md-2" > 
+				<div class="input-group" >
+					<button ng-if = "sortby == 'staff'" class="btn btn-info btn-md" ng-click = "openStaff()" > 
+					<span class="fa fa-user-plus"></span> Mitarbeiter hinzufügen
+					</button>		
+
+					<button ng-if = "sortby == 'task'" class="btn btn-info btn-md" ng-click = "openTask()" > 
+					<span class="fa fa-user-plus"></span> Aufgabe hinzufügen
+					</button>		
+					
+				</div>	
+			</div>
 			
-		<button type="button" class="btn btn-default" ng-click="sortByTasks()"><span class="glyphicon glyphicon-sort"></span> Nach Aufgaben sortieren</button>		
-		<button type="button" class="btn btn-default" ng-click="sortByStaff()"><span class="glyphicon glyphicon-sort"></span> Nach Mitarbeitern sortieren</button>
-			
-		
-		</div>
-		
+				
+			<button type="button" class="btn btn-default" ng-click="sortByTasks()"><span class="glyphicon glyphicon-sort"></span> Nach Aufgaben sortieren</button>		
+			<button type="button" class="btn btn-default" ng-click="sortByStaff()"><span class="glyphicon glyphicon-sort"></span> Nach Mitarbeitern sortieren</button>
+		</div> -->
 	</div>
-	
 </div>
 
 
 <div class="tasksRight">	
 
 	
+
 	<div class="sidePanelSidemenu">
 	
 		<div title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
@@ -141,48 +170,73 @@
 		</div>
 	</div>
 	
-
+	
+	
 	<div ng-if="views.activeSide == 'staff'" class="sideContainer">
 		
+		
+		
 		<div class="sideHeader">
-			<h4>Mitarbeiter</h4>
+			
+			<div class= "closeAside">
+				<div class="input-group"  >
+					<button type="button" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[12]"  placement="left" ng-click="closeAside()">
+					<span class="fa fa-times"></span>
+					</button>
+				</div>
+			</div>
+		
+			<h4>Mitarbeiter zum Projekt einladen</h4>
 			<hr/>
 			
 		</div>
 		
 		<div class="sideContent">
-				<span ng-if="staff.length < 1" >Keine Mitarbeiter vorhanden</span>
-				<table ng-if="staff.length > 0" class="table table-striped"> 
+				<!-- <span ng-if="staff.length < 1" >Keine Mitarbeiter vorhanden</span> -->
+				<table class="table table-striped"> 
 				
 				
 				<thead>
 					<tr>
-						<th width="15">Vorname</th>
-						<th width="15">Nachname</th>
-						<th width="15">Mail</th>
-						<th width="15">Role</th>
+						<th width="15">Name</th>
+						<th width="15">E-Mail</th>
+						<th width="15">Rolle</th>
+						<th width="15"></th>
 						
 					</tr>
 				</thead>
 				<tbody>
 					<tr ng-repeat="s in staff" >
-						
-						<td><a data-drag="true" ng-model="staff" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep', onStart: 'getIndex($index)'}" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
-						<td><a href="#" editable-text ="s.surname" onbeforesave = "updateSurname($data,s.sid)">{{s.surname}}</a></td>
-						<td><a href="#" editable-text ="s.mail" onbeforesave = "updateMail($data,s.sid)">{{s.mail}}</a></td>
-						<td><a href="#" editable-text ="s.role" onbeforesave = "updateRole($data,s.sid)">{{s.role}}</a></td>
-						
-						
-						<td><button type="button" class="btn btn-default" ng-click=removeStaff(s.sid)>Löschen</button></td>
+						<td><a data-drag="true" ng-model="staff" style ="font-size: 15px; text-decoration: underline; cursor: move;" buttons = "no" e-style="width: 6em" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep', onStart: 'getIndex($index)'}" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" href="#" editable-text ="s.name" onbeforesave = "updateName($data,s.sid)" >{{s.name}}</a></td>
+						<td><a href="#" editable-text ="s.email" style ="font-size: 13px" buttons = "no" e-style="width: 6em" onbeforesave = "updateMail($data,s.sid)">{{s.email}}</a></td>
+						<td style ="font-size: 13px">{{s.role}}</td>
+						<td><div class="input-group" >
+							<button type="button"  class="btn btn-info btn-md gradient" bs-tooltip="tooltip[8]" placement= "bottom" ng-click=removeStaff(s.sid,s.rid)>
+							<span class="fa fa-trash"></span>
+							</button>
+						</div></td>
+					</tr>
+					
+					<tr>
+						<td><input type="text" class="form-control" style="width: 6em;"  ng-model="newStaff.name" placeholder="Name"></td>
+						<td><input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" ></td>
+						<td><select type="text" class="form-control" style="width: 6em" ng-model="newStaff.role">
+							<option value="" disabled='' selected=''>Rolle</option>
+							<option ng-repeat= "r in roles" value="{{r.rid}}">{{r.role}}</option> 
+						</select></td>
+						<td><div class = "col-md-2" >
+							<div class="input-group" >
+								<button class="btn btn-info btn-md gradient" bs-tooltip="tooltip[13]" placement= "bottom" ng-click="addNewStaffToProject()">
+								<span class="glyphicon glyphicon-plus"></span>
+								</button>	
+							</div>
+						</div> </td>
 						
 					</tr>
-					 
-					
-					
 				</tbody>
 				</table>
 			
-		<div class="panel-group" data-start-collapsed="true" bs-collapse>
+		<!-- <div class="panel-group" data-start-collapsed="true" bs-collapse>
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
@@ -194,31 +248,25 @@
                                 <div class="panel-body">
 										<div class="form-inline">
 											
-													<div class="form-group text-center">
-											   		<label class="control-label">Vorname</label><br>
-													<input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Vorname">
-												</div>
-											
-												
-										
 												<div class="form-group text-center">
-											   		<label class="control-label">Nachname</label><br>
-													<input type="text" class="form-control" style="width: 10em" ng-model="newStaff.surname" placeholder="Nachname">
+											   		<label class="control-label">Name</label><br>
+													<input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Name">
 												</div>
-											
-											
-											
-											
+										
 											<div class="form-group text-center">
-											   		<label class="control-label">Mail</label><br>
+											   		<label class="control-label">E-Mail</label><br>
 													<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" >
 												</div>
-											
-												
-											
+
 												<div class="form-group text-center">
-											   		<label class="control-label">Role</label><br>
-													<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.role" placeholder="Rolle" >
+											   		<label class="control-label">Rolle</label><br>
+													<select type="text" class="form-control" style="width: 6em" ng-model="newStaff.role">
+														<option value="" disabled='' selected=''>Rolle</option>
+														<option ng-repeat= "r in roles" value="{{r.rid}}">{{r.role}}</option> 
+														<option value = "Modellierer">Modellierer</option>
+														<option value = "Historiker">Historiker</option>
+														<option value = "Projektleiter">Projektleiter</option>
+													</select>
 												</div>
 										
 											
@@ -227,15 +275,22 @@
 											   		<label class="control-label">Hinzufügen</label><br>
 													<button class="btn btn-primary" ng-click="addNewStaffToProject()" >Hinzufügen</button>
 												</div>
-											
-											
-											
+												
+												<div class = "col-md-2" >
+													<div class="input-group" >
+														<button class="btn btn-primary" ng-click="addNewStaffToProject()">
+														<span class="fa fa-plus"></span>
+														</button>	
+													</div>
+												</div> 
+																					
+												
 												</div>
 											
 										</div>
 									</div>
 								</div>
-							</div>
+							</div> -->
 				
 		</div>
 		
@@ -250,44 +305,86 @@
 	<div ng-if="views.activeSide == 'comments'" class="sideContainer">
 		
 		<div class="sideHeader">
-			<h4>Kommentare</h4>
+			<div class= "closeAside">
+				<div class="input-group"  >
+					<button type="button" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[12]" placement="left" ng-click="closeAside()">
+					<span class="fa fa-times"></span>
+					</button>
+				</div>
+			</div>
+			
+			<h4>Kommentare zu {{taskNameForComment}}</h4>
 			<hr/>
 			
 		</div>
 		
 		<div class="sideContent">
-			<ul ng-repeat ="d in comments" style="list-style-type:none">
-				<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.desc}}</li>
-				<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.date}}</li>
-				<!-- <li ng-class-odd="'odd'" ng-class-even="'even'">{{d.author}}</li> -->
-				<li><br/></li>
-		</ul>
+			<div class="container-fluid">
+				<form ng-submit="addComment()">
+					<input type="text" class="form-control" ng-model="newComment.text" placeholder="Kommentar hinzufügen">
+				</form>
 				
+				<div class = "desc">{{description}}</div>
+
+				<div class="comments">
+					<ul ng-repeat ="d in comments" style="list-style-type:none">
+							<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.desc}}</li>
+							<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.date}}</li>
+							<!-- <li ng-class-odd="'odd'" ng-class-even="'even'">{{d.author}}</li> -->
+							<li><br/></li>
+					</ul>	
+				</div>
+			</div> 
 		</div>
 		
 		<div class="sideFooter">
-			<div class="container-fluid">
-				<form ng-submit="addComment()">
-				<input type="text" class="form-control" ng-model="newComment.text" placeholder="Kommentar hinzufügen">
-				
-			  </form>
-			</div>       
 		</div>
 	</div>	
 	
 	<div ng-if="views.activeSide == 'newTask'" class="sideContainer">
 		
 		<div class="sideHeader">
-			<h4>Neue Aufgabe</h4>
+		
+			<div class= "closeAside">
+				<div class="input-group"  >
+					<button type="button" class="btn btn-info btn-md gradient" bs-tooltip = "tooltip[12]" placement="left" ng-click="closeAside()">
+					<span class="fa fa-times"></span>
+					</button>
+				</div>
+			</div>
+		
+			<h4 ng-if="!editTask">Neue Aufgabe zu {{newTask.clickedElement.model.name}} hinzufügen</h4>
+			<h4 ng-if="editTask">Aufgabe {{newTask.task}} editieren</h4>
 			<hr/>
-			
 		</div>
 		
 		<div class="sideContent">
+			
+		
+			<div  ng-if = "subproject == 'master'" class="form-group text-left" >
+				<label class="control-label">Unterprojekt</label><br>
+				<select class="form-control" style="width: 8em" ng-model="newTask.subprj" required>
+				   <option value="">Bitte wählen Sie ein Unterprojekt aus</option>
+				   <option ng-repeat= "sub in subprojects" value="{{sub.subId}}">{{sub.title}}</option> 
+				 </select> 
+			</div>
+
+			
 			<div class="form-group text-left">
 				<label class="control-label">Bearbeiter</label><br>
-				<input type="text" class="form-control" style="width: 8em" ng-model="newTask.staff">
+				<select class="form-control" style="width: 8em" ng-model="newTask.staffId" convert-to-number>
+				   <option value="">Bitte wählen Sie einen Bearbeiter aus</option>
+				   <option ng-repeat= "staff in staffInGantt" value="{{staff.editorId}}">{{staff.editorName}}</option> 
+				 </select> 
 			</div>
+			
+
+			<!-- 
+			<div  ng-if = "sortby == 'staff'" class="form-group text-left">
+				<label class="control-label">Bearbeiter</label><br>
+				<input type="text" class="form-control" style="width: 8em" ng-model="newTask.staff"> 
+			</div> -->
+			
 			
 			<div class="form-group text-left">
 				<label class="control-label">Aufgabe</label><br>
@@ -297,12 +394,12 @@
 			
 		<div class="form-group text-left">
 				<label class="control-label">Von</label><br>
-				<input type="text" class="form-control" style="width: 6em" ng-model="newTask.from" placeholder="Von" bs-datepicker>
+				<input type="text" class="form-control" style="width: 6em" ng-model="newTask.from" placeholder="Von" bs-datepicker data-autoclose=true data-date-format="dd.MM.yy" data-startDate="today">
 			</div>
 			
 			<div class="form-group text-left">
 				<label for="to" class="control-label">Bis</label><br>
-				<input type="text" id = "to" class="form-control" style="width: 6em" ng-model="newTask.to" placeholder="Bis" bs-datepicker>
+				<input type="text" id = "to" class="form-control" style="width: 6em" ng-model="newTask.to" placeholder="Bis" bs-datepicker data-autoclose=true data-date-format="dd.MM.yy">
 			</div>
 			
 			 <label>Beschreibung</label>
@@ -310,7 +407,10 @@
 				   
 			<div class="form-group text-left">
 				<label  class="control-label">Hinzufügen</label><br>
-				<button type="button" class="btn btn-primary" ng-click="addNewTask(newTask)" >Neue Aufgabe hinzufügen</button>
+				<div class="input-group" >
+					<button ng-if="!editTask" type="button" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[1]" ng-click="addNewTask(newTask)" ><span class="fa fa-floppy-o"></span></button>
+					<button ng-if="editTask" type="button" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[1]" ng-click="saveTaskChanges(newTask)" ><span class="fa fa-floppy-o"></span></button>
+				</div>
 			</div>
 
 		</div>

@@ -73,6 +73,7 @@
 				<h3>{{params.data.title}}</h3>
 			</div>
 			
+			<!-- Marker Kommentare -->
 			<div class="markerComments">
 				<div class="comment" ng-repeat="m in markers">
 					<div class="commentLeft">
@@ -83,38 +84,69 @@
 					
 					<div ng-if="!m.isInserted" class="commentRight form-group">
 					<span ng-if="!m.isInserted" class="glyphicon glyphicon-trash commentBtn" ng-click="markers.splice($index,1)"></span>					
-					<div class="btn-group btn-group-xs">
+					<!-- <div class="btn-group btn-group-xs">
 						<button type="button" class="btn" ng-class="m.activeBtn == 'comment' ? 'btn-primary' : 'btn-default'" ng-click="changeMarkerStatus(m.id,'comment')">Kommentar</button>
 						<button type="button" class="btn" ng-class="m.activeBtn == 'task' ? 'btn-primary' : 'btn-default'" ng-click="changeMarkerStatus(m.id,'task')">neue Aufgabe</button>
-					</div>
+					</div> -->
 					
-					<div ng-if="m.activeBtn == 'comment'"> <!-- ng-include="markerNotes" > -->
-						 <textarea ng-if="!m.isInserted" id="{{'markerComment'+$index}}" class="form-control" ng-model="m.comment" rows="3"></textarea>					
-						<select class="form-control" ng-model= "m.taskID">
-							    <option value="" disabled='' selected=''>Als Kommentar zu Aufgabe hinzufügen</option>
-								<option ng-repeat= "t in tasks" value="{{t.taskID}}">{{t.taskName}}</option> 
-							 </select> 
-						
-					</div>
 					
-					<div ng-if="m.activeBtn == 'task'">
-						<textarea ng-if="!m.isInserted" id="{{'markerComment'+$index}}" class="form-control" ng-model="m.comment" rows="3"></textarea>
-						<div class="form-group">
-							<select class="form-control" ng-model="m.editor" ng-change = "getTasksFromEditors(m)">
-							   <option value="" >Bitte wählen Sie einen Bearbeiter aus</option>
-							   <option ng-repeat= "s in staff" value="{{s.editorId}}">{{s.editorName}}</option> 
-							 </select>
-							 
-							 <select class="form-control" ng-model = "m.taskID">
-							    <option value="" >Als Unteraufgabe anfügen an...(optional)</option>
-							    <option ng-repeat= "t in tasksFromEditor" value="{{t.taskId}}">{{t.taskName}}</option> 
-							 </select>
-							 <input type="text" class="form-control" style="width: 10em" ng-model="m.taskName" placeholder="Aufgabenname">
-							 <input type="text" class="form-control" style="width: 6em" ng-model="m.from" placeholder="Von" bs-datepicker>
-							 <input type="text" id = "to" class="form-control" style="width: 6em" ng-model="m.to" placeholder="Bis" bs-datepicker>
+						<div> 			
+							<textarea ng-if="!m.isInserted" id="{{'markerComment'+$index}}" class="form-control" ng-model="m.comment" rows="3" placeholder="Kommentar"></textarea>	
+							<select class="form-control" ng-model= "m.activeBtn">
+								<option value="comment">Als Kommentar zu Aufgabe hinzufügen</option>
+								<option value="source">Als Kommentar zu Quelle hinzufügen</option>
+								<option value="task">Neue Aufgabe erstellen</option>
+							</select> 
 						</div>
-						<p>{{m.taskID}}{{m.editor}}</p>
-					</div>
+						
+						<div ng-show="m.activeBtn == 'comment'"> 	
+							<select class="form-control" ng-model= "m.taskID">
+									<option value="" disabled='' selected=''>Bitte wählen Sie eine Aufgabe</option>
+									<option ng-repeat= "t in tasks" value="{{t.taskID}}">{{t.taskName}}</option>
+								 </select> 
+							
+						</div>
+						
+						<div ng-show="m.activeBtn == 'task'">
+							
+							<div class="form-group">
+							
+								<div  ng-show = "subproject == 'master'">
+									<select class="form-control" ng-model="m.subprj">
+									   <option value="">Bitte wählen Sie ein Unterprojekt aus</option>
+									   <option ng-repeat= "sub in subprojects" value="{{sub.subId}}">{{sub.title}}</option> 
+									 </select> 
+								</div>
+							
+							
+								<select class="form-control" ng-model="m.editor" ng-change = "getTasksFromEditors(m)">
+								   <option value="">Bitte wählen Sie einen Bearbeiter aus</option>
+								   <option ng-repeat= "s in staff" value="{{s.editorId}}">{{s.editorName}}</option> 
+								 </select>
+								 
+								 <select class="form-control" ng-model = "m.taskID">
+									<option value="">Als Unteraufgabe anfügen an...(optional)</option>
+									<option ng-repeat= "t in tasksFromEditor" value="{{t.taskId}}">{{t.taskName}}</option> 
+								 </select>
+								
+								
+								<form class="form-inline">		
+								 <input type="text" class="form-control" style="width: 12em"   ng-model="m.taskName" placeholder="Aufgabenname">
+								 <input type="text" class="form-control" style="width: 4em"   ng-model="m.from" placeholder="Von" bs-datepicker data-placement="top-right" data-autoclose=true data-date-format="dd.MM.yy">
+								 <input type="text" id = "to" class="form-control" style="width: 4em"   ng-model="m.to" placeholder="Bis" bs-datepicker data-placement="top-right" data-autoclose=true data-date-format="dd.MM.yy">
+								</form>	 
+								
+							</div>
+						</div>
+							
+						<div ng-show="m.activeBtn == 'source'">
+							<div class="form-group">
+								<select class="form-control" ng-model="m.editor" ng-change = "getTasksFromEditors(m)">
+								   <option value="" >Bitte wählen Sie eine Quelle aus</option>
+								 </select>
+							</div>
+							<p>{{m.taskID}}</p>
+						</div>
 						
 						
 						
