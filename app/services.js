@@ -101,6 +101,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += 'CREATE (e61n:E61:'+prj+'{content: {currentDate}})<-[:P82]-(e52n:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})'; 
 			q += 'CREATE (e65)-[:P94]->(e7)';
 			q += 'CREATE (sub)-[:P9]->(e7)'
+					console.log(taskId);
+					console.log(subprj);
 					
 			return $http.post(phpUrl, {
 				query: q,
