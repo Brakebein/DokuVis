@@ -1976,7 +1976,7 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 		
 	}]);
 	
-webglControllers.controller('testCtrl', ['$scope', '$stateParams',
+webglControllers.controller('configCtrl', ['$scope', '$stateParams',
 	function($scope, $stateParams) {
 		
 		$scope.members = [
@@ -2130,6 +2130,10 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		/*alle Rollen*/
 		$scope.roles = [];
+
+		//löschen
+		$scope.removeFromGantt = [];
+		$scope.removeFromGraph = [];
 		
 		/*Tasks*/
 		$scope.root = [];
@@ -2992,21 +2996,20 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		};	
 		
 		$scope.deleteTask = function(row) { //hier uach Bearbeiter löschen
-			var removeFromGantt = [];
 			var hier= $scope.api.tree.getHierarchy();
-			var removeFromGraph = [];
+			
 			
 				if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
 					
 					if(hier.children(row)){ //wenn oberaufgabe gelöscht werden sol
 						$.each(hier.descendants(row),function(indexC){ //alle childrenobjekte raussuchen und zum löschen übergeben
-							removeFromGantt.push({'id': hier.descendants(row)[indexC].model.id});
-							removeFromGraph.push({'gid': hier.descendants(row)[indexC].model.graphId});
+							$scope.removeFromGantt.push({'id': hier.descendants(row)[indexC].model.id});
+							$scope.removeFromGraph.push({'gid': hier.descendants(row)[indexC].model.graphId});
 						});
-						removeFromGantt.splice(0,0,{'id': row.model.id}); //Elternobjekt zum löschen übergeben
-						removeFromGraph.splice(0,0,{'gid': row.model.graphId});
-						console.log(removeFromGantt);
-						console.log(removeFromGraph);
+						$scope.removeFromGantt.splice(0,0,{'id': row.model.id}); //Elternobjekt zum löschen übergeben
+						$scope.removeFromGraph.splice(0,0,{'gid': row.model.graphId});
+						console.log($scope.removeFromGantt);
+						console.log($scope.removeFromGraph);
 					}
 					else{ //Unteraufgabe löschen
 						if(hier.parent(row)){
@@ -3019,25 +3022,17 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 								}); 
 							}
 						}
-						removeFromGantt.push({'id': row.model.id}); 
-						removeFromGraph.push({'gid': row.model.graphId});
+						$scope.removeFromGantt.push({'id': row.model.id}); 
+						$scope.removeFromGraph.push({'gid': row.model.graphId});
 						if(hier.children(row)){
 							hier.parent(row).model.children.splice(hier.parent(row).model.children.indexOf(row.model.id,1)); //childrenobjekt in parent löschen
 						}
 					}
-					$scope.api.data.remove(removeFromGantt); // aus Gantt löschen
-					console.log(removeFromGraph);
+					$scope.api.data.remove($scope.removeFromGantt); // aus Gantt löschen
+					console.log($scope.removeFromGraph);
 					
-						$.each(removeFromGraph,function(indexD){ // Tasks aus Graph löschen
-						console.log(removeFromGraph[indexD].gid);
-							neo4jRequest.deleteTask($stateParams.project,removeFromGraph[indexD].gid)
-								.then(function(response){
-									console.log($stateParams.project);
-									console.log(removeFromGraph[indexD]);
-								console.log(response.data);
-								}); 
-						}); 
-					
+					$scope.deleteSingleTask(0);	 // Tasks aus Graph löschen
+
 					if(row.model.isStaff){// Bearbeiter löschen
 						neo4jRequest.deleteStaff($stateParams.project,row.model.graphId)
 							.then(function(response){
@@ -3045,12 +3040,22 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							console.log(response.data);
 							}); 
 					}
-					
-					
-					console.log('data nacher');
-					console.log($scope.data);
 				}
         };
+		
+		$scope.deleteSingleTask = function(index){
+			console.log($scope.removeFromGraph.length);
+			console.log(index);
+			neo4jRequest.deleteTask($stateParams.project, $scope.removeFromGraph[index].gid)
+				.then(function(response){
+					console.log($scope.removeFromGraph[index]);
+							index++;
+						if(index<$scope.removeFromGraph.length){
+							$scope.deleteSingleTask(index);
+						}
+				}); 
+										
+		};
 		
 		$scope.openTask = function(row){
 			var hier= $scope.api.tree.getHierarchy();

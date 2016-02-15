@@ -10,7 +10,7 @@
 		ON upr.project_id=p.pid 
 		INNER JOIN roles r 
 		ON upr.role_id=r.id 
-		WHERE p.pid = 40'); //Projektnummer ändern
+		WHERE p.pid = 52'); //Projektnummer ändern
 	
 	$data = [];
 	

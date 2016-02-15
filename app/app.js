@@ -95,11 +95,11 @@ webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$ale
 				controller: 'tasksCtrl',
 				css: 'style/tasks.css'
 			})
-			.state('project.test', {
-				url: '/test',
-				templateUrl: 'partials/test.html',
-				controller: 'testCtrl',
-				css: 'style/test.css'
+			.state('project.config', {
+				url: '/config',
+				templateUrl: 'partials/config.html',
+				controller: 'configCtrl',
+				css: 'style/config.css'
 			});
 		
 		// defaults

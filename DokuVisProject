@@ -2528,11 +2528,11 @@
             <File name="partials\source_detail.html" />
             <File name="partials\source_type.html" />
             <File name="partials\tasks.html" />
-            <File name="partials\test.html" />
             <File name="partials\tree_item_renderer.html" />
             <File name="partials\tree_tasks.html" />
             <File name="partials\tree_tasks2.html" />
             <File name="partials\webgl.html" />
+            <File name="partials\config.html" />
         </Folder>
         <Folder name="php">
             <Folder name="mysql">
@@ -2598,10 +2598,10 @@
             <File name="style\project.css" />
             <File name="style\projHome.css" />
             <File name="style\tasks.css" />
-            <File name="style\test.css" />
             <File name="style\textAngular.css" />
             <File name="style\webglviewer.css" />
             <File name="style\xeditable.css" />
+            <File name="style\config.css" />
         </Folder>
         <Folder name="tmp">
             <Folder name="pveaqXb_sponsel" />
