@@ -1,6 +1,8 @@
 <?php
 
+	$json = json_decode(file_get_contents("php://input"));
 	include 'db_connect.php';
+	/* echo $json->pid; */
 	
 	$result = mysql_query('SELECT u.id as uid, u.email, u.name as uname, r.role, r.id as rid, p.name as pname
 	FROM users u
@@ -10,7 +12,9 @@
 		ON upr.project_id=p.pid 
 		INNER JOIN roles r 
 		ON upr.role_id=r.id 
-		WHERE p.pid = 52'); //Projektnummer ändern
+		WHERE p.pid = '.$json->pid.''); 
+		
+	
 	
 	$data = [];
 	

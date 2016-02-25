@@ -1,0 +1,23 @@
+.config {
+	position:absolute;
+	margin-left: 10px;
+}
+
+.config .configHeader {
+	position:relative;
+	margin-bottom: 10px;
+}
+
+.config .configBody {
+	position:relative;
+} 
+
+.config .configBody .editors{
+	position:relative;
+	width: 600px;
+} 
+
+.config .configBody .rights{
+	position:relative;
+	width: 600px;
+} 

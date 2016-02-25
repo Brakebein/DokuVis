@@ -1,0 +1,74 @@
+<div class="config"> <!-- Controller anpassen -->
+	<div class="configHeader">
+		<h2>Konfiguration</h2>
+		<hr/>
+	</div>
+
+	<div class="configBody">
+		<div class="editors">
+			<div class="panel-group" data-start-collapsed="true" bs-collapse>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a href=""  bs-collapse-toggle>Mitarbeiter hinzufügen</a>
+						</h4>
+					</div>
+				   
+					<div class="panel-collapse" bs-collapse-target>
+						<div class="panel-body">
+								<div class="form-inline">
+									
+										<!-- <div class="form-group text-center">
+											<label class="control-label">Name</label><br>
+											<input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Name">
+										</div> -->
+								
+									<div class="form-group text-center">
+											<label class="control-label">E-Mail</label><br>
+											<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" >
+										</div>
+
+										<div class="form-group text-center">
+											<label class="control-label">Rolle</label><br>
+											<select type="text" class="form-control" style="width: 6em" ng-model="newStaff.role">
+												<option value="" disabled='' selected=''>Rolle</option>
+												<option ng-repeat= "r in roles" value="{{r.rid}}">{{r.role}}</option> 
+												<option value = "Modellierer">Modellierer</option>
+												<option value = "Historiker">Historiker</option>
+												<option value = "Projektleiter">Projektleiter</option>
+											</select>
+										</div>
+								
+									
+									
+										<div class="form-group text-center">
+											<label class="control-label">Hinzufügen</label><br>
+											<button class="btn btn-primary" ng-click="addNewStaffToProject()">Mitarbeiter hinzufügen</button>
+										</div>
+										</div>
+									
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+		<div class="rights">
+			<div class="panel-group" data-start-collapsed="true" bs-collapse>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a href=""  bs-collapse-toggle>Rechteverwaltung</a>
+						</h4>
+					</div>
+				   
+					<div class="panel-collapse" bs-collapse-target>
+						<div class="panel-body">
+									
+								</div>
+							</div>
+						</div>
+					</div>
+		
+		</div>
+<div>

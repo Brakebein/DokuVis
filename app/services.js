@@ -101,8 +101,17 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += 'CREATE (e61n:E61:'+prj+'{content: {currentDate}})<-[:P82]-(e52n:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})'; 
 			q += 'CREATE (e65)-[:P94]->(e7)';
 			q += 'CREATE (sub)-[:P9]->(e7)'
-					console.log(taskId);
-					console.log(subprj);
+			
+		/* 	console.log(prj);
+			console.log(subprj);
+			console.log(taskId);
+			console.log(ttitle);
+			console.log(tdesc);
+			console.log(teditor);
+			console.log(tfrom);
+			console.log(tto);
+			console.log(tpriority);
+			console.log(tstatus); */
 					
 			return $http.post(phpUrl, {
 				query: q,
@@ -1301,21 +1310,24 @@ webglServices.factory('mysqlRequest',
 			});
 		};
 		
-		requests.getAllStaff = function() {
-			return $http.post('php/mysql/getAllStaff.php', {});
+		requests.getAllStaff = function(pid) {
+			return $http.post('php/mysql/getAllStaff.php', {
+				pid: pid				
+			});
 		};
 		
 		requests.getAllRoles = function() {
 			return $http.post('php/mysql/getAllRoles.php', {});
 		};
 		
-		requests.addNewStaff = function(id,name,mail,role) {
-			console.log(id,name,mail,role)
+		requests.addNewStaff = function(id,name,mail,role,pid) {
+			
 			return $http.post('php/mysql/addNewStaff.php', {
 				name: name,
 				sid: id,
 				mail:mail,
-				rid: role
+				rid: role,
+				pid: pid
 			});
 		};
 		
@@ -1356,10 +1368,11 @@ webglServices.factory('mysqlRequest',
 		};
 		
 		
-		requests.removeStaff = function(staffId,roleId) {
+		requests.removeStaff = function(staffId,roleId,pid) {
 			return $http.post('php/mysql/removeStaff.php', {
 				sid: staffId,
 				rid: roleId,
+				pid: pid,
 			});
 		};
 				
