@@ -6,6 +6,7 @@ var auth = require('./auth');
 var projects = require('./projects');
 var models = require('./models');
 var category = require('./category');
+var graph = require('./graph');
 
 // routes that can be accessed by any one
 router.post('/login', auth.login);
@@ -15,6 +16,7 @@ router.post('/register', auth.register);
 // routes that can be only accessed by authenticated users
 
 router.post('/auth/cypher', projects.cypher);
+router.post('/auth/graph', graph.getPaths);
 
 // routes that can be only accessed by authenticated & authorized users
 

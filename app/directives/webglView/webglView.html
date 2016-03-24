@@ -1,0 +1,55 @@
+<!-- Achsen-Viewport -->
+<div id="axis"></div>
+<!-- Ladebalken und Schrift -->
+<div class="loadprogressitem fadeLoadprogress ng-hide" ng-show="loading.visible">{{loading.item}} &ndash; {{loading.loaded}} / {{loading.total}}</div>
+<div class="loadprogressbar fadeLoadprogress ng-hide" ng-show="loading.visible" ng-style="{ width: loading.percent + '%' }"></div>
+
+<!-- Kontrollleiste -->
+<div class="vpNaviContainer">
+	<!-- Buttons - auf Objekt fokusieren -->
+	<div class="ctrlGroup">
+		<button title="Focus All" class="ctrlBtn" ng-class="(activeBtn == 'zoom_all') ? 'active' : ''" ng-click="focusAll()" ng-mousedown="activeBtn = 'zoom_all'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_all_w.png"/></button>
+		<button title="Focus Selection" class="ctrlBtn" ng-class="(activeBtn == 'zoom_sel') ? 'active' : ''"  ng-click="focusSelected()" ng-mousedown="activeBtn = 'zoom_sel'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_sel_w.png"/></button>
+	</div>
+	
+	<!-- Buttons - navigieren -->
+	<div class="ctrlGroup">
+		<button title="Auswahl-Werkzeug" class="ctrlBtn" ng-class="(navigation.select) ? 'active' : ''"  ng-click="wi.callFunc.setNavigationMode('select')"><img src="img/icons/cursor80_w.svg" width="24"/></button>
+		<button title="Ansicht drehen" class="ctrlBtn" ng-class="(navigation.rotate) ? 'active' : ''"  ng-click="wi.callFunc.setNavigationMode('rotate')"><img src="img/icons/orbit_w.svg" width="24"/></button>
+		<button title="Ansicht verschieben" class="ctrlBtn" ng-class="(navigation.pan) ? 'active' : ''"  ng-click="wi.callFunc.setNavigationMode('pan')"><img src="img/icons/move_w.svg" width="24"/></button>
+		<button title="Ansicht zoomen" class="ctrlBtn" ng-class="(navigation.zoom) ? 'active' : ''" ng-click="wi.callFunc.setNavigationMode('zoom')"><img src="img/icons/zoom2_w.svg" width="24"/></button>
+	</div>
+	
+	<!-- Dropdown-Liste Rendermode und Kamera -->
+	<div class="ctrlGroup form-inline">
+		<select class="form-control input-sm" ng-options="s for s in wi.viewportSettings.shading" ng-model="wi.viewportSettings.shadingSel" ng-change="wi.callFunc.setShading(wi.viewportSettings.shadingSel)">
+			<!--<option value="color+edges">color + edges</option>
+			<!--<option value="color-edges">color without edges</option>--
+			<option value="grey+edges">grey + edges</option>
+			<option value="transparent+edges">transparent + edges</option>
+			<!--<option value="edges">only edges</option>
+			<!--<option value="color+wireframe">color + wireframe</option>--
+			<option value="wireframe">only wireframe</option>
+			<option value="xray">xray</option>-->
+		</select>
+		<button class="btn btn-default btn-xs" ng-class="{active: wi.viewportSettings.edges}" ng-click="wi.viewportSettings.edges = !wi.viewportSettings.edges">Kanten</button>
+		<select class="form-control input-sm" ng-options="c for c in wi.viewportSettings.camera" ng-model="wi.viewportSettings.cameraSel" ng-change="wi.callFunc.setCamera(wi.viewportSettings.cameraSel)"></select>
+	</div>
+	
+	<div class="ctrlGroup">
+		<div class="btn-group btn-group-xs">
+			<button type="button" class="btn" ng-class="wi.viewportSettings.ssao == 'ssao' ? 'btn-primary' : 'btn-default'" ng-init="wi.viewportSettings.ssao = 'aa'" ng-click="wi.viewportSettings.ssao = 'ssao'">SSAO</button>
+			<button type="button" class="btn" ng-class="wi.viewportSettings.ssao == 'aa' ? 'btn-primary' : 'btn-default'" ng-click="wi.viewportSettings.ssao = 'aa'">AA</button>
+		</div>
+	</div>
+	
+	<!--<div class="ctrlGroup">
+		<button title="Viewport settings" class="ctrlBtn" ng-class="(activeBtn == 'vpsettings') ? 'active' : ''" ng-click="callDirFunc.focusAll()" ng-mousedown="activeBtn = 'vpsettings'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><span class="glyphicon glyphicon-cog"></span></button>
+	</div>-->
+</div>
+
+<!-- Erweiterte Optionen im Viewport -->
+<div ng-include="'partials/enhanced_options.html'" class="vpPanelContainer" ng-show="views.enhancedOptions.show"></div>
+<!--<div ng-include="'partials/enhanced_options_horizontal.html'" class="vpPanelContainerHorizontal"></div>-->
+
+<div class="ng-hide" legend="wi.activeCategory" ng-show="wi.activeCategory"></div>

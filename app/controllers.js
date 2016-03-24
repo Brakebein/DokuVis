@@ -268,8 +268,8 @@ webglControllers.controller('projectCtrl',
 		
 	});
 	
-webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlRequest', 'neo4jRequest', 'Utilities',
-	function($scope, $stateParams, mysqlRequest, neo4jRequest, Utilities) {
+webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'APIRequest', 'neo4jRequest', 'Utilities',
+	function($scope, $stateParams, APIRequest, neo4jRequest, Utilities) {
 		
 		$scope.isMaster = $stateParams.subproject === 'master' ? true : false;
 		
@@ -298,7 +298,7 @@ webglControllers.controller('projHomeCtrl', ['$scope', '$stateParams', 'mysqlReq
 		getProjectInfoFromNodes();
 		
 		function getProjectInfoFromTable() {
-			mysqlRequest.getProjectEntry($stateParams.project).then(function(response) {
+			APIRequest.getProjectEntry($stateParams.project).then(function(response) {
 				if(!response.data) { console.error('mysqlRequest failed on getProjectEntry()', response); return; }
 				$scope.projInfo.name = response.data.name;
 				$scope.projInfo.description = response.data.description;
@@ -517,12 +517,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 		// Properties
 		$scope.categories = [];
 		$scope.activeCategory = null;
-		
-		
-		phpRequest.getSvgContent('img/plus-sign.svg').success(function(data, status) {
-			console.log(data);
-			$scope.plusSign = $sce.trustAsHtml(data);
-		});
 	
 		// Uploader für Quellen
 		$scope.sourcesUploader = new FileUploader();
@@ -1149,7 +1143,7 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 					else
 						delete webglInterface.selected[i].categories[c.id];
 				}
-				if($scope.activeCategory === c)
+				if(webglInterface.activeCategory === c)
 					webglInterface.visualizeCategory(c);
 			}, function(err) {
 				Utilities.throwApiException('on assignCategoryToObjects()', err);

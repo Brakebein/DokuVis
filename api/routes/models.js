@@ -48,7 +48,6 @@ var models = {
 	},
 	
 	assignCategory: function(req, res) {
-		console.log(req.body.objects);
 		var prj = req.params.id;
 		var q = 'MATCH (attrNew:E55:'+prj+' {content: {attrId}})-[:P127]->(cat:E55)-[:P127]->(:E55 {content: "category"}), \
 			(e73:E73:'+prj+')<-[:P106]-(:E36)-[:P138]->(e22:E22) \

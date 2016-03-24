@@ -1,0 +1,47 @@
+div[graph-search]
+	width: 100%
+	height: 100%
+	font-size: 10px
+	background: radial-gradient(circle, #c4c4c4, #727272)
+	overflow: hidden
+
+	.node
+		cursor: pointer
+		
+		circle
+			stroke: steelblue
+			stroke-width: 1.5px
+			//transition: all 0.2s
+			
+		&:hover circle
+			stroke: #f00
+			//fill: #fa0
+			
+		&.fixed circle
+			stroke: #c0c
+		
+		text.title
+			fill: blue
+		
+		text.shadow
+			stroke: #fff
+			stroke-width: 3px
+			stroke-opacity: 0.8
+		
+		rect.bg-text
+			fill: #fff
+			fill-opacity: 0.7
+
+	.linkPath
+		fill: none
+		stroke: #ddd
+		stroke-width: 1px
+	
+	.textPath
+		fill: none
+	
+	.arrowHead
+		fill: #ddd
+		
+	.linkLabel
+		fill: #000

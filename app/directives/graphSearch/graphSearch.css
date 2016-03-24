@@ -1,0 +1,36 @@
+div[graph-search] {
+  width: 100%;
+  height: 100%;
+  font-size: 10px;
+  background: radial-gradient(circle, #c4c4c4, #727272);
+  overflow: hidden; }
+  div[graph-search] .node {
+    cursor: pointer; }
+    div[graph-search] .node circle {
+      stroke: steelblue;
+      stroke-width: 1.5px; }
+    div[graph-search] .node:hover circle {
+      stroke: #f00; }
+    div[graph-search] .node.fixed circle {
+      stroke: #c0c; }
+    div[graph-search] .node text.title {
+      fill: blue; }
+    div[graph-search] .node text.shadow {
+      stroke: #fff;
+      stroke-width: 3px;
+      stroke-opacity: 0.8; }
+    div[graph-search] .node rect.bg-text {
+      fill: #fff;
+      fill-opacity: 0.7; }
+  div[graph-search] .linkPath {
+    fill: none;
+    stroke: #ddd;
+    stroke-width: 1px; }
+  div[graph-search] .textPath {
+    fill: none; }
+  div[graph-search] .arrowHead {
+    fill: #ddd; }
+  div[graph-search] .linkLabel {
+    fill: #000; }
+
+/*# sourceMappingURL=graphSearch.css.map */

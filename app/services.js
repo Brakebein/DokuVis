@@ -90,6 +90,11 @@ webglServices.factory('APIRequest',
 			return $http.delete(API + 'auth/project/'+$stateParams.project+'/category/' + cid + '/attribute/' + id);
 		};
 		
+		// graph
+		requests.getNodeNeighbours = function(nodeId) {
+			return $http.post(API + 'auth/graph', { id: nodeId });
+		};
+		
 		return requests;
 	});
 
