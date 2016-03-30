@@ -71,7 +71,7 @@ angular.module('dokuvisApp').directive('graphSearch', ['APIRequest', 'CidocDict'
 				
 				var force = d3.layout.force()
 					.size([width, height])
-					.charge(-800)
+					.charge(-2000)
 					.friction(0.7)
 					.gravity(0.08)
 					.linkDistance(200)

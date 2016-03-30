@@ -111,12 +111,18 @@ var auth = {
 				if(rows.length === 0) return Promise.reject();
 				else return rows[0];
 			});
+	},
+	
+	checkJWT: function(req, res) {
+		res.status(200);
+		res.send();
+		return;
 	}
 	
 };
 
 function genToken(user) {
-	var expires = expiresIn(7);
+	var expires = expiresIn(1);
 	var token = jwt.encode({
 		exp: expires
 	}, config.secret());

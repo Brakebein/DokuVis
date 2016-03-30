@@ -3,3 +3,4 @@ tmp
 uploads
 /DokuVis.clpprj
 /php/tesseract.exe.stackdump
+/api/node_modules

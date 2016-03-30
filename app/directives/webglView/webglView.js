@@ -291,10 +291,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				//plane.rotateOnAxis(new THREE.Vector3(1,0,0), 0.5 * Math.PI);
 				//plane.geometry.computeBoundingBox();
 				plane.add(pedges);
-				scene.add(plane);
+				//scene.add(plane);
 				console.log(plane);
 				
-				setGizmo(plane, 'move');
+				//setGizmo(plane, 'move');
 				
 				
 				$timeout(function() {
@@ -512,7 +512,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				});
 			}
 			
-			function setGizmo(obj, type) {
+			function setGizmo(obj, type, refs) {
 				if(gizmo)
 					gizmo.attachToObject(null);
 				
@@ -523,7 +523,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 				
 				if(gizmo)
-					gizmo.attachToObject(obj);
+					gizmo.attachToObject(obj, refs);
 			}
 			
 			// selection by a simple click
@@ -629,7 +629,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						if(o.userData.type === 'object' || o.userData.type === 'plan')
 							rejectSelectionMat(o);
 						webglInterface.deselectListEntry(o.id, o.userData);
-						deselectChildren(o.children);
+						if(o.userData.type !== 'plan')
+							deselectChildren(o.children);
+						else
+							setGizmo();
 					}
 					selected = [];
 				}
@@ -638,7 +641,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
 						assignSelectionMat(obj);
 					webglInterface.selectListEntry(obj.id, obj.userData);
-					selectChildren(obj.children);
+					if(obj.userData.type !== 'plan')
+						selectChildren(obj.children);
+					else
+						setGizmo(obj, 'move', [plans[obj.id].edges]);
 					
 					selected.push(obj);
 					//console.log(selected);
@@ -648,7 +654,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
 						rejectSelectionMat(obj);
 					webglInterface.deselectListEntry(obj.id, obj.userData);
-					deselectChildren(obj.children);
+					if(obj.userData.type !== 'plan')
+						deselectChildren(obj.children);
+					else
+						setGizmo();
+						
 					selected.splice(selected.indexOf(obj), 1);
 				}
 			}
@@ -690,7 +700,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				// if(scope.viewportSettings.shading == shading.EDGE && obj.userData.type === 'object' && objects[obj.id].edges)
 					// objects[obj.id].edges.material.color.setHex(0xff4444);
 				 if(obj.userData.type === 'plan') {
-					 obj.material.color.setHex(0xffcccc);
+					 //obj.material.color.setHex(0xffcccc);
+					 plans[obj.id].edges.material = materials['edgesSelectionMat'];
 					 return;
 				 }
 				
@@ -733,7 +744,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				// if(obj.userData.type === 'object' && objects[obj.id].edges)
 					// objects[obj.id].edges.material.color.setHex(0x333333);
 				 if(obj.userData.type === 'plan') {
-					 obj.material.color.setHex(0xffffff);
+					 //obj.material.color.setHex(0xffffff);
+					 plans[obj.id].edges.material = materials['edgesMat'];
 					 return;
 				 }
 				switch(currentShading) {
@@ -1528,7 +1540,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			};
 			
 			//scope.$watch('viewportSettings.camera', function(value) {
-			webglInterface.callFunc.setCamera = function(value) {
+			scope.setCamera = function(value) {
 				console.log('set camera', value);
 				if(!scene) return;
 				
@@ -1560,6 +1572,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						break;
 					default: break;
 				}
+				console.log(camera);
 			};
 			
 			// watch vizSettings.opacitySelected
@@ -1684,7 +1697,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				if(scope.navigation.select || isPinning) {
 				
-					if(event.button === 0 && event.altKey && !isPanningView) {
+					if(event.button === 0 && event.altKey && !isPanningView && webglInterface.viewportSettings.cameraSel === 'Perspective') {
 						if(activeGizmo) activeGizmo = false;
 						$('#webglViewport').addClass('cursor_orbit');
 						isRotatingView = true;
@@ -2223,6 +2236,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					var texture = THREE.ImageUtils.loadTexture('data/' + info.materialMapPath + info.materialMap);
 					texture.anisotropy = 8;
 					var material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+					material.name = info.content + '_Mat';
 					
 					//var mesh = new THREE.Mesh(geo, materials['defaultDoublesideMat']);
 					var mesh = new THREE.Mesh(geo, material);
@@ -2236,6 +2250,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					mesh.userData.name = info.name;
 					mesh.userData.eid = info.content;
 					mesh.userData.type = 'plan';
+					
+					materials[mesh.material.name] = mesh.material;
+					mesh.userData.originalMat = mesh.material.name;
 					
 					//mesh.scale.divideScalar(1000);
 					
@@ -2255,7 +2272,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					console.log(mesh);
 					scene.add(mesh);
 					
-					setGizmo(mesh, 'move');
+					//setGizmo(mesh, 'move');
 					
 					// Liste, um zusammengehörige Objekte zu managen
 					plans[mesh.id] = {mesh: mesh, edges: edges, visible: true};
@@ -2281,7 +2298,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				mat.set(m[0],m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8],m[9],m[10],m[11],m[12],m[13],m[14],m[15]);
 				
 				// transformation from z-up-world to y-up-world
-				if(info.upAxis == 'Z_UP') {
+				if(info.upAxis == 'Z_UP' && !parent) {
 					var ymat = new THREE.Matrix4();
 					ymat.set(1,0,0,0, 0,0,1,0, 0,-1,0,0, 0,0,0,1);
 					mat.multiplyMatrices(ymat,mat);
@@ -2704,37 +2721,46 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				resizeViewport();
 			}
 			
+			// orthogonale Ansicht des Plans einnehmen
 			webglInterface.callFunc.viewOrthoPlan = function(pid) {
 				
 				var pgeo = plans[pid].mesh.geometry;
+				var matWorld = plans[pid].mesh.matrixWorld;
 				
 				console.log(pgeo);
 				
 				var normal = new THREE.Vector3(pgeo.attributes.normal.array[0], pgeo.attributes.normal.array[1], pgeo.attributes.normal.array[2]);
 				
+				var boundingBox = pgeo.boundingBox.clone().applyMatrix4(matWorld);
+				
+				// Ausmaße im Raum
 				var aspect = SCREEN_WIDTH/SCREEN_HEIGHT;
-				var pwidth = Math.sqrt( Math.pow(pgeo.boundingBox.max.x - pgeo.boundingBox.min.x, 2) + Math.pow(pgeo.boundingBox.max.z - pgeo.boundingBox.min.z, 2) ) / 2;
-				var pheight = (pgeo.boundingBox.max.y - pgeo.boundingBox.min.y) / 2;
+				var pwidth = Math.sqrt( Math.pow(boundingBox.max.x - boundingBox.min.x, 2) + Math.pow(boundingBox.max.z - boundingBox.min.z, 2) ) / 2;
+				var pheight = (boundingBox.max.y - boundingBox.min.y) / 2;
 				
 				if(normal.y > 0.707 || normal.y < -0.707) {
-					pwidth = Math.sqrt( Math.pow(pgeo.boundingBox.max.x - pgeo.boundingBox.min.x, 2) + Math.pow(pgeo.boundingBox.max.y - pgeo.boundingBox.min.y, 2) ) / 2;
-					pheight = (pgeo.boundingBox.max.z - pgeo.boundingBox.min.z) / 2;
+					pwidth = Math.sqrt( Math.pow(boundingBox.max.x - boundingBox.min.x, 2) + Math.pow(boundingBox.max.y - boundingBox.min.y, 2) ) / 2;
+					pheight = (boundingBox.max.z - boundingBox.min.z) / 2;
 				}
 				
 				if(aspect < pwidth/pheight)
 					pheight = 1/aspect * pwidth;
 				
+				// Abstand zum Bild (abhängig von Kamerawinkel)
 				var h = pheight / Math.tan( camera.fov/2 * Math.PI / 180 );
 				
-				var newpos = new THREE.Vector3();
-				newpos.addVectors(pgeo.boundingSphere.center, normal.setLength(h));
+				var bsCenter = pgeo.boundingSphere.center.clone().applyMatrix4(matWorld);
 				
+				var newpos = new THREE.Vector3();
+				newpos.addVectors(bsCenter, normal.setLength(h));
+				
+				// Kamerafahrt zur Ansicht
 				new TWEEN.Tween(camera.position)
 					.to(newpos, 500)
 					.easing(TWEEN.Easing.Quadratic.InOut)
 					.start();
 				new TWEEN.Tween(controls.center)
-					.to(pgeo.boundingSphere.center, 500)
+					.to(bsCenter, 500)
 					.easing(TWEEN.Easing.Quadratic.InOut)
 					.start()
 					.onComplete(function() {
@@ -2745,6 +2771,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				console.log('orthoview');
 			};
 			
+			// Focus objects (call from object list)
 			webglInterface.callFunc.focusObject = function(id) {
 				var objs = [objects[id].mesh];
 				var cc = [];
@@ -2766,7 +2793,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				function collectChildren(children) {
 					for(var i=0; i<children.length; i++) {
 						collectChildren(children[i].children);
-						if(children[i].userData.type === 'object')
+						if(children[i].userData.type === 'object' || children[i].userData.type === 'plan')
 							cc.push(children[i]);
 					}
 				}
@@ -2809,6 +2836,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				geo.vertices.push(new THREE.Vector3(xmax,ymax,zmax));
 				geo.computeBoundingSphere();
 				
+				// debug boundingBox
 				//var mesh = new THREE.Mesh(geo, materials['defaultMat']);
 				//scene.add(new THREE.BoxHelper(mesh, 0x00ff00));
 				
@@ -2830,6 +2858,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					
 					//camera.position.copy(newpos);
 					//controls.center = M.clone();
+					
 					// animate camera.position and controls.center
 					new TWEEN.Tween(camera.position).to(newpos, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
 					new TWEEN.Tween(controls.center).to(M, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
@@ -2857,7 +2886,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			templateUrl: 'app/directives/webglView/webglView.html',
 			scope: {
 				unsafeSettings: '=',
-				viewportSettings: '=',
 				callFunc: '=',
 				gizmoCoords: '=',
 				navigation: '=',

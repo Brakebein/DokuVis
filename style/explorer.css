@@ -413,6 +413,7 @@
 .resultItem .thumbnail {
 	position: relative;
 	width: 175px;
+	overflow: hidden;
 }
 .resultItem .thumbnail.selected {
 	background-color: #fc4e2a;
@@ -423,6 +424,15 @@
 .resultItem span {
 	font-size: 9pt;
 	font-weight: bold;
+}
+.resultItem .thumbnail .primaryIdenticator {
+	position: absolute;
+	width: 24px;
+	height: 24px;
+	left: -12px;
+	bottom: -12px;
+	transform: rotate(45deg);
+	background-color: #addd8e;
 }
 .resultItem .thumbnail .btnBar {
 	position: absolute;

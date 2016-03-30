@@ -44,6 +44,25 @@ $wordRectBorder:	1px solid red;
 		max-height: 100%;
 		border: $imageBorder;
 	}
+	.infoHDiv .primaryIdenticator,
+	.infoVDiv .primaryIdenticator {
+		position: absolute;
+		width: 24px;
+		height: 24px;
+		top: 0;
+		right: 0;
+		overflow: hidden;
+		
+		&>div {
+			position: absolute;
+			width: 24px;
+			height: 24px;
+			top: -12px;
+			right: -12px;
+			transform: rotate(45deg);
+			background-color: #addd8e;
+		}
+	}
 
 	.displayText {
 		width: 100%;

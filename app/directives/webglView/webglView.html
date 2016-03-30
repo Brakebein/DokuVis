@@ -33,7 +33,7 @@
 			<option value="xray">xray</option>-->
 		</select>
 		<button class="btn btn-default btn-xs" ng-class="{active: wi.viewportSettings.edges}" ng-click="wi.viewportSettings.edges = !wi.viewportSettings.edges">Kanten</button>
-		<select class="form-control input-sm" ng-options="c for c in wi.viewportSettings.camera" ng-model="wi.viewportSettings.cameraSel" ng-change="wi.callFunc.setCamera(wi.viewportSettings.cameraSel)"></select>
+		<select class="form-control input-sm" ng-options="c for c in wi.viewportSettings.camera" ng-model="wi.viewportSettings.cameraSel" ng-change="setCamera(wi.viewportSettings.cameraSel)"></select>
 	</div>
 	
 	<div class="ctrlGroup">

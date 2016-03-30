@@ -108,24 +108,36 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		});
 		
 		// resolve functions
-		function authenticate($q, $state, $window, $timeout, AuthenticationFactory) {
+		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory) {
 			if(AuthenticationFactory.isLogged) {
-				// check if user object exists else fetch it. this is incase of a page refresh
-				if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;
-				if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;
-				//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
-				$q.when();
+				return UserAuthFactory.checkJWT().then(function(response) {
+					console.log(response);
+					// check if user object exists else fetch it. this is incase of a page refresh
+					if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;
+					if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;
+					//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
+				return $q.when();
+				}, function(reason) {
+					console.log(reason);
+					if(reason.status === 400) {
+						UserAuthFactory.logout();
+						$timeout(function() {
+							$state.go('home');
+						});
+						return $q.reject();
+					}
+				});
 			}
 			else {
 				$timeout(function() {
 					$state.go('home');
 				});
-				$q.reject();
+				return $q.reject();
 			}
 		}
 		
-		function checkProject($state, $stateParams, $q, $rootScope, APIRequest) {
-			return APIRequest.getProjectEntry($stateParams.project).then(function(response){
+		function checkProject($state, $stateParams, $q, $rootScope, Project) {
+			return Project.get($stateParams.project).then(function(response){
 				console.log(response, $stateParams);
 				if(response.data === 'NO ENTRY') {
 					$state.go('projectlist');

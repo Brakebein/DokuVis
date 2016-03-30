@@ -24,31 +24,34 @@
 			<div ng-if="item.type == 'text' && textEdit" text-angular ta-toolbar="[['h3','p','quote'],['bold','italics','underline','ul','ol'],['undo','redo'],['html','insertLink']]" ng-model="editorInput"></div>
 		</div>
 		<div ng-class="horizontalImage ? 'infoHDiv' : 'infoVDiv'">
-			<img ng-if="item.type == 'text'" ng-src="data/{{item.file.path}}_thumbs/{{item.file.thumb}}"/>
+			
+			<div class="primaryIdenticator" title="Primärquelle" ng-show="item.primary"><div></div></div>
+			
+			<img ng-show="item.type == 'text'" ng-src="data/{{item.file.path}}_thumbs/{{item.file.thumb}}"/>
 			<h3>{{item.title}}</h3>
 			<hr/>
 			<div>
 				<strong>Autor</strong>
 				<p>{{item.author || 'unbekannt'}}</p>
 			</div>
-			<div ng-if="item.archive">
+			<div ng-show="item.archive">
 				<strong>Archiv</strong>
 				<p>{{item.archive.institutionAbbr}} {{item.archive.collection}}<br/>
 				{{item.archive.identifier}}</p>
 			</div>
-			<div ng-if="item.date">
+			<div ng-show="item.date">
 				<strong>Datierung</strong>
 				<p>{{item.date}}</p>
 			</div>
-			<div ng-if="item.place">
+			<div ng-show="item.place">
 				<strong>Erstellungsort</strong>
 				<p>{{item.place}}</p>
 			</div>
-			<div ng-if="item.comment">
+			<div ng-show="item.comment">
 				<strong>Kommentar</strong>
 				<p>{{item.comment}}</p>
 			</div>
-			<div ng-if="item.tags.length">
+			<div ng-show="item.tags.length">
 				<strong>Tags</strong>
 				<p>
 					<span ng-repeat="tag in item.tags | orderBy: tag">{{tag}} </span>
@@ -57,7 +60,7 @@
 			<div>
 				<p><a ng-href="data/{{item.file.path + item.file.name}}" target="_blank">Originaldatei</a></p>
 			</div>
-			<div ng-if="item.type == 'text'">
+			<div ng-show="item.type == 'text'">
 				<button class="btn btn-default btn-sm" ng-click="nextPage(-1)">vorige Seite</button>
 				<button class="btn btn-default btn-sm" ng-click="nextPage(1)">nächste Seite</button>
 				
@@ -69,6 +72,13 @@
 				-->
 				</p>
 			</div>
+			
+			<div>
+				<strong>Kommentare</strong>
+				<textarea class="form-control" ng-model="newComment"></textarea>
+				<button class="btn btn-default btn-sm" ng-click="postComment()">Posten</button>
+			</div>
+			
 		</div>
 	
 	</div></div>

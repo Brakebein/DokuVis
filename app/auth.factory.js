@@ -47,6 +47,9 @@ dokuvisApp.factory('UserAuthFactory',
 					username: username,
 					password: password
 				});
+			},
+			checkJWT: function() {
+				return $http.get(API + 'auth/checkJWT');
 			}
 		};
 	});
