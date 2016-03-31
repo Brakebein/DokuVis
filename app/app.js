@@ -14,7 +14,7 @@ var webglApp = angular.module('webglApp', [
 	'ngScrollbars',
 	'ngDragDrop',
 	'textAngular',
-	'ngTagsInput'
+	'ngTagsInput',
 ]);
 webglApp.constant('API', 'api/');
 webglApp.config(['$stateProvider', '$urlRouterProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',

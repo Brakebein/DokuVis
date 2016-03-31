@@ -49,15 +49,15 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				  + '(ttask:E55:'+prj+'{content:"task"}), \
 					(ttdesc:E55:'+prj+'{content:"taskDesc"}), \
 					(ttprior:E55:'+prj+'{content:"taskPriority"}), \
-					(ttphigh:E55:'+prj+'{content:"priority_high"}), \
-					(ttpmedium:E55:'+prj+'{content:"priority_medium"}), \
-					(ttplow:E55:'+prj+'{content:"priority_low"}), \
+					(ttphigh:E55:'+prj+'{content:"priority_high", value: 2}), \
+					(ttpmedium:E55:'+prj+'{content:"priority_medium", value: 1}), \
+					(ttplow:E55:'+prj+'{content:"priority_low", value: 0}), \
 					(ttprior)<-[:P127]-(ttphigh), \
 					(ttprior)<-[:P127]-(ttpmedium), \
 					(ttprior)<-[:P127]-(ttplow), \
 					(ttstatus:E55:'+prj+'{content:"taskStatus"}), \
-					(ttsdone:E55:'+prj+'{content:"status_done"}), \
-					(ttstodo:E55:'+prj+'{content:"status_todo"}), \
+					(ttsdone:E55:'+prj+'{content:"status_done", value: 1}), \
+					(ttstodo:E55:'+prj+'{content:"status_todo", value: 0}), \
 					(ttstatus)<-[:P127]-(ttsdone), \
 					(ttstatus)<-[:P127]-(ttstodo)',
 				params: {
@@ -183,6 +183,21 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		}
 		
+		requests.disconnectTask = function(prj,taskId,editorId){
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+' {content: {tID}})-[r]->(editor:E21:'+prj+' {content: {eId}})\
+				 DELETE r';
+			console.log(taskId, editorId);
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tID: taskId,
+					eId: 'e21_' + editorId
+				}
+			});
+		}
+		
 		requests.getTaskDates = function(prj,taskName){
 			var q = '';
 			q += 'MATCH (task:E7:'+prj+')-[:P102]->(title:E35:'+prj+' {value: {tname}}),\
@@ -192,7 +207,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			(task)-[:P2]->(status)-[:P127]->(typeS:E55 {content: "taskStatus"}),\
 			(task)-[:P2]->(priority)-[:P127]->(typeP:E55 {content: "taskPriority"})\
 			WITH task,title, taskDesc, time, collect(DISTINCT editor.content) as editors,status,priority\
-			RETURN task.content AS graphId, title.value AS name, taskDesc.value AS desc, editors AS editors, time.from AS from, time.to AS to,status.content AS status, priority.content AS priority';
+			RETURN task.content AS graphId, title.value AS name, taskDesc.value AS desc, editors AS editors, time.from AS from, time.to AS to,status.value AS status, priority.value AS priority';
 			
 			console.log(taskName);
 			console.log(prj);
@@ -229,6 +244,22 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		requests.getTasksFromSubproject = function(prj,subprj){
 			var q = '';
 			
+			/*MATCH (sub:E7:Proj_pDxnuzs {content: "subpDxnxll"}),
+			(p:E7:Proj_pDxnuzs)-[:P9]->(child:E7),
+			(child)-[:P102]->(title:E35),
+			(child)-[:P3]->(taskDesc:E62),
+			(child)-[:P14]->(person:E21)-[:P131]->(editor:E82),
+			(child)-[:P4]->(:E52)-[:P81]->(time:E61),
+			(child)-[:P2]->(status)-[:P127]->(typeS:E55 {content: "taskStatus"}),
+			(child)-[:P2]->(priority)-[:P127]->(typeP:E55 {content: "taskPriority"}),
+			path = (sub)-[:P9*]->(child)
+			OPTIONAL MATCH 
+			(p)-[:P1]->(subtitle),
+			(child)<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62),
+			(commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)
+			WITH subtitle, p, child, title, taskDesc, time, priority,status, collect(editor.content) as editors,collect(editor.value) as editorNames, collect(commentDesc.value) as comments, collect(creationDate.value) as commentCreation
+			RETURN {parent: p, title: subtitle} AS parent, collect({child: child, name: title.value, desc: taskDesc.value,  priority: priority.content, status: status.value, editors: editors, editorNames: editorNames, from: time.from, to: time.to, comments: comments, coCreat: commentCreation}) AS children*/
+			
 			
 			q = 'MATCH (sub:E7:'+prj+' {content: {subprj}}),\
 			(p:E7:'+prj+')-[:P9]->(child:E7),\
@@ -240,8 +271,15 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			(child)-[:P2]->(priority)-[:P127]->(typeP:E55 {content: "taskPriority"}),\
 			path = (sub)-[:P9*]->(child)\
 			OPTIONAL MATCH (p)-[:P1]->(subtitle)\
-			WITH subtitle, p, child, title, taskDesc, time, priority,status, collect(editor.content) as editors,collect(editor.value) as editorNames \
-			RETURN {parent: p, title: subtitle} AS parent, collect({child: child, name: title.value, desc: taskDesc.value,  priority: priority.content, status: status.content, editors: editors, editorNames: editorNames, from: time.from, to: time.to}) AS children';
+			OPTIONAL MATCH (child)<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)\
+			OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)\
+			WITH\
+			subtitle, p, child, title, taskDesc, time, priority,status,\
+			collect(editor.content) as editors,collect(editor.value) as editorNames, collect(commentDesc.value) as comments,\
+			count(commentDesc.value) as amount, collect(creationDate.value) as commentCreation \
+			RETURN {parent: p, title: subtitle} AS parent, \
+			collect({child: child, name: title.value, desc: taskDesc.value,  priority: priority.value, status: status.value,\
+			editors: editors, editorNames: editorNames, from: time.from, to: time.to, comments: comments, coCreat: commentCreation, amountComments: amount}) AS children';
 			
 
 			return $http.post(phpUrl, {
@@ -308,12 +346,11 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				})
 		}
 		
-		requests.countCommentsFromTask = function(taskId){
+		/* requests.countCommentsFromTask = function(taskId){
 			
 			var q = '';
-			q += 'MATCH (task:E7 {content: {tId}})<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)';
-			q += 'OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)';
-			q += 'RETURN count(commentDesc.value)';
+			q += 'MATCH (task:E7 {content: {tId}})<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)\
+			RETURN count(commentDesc.value) as amount';
 			
 			return $http.post(phpUrl, {
 				query: q,
@@ -321,7 +358,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 					tId: taskId,
 				}
 				})
-		}
+		} */
 		
 		requests.deleteTaskDates = function(prj,taskId){
 		var q = '';

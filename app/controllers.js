@@ -3,6 +3,7 @@ var webglControllers = angular.module('webglControllers', ['uiSlider', 'angularF
 	'gantt.table',
 	'gantt.movable', 
 	'gantt.tooltips',
+	'gantt.labels',
 	'gantt.sortable',
     'gantt.drawtask',
     'gantt.bounds',
@@ -10,7 +11,8 @@ var webglControllers = angular.module('webglControllers', ['uiSlider', 'angularF
     'gantt.tree',
     'gantt.groups',
     'gantt.overlap',
-    'gantt.resizeSensor'
+    'gantt.resizeSensor',
+	'ang-drag-drop'
 ]);
 
 app.run(function(editableOptions) {
@@ -2105,8 +2107,8 @@ webglControllers.controller('configCtrl', ['$scope', '$stateParams',
 		
 	}]);
 	
-webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$http', 'Utilities','$aside', 
-	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities, $aside) {
+webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$http', 'Utilities','$aside', 'ganttUtils', 'GanttObjectModel', 'ganttMouseOffset', 'ganttDebounce', 'moment',
+	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities, $aside,utils, ObjectModel, mouseOffset, debounce, moment) {
 		console.log($stateParams);
 		$scope.project = $stateParams.project;
 		$scope.subproject = $stateParams.subproject;
@@ -2289,47 +2291,137 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.data = [		
 		/* {id: 1, name: 'Jonas', isStaff: true, 'groups': false, children: [], tasks: []},
     
-    	{id: 2, name: 'Martin', isStaff: true,'groups': false, children: [], tasks: []}, 
+    	{id: 2, name: 'Martin', isStaff: true,'groups': false, children: [], tasks: []},  
     
-    	{graphId: 3, name: 'test1', isStaff: false, children: [4], status: 'erledigt',priority: 1, hasData: false, editors: [1],data: [], tasks: []},
+    	 {graphId: 3, name: 'test1',parent: 1, isStaff: false, children: [4], status: 'erledigt',priority: 1, hasData: false, editors: [1],data: [], tasks: [
+		 {name: 'test1', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}]},
                             
 	
-		{graphId: 4, name: 'test2', isStaff: false, children: [], status: 'erledigt',priority: 3, hasData: false,editors: [1], data: [], tasks: [
+		{graphId: 4, name: 'test2', isStaff: false, parent: 1, children: [], status: 'erledigt',priority: 3, hasData: false,editors: [1], data: [], tasks: [
 		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
 			
-		{graphId: 5,name: 'test3', isStaff: false, children: [6,12], status: 'erledigt',priority: 2, hasData: false, editors: [2], data: [], tasks: []},
+		{graphId: 5,name: 'test3', isStaff: false, parent: 1, children: [], status: 'erledigt',priority: 2, hasData: false, editors: [2], data: [], tasks: []},
 		
-		{graphId: 6,name: 'test4', isStaff: false, status: 'erledigt', children: [],priority: 3, hasData: false, editors: [2], data: [], tasks: [
+		{graphId: 6,name: 'test4', isStaff: false, parent: 1, status: 'erledigt', children: [],priority: 3, hasData: false, editors: [2], data: [], tasks: [
 		                            {name: 'test2', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0)}
 		                        ]},
 		 
-		{graphId: 7, name: 'test5', isStaff: false,children: [], status: 'zu bearbeiten', priority: 3, hasData: false,editors: [1], data: [],tasks: [
+		{graphId: 7, name: 'test5', isStaff: false, parent: 1, children: [], status: 'zu bearbeiten', priority: 3, hasData: false,editors: [1], data: [],tasks: [
 		                            {name: 'test4', color: '#F1C232', from: new Date(2015, 09, 21, 8, 0, 0), to: new Date(2015, 10, 25, 15, 0, 0), progress: 25}
-		                        ]},
-		 {graphId: 8, name: 'test5', isStaff: false,parent: 2, children: [], status: 'zu bearbeiten',priority: '2',hasData: false, editors: [2], data: [], tasks: [
+		                        ]}, 
+		 {graphId: 8, name: 'test5', isStaff: false,parent: 2, children: [], status: 'zu bearbeiten',priority: 2,hasData: false, editors: [2], data: [], tasks: [
 		                            {name: 'test5', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}
 		                        ]},
-		{graphId: 9, name: 'test6', isStaff: false, parent: 2, children: [], status: 'zu bearbeiten',priority: '1',hasData: true, editors: [2],data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}],  tasks: [
-		                            {name: 'test6', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}]},
+		{graphId: 9, name: 'test8', isStaff: false, parent: 2, children: [], status: 'zu bearbeiten',priority: 1,hasData: true, editors: [2],data: [{message: 'Lorem Ipsum', author:'Martin'},{message: '123', author:'Martin'}],  tasks: [
+		                            {name: 'test8', color: '#F1C232', from: new Date(2016, 02, 01, 8, 0, 0), to: new Date(2016, 02, 30, 15, 0, 0)}]},
 		
-		{graphId: 10,name: 'test7',isStaff: false, parent: 2,children: [11],  status: 'erledigt',priority: '2', hasData: false, editors: [2], data: [], tasks: []},
+		{graphId: 10, name: 'test7',isStaff: false, parent: 2,children: [11],  status: 'erledigt',priority: 3, hasData: false, editors: [2], data: [], tasks: [
+		{name: 'test7', color: '#F1C232', from: new Date(2015, 10, 12, 8, 0, 0), to: new Date(2015, 10, 30, 15, 0, 0)}]},
 		
-		{graphId: 11,name: 'test8', isStaff: false, status: 'erledigt', children: [],priority: '3', hasData: false, editors: [2], data: [], tasks: [
+		{graphId: 11,name: 'test8',  isStaff: false,parent: 1, status: 'erledigt', children: [],priority: 3, hasData: false, editors: [2], data: [], tasks: [
 		                            {name: 'test8', color: '#F1C232', from: new Date(2015, 11, 12, 8, 0, 0), to: new Date(2015, 11, 30, 15, 0, 0), } 
-		                        ]},   */
+		                        ]},    */
 ]		
-		
 		
 		$scope.options = {
 			useData: $scope.data,
-			allowSideResizing: true,
-			sortMode: '{{orderBy:model.priority}}',
+            scale: 'day',
+            sortMode: undefined,
+            sideMode: 'TreeTable',
+			canDraw: function(event) {
+                var isLeftMouseButton = event.button === 0 || event.button === 1;
+                return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
+            },
+            drawTaskFactory: function() {
+                return {
+                    id: utils.randomUuid(),  // Unique id of the task.
+                    name: 'Drawn task', // Name shown on top of each task.
+                    color: '#AA8833' // Color of the task in HEX format (Optional).
+                };
+            },
+			draw: true,
+            daily: false,
 			fromDate:  getFormattedDate(new Date()),
 			toDate: getFormattedDate(addDays(new Date(),30)),
 			currentDateValue: new Date(),
+            maxHeight: false,
+            width: false,
+            columns: ['trash', 'model.priority','model.status'],
+			columnsHeaders: {'trash': 'Löschen', 'model.priority': 'Priorität',  'model.status': 'Status', 'model.editors': 'Bearbeiter', 'model.subprj' : 'Unterprojekt'},
+            columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to', 'model.status': 'gantt-column-status'},
+			columnsFormatters: {
+					                'from': function(from) {
+					                    return from !== undefined ? from.format("DD.MM") : undefined;
+					                },
+					                'to': function(to) {
+					                    return to !== undefined ? to.format("DD.MM") : undefined;
+					                }
+					            },
+            treeHeaderContent: ' {{getHeader()}}',
+            columnsHeaderContents: {
+            	'model.editors': '<i class="fa fa-users"></i>',
+            	'trash': '<i class="glyphicon glyphicon-trash" id="colHead"></i>',
+                'model.priority': '<i class="fa fa-exclamation" id="colHead" bs-tooltip="tooltip[9]" ng-click="scope.sortDataBy(\'priority\')"></i>',
+                'model.status': '<i  class="glyphicon glyphicon-ok" id="colHead" ng-click="scope.sortDataBy(\'status\')" ></i>',
+				'model.subprj': '<i class="fa fa-folder-open"></i>'
+            },
+			columnsContents: {
+          'model.editors': '<div>{{getValue()}}</div>',
+          'trash': '<i class="glyphicon glyphicon-trash" id="row" ng-click = "scope.deleteTask(row)" bs-tooltip="tooltip[8]"></i>',      
+//          'model.priority': '<i  bs-tooltip="tooltip[9]" ng-switch= "getValue()" ng-click="scope.changePriority(row)"><i ng-switch-when="priority_low" class="fa fa-exclamation" id="lowPriority"></i><i ng-switch-when="priority_medium" class="fa fa-exclamation" id="mediumPriority"></i><i ng-switch-when="priority_high" class="fa fa-exclamation" id="highPriority"></i></i>',
+		   'model.priority': '<i  bs-tooltip="tooltip[9]" ng-switch= "getValue()" ng-click="scope.changePriority(row)"><i ng-switch-when=0 class="fa fa-exclamation" id="lowPriority"></i><i ng-switch-when=1 class="fa fa-exclamation" id="mediumPriority"></i><i ng-switch-when=2 class="fa fa-exclamation" id="highPriority"></i></i>',
+
+			//'model.status': '<i bs-tooltip="tooltip[10]" ng-hide = "row.model.isStaff" ng-class="getValue() == \'status_done\' ? \'glyphicon glyphicon-ok\' : \'fa fa-times\'" id= "row" ng-click="scope.changeStatus(row)"></i>',
+            'model.status': '<i bs-tooltip="tooltip[10]" ng-hide = "row.model.isStaff" ng-class="getValue() == 1 ? \'glyphicon glyphicon-ok\' : \'fa fa-times\'" id= "row" ng-click="scope.changeStatus(row)"></i>',
+
+			},
+            autoExpand: 'none',
+            taskOutOfRange: 'truncate',
+			fromDate:  getFormattedDate(new Date()),
+			toDate: getFormattedDate(addDays(new Date(),30)),
+            rowContent: '<i ng-hide ="row.model.isStaff" ng-class="row.model.hasData == true ?  \'fa fa-commenting-o\' : \'fa fa-comments-o\'" \
+							ng-click="scope.openComment(row)" bs-tooltip="tooltip[7]"></i>\
+							<i ng-class = "row.model.isStaff == true ? \'parent\': \'child\'" ng-click = scope.openEdit(row)> \
+							{{row.model.name}}</i> <i class="fa fa-plus" id="row" bs-tooltip="tooltip[1]" ng-click="scope.openTask(row)" ></i> ',
+            taskContent: '{{task.model.name}}', 
+            zoom: 1.3,
+			contentTooltips: 'von: {{task.model.from.format("DD.MM")}}	 bis: {{task.model.to.format("DD.MM")}}',
+            allowSideResizing: true,
+            labelsEnabled: true,
+            currentDate: 'line',
+            groupDisplayMode: 'group',
+            filterTask: '',
+            filterRow: '',
+			api: function(api) {
+                // API Object is used to control methods and events from angular-gantt.
+                $scope.api = api;
+
+	              api.core.on.ready($scope, function(){
+	              	api.core.on.ready($scope, logReadyEvent);
+	           
+					api.data.on.remove($scope, addEventName('data.on.remove', logDataEvent));
+	     	              
+	              if (api.tasks.on.moveBegin) {
+                        api.tasks.on.moveEnd($scope, addEventName('tasks.on.moveEnd', changeTask));
+                        api.tasks.on.resizeEnd($scope, addEventName('tasks.on.resizeEnd', changeTask));
+                    }
+                    
+	              });
+                }
+		}
+		
+		/* 
+		$scope.options = {
+			useData: $scope.data,
+			allowSideResizing: true,
+			sortMode: 'model.priority',
+			sideMode: 'TreeTable',
+			fromDate:  getFormattedDate(new Date()),
+			toDate: getFormattedDate(addDays(new Date(),30)),
+			currentDateValue: new Date(),
+			daily: false,
 			columns: ['trash', 'model.priority','model.status'],
-			treeTableColumns: [ 'status'],
 			columnsHeaders: {'trash': 'Löschen', 'model.priority': 'Priorität',  'model.status': 'Status', 'model.editors': 'Bearbeiter', 'model.subprj' : 'Unterprojekt'},
 			
 			columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to', 'model.status': 'gantt-column-status'},
@@ -2341,8 +2433,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					                    return to !== undefined ? to.format("DD.MM") : undefined;
 					                }
 					            },
-            
-            
             columnsHeaderContents: {
             	'model.editors': '<i class="fa fa-users"></i>',
             	'trash': '<i class="glyphicon glyphicon-trash" id="colHead"></i>',
@@ -2354,7 +2444,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
            columnsContents: {
           'model.editors': '<div>{{getValue()}}</div>',
           'trash': '<i class="glyphicon glyphicon-trash" id="row" ng-click = "scope.deleteTask(row)" bs-tooltip="tooltip[8]"></i>',      
-          'model.priority': '<i  bs-tooltip="tooltip[9]" ng-switch= "getValue()" ng-click="scope.changePriority(row)"><i ng-switch-when="priority_low" class="fa fa-exclamation" id="lowPriority"></i><i ng-switch-when="priority_medium" class="fa fa-exclamation" id="mediumPriority"></i><i ng-switch-when="priority_high" class="fa fa-exclamation" id="highPriority"></i></i>',
+//          'model.priority': '<i  bs-tooltip="tooltip[9]" ng-switch= "getValue()" ng-click="scope.changePriority(row)"><i ng-switch-when="priority_low" class="fa fa-exclamation" id="lowPriority"></i><i ng-switch-when="priority_medium" class="fa fa-exclamation" id="mediumPriority"></i><i ng-switch-when="priority_high" class="fa fa-exclamation" id="highPriority"></i></i>',
           'model.status': '<i bs-tooltip="tooltip[10]" ng-hide = "row.model.isStaff" ng-class="getValue() == \'status_done\' ? \'glyphicon glyphicon-ok\' : \'fa fa-times\'" id= "row" ng-click="scope.changeStatus(row)"></i>',
             },
             filterTask: '',
@@ -2368,7 +2458,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 							ng-click="scope.openComment(row)" bs-tooltip="tooltip[7]"></i>\
 							<i ng-class = "row.model.isStaff == true ? \'parent\': \'child\'" ng-click = scope.openEdit(row)> \
 							{{row.model.name}}</i> <i class="fa fa-plus" id="row" bs-tooltip="tooltip[1]" ng-click="scope.openTask(row)" ></i> ',
-							/*<i class="glyphicon glyphicon-trash" ng-click="scope.deleteTask(row.model)"></i>*/
             taskContent: '{{task.model.name}}', 
             zoom: 1.3,
              api: function(api) {
@@ -2377,7 +2466,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 
 	              api.core.on.ready($scope, function(){
 	              	api.core.on.ready($scope, logReadyEvent);
-	              	/* api.data.on.change($scope.dataTasks, $scope.data); */
+	           
 					api.data.on.remove($scope, addEventName('data.on.remove', logDataEvent));
 	     	              
 	              if (api.tasks.on.moveBegin) {
@@ -2387,7 +2476,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
                     
 	              });
                 }
-           };
+           }; */
 		
 		function getFormattedDate(date) {
     		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
@@ -2437,15 +2526,17 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             return 40 * zoom;
         };
 		
-		$scope.getPid = function(){
-			mysqlRequest.getProjectEntry($stateParams.project).then(function(response) {
-				if(!response.data) { console.error('mysqlRequest failed on getProjectEntry()', response); return; }
-				$scope.pid = response.data.pid;		
-				$scope.getAllStaff($scope.pid);				
-			});
+		$scope.sortDataBy = function(by) {
+			switch(by){
+				case "priority":
+					$scope.options.sortMode === 'model.priority' ? $scope.options.sortMode = '-model.priority' : $scope.options.sortMode = 'model.priority';;
+					break;
+				case "status":
+					//alert('test');
+					$scope.options.sortMode === 'model.status' ? $scope.options.sortMode = '-model.status' : $scope.options.sortMode = 'model.status';
+					break;
+			}
 		}
-
-		
 		$scope.fillDataObject = function(sortby){
 			//Mitarbeiter einfügen
 			neo4jRequest.getStaffFromProject($stateParams.project).then(function(response){
@@ -2465,9 +2556,9 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 						//console.log(Utilities.createHierarchy(response.data, false));
 						 $scope.root = [];
 						 for(i = 0; i < Utilities.createHierarchy(response.data, false).length; i++){
-								$scope.root.push(Utilities.createHierarchy(response.data,['name','desc','priority','status','editors','editorNames','from','to'], false)[i]);
+								$scope.root.push(Utilities.createHierarchy(response.data,['name','desc','priority','status','editors','editorNames','from','to','amountComments'], false)[i]);
 							};
-							//console.log($scope.root.length);
+							console.log($scope.root);
 					 }
 					 else{
 						 $scope.root = [];
@@ -2484,6 +2575,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 												name: $scope.editors[index].editorName,
 												isStaff: true,
 												'groups': false,
+												//'movable': false,
 												children: [],
 												tasks: []
 												});
@@ -2497,15 +2589,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 								 //console.log($scope.root[j].children[indexC].content);
 									 if($scope.root[j].children[indexC].editors.indexOf(currentEditor) != -1){
 										 
-										  neo4jRequest.countCommentsFromTask($scope.root[j].children[indexC].content)
-												.then(function(response){
-												$scope.countComments = Utilities.cleanNeo4jData(response.data).length;
-												console.log($scope.countComments);
-												console.log(indexC);
-												console.log(j);
-												console.log($scope.root);
-												
-										 //console.log('gefunden');
 											var id = Utilities.getUniqueId();
 											
 											var rowTask = {
@@ -2518,12 +2601,13 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 												children: [],
 												desc: $scope.root[j].children[indexC].desc,
 												status: $scope.root[j].children[indexC].status,
-												priority: $scope.root[j].children[indexC].priority,
-												hasData: []/*neo4jRequest.countCommentsFromTask($scope.root[j].children[indexC].content) == 0 ? false : true*/, 
+												priority: $scope.root[j].children[indexC].priority,												
+												hasData:  $scope.root[j].children[indexC].amountComments == 0 ? false : true, 
+												data: [],
 												editors: $scope.root[j].children[indexC].editors,
 												tasks: [{graphId:$scope.root[j].children[indexC].content,
 														name: $scope.root[j].children[indexC].name,
-														color: $scope.root[j].children[indexC].status == 'status_todo' ? '#F1C232' : '#24ff6b',
+														color: $scope.root[j].children[indexC].status == 0 ? '#F1C232' : '#24ff6b',
 														from: $scope.root[j].children[indexC].from,
 														to: $scope.root[j].children[indexC].to}] 
 												};
@@ -2536,8 +2620,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 											if($scope.root[j].children[indexC].children.length>0){ //wenn Kindobjekte vorhanden sind
 												pushChildren($scope.root[j].children[indexC].children, rowTask);
 											}
-										 });
-										
+										 
 									 }
 							 
 							
@@ -2562,11 +2645,12 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 															desc: children[indexR].desc,
 															status: children[indexR].status,
 															priority: children[indexR].priority,
-															data: [],
+															hasData: children[indexR].amountComments == 0 ? false : true,
+															data:[],
 															editors: children[indexR].editors,
 															tasks: [{graphId:children[indexR].content,
 																	name: children[indexR].name,
-																	color: '#F1C232',
+																	color: children[indexR].status == 0 ? '#F1C232' : '#24ff6b',
 																	from: children[indexR].from,
 																	to: children[indexR].to}] 
 															};
@@ -2582,7 +2666,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					}
 					}
 					});
-					console.log($scope.data);
+					
 				}
 						//Anzeige der Bearbeiter hinter Aufgabe
 							else{
@@ -2599,13 +2683,14 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 										parent: [],
 										children: [],
 										desc: $scope.root[j].children[indexC].desc,
-										status: $scope.root[j].children[indexC].status,
+										status: $scope.root[j].children[indexC].status == 'status_done' ? 1 : 0,
 										priority: $scope.root[j].children[indexC].priority,
+										hasData: $scope.root[j].children[indexC].amountComments == 0 ? false : true,
 										data: [],
 										editors: $scope.root[j].children[indexC].editorNames,
 										tasks: [{graphId:$scope.root[j].children[indexC].content,
 												name: $scope.root[j].children[indexC].name,
-												color: $scope.root[j].children[indexC].status == 'status_todo' ? '#F1C232' : '#24ff6b',
+												color: $scope.root[j].children[indexC].status == 0 ? '#F1C232' : '#24ff6b',
 												from: $scope.root[j].children[indexC].from,
 												to: $scope.root[j].children[indexC].to}] 
 										};
@@ -2636,13 +2721,14 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 															parent: [],
 															children: [],
 															desc: children[indexR].desc,
-															status: children[indexR].status,
+															status: children[indexR].status == 'status_done' ? 1 : 0,
 															priority: children[indexR].priority,
+															hasData: children[indexR].amountComments == 0 ? false : true,
 															data: [],
 															editors: children[indexR].editorNames,
 															tasks: [{	graphId:children[indexR].content,
 																		name: children[indexR].name,
-																		color: '#F1C232',
+																		color: children[indexR].status == 0 ? '#F1C232' : '#24ff6b',
 																		from: children[indexR].from,
 																		to: children[indexR].to}] 
 															};
@@ -2653,20 +2739,23 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 								});							
 							}
 						// console.log($scope.root);
-						 console.log($scope.data); 
+						 
 					});	
 							}
 				}
+				
+				console.log($scope.options.useData); 
 		});
 		
 		
 		
-		}
-						
+		} 
+		 					
 		$scope.addNewTask = function (newTask){	
 			var gid = Utilities.getUniqueId();
 			var tid = Utilities.getUniqueId();
 			var hier= $scope.api.tree.getHierarchy();
+			$scope.editTask = false;
 			$scope.findPrjName($scope.newTask.subprj)
 			var subPrjName = $scope.foundSubPrjName;
 			$scope.foundSubPrjName = '';
@@ -2700,7 +2789,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 												  
 											tasks: [{graphId: response[0].graphId,
 													name: response[0].name,
-													color: '#F1C232',
+													color: response[0].status == 0 ? '#F1C232' : '#24ff6b',
 													from: response[0].from,
 													to: response[0].to}]});
 				
@@ -2728,7 +2817,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 						if($scope.sortby == 'staff'){ //sortiert nach Bearbeitern
 							if($scope.newTask.isStaff == true){ //wenn auf Bearbeiter geklickt wurde
 							
-								$scope.options.useData.push({id: tid, graphId: gid, name: $scope.newTask.task, isStaff: false, parent: $scope.newTask.ids.gantt, children: [], editors: $scope.newTask.ids.gantt,subprj: subPrjName, priority: 'priority_high', status: 'status_todo', desc: $scope.newTask.desc,
+								$scope.options.useData.push({id: tid, graphId: gid, name: $scope.newTask.task, isStaff: false, parent: $scope.newTask.ids.gantt, children: [], editors: $scope.newTask.ids.gantt,subprj: subPrjName, priority: 2, status: 0, desc: $scope.newTask.desc,
 												  tasks: [{id: tid, graphId: gid, name: $scope.newTask.task, color: '#F1C232', from: getFormattedDate($scope.newTask.from), to: getFormattedDate($scope.newTask.to)}]});
 								
 								
@@ -2758,7 +2847,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 								
 							 else{ // wenn auf Aufgabe oder Unteraufgabe geklickt wurde
 							 	//hinzufügen der Unteraufgabe
-								$scope.options.useData.push({id: tid, graphId: gid, name: $scope.newTask.task,isStaff: false, children: [], editors: $scope.newTask.ids.gantt,subprj: subPrjName, priority: 'priority_high', status: 'status_todo',desc: $scope.newTask.desc,
+								$scope.options.useData.push({id: tid, graphId: gid, name: $scope.newTask.task,isStaff: false, children: [], editors: $scope.newTask.ids.gantt,subprj: subPrjName, priority: 2, status: 0,desc: $scope.newTask.desc,
 												  tasks: [{id: tid, graphId: gid, name: $scope.newTask.task, color: '#F1C232', from: getFormattedDate($scope.newTask.from), to: getFormattedDate($scope.newTask.to)}]});
 								//als child zu übergeordnetem Element hinzufügen
 								console.log($scope.newTask.clickedElement.model);
@@ -2820,7 +2909,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 									if($scope.newTask.clickedElement){//wenn Aufgabe geklickt
 									//Unteraufgabe erstellen
 									console.log($scope.newTask.clickedElement)
-										$scope.options.useData.push({id: tid, graphId: gid, name: $scope.newTask.task, isStaff: false, children: [],subprj: subPrjName, editors: $scope.newTask.ids.gantt, priority: 'priority_high', status: 'status_todo', data: [],
+										$scope.options.useData.push({id: tid, graphId: gid, name: $scope.newTask.task, isStaff: false, children: [],subprj: subPrjName, editors: $scope.newTask.ids.gantt, priority: 2, status: 0, data: [],
 														  tasks: [{id: tid, graphId: gid, name: $scope.newTask.task, color: '#F1C232', from: getFormattedDate($scope.newTask.from), to: getFormattedDate($scope.newTask.to)}]});
 										
 										$scope.newTask.clickedElement.model.children.push(tid);
@@ -2853,7 +2942,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 									}
 									
 									else{//button für neue Aufgabe
-										$scope.options.useData.push({id: tid, graphId: gid, name: $scope.newTask.task, isStaff: false, children: [],subprj: subPrjName, editors: $scope.newTask.ids.gantt, priority: 'priority_high', status: 'status_todo', data: [],
+										$scope.options.useData.push({id: tid, graphId: gid, name: $scope.newTask.task, isStaff: false, children: [],subprj: subPrjName, editors: $scope.newTask.ids.gantt, priority: 2, status: 0, data: [],
 														  tasks: [{id: tid, graphId: gid, name: $scope.newTask.task, color: '#F1C232', from: getFormattedDate($scope.newTask.from), to: getFormattedDate($scope.newTask.to)}]});
 										
 										
@@ -2925,33 +3014,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					 }
 			});
 		}
-		
-		$scope.editTask = function(data, row){
 			
-			var isChanged = false;
-			var found = false;
-				//name in linker und rechter Spalte ändern
-				$.each($scope.options.useData,function(index){ //prüfen, ob bereits vorhandene Aufgabe leer ist
-					console.log($scope.options.useData[index].name);
-					if($scope.options.useData[index].name == data && isChanged == false){
-						console.log('gefunden');
-						if(confirm('Diese Aufgabe existiert bereits, wollen Sie die Daten übernehmen?') ){
-							row.model.name = data;
-							row.model.tasks[0].name = $scope.options.useData[index].tasks[0].name;
-							row.model.tasks[0].from = $scope.options.useData[index].tasks[0].from;
-							row.model.tasks[0].to = $scope.options.useData[index].tasks[0].to;
-							isChanged = true; //nur einmal fragen
-							found = true;
-						}
-					}
-				});
-				
-				if(!found){
-					row.model.name = data;
-					row.model.tasks[0].name = data;
-				}
-		}
-		
 		$scope.changeOrder = function(){	
 			if($scope.sortby == 'staff'){
 				$scope.dataTask = [];
@@ -2970,133 +3033,127 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			}
 		}
 		
-		/* $scope.sortByStaff = function(){
-			if($scope.sortby == 'task'){
-				$scope.data = [];
-				$scope.options.useData = $scope.data;
-				console.log($scope.data);
-				$scope.fillDataObject('staff');
-				$scope.options.columns.splice($scope.options.columns.length-1,1);
-				$scope.sortby = 'staff';
-		}
-		} */
-		
 		$scope.changeStatus = function(row){
-			var statusChanged = false;
 			
-				$.each($scope.data,function(index){
+				$.each($scope.options.useData,function(index){
 					if(row.model.graphId == $scope.options.useData[index].graphId){
 						switch($scope.options.useData[index].status){
-							case 'status_todo' :
-								console.log(row.model);
+							case 0 :
 								if(confirm("Ist die Aufgabe wirklich erledigt?")){
-									
-
-									if(statusChanged == false){ 
 										neo4jRequest.changeStatus($stateParams.project, row.model.graphId, 'status_todo','status_done') .then(function(response){
 											if(response.data.exception) { console.error('neo4jRequest Exception on changeStatus()', response.data); return; }
 											if(response.data){
 												console.log(response.data);
-												$scope.options.useData[index].status = 'status_done';
+												$scope.options.useData[index].status = 1;
 												$scope.options.useData[index].tasks[0].color = '#24ff6b';
 												}
 											});
-											//statusChanged = true;
 										}
-									}
 								break;
 								
 						
-						case 'status_done':
-							
-								if(statusChanged == false){
+						case 1:
 								neo4jRequest.changeStatus($stateParams.project, row.model.graphId, 'status_done','status_todo') .then(function(response){
 									if(response.data.exception) { console.error('neo4jRequest Exception on changeStatus()', response.data); return; }
 									if(response.data){
 										console.log(response.data);
-										$scope.options.useData[index].status = 'status_todo';
+										$scope.options.useData[index].status = 0;
 										$scope.options.useData[index].tasks[0].color = '#F1C232';
-								
 										}
-								});
-								//statusChanged = true;
-							
-								}
-						
-						break;
+								});						
+								break;
 						}
 					}
 				});
 			};
 		
 		$scope.changePriority = function(row){
-			var statusChanged = false;
+			// var statusChanged = false;
 			
-				$.each($scope.data,function(index){
+				$.each($scope.options.useData,function(index){
 					if(row.model.graphId == $scope.options.useData[index].graphId){
 						switch($scope.options.useData[index].priority) {
 							
-							case 'priority_low':
-								
-								if(statusChanged == false){ 
+							case 0:
 									neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_low','priority_medium') .then(function(response){
 										if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
 										if(response.data){
 											console.log("priority changed");
-											$scope.options.useData[index].priority = 'priority_medium';
+											$scope.options.useData[index].priority = 1;
 											}
 									});
-									//statusChanged = true;
-								}
 								break;
 							
-							case 'priority_medium':
-								
-								if(statusChanged == false){ 
+							case 1:
 									neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_medium','priority_high') .then(function(response){
 										if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
 										if(response.data){
 											console.log("priority changed");
-											$scope.options.useData[index].priority = 'priority_high';
+											$scope.options.useData[index].priority = 2;
 											}
 									});
-									//statusChanged = true;
-								}
 								break;
 								
-							case 'priority_high':
-															
-								if(statusChanged == false){ 
+							case 2:
 									neo4jRequest.changePriority($stateParams.project, row.model.graphId, 'priority_high','priority_low') .then(function(response){
 										if(response.data.exception) { console.error('neo4jRequest Exception on changePriority()', response.data); return; }
 										if(response.data){
 											console.log("priority changed");
-											$scope.options.useData[index].priority = 'priority_low';
+											$scope.options.useData[index].priority = 0;
 											}
 									});
-									//statusChanged = true;
-								}
 								break;
 						}
 					}
 				});
 		};	
 		
-		$scope.deleteTask = function(row) { //hier uach Bearbeiter löschen
+		function countTask(task) {
+					var counter = 0;
+					console.log(task.graphId);
+					console.log($scope.options.useData[0].graphId);
+					console.log(task.isStaff);
+					$.each($scope.options.useData,function(index){ //durchzählen, wie oft Aufgabe in Datenobjekt vorkommt
+							if(task.graphId == $scope.options.useData[index].graphId){
+								counter++;
+							}
+					});
+					return counter
+				}
+		
+		$scope.deleteStaff = function(sId){
+			
+		}
+		
+		$scope.deleteTask = function(row) { //hier nach Bearbeiter löschen
 			var hier= $scope.api.tree.getHierarchy();
 			
-			
-				if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
-					
-					if(hier.children(row)){ //wenn oberaufgabe gelöscht werden sol
+			if(confirm("Wollen Sie diese Aufgabe wirklich löschen?")){
+					if(hier.children(row)){ //wenn oberaufgabe gelöscht werden soll
+						// alert('test1');
 						$.each(hier.descendants(row),function(indexC){ //alle childrenobjekte raussuchen und zum löschen übergeben
-							$scope.removeFromGantt.push({'id': hier.descendants(row)[indexC].model.id});
-							$scope.removeFromGraph.push({'gid': hier.descendants(row)[indexC].model.graphId});
+							if (countTask(row.model) <= 1 && !row.model.isStaff){ // Aufgabe nur einmal da --> Aus Graph und Gantt komplett löschen
+								// alert('test2');
+								$scope.removeFromGantt.push({'id': hier.descendants(row)[indexC].model.id});
+								$scope.removeFromGraph.push({'gid': hier.descendants(row)[indexC].model.graphId});
+								$scope.removeFromGantt.splice(0,0,{'id': row.model.id}); //Elternobjekt zum löschen übergeben
+								$scope.removeFromGraph.splice(0,0,{'gid': row.model.graphId});
+								$scope.api.data.remove($scope.removeFromGantt); // aus Gantt löschen
+								$scope.deleteSingleTask(0);	 // Tasks aus Graph löschen
+							}
+							
+							if (countTask(row.model) > 1 && !row.model.isStaff){ //ansonsten nur Zuständigkeit löschen
+								 // alert('test3');
+								$scope.removeFromGantt.push({'id': row.model.id});
+								$scope.api.data.remove($scope.removeFromGantt); // aus Gantt löschen
+								
+								neo4jRequest.disconnectTask($stateParams.project,row.model.graphId,hier.ancestors(row)[hier.ancestors(row).length-1].model.graphId) //löst Verbindung zu Mitarbeiter
+											.then(function(response){
+												console.log(response.data);
+											}); 
+							}
+							
 						});
-						$scope.removeFromGantt.splice(0,0,{'id': row.model.id}); //Elternobjekt zum löschen übergeben
-						$scope.removeFromGraph.splice(0,0,{'gid': row.model.graphId});
-						console.log($scope.removeFromGantt);
-						console.log($scope.removeFromGraph);
 					}
 					else{ //Unteraufgabe löschen
 						if(hier.parent(row)){
@@ -3109,26 +3166,68 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 								}); 
 							}
 						}
-						$scope.removeFromGantt.push({'id': row.model.id}); 
-						$scope.removeFromGraph.push({'gid': row.model.graphId});
-						if(hier.children(row)){
-							hier.parent(row).model.children.splice(hier.parent(row).model.children.indexOf(row.model.id,1)); //childrenobjekt in parent löschen
+						
+						if (countTask(row.model) <= 1){ // Aufgabe nur einmal da --> Aus Graph und Gantt komplett löschen
+							$scope.removeFromGantt.push({'id': row.model.id}); 
+							$scope.removeFromGraph.push({'gid': row.model.graphId});
+							$scope.api.data.remove($scope.removeFromGantt); // aus Gantt löschen
+							$scope.deleteSingleTask(0);	 // Tasks aus Graph löschen
+							
+							if(hier.children(row)){
+								hier.parent(row).model.children.splice(hier.parent(row).model.children.indexOf(row.model.id,1)); //childrenobjekt in parent löschen
+							}
+								
 						}
+						else{ //Aufgabe öfter da --> nur Zuständigkeit löschen
+							$scope.removeFromGantt.push({'id': row.model.id});
+							$scope.api.data.remove($scope.removeFromGantt); // aus Gantt löschen			
+							
+							neo4jRequest.disconnectTask($stateParams.project,row.model.graphId,hier.ancestors(row)[hier.ancestors(row).length-1].model.graphId) //löst Verbindung zu Mitarbeiter
+										.then(function(response){
+											console.log(response.data);
+										}); 
+										
+							if(hier.children(row)){
+									hier.parent(row).model.children.splice(hier.parent(row).model.children.indexOf(row.model.id,1)); //childrenobjekt in parent löschen
+								}
+						}
+						
 					}
-					$scope.api.data.remove($scope.removeFromGantt); // aus Gantt löschen
-					console.log($scope.removeFromGraph);
-					
-					$scope.deleteSingleTask(0);	 // Tasks aus Graph löschen
-
 					if(row.model.isStaff){// Bearbeiter löschen
-						neo4jRequest.deleteStaff($stateParams.project,row.model.graphId)
-							.then(function(response){
-								console.log($stateParams.project);
+						
+						$.each(hier.descendants(row),function(indexC){ //alle childrenobjekte raussuchen und zum löschen übergeben
+							$scope.removeFromGantt.push({'id': hier.descendants(row)[indexC].model.id});
+							console.log(hier.descendants(row)[indexC].model.id);
+						});
+						$scope.removeFromGantt.splice(0,0,{'id': row.model.id}); //Elternobjekt zum löschen übergeben
+						$scope.api.data.remove($scope.removeFromGantt); // aus Gantt löschen						
+						
+						neo4jRequest.deleteStaff($stateParams.project,row.model.graphId).then(function(response){
+							console.log($stateParams.project);
 							console.log(response.data);
-							}); 
-					}
-				}
-        };
+						}); 					
+				}					
+			}
+		};
+	
+		/* Wenn Klick auf Mitarbeiter--> 
+		alles durchgehen
+		schauen, wie oft vorhanden
+		wenn nur einmal, aus Graph löschen
+		wenn nicht, nur Zuständigkeit
+		
+		Wenn Klick auf Oberaufgabe--> 
+		alles durchgehen
+		schauen, wie oft vorhanden
+		wenn nur einmal, aus Graph löschen
+		wenn nicht, nur Zuständigkeit
+		
+		Wenn Klick auf Unteraufgabe--> 
+		alles durchgehen
+		schauen, wie oft vorhanden
+		wenn nur einmal, aus Graph löschen
+		wenn nicht, nur Zuständigkeit
+		*/
 		
 		$scope.deleteSingleTask = function(index){
 			neo4jRequest.deleteTask($stateParams.project, $scope.removeFromGraph[index].gid)
@@ -3167,7 +3266,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				}
 				
 				else{//wenn angeklicktes Element Aufgabe
-					alert ('test');
+				
 					console.log(hier.ancestors(row)[hier.ancestors(row).length-1]); //ermittelt letztes element in Array--> ist immer Bearbeiter
 					if(hier.ancestors(row)[hier.ancestors(row).length-1]){
 						$scope.newTask.ids.gantt = hier.ancestors(row)[hier.ancestors(row).length-1].model.id
@@ -3202,13 +3301,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			$scope.taskIdForComment = row.model.graphId;
 			$scope.taskNameForComment = row.model.name;
 			$scope.description = row.model.desc;
-
-		/* 	$.each($scope.data,function(index){
-				if($scope.data[index].id == $scope.taskIdForComment){ //-->in allen Aufgaben mit gleichem Namen steht Kommenta
-					$scope.commentIndex = index;
-					console.log($scope.commentIndex);
-				}
-			}); */
 			
 			neo4jRequest.getCommentsFromTask(row.model.graphId)
 						.then(function(response){
@@ -3221,8 +3313,16 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		}
 		
 		$scope.addComment = function(){
-				
+			if($scope.newComment.text){	
 				$scope.comments.push({desc: $scope.newComment.text,  date: new Date() });
+				
+				$.each($scope.data,function(index){
+				if($scope.options.useData[index].graphId == $scope.taskIdForComment){ //-->in allen Aufgaben mit gleichem Namen steht Kommenta
+					if($scope.options.useData[index].hasData == false){
+						$scope.options.useData[index].hasData = true;
+					}
+				}
+			});
 				
 				neo4jRequest.addCommentToTask($stateParams.project,$scope.taskIdForComment, $scope.newComment.text)
 						.then(function(response){
@@ -3230,6 +3330,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 										});
 		
 			$scope.newComment.text = '';	
+			}
 		}
 				
 		$scope.getAllSubprojects = function(){
@@ -3284,7 +3385,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			//$scope.newTask.subprj= row.model.subprj;
 			$scope.newTask.ids.graph=row.model.graphId;
 			$scope.newTask.staff=hier.parent(row).model.name;
-			$scope.newTask.staffId = hier.parent(row).model.graphId; 
+			$scope.newTask.staffId = hier.ancestors(row)[hier.ancestors(row).length-1].model.graphId;
 			$scope.newTask.task=row.model.name;
 			$scope.newTask.from=row.model.tasks[0].from;
 			$scope.newTask.to=row.model.tasks[0].to;
@@ -3293,6 +3394,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		}
 		
 		$scope.saveTaskChanges = function() {
+			
 			$.each($scope.options.useData,function(indexT){
 				if($scope.newTask.ids.graph == $scope.options.useData[indexT].graphId){
 					$scope.options.useData[indexT].parent = $scope.newTask.staffId;
@@ -3303,7 +3405,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				}
 			});
 			
-			 neo4jRequest.editTask($stateParams.project ,$scope.newTask)
+			 neo4jRequest.editTask($stateParams.project, $scope.newTask)
 				.then(function(response){
 				console.log(response.data);
 			
@@ -3313,10 +3415,19 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				$scope.newTask.to = '';
 				$scope.newTask.desc = '';
 				});
+				
 			$scope.resizerValue = $scope.resizerIn;
 		}
 	
 	/*Mitarbeiter*/
+		
+		$scope.getPid = function(){
+			mysqlRequest.getProjectEntry($stateParams.project).then(function(response) {
+				if(!response.data) { console.error('mysqlRequest failed on getProjectEntry()', response); return; }
+				$scope.pid = response.data.pid;		
+				$scope.getAllStaff($scope.pid);				
+			});
+		}
 		
 		$scope.getAllStaff = function(pid) {
 			
@@ -3347,6 +3458,11 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 						}
 						$scope.getAllStaff($scope.pid);
 			});
+			
+			$scope.newStaff.name = '';
+			$scope.newStaff.mail = '';
+			$scope.newStaff.role = '';
+			
 			//$scope.resizerValue = $scope.resizerIn;
 		}
 		

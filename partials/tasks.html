@@ -7,7 +7,7 @@
 		<div class = "col-md-2" id = "search">
 			<div class="form-group">
 				<!-- <div class="input-group" > -->								    
-					<input type="text" class="form-control"  ng-model="options.filterRow" bs-tooltip="tooltip[6]" placement="left" placeholder="Suche...">
+					<input type="text" class="form-control"  ng-model="options.filterRow" bs-tooltip="tooltip[6]" placement="left" placeholder="Nach Aufgaben suchen">
 					<!-- <div class="input-group-addon"><span class="fa fa-search"></span></div>
 				</div> -->
 			</div>
@@ -113,38 +113,31 @@
              	 row-content = "options.rowContent"
              	 side-width = "min-width"
              	 api="options.api">
-             
-		         
-			 
 			 <gantt-tree enabled="true"
 		                  header-content="options.treeHeaderContent"
-		                  content = "options.rowContent"
-		                  keep-ancestor-on-filter-row="true"
-		                  >
-		      
+		                  keep-ancestor-on-filter-row="false">
 		      </gantt-tree>
 		      
 			  <gantt-table enabled = "true" 
-			  				columns = "options.columns"
-			  				headers="options.columnsHeaders"
-			  				contents="options.columnsContents"
-			  				formatters="options.columnsFormatters"
-			  				header-contents="options.columnsHeaderContents">
+			  				columns="options.columns"
+						 headers="options.columnsHeaders"
+						 classes="options.columnsClasses"
+						 formatters="options.columnsFormatters"
+						 contents="options.columnsContents"
+						 header-contents="options.columnsHeaderContents">
 			  </gantt-table>
 			  			
-			  
 		      
 		       <gantt-groups enabled = "true" display="promote">
 		       </gantt-groups>
 			  
 			  <gantt-bounds></gantt-bounds>
-		  
-		      <gantt-sortable enabled = "true"></gantt-sortable>
+		      <gantt-sortable enabled ="true"></gantt-sortable>
 			  <gantt-movable allow-row-switching="false"></gantt-movable>
 			  <gantt-tooltips content = "options.contentTooltips"></gantt-tooltips>
 			 
 			  <gantt-overlap></gantt-overlap>
-			  <gantt-resize-sensor></gantt-resize-sensor>
+			  <gantt-resize-sensor></gantt-resize-sensor> 
 			</div>
 		<hr/>
 	</div>
@@ -178,15 +171,21 @@
 
 	<div class="sidePanelSidemenu">
 	
-		<div title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
+		<div ng-hide = "views.activeSide != 'staff'" title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
 			<span class="glyphicon glyphicon-user"></span>
 		</div>
-		<div title="Kommentare" class="smBtn" ng-class="views.activeSide=='comments'?'active':''" ng-click="views.activeSide = 'comments'">
+		<div  ng-hide = "views.activeSide == 'staff'" title="Kommentare" class="smBtn" ng-class="views.activeSide=='comments'?'active':''" ng-click="views.activeSide = 'comments'">
 			<span class="glyphicon glyphicon-comment"></span>
 		</div>
-		<div title="Neue Aufgabe" class="smBtn" ng-class="views.activeSide=='newTask'?'active':''" ng-click="views.activeSide = 'newTask'">
+		<div ng-hide = "views.activeSide == 'staff'" title="Neue Aufgabe" class="smBtn" ng-class="views.activeSide=='newTask'?'active':''" ng-click="views.activeSide = 'newTask'">
 			<span class="glyphicon glyphicon-tasks"></span>
 		</div>
+		
+		<div ng-hide = "views.activeSide == 'staff'" title="Dokumentenverwaltung" class="smBtn" ng-class="views.activeSide=='document'?'active':''" ng-click="views.activeSide = 'document'">
+			<span class="glyphicon glyphicon-paperclip"></span>
+		</div>
+		
+		
 	</div>
 	<!-- <p>projektid bei addNewStaff, getAllStaff und removeStaff anpassen!!</p> -->
 	
@@ -339,19 +338,47 @@
 		</div>
 		
 		<div class="sideContent">
-			<div class="container-fluid">
-				<form ng-submit="addComment()">
-					<input type="text" class="form-control" ng-model="newComment.text" placeholder="Kommentar hinzufügen">
-				</form>
+			<div class="container">
+					
+			<div class="media screenshotItem">
+			  <div class="media-body">
+				<p class = "desc">{{description}}</p>
+			  </div>
+			</div>
+					
+					
+					
+					<form class="form-inline" > <!-- ng-submit="addComment()" -->
+						 <div class="input-group">
+							<div class="input-group-btn">
+								
+								<button type = "button" class="btn btn-default">
+									<span class="glyphicon glyphicon-camera"></span>
+								</button>
+							
+								<button type = "button" class="btn btn-default">
+									<span class="glyphicon glyphicon-paperclip"></span>
+								</button>
+								
+								<button class="btn btn-info btn-md gradient" ng-click="addComment()">
+									<span class="glyphicon glyphicon-send"></span>
+								</button>
+								
+								<textarea rows ="4" cols = "50" class="form-control" ng-model="newComment.text" style="width: 100%" placeholder="Kommentar verfassen"></textarea>
+							</div>
+						</div>
+					
+						
+					</form>
 				
-				<div class = "desc">{{description}}</div>
+				
 
 				<div class="comments">
 					<ul ng-repeat ="d in comments" style="list-style-type:none">
-							<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.desc}}</li>
+							<li class-odd="'odd'" ng-class-even="'even'">{{d.desc}}</li>
 							<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.date}}</li>
 							<!-- <li ng-class-odd="'odd'" ng-class-even="'even'">{{d.author}}</li> -->
-							<li><br/></li>
+						
 					</ul>	
 				</div>
 			</div> 
@@ -393,10 +420,16 @@
 			
 			<div class="form-group text-left">
 				<label class="control-label">Bearbeiter</label><br>
-				<select class="form-control" style="width: 8em" ng-model="newTask.ids.graph">
+				<select ng-show = "editTask == false" class="form-control" style="width: 8em" ng-model="newTask.ids.graph">
 				   <option value="">Bitte wählen Sie einen Bearbeiter aus</option>
 				   <option ng-repeat= "staff in staffInGantt" value="{{staff.editorId}}">{{staff.editorName}}</option> 
 				 </select> 
+				 
+				 <select ng-show="editTask == true" class="form-control" style="width: 8em" ng-model="newTask.staffId">
+				   <option value="">Bitte wählen Sie einen Bearbeiter</option>
+				   <option ng-repeat= "staff in staffInGantt" value="{{staff.editorId}}">{{staff.editorName}}</option> 
+				 </select> 
+				 
 				 <!-- <p>{{newTask.ids.graph}}</p> -->
 			</div>
 			
@@ -441,6 +474,32 @@
       
 		</div>
 		
+	</div>
+
+		<div ng-if="views.activeSide == 'document'" class="sideContainer">
+		
+		<div class="sideHeader">
+			<div class= "closeAside">
+				<div class="input-group"  >
+					<button type="button" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[12]" placement="left" ng-click="closeAside()">
+					<span class="fa fa-times" id="close"></span>
+					</button>
+				</div>
+			</div>
+			
+			<h4>Relevante Dokumente für {{taskNameForComment}}</h4>
+			<hr/>
+			
+		</div>
+		
+		<div class="sideContent">
+			<div class="container-fluid">
+					
+			</div> 
+		</div>
+		
+		<div class="sideFooter">
+		</div>
 	</div>	
 	 
 </div>	

@@ -2,7 +2,7 @@
 
 	$json = json_decode(file_get_contents("php://input"));
 	include 'db_connect.php';
-	/* echo $json->pid; */
+	 
 	
 	$result = mysql_query('SELECT u.id as uid, u.email, u.name as uname, r.role, r.id as rid, p.name as pname
 	FROM users u

@@ -108,6 +108,14 @@
 	padding-bottom: 20px;
 }
 
+.fa-exclamation#colHead{
+	opacity: 1;
+}
+
+.fa-exclamation#colHead:hover{
+	cursor:pointer;
+}
+
 .fa-exclamation#highPriority{
 	color: red;
 	opacity: 0.75;
@@ -200,6 +208,9 @@
 
 .glyphicon-ok#colHead{
 	opacity: 1;
+}
+.glyphicon-ok#colHead:hover{
+	cursor: pointer;
 }
 
 .glyphicon-ok#row{
@@ -313,4 +324,27 @@
 .child:hover {
 	cursor: pointer;
 	font-style: oblique;
+}
+
+.screenshotItem {
+	padding: 4px;
+	margin-bottom: 20px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	/* background-color: rgba(252,78,42,0.05); */
+}
+
+.odd {
+	/* padding-right: 2px;
+	margin-bottom: 10px;
+	border: 1px solid #ddd;
+	border-radius: 4px; */
+	/* background-color: rgba(252,78,42,0.05); */
+}
+.even {
+	/* padding-left: 2px;
+	margin-bottom: 10px;
+	border: 1px solid #ddd;
+	border-radius: 4px; */
+	/* background-color: rgba(252,78,42,0.05); */
 }
