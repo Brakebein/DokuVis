@@ -279,7 +279,7 @@ angular.module('dokuvisApp').directive('graphSearch', ['APIRequest', 'CidocDict'
 					var newPos = new THREE.Vector2().subVectors(clickPos, centerPos);
 					newPos.setLength(Math.random() * 200 + 100);
 					newPos.rotateAround(new THREE.Vector2(), Math.random() * Math.PI - Math.PI / 2);
-					console.log(clickPos, centerPos, newPos);
+					//console.log(clickPos, centerPos, newPos);
 					return newPos.add(clickPos); 
 				}
 				

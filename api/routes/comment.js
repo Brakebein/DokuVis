@@ -41,6 +41,27 @@ var comment = {
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
 			});
+	},
+	
+	get: function(req, res) {
+		var prj = req.params.id;
+		
+		var q = 'MATCH (target:'+prj+' {content: {id}})<-[:P129]-(ce33:E33)-[:P2]->()-[:P127]->(:E55 {content: "commentType"}), \
+			(ce33)-[:P3]->(ce62:E62), \
+			(ce33)<-[:P94]-(ce65:E65)-[:P14]->(:E21)-[:P131]->(ce82:E82), \
+			(ce65)-[:P4]->(:E52)-[:P82]->(ce61:E61) \
+			RETURN ce33.content AS id, ce62.value AS value, ce61.value AS time, ce82.value AS author';
+		var params = {
+			id: req.params.targetId
+		};
+		
+		neo4j.transaction([{statement: q, parameters: params}])
+			.then(function(response) {
+				if(response.exception) { utils.error.neo4j(res, response, '#comment.get'); return; }
+				res.json(neo4j.extractTransactionData(response.results[0]));
+			}).catch(function(err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
 	}
 	
 };

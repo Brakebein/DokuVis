@@ -77,6 +77,11 @@
 				<strong>Kommentare</strong>
 				<textarea class="form-control" ng-model="newComment"></textarea>
 				<button class="btn btn-default btn-sm" ng-click="postComment()">Posten</button>
+				
+				<div ng-repeat="comment in comments">
+					<p>{{comment.value}}</p>
+					{{comment.author}} - {{comment.time | timeFormat}}
+				</div>
 			</div>
 			
 		</div>

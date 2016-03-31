@@ -124,6 +124,18 @@ angular.module('dokuvisApp').factory('Utilities',
 			return results;
 		};
 		
+		f.extractNeo4jTransactData = function(data) {
+			var results = [];
+			for(var i=0, l=data.data.length; i<l; i++) {
+				var obj = {};
+				for(var j=0; j<data.columns.length; j++) {
+					obj[data.columns[j]] = data.data[i].row[j];
+				}
+				results.push(obj);
+			}
+			return results;
+		};
+		
 		/**
 		  * extracts array data from neo4j response object
 		  * (e.g. for getting a list of tags etc.)

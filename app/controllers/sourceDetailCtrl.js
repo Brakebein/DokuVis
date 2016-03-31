@@ -28,6 +28,8 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http', 'Utilities',
 				$scope.horizontalImage = false;
 				$scope.pageNr = 0;
 			}
+			
+			loadComments();
 		};
 		
 		$scope.nextPage = function(incr) {
@@ -101,5 +103,14 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http', 'Utilities',
 				Utilities.throwApiException('on Comment.create()', err);
 			});
 		};
+		
+		function loadComments() {
+			Comment.get($scope.item.eid).then(function(response) {
+				console.log(response);
+				$scope.comments = response.data;
+			}, function(err) {
+				Utilities.throwApiException('on Comment.get()', err);
+			});
+		}
 		
 	}]);

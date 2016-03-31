@@ -12,6 +12,10 @@ angular.module('dokuvisApp').factory('Comment', ['$http', 'API', '$stateParams',
 					user: AuthenticationFactory.user,
 					time: moment().format()
 				});
+			},
+			
+			get: function(targetId) {
+				return $http.get(API + 'auth/project/' + $stateParams.project + '/comment/' + targetId);
 			}
 			
 		};

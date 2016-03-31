@@ -165,6 +165,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		}
 		
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
+		//moment.locale();
 	}]);
 	
 dokuvisApp.run(function($rootScope, $state, AuthenticationFactory) {

@@ -48,5 +48,6 @@ router.get('/auth/project/:id/:subprj/sources', source.getAll);
 
 // comments
 router.post('/auth/project/:id/comment', comment.create);
+router.get('/auth/project/:id/comment/:targetId', comment.get);
 
 module.exports = router;

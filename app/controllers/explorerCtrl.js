@@ -276,12 +276,11 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 		
 		// lädt alle Dokumente im Quellenbrowser
 		$scope.getAllDocuments = function() {
-			//neo4jRequest.getAllDocuments($stateParams.project, $stateParams.subproject).then(function(response){
 			Source.getAll().then(function(response){
-				if(response.data.exception) { console.error('neo4jRequest failed on getAllDocuments()', response.data); return; }
-				console.log(response.data);
-				if(response.data) $scope.sourceResults = Utilities.cleanNeo4jData(response.data, true);
+				$scope.sourceResults = response.data;
 				console.log('Dokumente:', $scope.sourceResults);
+			}, function(err) {
+				Utilities.throwApiException('on Source.getAll()', err);
 			});
 		};
 		
