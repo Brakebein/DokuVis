@@ -63,6 +63,43 @@ $wordRectBorder:	1px solid red;
 			background-color: #addd8e;
 		}
 	}
+	
+	.comment {
+		position: relative;
+		padding: 10px 0 15px;
+		margin: 5px 0;
+		
+		&:nth-child(even) {
+			background-color: #f2f2f2;
+		}
+		
+		&>.author-date {
+			position: absolute;
+			font-size: 10px;
+			top: 0;
+			right: 0;
+		}
+		&>.actions {
+			position: absolute;
+			font-size: 10px;
+			bottom: 0;
+			right: 0;
+			color: #888;
+		}
+		
+		.sendBtn {
+			display: inline-block;
+			width: 30px;
+			height: 30px;
+			background-color: #addd8e;
+			border-radius: 15px;
+			padding: 8px 7px 7px;
+			
+			&:hover {
+				background-color: #ddd;
+			}
+		}
+	}
 
 	.displayText {
 		width: 100%;

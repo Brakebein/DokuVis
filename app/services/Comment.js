@@ -10,7 +10,7 @@ angular.module('dokuvisApp').factory('Comment', ['$http', 'API', '$stateParams',
 					text: text,
 					type: type,
 					user: AuthenticationFactory.user,
-					time: moment().format()
+					date: moment().format()
 				});
 			},
 			

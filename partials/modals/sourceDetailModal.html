@@ -75,12 +75,19 @@
 			
 			<div>
 				<strong>Kommentare</strong>
-				<textarea class="form-control" ng-model="newComment"></textarea>
-				<button class="btn btn-default btn-sm" ng-click="postComment()">Posten</button>
+				<textarea class="form-control" ng-model="newCommentInput"></textarea>
+				<button class="btn btn-default btn-sm" ng-click="postComment()"><i class="fa fa-paper-plane"></i>Posten</button>
 				
-				<div ng-repeat="comment in comments">
-					<p>{{comment.value}}</p>
-					{{comment.author}} - {{comment.time | timeFormat}}
+				<div class="comment" ng-repeat="comment in comments | orderBy: 'date':true">
+					<div class="author-date">{{comment.author}} - {{comment.date | amCalendar}}</div>
+					{{comment.value}}
+					<div class="answerInput" ng-show="comment.answering">
+						<textarea class="form-control" ng-model="comment.newAnswerInput"></textarea>
+						<i class="fa fa-paper-plane sendBtn"></i>
+					</div>
+					<div class="actions">
+						<a href="" ng-show="!comment.answering" ng-click="comment.answering = true">ANTWORTEN</a>
+					</div>
 				</div>
 			</div>
 			

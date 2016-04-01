@@ -35,6 +35,7 @@ var neo4j = {
 	},
 	
 	extractTransactionData: function(data) {
+		if(!data) return [];
 		var results = [];
 		for(var i=0, l=data.data.length; i<l; i++) {
 			var obj = {};

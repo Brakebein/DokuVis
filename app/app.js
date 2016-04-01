@@ -165,10 +165,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		}
 		
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
-		//moment.locale();
 	}]);
 	
-dokuvisApp.run(function($rootScope, $state, AuthenticationFactory) {
+dokuvisApp.run(function($rootScope, $state, AuthenticationFactory, amMoment) {
 	// when the page refreshes, check if the user is already logged in
 	AuthenticationFactory.check();
 	
@@ -182,6 +181,8 @@ dokuvisApp.run(function($rootScope, $state, AuthenticationFactory) {
 			$state.go('home');
 		}
 	});
+	
+	amMoment.changeLocale('de');
 });
 	
 dokuvisApp.filter('filterEditor', function(){

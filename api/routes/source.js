@@ -17,14 +17,11 @@ var source = {
 			OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61) \
 			OPTIONAL MATCH (e31)-[:P48]->(archivenr:E42) \
 			OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36) \
-			OPTIONAL MATCH (e31)-[:P3]->(comment:E62) \
+			OPTIONAL MATCH (e31)-[:P3]->(note:E62) \
 			OPTIONAL MATCH (e31)<-[:P128]-(:E84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41), \
 				(e78)-[:P52]->(:E40)-[:P131]->(inst:E82) \
 			OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG) \
-			OPTIONAL MATCH (e31)<-[:P129]-(ce33:E33)-[:P2]->(:E55 {content: "commentSource"}), \
-				(ce33)-[:P3]->(ce62:E62), \
-				(ce33)<-[:P94]-(ce65:E65)-[:P14]->(:E21)-[:P131]->(ce82:E82), \
-				(ce65)-[:P4]->(:E52)-[:P82]->(ce61:E61) \
+			OPTIONAL MATCH (e31)<-[:P129]-(ce33:E33)-[:P2]->(:E55 {content: "commentSource"}) \
 			RETURN e31.content AS eid, \
 				type.content AS type, \
 				title.content AS title, \
@@ -35,9 +32,9 @@ var source = {
 				{identifier: archivenr.content, collection: coll.content, institution: inst.content, institutionAbbr: inst.abbr} AS archive, \
 				{name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, \
 				plan3d.content AS plan3d, \
-				comment.value AS comment, \
+				note.value AS note, \
 				collect(tag.content) as tags, \
-				collect({id: ce33.content, value: ce62.value, time: ce61.value, author: ce82.value}) AS comments';
+				count(ce33) AS commentLength';
 		var params = {
 			subprj: subprj === 'master' ? prj : subprj
 		};

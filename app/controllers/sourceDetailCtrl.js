@@ -29,6 +29,7 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http', 'Utilities',
 				$scope.pageNr = 0;
 			}
 			
+			$scope.comments = [];
 			loadComments();
 		};
 		
@@ -97,8 +98,12 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http', 'Utilities',
 		
 		// Kommentare
 		$scope.postComment = function() {
-			Comment.create($scope.newComment, $scope.item.eid, 'source').then(function(response) {
+			if($scope.newCommentInput.length < 1) return;
+			Comment.create($scope.newCommentInput, $scope.item.eid, 'source').then(function(response) {
 				console.log(response);
+				$scope.newCommentInput = '';
+				if(response.data[0])
+					$scope.comments.push(response.data[0]);
 			}, function(err) {
 				Utilities.throwApiException('on Comment.create()', err);
 			});
