@@ -1,13 +1,13 @@
 {
-  "name": "api",
+  "name": "dokuvis-server-api",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Brakebein",
   "license": "ISC",
   "dependencies": {
     "apoc": "^2.1.6",

@@ -45,6 +45,16 @@ var neo4j = {
 			results.push(obj);
 		}
 		return results;
+	},
+
+	removeEmptyArrays: function(data, checkObj, checkKey) {
+		for(var i= 0, l=data.length; i<l; i++) {
+			if(data[i][checkObj] && data[i][checkObj] instanceof Array && data[i][checkObj][0]) {
+				if(data[i][checkObj][0][checkKey] === null)
+					data[i][checkObj] = [];
+			}
+		}
+		return data;
 	}
 	
 };
