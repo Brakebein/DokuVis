@@ -9,4 +9,4 @@ angular.module('dokuvisApp').animation('.fadeLoadprogress', [function() {
 				jQuery(element).show();
 		}
 	};
-}])
+}]);

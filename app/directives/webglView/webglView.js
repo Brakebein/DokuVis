@@ -2272,7 +2272,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					console.log(mesh);
 					scene.add(mesh);
 					
-					//setGizmo(mesh, 'move');
+					mesh.userData.initPos = mesh.matrix.clone();
 					
 					// Liste, um zusammengehörige Objekte zu managen
 					plans[mesh.id] = {mesh: mesh, edges: edges, visible: true};
@@ -2427,8 +2427,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 							file.edges = file.content+'.zip';
 						});
 					}
-					
-					//mesh = new THREE.Mesh(geo, materials['xrayMat']);
 					
 					// scale translation and set scale component
 					t.multiplyScalar(scale);
@@ -2612,7 +2610,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					removeChildren(children[i].children);
 				}
 			}
-			
+
+			// toggle plan
 			webglInterface.callFunc.togglePlan = function(pid, visible) {
 				if(visible && !plans[pid].visible) {
 					scene.add(plans[pid].mesh);
@@ -2626,7 +2625,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 			};
 			
-			// get plan by id and add or remove mesh and edges
+			// get plan by id and add or remove mesh and edges //DEPRECATED
 			scope.internalCallFunc.showhidePlan = function(id, bool) {
 				var obj = scene.getObjectById(id);
 				if(bool && !obj) {
@@ -2719,7 +2718,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			
 			webglInterface.callFunc.resize = function() {
 				resizeViewport();
-			}
+			};
+
+			// explode plans
+			webglInterface.callFunc.explodePlans =function() {
+				if(selected[0].userData.type !== 'plan') return
+				var plan = selected[0];
+				console.log(plan);
+			};
 			
 			// orthogonale Ansicht des Plans einnehmen
 			webglInterface.callFunc.viewOrthoPlan = function(pid) {
