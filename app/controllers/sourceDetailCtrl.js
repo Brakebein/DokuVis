@@ -102,11 +102,26 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http', 'Utilities',
 			Comment.create($scope.newCommentInput, $scope.item.eid, 'source').then(function(response) {
 				console.log(response);
 				$scope.newCommentInput = '';
-				if(response.data[0])
-					$scope.comments.push(response.data[0]);
+				var newComment = response.data[0];
+				if(newComment) {
+					newComment.answers = [];
+					$scope.comments.push(newComment);
+				}
 			}, function(err) {
 				Utilities.throwApiException('on Comment.create()', err);
 			});
+		};
+
+		$scope.postAnswer = function(comment) {
+			if(comment.newAnswerInput.length < 1) return;
+			Comment.create(comment.newAnswerInput, comment.id, 'answer').then(function(response) {
+				comment.newAnswerInput = '';
+				comment.answering = false;
+				if(response.data[0])
+					comment.answers.push(response.data[0]);
+			}, function(err) {
+				Utilities.throwApiException('on Comment.create()', err);
+			})
 		};
 		
 		function loadComments() {
@@ -117,5 +132,7 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http', 'Utilities',
 				Utilities.throwApiException('on Comment.get()', err);
 			});
 		}
-		
+
+		// TODO: Kommentare/Antworten editieren und löschen
+
 	}]);
