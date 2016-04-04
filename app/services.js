@@ -460,7 +460,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		requests.changePriority = function(prj, taskID, priorityOld, priorityNew){
 			var q = '';
-			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r]->(priorityOld {content: {pOld}}),(priorityNew:E55:'+prj+' {content: {pNew}})\
+			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r]->(priorityOld:E55:'+prj+' {content: {pOld}}),(priorityNew:E55:'+prj+' {content: {pNew}})\
 				DELETE r\
 				WITH task,priorityNew\
 				CREATE (task)-[:P2]->(priorityNew)';
@@ -479,10 +479,9 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		requests.changeStatus = function(prj, taskID, statusOld, statusNew){
 		
 			var q = '';
-			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r]->(statusOld {content: {sOld}}),(statusNew:E55:'+prj+' {content: {sNew}})\
-				DELETE r\
-				WITH task,statusNew\
-				CREATE (task)-[:P2]->(statusNew)';
+			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r:P2]->(statusOld {content: {sOld}}),(statusNew:E55:'+prj+' {content: {sNew}})\
+				CREATE (task)-[:P2]->(statusNew) \
+				DELETE r ';
 			
 			console.log(taskID, statusOld, statusNew);
 			
