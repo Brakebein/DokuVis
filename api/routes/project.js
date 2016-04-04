@@ -140,6 +140,13 @@ var projects = {
 				(ttstodo:E55:'+prj+' {content:"status_todo"}), \
 				(ttstatus)<-[:P127]-(ttsdone), \
 				(ttstatus)<-[:P127]-(ttstodo), '
+				// comments
+				'(ctype:E55:'+prj+' {content: "commentType"}), \
+				(:E55:'+prj+' {content: "commentGeneral"})-[:P127]->(ctype), \
+				(:E55:'+prj+' {content: "commentSource"})-[:P127]->(ctype), \
+				(:E55:'+prj+' {content: "commentAnswer"})-[:P127]->(ctype), \
+				(:E55:'+prj+' {content: "commentModel"})-[:P127]->(ctype), \
+				(:E55:'+prj+' {content: "commentTask"})-[:P127]->(ctype), '
 				// personal
 			  + '(tpproj:E55:'+prj+' {content:"projectPerson"}), \
 				(tphist:E55:'+prj+' {content:"historicPerson"}), '
