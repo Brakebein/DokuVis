@@ -4,7 +4,7 @@
 	include 'db_connect.php';
 	 
 	
-	$result = mysql_query('SELECT u.id as uid, u.email, u.name as uname, r.role, r.id as rid, p.name as pname
+	$result = mysql_query('SELECT u.id as uid, u.email, u.name as uname, u.surname as usurname, r.role, r.id as rid, p.name as pname
 	FROM users u
 		INNER JOIN user_project_role upr 
 		ON u.id = upr.user_id 
@@ -23,6 +23,7 @@
 		$obj->sid = $row->uid;
 		$obj->email = utf8_encode($row->email);
 		$obj->name = utf8_encode($row->uname);
+		$obj->surname = utf8_encode($row->usurname);
 		$obj->rid = utf8_encode($row->rid);
 		$obj->role = utf8_encode($row->role);
 		$obj->pname = utf8_encode($row->pname);

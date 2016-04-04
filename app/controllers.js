@@ -446,17 +446,6 @@ webglControllers.controller('explorerCtrl', ['$scope', '$stateParams', '$timeout
 			} 
 		}
 
-		/* $scope.editorsAndTasks = function(){
-			console.log($scope.staff);
-			$.each($scope.staff,function(indexS){
-				
-				getTasksFromEditors($scope.staff[indexS]);
-				console.log($scope.staff[indexS]);
-				$scope.editorsAndTasksArr.push({editor: $scope.staff[indexS], tasks: $scope.tasksFromEditor})
-			})
-			console.log($scope.editorsAndTasksArr);
-		}
-		$scope.editorsAndTasks(); */
 		
 		// Uploader für Quellen
 		$scope.sourcesUploader = new FileUploader();
@@ -1978,10 +1967,101 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 		
 	}]);
 	
-webglControllers.controller('configCtrl', ['$scope', '$stateParams',
-	function($scope, $stateParams) {
+webglControllers.controller('configCtrl', ['$scope', '$stateParams', 'mysqlRequest', 'Utilities',
+	function($scope, $stateParams, mysqlRequest, Utilities) {
+		
+		/*Mitarbeiter*/
+		$scope.staffInGantt = [];
+		$scope.newStaff = new Object();
+		$scope.newStaff.sid = '';
+		$scope.newStaff.name = '';
+		$scope.newStaff.surname = '';
+		$scope.newStaff.mail = '';
+		$scope.newStaff.role = '';
+		$scope.newStaff.projects = '';
+		$scope.staffExists= false;
+		$scope.staff = [];
+		$scope.roles = [];
 		
 		
+		$scope.getPid = function(){
+			mysqlRequest.getProjectEntry($stateParams.project).then(function(response) {
+				if(!response.data) { console.error('mysqlRequest failed on getProjectEntry()', response); return; }
+				$scope.pid = response.data.pid;		
+				$scope.getAllStaff($scope.pid);				
+			});
+		}
+		
+		$scope.getAllStaff = function(pid) {
+			
+			mysqlRequest.getAllStaff(pid).then(function(response){
+				if(!response.data) { console.error('mysqlRequest failed on getAllStaff()', response); return; }
+				$scope.staff = response.data;
+				console.log($scope.staff);
+			});
+		};
+		
+		$scope.removeStaff = function(staffId,roleId) {
+			mysqlRequest.removeStaff(staffId,roleId,$scope.pid).then(function(response){
+						if(response.data != 'SUCCESS') {
+							console.error(response);
+							return;
+						}
+						console.log('Mitarbeiter gelöscht');
+						$scope.getAllStaff($scope.pid);
+					});
+		};
+			
+		$scope.addNewStaffToProject = function() {
+			var id = Utilities.getUniqueId();	
+			mysqlRequest.addNewStaff(id, $scope.newStaff.name, $scope.newStaff.surname, $scope.newStaff.mail, $scope.newStaff.role, $scope.pid).then(function(response){
+						if(response.data != 'SUCCESS') {
+							console.error(response);
+							return;
+						}
+						$scope.getAllStaff($scope.pid);
+						console.log($scope.staff);
+			});
+			
+			$scope.newStaff.name = '';
+			$scope.newStaff.surname = '';
+			$scope.newStaff.mail = '';
+			$scope.newStaff.role = '';
+			
+		}
+		
+		$scope.updateName = function(data,id) {
+			mysqlRequest.updateName(data,id).success(function(answer, status){
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+						$scope.getAllStaff();
+			});
+		}
+						
+		$scope.updateMail = function(data,id) {
+			mysqlRequest.updateMail(data,id).success(function(answer, status){
+				
+						if(answer != 'SUCCESS') {
+							console.error(answer);
+							return;
+						}
+					$scope.getAllStaff();	
+			});
+		}
+				
+		$scope.getAllRoles = function() {			
+			mysqlRequest.getAllRoles().then(function(response){
+				if(!response.data) { console.error('mysqlRequest failed on getAllRoles()', response); return; }
+					$scope.roles = response.data;
+				console.log($scope.roles);
+				});
+		}
+		
+		$scope.getPid();
+		$scope.getAllRoles();
+		console.log($scope.staff);
 		
 	}]);
 	
@@ -2203,7 +2283,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 ]		
 		
 		$scope.options = {
-			useData: $scope.data,
+			useData: $scope.dataTask,
             scale: 'day',
             sortMode: undefined,
             sideMode: 'TreeTable',
@@ -2225,7 +2305,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			currentDateValue: new Date(),
             maxHeight: false,
             width: false,
-            columns: ['trash', 'model.priority','model.status'],
+            columns: ['trash', 'model.priority','model.status','model.editors'],
 			columnsHeaders: {'trash': 'Löschen', 'model.priority': 'Priorität',  'model.status': 'Status', 'model.editors': 'Bearbeiter', 'model.subprj' : 'Unterprojekt'},
             columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to', 'model.status': 'gantt-column-status'},
 			columnsFormatters: {
@@ -2891,7 +2971,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			if($scope.sortby == 'staff'){
 				$scope.dataTask = [];
 				$scope.fillDataObject('task');
-				$scope.options.columns.push('model.editors');
+				$scope.options.columns.push();
 				$scope.options.useData = $scope.dataTask;
 				$scope.sortby = 'task';
 			}
@@ -3357,18 +3437,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			});
 		}
 		
-		/* $scope.updateSurname = function(data,id) {
-		
-			mysqlRequest.updateSurname(data,id).success(function(answer, status){
-				
-						if(answer != 'SUCCESS') {
-							console.error(answer);
-							return;
-						}
-							$scope.getAllStaff();
-			});
-		} */
-				
 		$scope.updateMail = function(data,id) {
 			mysqlRequest.updateMail(data,id).success(function(answer, status){
 				
@@ -3379,17 +3447,6 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 					$scope.getAllStaff();	
 			});
 		}
-		
-		/* $scope.updateRole = function(data,id) {
-			mysqlRequest.updateRole(data,id).success(function(answer, status){
-				
-						if(answer != 'SUCCESS') {
-							console.error(answer);
-							return;
-						}
-				$scope.getAllStaff();
-			});
-		} */
 		
 		$scope.getAllRoles = function() {			
 			mysqlRequest.getAllRoles().then(function(response){
@@ -3436,7 +3493,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	console.log($scope.pid);
 	$scope.getAllSubprojects();
 	$scope.getAllRoles();
-	$scope.fillDataObject('staff');
+	$scope.fillDataObject('task');
 	$scope.getStaffFromGraph();
 	}]);
 

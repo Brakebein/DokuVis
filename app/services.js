@@ -1356,10 +1356,11 @@ webglServices.factory('mysqlRequest',
 			return $http.post('php/mysql/getAllRoles.php', {});
 		};
 		
-		requests.addNewStaff = function(id,name,mail,role,pid) {
+		requests.addNewStaff = function(id,name,surname,mail,role,pid) {
 			
 			return $http.post('php/mysql/addNewStaff.php', {
 				name: name,
+				surname: surname,
 				sid: id,
 				mail:mail,
 				rid: role,

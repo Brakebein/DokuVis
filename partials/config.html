@@ -16,36 +16,50 @@
 				   
 					<div class="panel-collapse" bs-collapse-target>
 						<div class="panel-body">
-								<div class="form-inline">
+							<table class="table table-striped"> 
+								<thead>
+									<tr>
+										<th width="15">Name</th>
+										<th width="15">Nachname</th>
+										<th width="15">E-Mail</th>
+										<th width="15">Rolle</th>
+										<th width="15"></th>
+										
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="s in staff" >
+										<td><a style ="font-size: 13px" buttons = "no" e-style="width: 6em"  href="#" editable-text ="s.name" h searchsave = "updateName($data,s.sid)" >{{s.name}}</a></td>
+										<td><a style ="font-size: 13px" buttons = "no" e-style="width: 6em"  href="#" editable-text ="s.surname" h searchsave = "updateName($data,s.sid)" >{{s.surname}}</a></td>
+										<td><a href="#" editable-text ="s.email" style ="font-size: 13px" buttons = "no" e-style="width: 6em" onbeforesave = "updateMail($data,s.sid)">{{s.email}}</a></td>
+										<td style ="font-size: 13px">{{s.role}}</td>
+										<td><div class="input-group" >
+											<button type="button"  class="btn btn-info btn-md gradient" bs-tooltip="tooltip[8]" placement= "bottom" ng-click=removeStaff(s.sid,s.rid)>
+											<span class="fa fa-trash"></span>
+											</button>
+										</div></td>
+									</tr>
 									
-										<!-- <div class="form-group text-center">
-											<label class="control-label">Name</label><br>
-											<input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Name">
-										</div> -->
+									<tr>
+										<td><input type="text" class="form-control" style="width: 6em;"  ng-model="newStaff.name" placeholder="Name"></td>
+										<td><input type="text" class="form-control" style="width: 6em;"  ng-model="newStaff.surname" placeholder="Nachname"></td>
+										<td><input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" ></td>
+										<td><select type="text" class="form-control" style="width: 6em" ng-model="newStaff.role">
+											<option value="" disabled='' selected=''>Rolle</option>
+											<option ng-repeat= "r in roles" value="{{r.rid}}">{{r.role}}</option> 
+										</select></td>
+										<td><div class = "col-md-2" >
+											<div class="input-group" >
+												<button class="btn btn-info btn-md gradient" bs-tooltip="tooltip[13]" placement= "bottom" ng-click="addNewStaffToProject()">
+												<span class="glyphicon glyphicon-plus"></span>
+												</button>	
+											</div>
+										</div> </td>
+										
+									</tr>
+								</tbody>
+						</table>
 								
-									<div class="form-group text-center">
-											<label class="control-label">E-Mail</label><br>
-											<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" >
-										</div>
-
-										<div class="form-group text-center">
-											<label class="control-label">Rolle</label><br>
-											<select type="text" class="form-control" style="width: 6em" ng-model="newStaff.role">
-												<option value="" disabled='' selected=''>Rolle</option>
-												<option ng-repeat= "r in roles" value="{{r.rid}}">{{r.role}}</option> 
-												<option value = "Modellierer">Modellierer</option>
-												<option value = "Historiker">Historiker</option>
-												<option value = "Projektleiter">Projektleiter</option>
-											</select>
-										</div>
-								
-									
-									
-										<div class="form-group text-center">
-											<label class="control-label">Hinzufügen</label><br>
-											<button class="btn btn-primary" ng-click="addNewStaffToProject()">Mitarbeiter hinzufügen</button>
-										</div>
-										</div>
 									
 								</div>
 							</div>
