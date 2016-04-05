@@ -167,7 +167,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 	
-dokuvisApp.run(function($rootScope, $state, AuthenticationFactory, amMoment) {
+dokuvisApp.run(function($rootScope, $state, AuthenticationFactory, amMoment, editableOptions) {
 	// when the page refreshes, check if the user is already logged in
 	AuthenticationFactory.check();
 	
@@ -183,6 +183,7 @@ dokuvisApp.run(function($rootScope, $state, AuthenticationFactory, amMoment) {
 	});
 	
 	amMoment.changeLocale('de');
+	editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
 });
 	
 dokuvisApp.filter('filterEditor', function(){
