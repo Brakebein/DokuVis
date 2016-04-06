@@ -425,7 +425,7 @@
 	font-size: 9pt;
 	font-weight: bold;
 }
-.resultItem .thumbnail .primaryIdenticator {
+.resultItem .thumbnail .primaryIndicator {
 	position: absolute;
 	width: 24px;
 	height: 24px;
@@ -433,6 +433,13 @@
 	bottom: -12px;
 	transform: rotate(45deg);
 	background-color: #addd8e;
+}
+.resultItem .thumbnail .commentIndicator {
+	position:absolute;
+	bottom: 1px;
+	right: 4px;
+	font-size: 8pt;
+	color: #aaa;
 }
 .resultItem .thumbnail .btnBar {
 	position: absolute;

@@ -2244,7 +2244,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					var edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
 					//edges.matrix = mesh.matrixWorld;
 					//edges.matrixAutoUpdate = false;
-					scene.add(edges);
+					//scene.add(edges);
 					
 					mesh.name = info.content;
 					mesh.userData.name = info.name;
@@ -2265,14 +2265,20 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					//var scale = 0.001;
 					//mesh.geometry.scale(scale, scale, scale);
 					var t = mesh.geometry.boundingSphere.center.clone();
-					console.log(t);
+					//console.log(t);
 					mesh.position.set(t.x, t.y, t.z);
+					edges.position.set(t.x, t.y, t.z);
 					t.negate();
 					mesh.geometry.translate(t.x, t.y, t.z);
-					console.log(mesh);
-					scene.add(mesh);
+					edges.geometry.translate(t.x, t.y, t.z);
 					
-					mesh.userData.initPos = mesh.matrix.clone();
+					//console.log(mesh);
+					
+					scene.add(mesh);
+					scene.add(edges);
+					
+					mesh.updateMatrix();
+					mesh.userData.initMatrix = mesh.matrix.clone();
 					
 					// Liste, um zusammengehörige Objekte zu managen
 					plans[mesh.id] = {mesh: mesh, edges: edges, visible: true};
@@ -2469,6 +2475,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 			};
 			
+			// auch alt
 			scope.internalCallFunc.setCoordsFromInput = function(coords) {
 				if(gizmo instanceof THREE.GizmoMove)
 					gizmo.object.position.set(parseFloat(coords.x), parseFloat(coords.y), parseFloat(coords.z));
@@ -2721,10 +2728,121 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			};
 
 			// explode plans
-			webglInterface.callFunc.explodePlans =function() {
-				if(selected[0].userData.type !== 'plan') return
+			webglInterface.callFunc.explodePlans = function() {
+				if(!(selected[0] && selected[0].userData.type === 'plan')) return;
 				var plan = selected[0];
 				console.log(plan);
+				
+				var padding = 5; // Abstand zwischen den Plänen
+				var offset = {
+					top: [],	// -z
+					bottom: [],	// +z
+					left: [],	// -x
+					right: []	// +x
+				};
+				
+				var planNormal = new THREE.Vector3(plan.geometry.attributes.normal.array[0], plan.geometry.attributes.normal.array[1], plan.geometry.attributes.normal.array[2]).normalize();
+				
+				var planBbox = plan.geometry.boundingBox.clone().applyMatrix4(plan.matrixWorld);
+				
+				console.log(planNormal, planBbox);
+				
+				for(var key in plans) {
+					if(plans[key].mesh.id === plan.id) continue;
+					var p = plans[key].mesh;
+					//console.log(p);
+					
+					var pNormal = new THREE.Vector3(p.geometry.attributes.normal.array[0], p.geometry.attributes.normal.array[1], p.geometry.attributes.normal.array[2]).normalize();
+					var pBbox = p.geometry.boundingBox.clone().applyMatrix4(p.matrixWorld);
+					
+					//translate
+					var height = new THREE.Vector3().subVectors(pBbox.max, pBbox.min).multiply(planNormal).length();
+					var distance = height / 2 + padding;
+					
+					var subMin = new THREE.Vector3().subVectors(planBbox.min, p.position);
+					var subMax = new THREE.Vector3().subVectors(planBbox.max, p.position);
+					if(pNormal.dot(subMin) > pNormal.dot(subMax))
+						distance += subMin.projectOnVector(pNormal).length();
+					else
+						distance += subMax.projectOnVector(pNormal).length();
+					
+					var arrange = '';
+					if(pNormal.x > 0.9)
+						arrange = 'right';
+					else if(pNormal.x < -0.9)
+						arrange = 'left';
+					else if(pNormal.z > 0.9)
+						arrange = 'bottom';
+					else if(pNormal.z < -0.9)
+						arrange = 'top';
+					
+					if(arrange) {
+						for(var i=0; i<offset[arrange].length; i++)
+							distance += offset[arrange][i].height + padding;
+						offset[arrange].push({ name: p.name, height: height });
+					}
+					
+					var t = p.position.clone().add(new THREE.Vector3().copy(pNormal).applyQuaternion(p.quaternion).multiplyScalar(distance));
+					//p.translateOnAxis(pNormal, distance);
+					t.add(new THREE.Vector3().subVectors(planBbox.min, t).multiply(planNormal));
+					//t.set(t.x, planBbox.min.y, t.z);
+					
+					//rotate
+					var rAxis = new THREE.Vector3().crossVectors(planNormal, pNormal);
+					var q = p.quaternion.clone().multiply(new THREE.Quaternion().setFromAxisAngle(rAxis, Math.PI / 2));
+					//p.rotateOnAxis(rAxis, Math.PI / 2);
+					
+					// tween animation
+					new TWEEN.Tween(p.position)
+						.to(t, 500)
+						.easing(TWEEN.Easing.Quadratic.InOut)
+						.start();
+					
+					new TWEEN.Tween(p.quaternion)
+						.to(q, 500)
+						.easing(TWEEN.Easing.Quadratic.InOut)
+						.start();
+					
+					if(plans[key].edges) {
+						new TWEEN.Tween(plans[key].edges.position)
+							.to(t, 500)
+							.easing(TWEEN.Easing.Quadratic.InOut)
+							.start();
+						new TWEEN.Tween(plans[key].edges.quaternion)
+							.to(q, 500)
+							.easing(TWEEN.Easing.Quadratic.InOut)
+							.start();
+					}
+				}
+			};
+			
+			// pläne in ausgangslage zurücksetzen
+			webglInterface.callFunc.resetPlans = function() {
+				for(var key in plans) {
+					//console.log(plans[key].mesh.matrix, plans[key].mesh.userData.initMatrix);
+					var t = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3();
+					plans[key].mesh.userData.initMatrix.decompose(t,q,s);
+					
+					new TWEEN.Tween(plans[key].mesh.position)
+						.to(t, 500)
+						.easing(TWEEN.Easing.Quadratic.InOut)
+						.start();
+					new TWEEN.Tween(plans[key].mesh.quaternion)
+						.to(q, 500)
+						.easing(TWEEN.Easing.Quadratic.InOut)
+						.start();
+					
+					if(plans[key].edges) {
+						new TWEEN.Tween(plans[key].edges.position)
+							.to(t, 500)
+							.easing(TWEEN.Easing.Quadratic.InOut)
+							.start();
+						new TWEEN.Tween(plans[key].edges.quaternion)
+							.to(q, 500)
+							.easing(TWEEN.Easing.Quadratic.InOut)
+							.start();
+					}
+				}
 			};
 			
 			// orthogonale Ansicht des Plans einnehmen

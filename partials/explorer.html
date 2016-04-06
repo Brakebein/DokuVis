@@ -296,7 +296,8 @@
 						<p>{{p.author || 'unbekannt'}} &ensp; {{p.date}}</p>
 					</div>
 					
-					<div class="primaryIdenticator" ng-show="p.primary"></div>
+					<div class="primaryIndicator" ng-show="p.primary"></div>
+					<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>
 					
 					<div class="btnBar">
 						<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>
@@ -329,6 +330,7 @@
 		<button ng-click="resizerValue = 800">resizerAnim</button>
 
 		<button ng-click="wi.callFunc.explodePlans()">explodePlans</button>
+		<button ng-click="wi.callFunc.resetPlans()">resetPlans</button>
 	</div>
 	
 	
