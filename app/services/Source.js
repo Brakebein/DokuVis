@@ -5,6 +5,10 @@ angular.module('dokuvisApp').factory('Source', ['$http', 'API', '$stateParams',
 			
 			getAll: function() {
 				return $http.get(API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/sources');
+			},
+
+			get: function(id) {
+				return $http.get(API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/source/' + id);
 			}
 			
 		};

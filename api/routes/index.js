@@ -45,6 +45,7 @@ router.delete('/auth/project/:id/category/:cid/attribute/:aid', category.deleteA
 
 // sources
 router.get('/auth/project/:id/:subprj/sources', source.getAll);
+router.get('/auth/project/:id/:subprj/source/:sourceId', source.get);
 
 // comments
 router.post('/auth/project/:id/comment', comment.create);

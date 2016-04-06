@@ -4,6 +4,8 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'webglServices',
 	'ui.router',
 	'ui.router.css',
+	'ct.ui.router.extras.sticky',
+	'ct.ui.router.extras.previous',
 	'ngAnimate',
 	'ngSanitize',
 	'autocomplete',
@@ -20,16 +22,14 @@ var dokuvisApp = angular.module('dokuvisApp', [
 
 dokuvisApp.constant('API', 'api/');
 
-dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
-	function($stateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
+dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
+	function($stateProvider, $stickyStateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
 		$httpProvider.interceptors.push('TokenInterceptor');
 		
 		$urlRouterProvider.otherwise('/home');
-		
-		// TODO: resolve functions
-		//    -> check user login
-		//    -> check if user is part of project
+
+		//$stickyStateProvider.enableDebug(true);
 		
 		$stateProvider
 			.state('home', {
@@ -59,7 +59,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					authenticate: authenticate,
 					checkProject: checkProject,
 					checkSubproject: checkSubproject
-				}
+				},
+				abstract: true
 			})
 			.state('project.home', {
 				url: '/home',
@@ -80,6 +81,21 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					'style/modals/indexEdit.css',
 					'style/modals/categoryEdit.css'
 				]
+			})
+			.state('project.explorer.source', {
+				url: '/source',
+				onEnter: function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalLargeTpl.html',
+						contentTemplate: 'partials/modals/sourceDetailModal.html',
+						controller: 'sourceDetailCtrl',
+						show: true
+					});
+				},
+				abstract: true
+			})
+			.state('project.explorer.source.id', {
+				url: '/:sourceId'
 			})
 			.state('project.tasks', {
 				url: '/tasks',
@@ -167,7 +183,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 	
-dokuvisApp.run(function($rootScope, $state, AuthenticationFactory, amMoment, editableOptions) {
+dokuvisApp.run(function($rootScope, $state, $previousState, AuthenticationFactory, amMoment, editableOptions) {
 	// when the page refreshes, check if the user is already logged in
 	AuthenticationFactory.check();
 	
@@ -181,6 +197,16 @@ dokuvisApp.run(function($rootScope, $state, AuthenticationFactory, amMoment, edi
 			$state.go('home');
 		}
 	});
+
+	// $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState) {
+	// 	// is initial transition going to modal?
+	// 	if(fromState.name === '' && /source.*/.exec(toState.name)) {
+	// 		event.preventDefault();
+	// 		$state.go('project.explorer', toParams, { location: false }).then(function () {
+	// 			$state.go(toState, toParams);
+	// 		});
+	// 	}
+	// });
 	
 	amMoment.changeLocale('de');
 	editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'

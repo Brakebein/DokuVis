@@ -1,7 +1,7 @@
 <div class="modal-content">
 	
 	<div class="modal-header" ng-show="title">
-		<button type="button" class="close" aria-label="Close" ng-click="$hide()">
+		<button type="button" class="close" aria-label="Close" ng-click="close()">
 			<span aria-hidden="true">&times;</span>
 		</button>
 		<h4 class="modal-title" ng-bind="title"></h4>
@@ -107,7 +107,7 @@
 	<div class="modal-footer">
 		<button class="btn btn-default" ng-click="nextItem(-1)"><span class="glyphicon glyphicon-chevron-left"></span> Voriges</button>
 		<button class="btn btn-default" ng-click="nextItem(1)">Nächstes<span class="glyphicon glyphicon-chevron-right"></span></button>
-		<button type="button" class="btn btn-default" ng-click="$hide()">Abbrechen</button>
+		<button type="button" class="btn btn-default" ng-click="close()">Abbrechen</button>
 	</div>
 	
 </div>

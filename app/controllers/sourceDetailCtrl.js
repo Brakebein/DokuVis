@@ -1,17 +1,18 @@
-webglControllers.controller('sourceDetailCtrl', ['$scope', '$http', 'Utilities', 'Comment',
-	function($scope, $http, Utilities, Comment) {
+webglControllers.controller('sourceDetailCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$http', 'Utilities', 'Source', 'Comment',
+	function($scope, $state, $stateParams, $previousState, $http, Utilities, Source, Comment) {
 		
 		console.log('sourceDetailCtrl init');
+		$previousState.memo('modalInvoker');
 		
 		$scope.horizontalImage = false;
 		$scope.pageNr = 0;
 		
 		var items = $scope.$parent.filteredSourceResults;
-		$scope.itemindex = $scope.$parent.modalParams.index;
+		//$scope.itemindex = $scope.$parent.modalParams.index;
 		
 		$scope.nextItem = function(incr) {
-			$scope.itemindex = (($scope.itemindex + incr) % items.length + items.length) % items.length;
-			$scope.item = items[$scope.itemindex];
+			//$scope.itemindex = (($scope.itemindex + incr) % items.length + items.length) % items.length;
+			//$scope.item = items[$scope.itemindex];
 			
 			if($scope.item.type =='picture' || $scope.item.type =='plan') {
 				var img = new Image();
@@ -37,7 +38,7 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http', 'Utilities',
 			$scope.pageNr = (($scope.pageNr + incr) % $scope.item.file.display.length + $scope.item.file.display.length) % $scope.item.file.display.length;
 		};
 		
-		$scope.nextItem(0);
+		//$scope.nextItem(0);
 		
 		$scope.highlight = function(event) {
 			if(event.target.className !== 'ocrx_word') return;
@@ -123,6 +124,21 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http', 'Utilities',
 				Utilities.throwApiException('on Comment.create()', err);
 			})
 		};
+
+		function loadSource(id) {
+			Source.get(id).then(function (response) {
+				console.log(response.data);
+				if(response.data) {
+					$scope.item = response.data;
+					$scope.nextItem();
+				}
+				else
+					$scope.close();
+			}, function(err) {
+				Utilities.throwApiException('on Source.get()', err);
+			});
+		}
+		loadSource($stateParams.sourceId);
 		
 		function loadComments() {
 			Comment.get($scope.item.eid).then(function(response) {
@@ -135,4 +151,22 @@ webglControllers.controller('sourceDetailCtrl', ['$scope', '$http', 'Utilities',
 
 		// TODO: Kommentare/Antworten editieren und löschen
 
+		$scope.$on('$stateChangeSuccess', function (event, toState, toParams) {
+			console.log('source state changed', toParams);
+			loadSource(toParams.sourceId);
+		});
+
+		// closing
+		$scope.close = function () {
+			this.$hide();
+			this.$destroy();
+		};
+
+		$scope.$on('$destroy', function (event) {
+			console.log('destroy sourceDetail');
+			if($previousState.get('modalInvoker').state)
+				$previousState.go('modalInvoker');
+			else
+				$state.go('project.explorer');
+		});
 	}]);

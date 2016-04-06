@@ -250,17 +250,6 @@
 					</ul>
 				</div>
 			</div> -->
-			<!-- <div class="ctrlGroup resGroup">
-				<div class="dropdown">
-					<button class="btn btn-xs btn-default dropdown-toggle" type="button" id="dropdownSources" data-toggle="dropdown">
-						3D-Modell hochladen
-						<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownSources">
-						<li role="representation"><a role="menuitem" class="pointer" tabindex="-1" ng-click="openInsertForm('model')">3D-Modell</a></li>
-					</ul>
-				</div>
-			</div> -->
 		</div>
 		
 		<!-- Tabs der einzelnen Quellenarten -->
@@ -300,12 +289,10 @@
 					<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>
 					
 					<div class="btnBar">
-						<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>
+						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid })"><span class="glyphicon glyphicon-zoom-in"></span></a>
+						<!--<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>-->
 						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
 						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
-						<!--<button ng-click="callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', p.obj);">load</button>
-						<button ng-click="highlightObj(p.eid)">highlight</button>
-						<a ng-href="data/Proj_Muristan/plans/{{p.jpg}}" target="_blank">open</a>-->
 					</div>
 				</div>
 			</div>
@@ -342,16 +329,7 @@
 	Zoomen: Mausrad
 	</p> -->
 	
-	<!--<p>
-	<button ng-click="callDirFunc.loadScene('muristan')">Muristan</button>
-	<button ng-click="callDirFunc.loadScene('rekonstr')">Rekonstruktion</button>
-	<button ng-click="callDirFunc.loadScene('fribourg')">Fribourg</button>
-	<!--<select ng-model="project" ng-init="project = 'Proj_Muristan'">
-		<option>Proj_Muristan</option>
-		<option>Proj_Zwinger</option>
-		<option>Proj_Fribourg</option>
-	</select>
-	</p>-->
+
 
 	<!--<p>
 	<button disabled ng-click="insertObjects()">insert Objects</button>
@@ -359,18 +337,9 @@
 	<button disabled ng-click="connectObjPlan()">connect Obj Plan</button>
 	</p>-->
 	<p>
-	<!--<button ng-click="loadMuristan()">Load Muristan</button>
-	<button ng-click="loadPlans()">Load Plans</button>
-	<button ng-click="loadModels()">Load Models</button>-->
 	<!--<button ng-click="loadModelsWithChildren()">Load ModelsWChildren</button>-->
 	</p>
-	<!--<p>
-	<button ng-click="getAllPlans()">getAllPlans</button>
-	<button ng-click="getPlansForObj()">getPlansForObj</button>
-	<button ng-click="getAllDocuments()">getAllDocuments</button>-->
-	
-	
-	<!--<button ng-click="loadZwinger()">loadZwinger</button>-->
+
 	<!--<button ng-click="logModels()">log models</button>-->
 	<!-- <button ng-click="openInsertForm('model')">upload 3D model</button> -->
 	
@@ -388,20 +357,3 @@
 
 <!-- alert -->
 <div ng-if="alert.showing" alert="alert" class="alert alert-warning" role="alert"></div>
-
-
-<!--
-<div class="media" data-ng-click="highlightModels($index)" data-ng-repeat="document in plans">
-	<div class="pull-left " style="width:150px; height:80px;overflow:hidden;">
-	<a href="{{document.uri}}" target="_blank" class="thumbnail">
-		<img class="media-object" style="max-height:70px;" ng-src="{{document.uri}}"/>
-	</a>
-	</div>
-	<div class="media-body">
-		<h4>{{document.content}}</h4>
-		<span data-ng-repeat="refdoc in document.refdocs">
-			<span class="label label-default">{{refdoc.content}}</span>&nbsp;
-		</span>
-	</div>
-</div>
--->

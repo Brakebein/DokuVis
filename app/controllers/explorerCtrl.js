@@ -233,47 +233,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 				$scope.getScreenshots();
 		};
 		
-		$scope.loadMuristan = function() {
-			neo4jRequest.getAllObj().success(function(data, status){
-				
-				var files = cleanData(data);
-				//console.log(files);
-				
-				for(var i=0; i<files.length; i++) {
-					$scope.callDirFunc.loadObjIntoScene('data/Proj_Muristan/models/', files[i].file);
-				}
-				//$scope.callDirFunc.loadObjIntoScene('data/Proj_Muristan/models/', '_komplett.obj');
-			});
-		}
-		
-		$scope.loadPlans = function() {
-			neo4jRequest.getAllPlanObj().success(function(data, status){
-			
-				var files = cleanData(data);
-				//console.log(files);
-				
-				for(var i=0; i<files.length; i++) {
-					$scope.callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', files[i].file);
-				}
-			});
-		}
-		
-		$scope.getAllPlans = function() {
-			//neo4jRequest.getPlanFromObject('G_marhanna').success(function(data, status){
-			neo4jRequest.getAllPlanData($scope.project).success(function(data, status){
-				
-				//console.log($scope.models);
-				console.log(data, status);
-				if(!data) { console.error('neo4jRequest failed'); return; }
-				$scope.sourceResults = cleanData(data, true);
-				console.log($scope.sourceResults);
-				
-				/*for(var i=0; i<files.length; i++) {
-					$scope.callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', files[i].file);
-				}*/
-			});
-		}
-		
 		// lädt alle Dokumente im Quellenbrowser
 		$scope.getAllDocuments = function() {
 			Source.getAll().then(function(response){
