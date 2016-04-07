@@ -68,6 +68,7 @@ var source = {
 			OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG) \
 			OPTIONAL MATCH (e31)<-[:P129]-(ce33:E33)-[:P2]->(:E55 {content: "commentSource"}) \
 			RETURN e31.content AS eid, \
+				id(e31) AS nId, \
 				type.content AS type, \
 				title.content AS title, \
 				primary.content AS primary, \

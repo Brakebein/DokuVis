@@ -1,16 +1,15 @@
-var Promise = require('bluebird');
-var config = require('../config');
 var utils = require('../utils');
 var neo4j = require('../neo4j-request');
 
 var graph = {
 	
 	getPaths: function(req, res) {
+		var prj = req.params.id;
 		
 		var statements = [{
-			statement: 'match path = (n)-[]-() where id(n) = {id} return path',
+			statement: 'match path = (n:'+prj+')-[]-() where id(n) = {id} return path',
 			parameters: {
-				id: req.body.id
+				id: +req.params.nodeId
 			},
 			resultDataContents: ['row', 'graph']
 		}];

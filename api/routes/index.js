@@ -19,7 +19,6 @@ router.post('/register', auth.register);
 router.get('/auth/checkJWT', auth.checkJWT);
 
 router.post('/auth/cypher', project.cypher);
-router.post('/auth/graph', graph.getPaths);
 
 // routes that can be only accessed by authenticated & authorized users
 
@@ -50,5 +49,8 @@ router.get('/auth/project/:id/:subprj/source/:sourceId', source.get);
 // comments
 router.post('/auth/project/:id/comment', comment.create);
 router.get('/auth/project/:id/comment/:targetId', comment.get);
+
+// graph
+router.get('/auth/project/:id/graph/:nodeId', graph.getPaths);
 
 module.exports = router;

@@ -1,3 +1,5 @@
+@import '../../../style/variables'
+
 div[webgl-view]
 	//width: 100%;
 	//height: 100%;
@@ -18,7 +20,7 @@ div[webgl-view]
 		bottom: 6px
 		left: 10px
 		font-size: 8pt
-		color: #fafafa
+		color: $panelFontColor
 	
 	.loadprogressbar
 		position: absolute
@@ -40,10 +42,10 @@ div[webgl-view]
 		top: 0
 		left: 0
 		padding: 3px 6px 3px 3px
-		background-color: rgba(51,51,51,0.8)
-		border-bottom-right-radius: 10px
-		border-bottom: 1px solid #999
-		border-right: 1px solid #999
+		background-color: $panelBackground
+		border-bottom-right-radius: $panelBorderRadius
+		border-bottom: $panelBorder
+		border-right: $panelBorder
 
 		& .ctrlGroup
 			&:first-of-type

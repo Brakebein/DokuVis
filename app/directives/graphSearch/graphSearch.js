@@ -2,72 +2,17 @@
   * Directive für die graphbasierte Suche
   * Verwendung des D3.js - Frameworks
   */
-angular.module('dokuvisApp').directive('graphSearch', ['APIRequest', 'CidocDict',
-	function(APIRequest, CidocDict) {
+angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams', 'GraphVis', 'CidocDict',
+	function($state, $stateParams, GraphVis, CidocDict) {
 		
 		function link(scope, element, attrs) {
-			/*var data = {
-				name: 'Zwingerschloss Longuelune Grundriss',
-				children: [
-					{ name: 'Titel: halbierter EG-Grundriss für das Zwingerschloss' },
-					{ name: 'Arbeitsriss in Graphit' },
-					{ name: 'M 8 II c. Bl. 2' },
-					{ name: 'Plan' },
-					{ name: 'Plansammlung', children: [ {name: 'Landesamt für Denkmalpflege Sachsen' } ] },
-					{ name: 'Entstehung', children: [ { name: 'Zacharias Longuelune' }, { name: 'Dresden' } ] },
-					{ name: 'ZS09', children: [
-						{ name: 'Wappenkartusche' },
-						{ name: 'Zwingerpavillon komplett' },
-						{ name: 'Situationsplan' },
-						{ name: 'Rekonstruktion Elbfassade' },
-						{ name: 'Aufriss Seitenflügel' }
-					]}
-				]
-			};
-			
-			var nodes = [
-				{ name: 'Zwingerschloss Longuelune Grundriss' },
-				{ name: 'Titel: halbierter EG-Grundriss für das Zwingerschloss' },
-				{ name: 'Arbeitsriss in Graphit' },
-				{ name: 'M 8 II c. Bl. 2' },
-				{ name: 'Plan' },
-				{ name: 'Plansammlung' },
-				{ name: 'Landesamt für Denkmalpflege Sachsen' },
-				{ name: 'Entstehung' },
-				{ name: 'Zacharias Longuelune' },
-				{ name: 'Dresden' },
-				{ name: 'ZS09' },
-				{ name: 'Wappenkartusche' },
-				{ name: 'Zwingerpavillon komplett' },
-				{ name: 'Situationsplan' },
-				{ name: 'Rekonstruktion Elbfassade' },
-				{ name: 'Aufriss Seitenflügel' }
-			];
-			
-			var links = [
-				{ source: 0, target: 1, name: 'verbindet' },
-				{ source: 0, target: 2, name: 'verbindet'},
-				{ source: 0, target: 3, name: 'verbindet' },
-				{ source: 0, target: 4, name: 'verbindet' },
-				{ source: 0, target: 5, name: 'verbindet' },
-				{ source: 5, target: 6, name: 'verbindet' },
-				{ source: 0, target: 7, name: 'verbindet' },
-				{ source: 7, target: 8, name: 'Kind von' },
-				{ source: 7, target: 9, name: 'has title' },
-				{ source: 0, target: 10, name: 'verbindet' },
-				{ source: 10, target: 11, name: 'verbindet' },
-				{ source: 10, target: 12, name: 'verbindet' },
-				{ source: 10, target: 13, name: 'verbindet' },
-				{ source: 10, target: 14, name: 'verbindet' },
-				{ source: 10, target: 15, name: 'verbindet' }
-			];*/
-			
+						
 			function Graph() {
 				
 				var link, node;
 				var width = element.width(), height = element.height();
-				var centerPos = new THREE.Vector2(width / 2, height / 2)
-				var clickPos = new THREE.Vector2();
+				var centerPos = new THREE.Vector2( width / 2, height / 2 );
+				var clickPos = new THREE.Vector2( width / 2 - 10, height / 2 );
 				
 				var force = d3.layout.force()
 					.size([width, height])
@@ -149,26 +94,25 @@ angular.module('dokuvisApp').directive('graphSearch', ['APIRequest', 'CidocDict'
 						.attr('y', function(d) { return d.bbox1.y; })
 						.attr('width', function(d) { return d.bbox1.width; })
 						.attr('height', function(d) { return d.bbox1.height; });
-					// gNode.append('text')
-						// .attr('text-anchor', 'middle')
-						// .attr('dy', '.75em')
-						// .attr('class', 'shadow')
-						// .text(getNodeText);
 					gNode.append('text')
+						.attr('class', 'caption')
 						.attr('text-anchor', 'middle')
-						.attr('dy', '.75em')
+						.attr('dy', '.75em');
+					gNode.insert('rect', 'text')
+						.attr('class', 'bg-text bg-caption');
+					gNode.append('title')
+						.text(function(d) { return d.properties.content; });
+					node.exit().remove();
+
+					// update caption
+					node.select('.caption')
 						.text(getNodeText)
 						.call(getBBox, 'bbox2');
-					gNode.insert('rect', 'text')
-						.attr('class', 'bg-text')
+					node.select('.bg-caption')
 						.attr('x', function(d) { return d.bbox2.x; })
 						.attr('y', function(d) { return d.bbox2.y; })
 						.attr('width', function(d) { return d.bbox2.width; })
 						.attr('height', function(d) { return d.bbox2.height; });
-					gNode.append('title')
-						.text(function(d) { return d.properties.content; });
-					node.exit().remove();
-					
 					
 					force.drag().on('dragstart', dragstart);
 					force.on('tick', tick);
@@ -192,8 +136,10 @@ angular.module('dokuvisApp').directive('graphSearch', ['APIRequest', 'CidocDict'
 				}
 				
 				function dragstart(d) {
-					//console.log('dragstart');
+					console.log('dragstart', d);
 					d3.select(this).classed('fixed', d.fixed = true);
+					scope.selectedNode = d;
+					scope.$apply();
 				};
 				
 				function onMouseover(d) {
@@ -220,16 +166,10 @@ angular.module('dokuvisApp').directive('graphSearch', ['APIRequest', 'CidocDict'
 				
 				// add node to the graph object
 				this.addNode = function(node) {
-					if(findNode(node.id) === undefined) {
-						if(nodes.length) {
-							var newPos = getRandomPosition();
-							node.x = newPos.x;
-							node.y = newPos.y;
-						}
-						else {
-							node.x = centerPos.x;
-							node.y = centerPos.y;
-						}
+					if(this.findNode(node.id) === undefined) {
+						var newPos = getRandomPosition();
+						node.x = newPos.x;
+						node.y = newPos.y;
 						nodes.push(node);
 						return true;
 					}
@@ -238,28 +178,50 @@ angular.module('dokuvisApp').directive('graphSearch', ['APIRequest', 'CidocDict'
 				
 				// add link to the graph object
 				this.addLink = function(link) {
-					if(findLink(link.id) === undefined) {
-						link.source = findNode(link.startNode);
-						link.target = findNode(link.endNode);
+					if(this.findLink(link.id) === undefined) {
+						link.source = this.findNode(link.startNode);
+						link.target = this.findNode(link.endNode);
 						links.push(link);
 						return true;
 					}
 					return false;
 				};
+
+				// remove node from graph object
+				this.removeNode = function (nodeId) {
+					for(var i in nodes) {
+						if(nodes[i].id === nodeId) {
+							nodes.splice(i,1);
+							return true;
+						}
+					}
+					return false;
+				};
 				
-				function findNode(id) {
+				// remove link from graph object
+				this.removeLink = function (linkId) {
+					for(var i in links) {
+						if(links[i].id === linkId) {
+							links.splice(i,1);
+							return true;
+						}
+					}
+					return false;
+				};
+				
+				this.findNode = function(id) {
 					for(var i in nodes) {
 						if(nodes[i].id === id) return nodes[i];
 					}
 					return undefined;
-				}
+				};
 				
-				function findLink(id) {
+				this.findLink = function(id) {
 					for(var i in links) {
 						if(links[i].id === id) return links[i];
 					}
 					return undefined;
-				}
+				};
 				
 				function getNodeText(d) {
 					var text = d.properties[CidocDict.getNodePropertyName(d.labels[0])] || d.properties.content;
@@ -293,9 +255,10 @@ angular.module('dokuvisApp').directive('graphSearch', ['APIRequest', 'CidocDict'
 			var graph = new Graph();
 			
 			function getNodeNeighbours(id) {
-				APIRequest.getNodeNeighbours(id).then(function(response) {
+				GraphVis.getNodeNeighbours(id).then(function(response) {
+					if(!response.data.results[0]) return;
 					var data = response.data.results[0].data;
-					//console.log(data);
+					console.log(data);
 					
 					var newNodes = 0, newLinks = 0;
 					
@@ -307,59 +270,45 @@ angular.module('dokuvisApp').directive('graphSearch', ['APIRequest', 'CidocDict'
 							if(graph.addNode(dataNodes[j])) newNodes++;
 						}
 						for(var j=0; j<dataLinks.length; j++) {
-							if(graph.addLink(dataLinks[j])) newLinks++;
+							var key = dataLinks[j].type + '-' + graph.findNode(dataLinks[j].endNode).labels[0];
+							if(CidocDict.callRule(key, graph, dataLinks[j])) newNodes--;
+							else if(graph.addLink(dataLinks[j])) newLinks++;
 						}
 					}
 					
 					if(newNodes || newLinks) {
 						graph.update();
+						if(!scope.selectedNode) scope.selectedNode = graph.findNode($stateParams.startNode);
 					}
 					
 					console.log(graph.getData());
+				}, function(err) {
+					Utilities.throwApiException('on GraphVis.getNodeNeighbours()', err);
 				});
 			}
 			
-			getNodeNeighbours(21235);
-			
 			graph.onDblclick = function(d) {
 				//console.log('dbclick', d);
-				getNodeNeighbours(+d.id);
+				//getNodeNeighbours(+d.id);
 				graph.setClickPosition(d);
+				$state.go('project.graph.node', { startNode: d.id });
 			};
-			
-			
- 			/*function buildTree(data) {
-				var tree = { node: data[0].graph.nodes[0], children: [] };
-				var tree = data[0].graph.nodes[0];
-				tree.children = [];
-				for(var i=0; i<data.length; i++) {
-					var node = getTreeNode(tree, data[i].graph.nodes[1]);
-					if(node) {
-						// if(!node.children) node.children = [];
-						// tree.children.push(node);
-					}
-					else {
-						tree.children.push(data[i].graph.nodes[1]);
-					}
-				}
-				return tree;
-			}*/
-			
-			/*function getTreeNode(parent, node) {
-				if(parent.id === node.id) return parent;
-				if(!parent.children) return undefined;
-				for(var i=0; i<parent.children.length; i++) {
-					var tnode = getTreeNode(parent.children[i], node);
-					if(tnode !== undefined) return tnode;
-				}
-				return undefined;
-			}*/
-			
-			
+
+			// init
+			//getNodeNeighbours(21235);
+			if($stateParams.startNode)
+				getNodeNeighbours(+$stateParams.startNode);
+
+			scope.$on('$stateChangeSuccess', function (event, toState, toParams) {
+				console.log('graph state changed', toParams);
+				if(toParams.startNode)
+					getNodeNeighbours(+toParams.startNode);
+			});
 		}
 		
 		return {
 			restrict: 'A',
+			templateUrl: 'app/directives/graphSearch/graphSearch.html',
 			link: link
 		};
 		

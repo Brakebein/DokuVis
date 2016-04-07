@@ -76,7 +76,6 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 					'style/explorer.css',
 					'style/panelContainer.css',
 					'style/modals/insertSource.css',
-					'style/modals/sourceDetail.min.css',
 					'style/modals/screenshotDetail.min.css',
 					'style/modals/indexEdit.css',
 					'style/modals/categoryEdit.css'
@@ -92,6 +91,7 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 						show: true
 					});
 				},
+				css: 'style/modals/sourceDetail.min.css',
 				abstract: true
 			})
 			.state('project.explorer.source.id', {
@@ -102,6 +102,13 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				templateUrl: 'partials/tasks.html',
 				controller: 'tasksCtrl',
 				css: 'style/tasks.css'
+			})
+			.state('project.graph', {
+				url: '/graph',
+				templateUrl: 'partials/graph.html'
+			})
+			.state('project.graph.node', {
+				url: '/:startNode'
 			})
 			.state('project.test', {
 				url: '/test',
@@ -197,16 +204,6 @@ dokuvisApp.run(function($rootScope, $state, $previousState, AuthenticationFactor
 			$state.go('home');
 		}
 	});
-
-	// $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState) {
-	// 	// is initial transition going to modal?
-	// 	if(fromState.name === '' && /source.*/.exec(toState.name)) {
-	// 		event.preventDefault();
-	// 		$state.go('project.explorer', toParams, { location: false }).then(function () {
-	// 			$state.go(toState, toParams);
-	// 		});
-	// 	}
-	// });
 	
 	amMoment.changeLocale('de');
 	editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'

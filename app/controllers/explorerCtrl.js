@@ -237,11 +237,18 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 		$scope.getAllDocuments = function() {
 			Source.getAll().then(function(response){
 				$scope.sourceResults = response.data;
+				Source.results.all = $scope.sourceResults;
+				//Source.results.filtered = $scope.filteredSourceResults;
 				console.log('Dokumente:', $scope.sourceResults);
 			}, function(err) {
 				Utilities.throwApiException('on Source.getAll()', err);
 			});
 		};
+
+		$scope.$watch('filteredSourceResults', function (newVal) {
+			console.log('filteredSourceResults', newVal);
+			Source.results.filtered = newVal;
+		});
 		
 		// lädt alle Screenshots in Liste
 		$scope.getScreenshots = function() {
@@ -637,10 +644,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 			
 			console.log($scope.coords);
 		};
-		
-		$scope.$watch('filteredSourceResults', function(value) {
-			console.log('filteredSourceResults', value);
-		});
 		
 		$scope.getIndex = function() {
 			phpRequest.getIndex($stateParams.project).then(function(response){

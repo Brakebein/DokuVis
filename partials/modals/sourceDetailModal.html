@@ -60,6 +60,7 @@
 			</div>
 			<div>
 				<p><a ng-href="data/{{item.file.path + item.file.name}}" target="_blank">Originaldatei</a></p>
+				<p><a href="" ng-click="enterGraph(item.nId)">Graphensuche</a></p>
 			</div>
 			<div ng-show="item.type == 'text'">
 				<button class="btn btn-default btn-sm" ng-click="nextPage(-1)">vorige Seite</button>

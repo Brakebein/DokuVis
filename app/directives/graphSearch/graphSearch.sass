@@ -1,9 +1,12 @@
+@import '../../../style/variables'
+
 div[graph-search]
 	width: 100%
 	height: 100%
 	font-size: 10px
 	background: radial-gradient(circle, #c4c4c4, #727272)
 	overflow: hidden
+	position: relative
 
 	.node
 		cursor: pointer
@@ -45,3 +48,35 @@ div[graph-search]
 		
 	.linkLabel
 		fill: #000
+
+	.nodeDetails
+		position: absolute
+		width: 350px
+		height: auto
+		left: 10px
+		bottom: 10px
+		background-color: $panelBackground
+		border: $panelBorder
+		border-radius: $panelBorderRadius
+		color: $panelFontColor
+		font-size: $panelFontSize
+		padding: 10px
+
+		&>div
+			margin: 5px 0
+
+		.property
+			padding: 5px
+			border-bottom: $panelBorder
+			display: flex
+
+			&:last-of-type
+				border-bottom: none
+			&>.key
+				flex: 0 0 35%
+				width: 35%
+				word-wrap: break-word
+			&>.value
+				flex: 0 0 65%
+				width: 65%
+				word-wrap: break-word
