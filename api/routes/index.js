@@ -52,5 +52,7 @@ router.get('/auth/project/:id/comment/:targetId', comment.get);
 
 // graph
 router.get('/auth/project/:id/graph/:nodeId', graph.getPaths);
+router.get('/auth/project/:id/graph/:nodeId/:label', graph.getTitle);
+router.get('/auth/project/:id/graph/:nodeId/:label', graph.getAbstractNodes);
 
 module.exports = router;

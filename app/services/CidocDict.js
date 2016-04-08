@@ -5,8 +5,8 @@ angular.module('dokuvisApp').factory('CidocDict',
 		
 		var entities = {};
 		
-		entities['E21'] = { de: 'Person', color: '#ffa992' };
-		entities['E31'] = { de: 'Dokument', prefProp: 'value', color: '#cbf09a' };
+		entities['E21'] = { de: 'Person', prefProp: 'title', color: '#ffa992' };
+		entities['E31'] = { de: 'Dokument', prefProp: 'title', color: '#cbf09a' };
 		entities['E35'] = { de: 'Titel', prefProp: 'value', color: '#cae4e8' };
 		entities['E55'] = { de: 'Typus', color: '#e5e5e5' };
 		entities['E56'] = { de: 'Sprache', color: '#e5e5e5' };
@@ -23,21 +23,6 @@ angular.module('dokuvisApp').factory('CidocDict',
 		properties['P14'] = { de: 'wurde ausgeführt von', en: 'carried out by' };
 		properties['P15'] = { de: 'wurde beeinflusst durch' };
 		properties['P94'] = { de: 'hat erschaffen' };
-		
-		var rules = {};
-		
-		rules['P102-E35'] = function (graph, link) {
-			// add title property to start node
-			var endNode = graph.findNode(link.endNode);
-			graph.findNode(link.startNode).properties.value = endNode.properties.content;
-			// delete end node
-			graph.removeNode(endNode.id);
-			//console.log('rule', endNode);
-			return true;
-		};
-		rules['P94-E65'] = function (graph, link) {
-			
-		};
 		
 		// getter functions
 		
@@ -69,13 +54,6 @@ angular.module('dokuvisApp').factory('CidocDict',
 				return entities[entityId].color;
 			else
 				return '#fff';
-		};
-		
-		dict.callRule = function (key, graph, link) {
-			if(key in rules)
-				return rules[key](graph, link);
-			else
-				return null;
 		};
 		
 		return dict;

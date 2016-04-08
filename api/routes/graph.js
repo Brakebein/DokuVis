@@ -20,6 +20,52 @@ var graph = {
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
 			});
+	},
+	
+	getTitle: function (req, res) {
+		var prj = req.params.id;
+
+		var statements = [{
+			statement: 'match (n:'+prj+')-[]-(t) where id(n) = {id} and {label} in labels(t) return t AS title',
+			parameters: {
+				id: +req.params.nodeId,
+				label: req.params.label
+			},
+			resultDataContents: ['row', 'graph']
+		}];
+
+		neo4j.transaction(statements)
+			.then(function(response) {
+				if(response.results[0] && response.results[0].data[0])
+					res.json(response.results[0].data[0].row[0]);
+				else
+					res.send();
+			}).catch(function(err) {
+			utils.error.neo4j(res, err, '#cypher');
+		});
+	},
+
+	getAbstractNodes: function (req, res) {
+		var prj = req.params.id;
+
+		var statements = [{
+			statement: 'match (n:'+prj+')-[]-(t) where id(n) = {id} and {label} in labels(t) return t AS title',
+			parameters: {
+				id: +req.params.nodeId,
+				label: req.params.label
+			},
+			resultDataContents: ['row', 'graph']
+		}];
+
+		neo4j.transaction(statements)
+			.then(function(response) {
+				if(response.results[0] && response.results[0].data[0])
+					res.json(response.results[0].data[0].row[0]);
+				else
+					res.send();
+			}).catch(function(err) {
+			utils.error.neo4j(res, err, '#cypher');
+		});
 	}
 	
 };
