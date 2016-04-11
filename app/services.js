@@ -97,12 +97,11 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += 'CREATE(e7)-[:P14]->(editor)';
 			q += 'CREATE(e7)-[:P2]->(tprior)';
 			q += 'CREATE(e7)-[:P2]->(tstatus)';
-			//ersteller+zeitstempel  -->Prüfen, ob ersteller schon existiert
 			q += 'CREATE (e61n:E61:'+prj+'{content: {currentDate}})<-[:P82]-(e52n:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})'; 
 			q += 'CREATE (e65)-[:P94]->(e7)';
 			q += 'CREATE (sub)-[:P9]->(e7)'
-			
-		/* 	console.log(prj);
+								
+			console.log(prj);
 			console.log(subprj);
 			console.log(taskId);
 			console.log(ttitle);
@@ -111,8 +110,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			console.log(tfrom);
 			console.log(tto);
 			console.log(tpriority);
-			console.log(tstatus); */
-					
+			console.log(tstatus);
+			
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
@@ -135,6 +134,7 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});	
 					
 		}
+			
 		
 		requests.editTask = function(prj,newTask){
 			var q = '';
@@ -318,16 +318,17 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			
 			var q = '';
 			q += 'MATCH (tpproj:E55:'+prj+'{content:"projectPerson"})';
-			q += 'CREATE (tpproj)<-[:P2]-(:E21:'+prj+' {content: {pid}})-[:P131]->(:E82:'+prj+' {content: {aid}, value: {name}})';
+			q += 'CREATE (tpproj)<-[:P2]-(:E21:'+prj+' {content: {pid}})-[:P131]->(:E82:'+prj+' {content: {tid}, value: {name}})';
 			
+			console.log(tid);
+			console.log(name);
 			
 			return $http.post(phpUrl,{
 				query: q,
 				params: {
 					name:  name,
 					pid:    'e21_' + tid,
-					aid: tid
-					
+					tid: tid	
 				}
 			});		
 		}

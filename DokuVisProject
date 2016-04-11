@@ -2515,6 +2515,8 @@
                 <File name="partials\modals\screenshotDetailModal.html" />
                 <File name="partials\modals\sourceDetailModal.html" />
                 <File name="partials\modals\_modalTpl.html" />
+                <File name="partials\modals\newTask.html" />
+                <File name="partials\modals\editTask.html" />
             </Folder>
             <File name="partials\enhanced_options.html" />
             <File name="partials\enhanced_options_horizontal.html" />

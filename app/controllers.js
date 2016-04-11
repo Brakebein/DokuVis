@@ -1967,8 +1967,8 @@ webglControllers.controller('screenshotDetailCtrl', ['$scope', '$stateParams', '
 		
 	}]);
 	
-webglControllers.controller('configCtrl', ['$scope', '$stateParams', 'mysqlRequest', 'Utilities',
-	function($scope, $stateParams, mysqlRequest, Utilities) {
+webglControllers.controller('configCtrl', ['$scope', '$stateParams', 'mysqlRequest', 'Utilities', 'neo4jRequest',
+	function($scope, $stateParams, mysqlRequest, Utilities, neo4jRequest) {
 		
 		/*Mitarbeiter*/
 		$scope.staffInGantt = [];
@@ -2020,16 +2020,24 @@ webglControllers.controller('configCtrl', ['$scope', '$stateParams', 'mysqlReque
 							return;
 						}
 						$scope.getAllStaff($scope.pid);
+						
+						neo4jRequest.addStaffToGraph($stateParams.project, id, $scope.newStaff.name) .then(function(response){
+							console.log($scope.newStaff.name);
+							if(response.data.exception) { console.error('neo4jRequest Exception on addStaffToGraph()', response.data); return; }
+							 if(response.data){
+								 console.log('Bearbeiter hinzugefügt');
+								$scope.newStaff.name = '';
+								$scope.newStaff.surname = '';
+								$scope.newStaff.mail = '';
+								$scope.newStaff.role = '';
+								}
+						
+					});
+						
 						console.log($scope.staff);
-			});
-			
-			$scope.newStaff.name = '';
-			$scope.newStaff.surname = '';
-			$scope.newStaff.mail = '';
-			$scope.newStaff.role = '';
-			
+			});			
 		}
-		
+		 
 		$scope.updateName = function(data,id) {
 			mysqlRequest.updateName(data,id).success(function(answer, status){
 						if(answer != 'SUCCESS') {
@@ -2065,13 +2073,12 @@ webglControllers.controller('configCtrl', ['$scope', '$stateParams', 'mysqlReque
 		
 	}]);
 	
-webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$http', 'Utilities','$aside', 'ganttUtils', 'GanttObjectModel', 'ganttMouseOffset', 'ganttDebounce', 'moment',
-	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities, $aside,utils, ObjectModel, mouseOffset, debounce, moment) {
+webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$http', 'Utilities','$modal', 'ganttUtils', 'GanttObjectModel', 'ganttMouseOffset', 'ganttDebounce', 'moment',
+	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities, $modal,utils, ObjectModel, mouseOffset, debounce, moment) {
 		console.log($stateParams);
 		$scope.project = $stateParams.project;
 		$scope.subproject = $stateParams.subproject;
-		//alert($scope.subproject);
-		$scope.sortby = 'staff';
+		$scope.sortby = 'task';
 		
 		//projectid
 		$scope.pid;
@@ -2090,6 +2097,9 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.newStaff.role = '';
 		$scope.newStaff.projects = '';
 		$scope.staffExists= false;
+		
+		//Overlay
+		$scope.overlayParams = {url: '', params: {}};
 		
 		/*alle Rollen*/
 		$scope.roles = [];
@@ -2305,7 +2315,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			currentDateValue: new Date(),
             maxHeight: false,
             width: false,
-            columns: ['trash', 'model.priority','model.status','model.editors'],
+            columns: ['plus', 'edit','model.status','model.editors'],
 			columnsHeaders: {'trash': 'Löschen', 'model.priority': 'Priorität',  'model.status': 'Status', 'model.editors': 'Bearbeiter', 'model.subprj' : 'Unterprojekt'},
             columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to', 'model.status': 'gantt-column-status'},
 			columnsFormatters: {
@@ -2319,23 +2329,25 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
             treeHeaderContent: ' {{getHeader()}}',
             columnsHeaderContents: {
             	'model.editors': '<i class="fa fa-users"></i>',
-            	'trash': '<i class="glyphicon glyphicon-trash" id="colHead"></i>',
-                'model.priority': '<i class="fa fa-exclamation" id="colHead" bs-tooltip="tooltip[9]" ng-click="scope.sortDataBy(\'priority\')"></i>',
+            	'plus': '<i class="fa fa-plus" id="colHead"></i>',
+                'edit': '<i class="fa fa-pencil" id="colHead" bs-tooltip="tooltip[9]" ng-click="scope.sortDataBy(\'priority\')"></i>',
                 'model.status': '<i  class="glyphicon glyphicon-ok" id="colHead" ng-click="scope.sortDataBy(\'status\')" ></i>',
 				'model.subprj': '<i class="fa fa-folder-open"></i>'
             },
 			columnsContents: {
            'model.editors': '<div>{{getValue()}}</div>',
-           'trash': '<i class="glyphicon glyphicon-trash" id="row" ng-click = "scope.deleteTask(row)" bs-tooltip="tooltip[8]"></i>',      
-		   'model.priority': '<i  bs-tooltip="tooltip[9]" ng-switch= "getValue()" ng-click="scope.changePriority(row)"><i ng-switch-when=0 class="fa fa-exclamation" id="lowPriority"></i><i ng-switch-when=1 class="fa fa-exclamation" id="mediumPriority"></i><i ng-switch-when=2 class="fa fa-exclamation" id="highPriority"></i></i>',
-           'model.status': '<i bs-tooltip="tooltip[10]" ng-hide = "row.model.isStaff" ng-class="getValue() == 1 ? \'glyphicon glyphicon-ok\' : \'fa fa-times\'" id= "row" ng-click="scope.changeStatus(row)"></i>',
+           'plus': '<i  ng-hide ="row.model.isStaff" class="fa fa-plus" id="row" bs-tooltip="tooltip[1]" ng-click="scope.openNewTaskForm(row)" > </i>',      
+		   //'model.priority': '<i  bs-tooltip="tooltip[9]" ng-switch= "getValue()" ng-click="scope.changePriority(row)"><i ng-switch-when=0 class="fa fa-exclamation" id="lowPriority"></i><i ng-switch-when=1 class="fa fa-exclamation" id="mediumPriority"></i><i ng-switch-when=2 class="fa fa-exclamation" id="highPriority"></i></i>',
+           'edit': '<i  ng-hide ="row.model.isStaff" class="fa fa-pencil" id="row" bs-tooltip="tooltip[1]" ng-click="scope.openEditTaskForm(row)" > </i>',
+		   'model.status': '<i bs-tooltip="tooltip[10]" ng-hide = "row.model.isStaff" ng-class="getValue() == 1 ? \'glyphicon glyphicon-ok\' : \'fa fa-exclamation\'" id= "row" ng-click="scope.changeStatus(row)"></i>',
 			},
             autoExpand: 'none',
             taskOutOfRange: 'truncate',
 			fromDate:  getFormattedDate(new Date()),
 			toDate: getFormattedDate(addDays(new Date(),30)),
-            rowContent: '<i ng-class = "row.model.isStaff == true ? \'parent\': \'child\'" ng-click = scope.openEdit(row)> \
-							{{row.model.name}}</i> <i class="fa fa-plus" id="row" bs-tooltip="tooltip[1]" ng-click="scope.openTask(row)" ></i> ',
+            rowContent: '<i ng-hide ="row.model.isStaff" ng-class="row.model.hasData == true ?  \'fa fa-comment-o\' : \'fa fa-comment-o\'" \
+							ng-click="scope.openComment(row)" bs-tooltip="tooltip[7]">  </i>\
+							<i ng-class = "row.model.isStaff == true ? \'parent\': \'child\'" ng-click = scope.openEdit(row)>{{row.model.name}}</i>',
             taskContent: '{{task.model.name}}', 
             zoom: 1.3,
 			contentTooltips: 'von: {{task.model.from.format("DD.MM")}}	 bis: {{task.model.to.format("DD.MM")}}',
@@ -2441,6 +2453,37 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		    return result;
 		}
 
+		$scope.openNewTaskForm = function(row) {
+			$scope.modalParams = {
+				modalType: 'medium',
+				// type: type,
+				// attachTo: attach || undefined,
+			};
+			$modal({
+				title: 'Neue Aufgabe anlegen',
+				templateUrl: 'partials/modals/_modalTpl.html',
+				contentTemplate: 'partials/modals/newTask.html',
+				// controller: 'insertSourceCtrl',
+				scope: $scope, 
+				show: true
+			});
+		}
+		
+		$scope.openEditTaskForm = function(row) {
+			$scope.modalParams = {
+				modalType: 'medium',
+				// type: type,
+				// attachTo: attach || undefined,
+			};
+			$modal({
+				title: 'Aufgabe editieren',
+				templateUrl: 'partials/modals/_modalTpl.html',
+				contentTemplate: 'partials/modals/editTask.html',
+				// controller: 'insertSourceCtrl',
+				scope: $scope, 
+				show: true
+			});
+		}
 		
 		$scope.canAutoWidth = function(scale) {
             if (scale.match(/.*?hour.*?/) || scale.match(/.*?minute.*?/)) {
@@ -2896,8 +2939,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 									else{//button für neue Aufgabe
 										$scope.options.useData.push({id: tid, graphId: gid, name: $scope.newTask.task, isStaff: false, children: [],subprj: subPrjName, editors: $scope.newTask.ids.gantt, priority: 2, status: 0, data: [],
 														  tasks: [{id: tid, graphId: gid, name: $scope.newTask.task, color: '#F1C232', from: getFormattedDate($scope.newTask.from), to: getFormattedDate($scope.newTask.to)}]});
-										
-										
+																				
 										neo4jRequest.addTask($stateParams.project, $stateParams.subproject, gid, $scope.newTask.task,$scope.newTask.desc,$scope.newTask.ids.graph
 															,getFormattedDate($scope.newTask.from), getFormattedDate($scope.newTask.to),'priority_high', 'status_todo')
 											.then(function(response){
@@ -2920,8 +2962,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 			$scope.indexDnD = indexStaff;
 		}
 		
-		$scope.addNewStaffToGantt = function(){
-			/*Mitarbeiter existiert bereits?*/	
+		/* $scope.addNewStaffToGantt = function(){
+			//Mitarbeiter existiert bereits?
 		if($scope.sortby == 'staff'){
 			$.each($scope.data,function(index){
 					if($scope.staff[$scope.indexDnD].name == $scope.data[index].name){
@@ -2957,7 +2999,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		
 		}
 		
-		$scope.getStaffFromGraph = function(){
+		$scope.getStaffFromGraph = function(){ 
 			neo4jRequest.getStaffFromProject ($stateParams.project).then(function(response){
 				if(response.data.exception) { console.error('neo4jRequest Exception on getStaffFromGraph()', response.data); return; }
 					 if(response.data){
@@ -2965,13 +3007,13 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 						 console.log($scope.staffInGantt);
 					 }
 			});
-		}
+		} */
 			
 		$scope.changeOrder = function(){	
 			if($scope.sortby == 'staff'){
 				$scope.dataTask = [];
 				$scope.fillDataObject('task');
-				$scope.options.columns.push();
+				$scope.options.columns.push('model.editors');
 				$scope.options.useData = $scope.dataTask;
 				$scope.sortby = 'task';
 			}
@@ -2980,7 +3022,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 				$scope.options.useData = $scope.data;
 				console.log($scope.data);
 				$scope.fillDataObject('staff');
-				$scope.options.columns.splice($scope.options.columns.length-1,1);
+				console.log($scope.options.columns.indexOf('model.editors'));
+				$scope.options.columns.splice($scope.options.columns.indexOf('model.editors'),1);
 				$scope.sortby = 'staff';
 			}
 		}
@@ -3494,7 +3537,7 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 	$scope.getAllSubprojects();
 	$scope.getAllRoles();
 	$scope.fillDataObject('task');
-	$scope.getStaffFromGraph();
+	//$scope.getStaffFromGraph();
 	}]);
 
 function extractData(data) {

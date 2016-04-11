@@ -188,11 +188,11 @@
 	opacity: 1.0;
 }
 
-.fa-commenting-o{
+.fa-comment-o{
 	opacity: 0.5;
 }
 
-.fa-commenting-o:hover{
+.fa-comment-o:hover{
 	cursor: pointer;
 	opacity: 1.0;
 }
@@ -333,6 +333,11 @@
 	border-radius: 4px;
 	/* background-color: rgba(252,78,42,0.05); */
 }
+
+.buffer{
+padding-top: 2px;
+}
+
 
 .odd {
 	/* padding-right: 2px;

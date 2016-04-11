@@ -21,12 +21,12 @@
 		
 			<div class = "col-md-2" id= "add">
 				<div class="input-group" >
-						<button ng-if = "sortby == 'staff'" class="btn btn-info btn-md gradient" ng-click = "openStaff()" bs-tooltip="tooltip[0]"> 
-						<span class="fa fa-user-plus"></span>
+						<button ng-if = "sortby == 'staff'" class="btn btn-info btn-md gradient" ng-click = "openStaff()" bs-tooltip="tooltip[1]"> 
+						<span class="fa fa-plus"></span>
 						</button>		
 
 						<button ng-if = "sortby == 'task'" class="btn btn-info btn-md" ng-click = "openTask()" bs-tooltip="tooltip[1]"> 
-						<span class="fa fa-user-plus"></span>
+						<span class="fa fa-plus"></span>
 						</button>		
 						
 				</div>
@@ -420,15 +420,15 @@
 			
 			<div class="form-group text-left">
 				<label class="control-label">Bearbeiter</label><br>
-				<select ng-show = "editTask == false" class="form-control" style="width: 8em" ng-model="newTask.ids.graph">
+				<select class="form-control" style="width: 8em" ng-model="newTask.ids.graph">
 				   <option value="">Bitte wählen Sie einen Bearbeiter aus</option>
-				   <option ng-repeat= "staff in staffInGantt" value="{{staff.editorId}}">{{staff.editorName}}</option> 
+				   <option ng-repeat= "s in staff" value="{{s.sid}}">{{s.name}}</option> 
 				 </select> 
 				 
-				 <select ng-show="editTask == true" class="form-control" style="width: 8em" ng-model="newTask.staffId">
+		<!-- 		 <select ng-show="editTask == true" class="form-control" style="width: 8em" ng-model="newTask.staffId">
 				   <option value="">Bitte wählen Sie einen Bearbeiter</option>
 				   <option ng-repeat= "staff in staffInGantt" value="{{staff.editorId}}">{{staff.editorName}}</option> 
-				 </select> 
+				 </select>  -->
 				 
 				 <!-- <p>{{newTask.ids.graph}}</p> -->
 			</div>
