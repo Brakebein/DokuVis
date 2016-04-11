@@ -3,7 +3,7 @@
 	
 	include 'db_connect.php';
 	
-	$result = mysql_query('UPDATE `db_dokuvis`.`staff` SET `name` = "'.utf8_decode($json->name).'" WHERE `staff`.`sid` = "'.utf8_decode($json->sid).'";');
+	$result = mysql_query('UPDATE `db_dokuvis`.`users` SET `name` = "'.utf8_decode($json->name).'" WHERE `users`.`id` = "'.utf8_decode($json->sid).'";');
 	
 	if($result) {
 		echo 'SUCCESS';

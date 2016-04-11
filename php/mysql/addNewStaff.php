@@ -3,9 +3,9 @@
 	
 	include 'db_connect.php';
 	
-	$result = mysql_query('INSERT INTO staff(name, surname, mail, role) VALUES("'.utf8_decode($json->name).'","'.utf8_decode($json->surname).'","'.utf8_decode($json->mail).'","'.$json->role.'")');
-	
-	if($result) {
+	$result = mysql_query('INSERT INTO users(id, name, surname, email) VALUES("'.utf8_decode($json->sid).'","'.utf8_decode($json->name).'","'.utf8_decode($json->surname).'","'.utf8_decode($json->mail).'")'); 
+	$result2 = mysql_query('INSERT INTO user_project_role(user_id,project_id,role_id) VALUES("'.utf8_decode($json->sid).'","'.$json->pid.'","'.utf8_decode($json->rid).'")');//Projektid anpassen
+	if($result && $result2) {
 		echo 'SUCCESS';
 	}
 	else {

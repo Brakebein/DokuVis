@@ -142,15 +142,15 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				  + '(ttask:E55:'+prj+'{content:"task"}), \
 					(ttdesc:E55:'+prj+'{content:"taskDesc"}), \
 					(ttprior:E55:'+prj+'{content:"taskPriority"}), \
-					(ttphigh:E55:'+prj+'{content:"priority_high"}), \
-					(ttpmedium:E55:'+prj+'{content:"priority_medium"}), \
-					(ttplow:E55:'+prj+'{content:"priority_low"}), \
+					(ttphigh:E55:'+prj+'{content:"priority_high", value: 2}), \
+					(ttpmedium:E55:'+prj+'{content:"priority_medium", value: 1}), \
+					(ttplow:E55:'+prj+'{content:"priority_low", value: 0}), \
 					(ttprior)<-[:P127]-(ttphigh), \
 					(ttprior)<-[:P127]-(ttpmedium), \
 					(ttprior)<-[:P127]-(ttplow), \
 					(ttstatus:E55:'+prj+'{content:"taskStatus"}), \
-					(ttsdone:E55:'+prj+'{content:"status_done"}), \
-					(ttstodo:E55:'+prj+'{content:"status_todo"}), \
+					(ttsdone:E55:'+prj+'{content:"status_done", value: 1}), \
+					(ttstodo:E55:'+prj+'{content:"status_todo", value: 0}), \
 					(ttstatus)<-[:P127]-(ttsdone), \
 					(ttstatus)<-[:P127]-(ttstodo)',
 				params: {
@@ -174,9 +174,8 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		//Tasks
-		requests.addTask =  function(prj,subprj,taskID,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus){
+		requests.addTask =  function(prj,subprj,taskId,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus){
 
-			
 			var q = '';
 			q += 'MATCH (sub:E7:'+prj+' {content: {e7id}})';
 			q += ',(ttdesc:E55:'+prj+'{content: "taskDesc"})';
@@ -184,34 +183,43 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			q += ',(tprior:E55:'+prj+'{content: {priority}})';
 			q += ',(tstatus:E55:'+prj+'{content: {status}})';
 			q += ',(editor:E21:'+prj+'{content: {editor}})';
-			q += 'CREATE (e7:E7:'+prj+'{content: {tID}})-[:P2]->(ttask)'; //Activity-->Task
+			q += 'CREATE (e7:E7:'+prj+'{content: {tId}})-[:P2]->(ttask)'; //Activity-->Task
 			q += 'CREATE (e7)-[:P3]->(tdesc:E62:'+prj+'{content: {descId}, value: {desc}})-[:P3_1]->(ttdesc)'; 
 			q += 'CREATE (e7)-[:P4]->(e52:E52:'+prj+' {content:{e52idDuration}})-[:P81]->(e61:E61:'+prj+'{from: {from}, to: {to}})'; 
 			q += 'CREATE(e7)-[:P102]->(e35:E35:'+prj+' {value: {title}})'; 
 			q += 'CREATE(e7)-[:P14]->(editor)';
 			q += 'CREATE(e7)-[:P2]->(tprior)';
 			q += 'CREATE(e7)-[:P2]->(tstatus)';
-			//ersteller+zeitstempel  -->Prüfen, ob ersteller schon existiert
 			q += 'CREATE (e61n:E61:'+prj+'{content: {currentDate}})<-[:P82]-(e52n:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})'; 
 			q += 'CREATE (e65)-[:P94]->(e7)';
 			q += 'CREATE (sub)-[:P9]->(e7)'
-			
+								
+			console.log(prj);
+			console.log(subprj);
+			console.log(taskId);
+			console.log(ttitle);
+			console.log(tdesc);
+			console.log(teditor);
+			console.log(tfrom);
+			console.log(tto);
+			console.log(tpriority);
+			console.log(tstatus);
 			
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
 					e7id: subprj,
-					tID: taskID,
+					tId: taskId,
 					desc: tdesc,
-					descId: taskID + '_taskDesc',
+					descId: taskId + '_taskDesc',
 					editor: 'e21_' + teditor,
-					e52idDuration: 'e52_' + taskID + '_duration', //in Diagramm ändern
-					e52id: 'e52_' + taskID,
+					e52idDuration: 'e52_' + taskId + '_duration', //in Diagramm ändern
+					e52id: 'e52_' + taskId,
 					from: tfrom,
 					to: tto,
 					title: ttitle,
-					createTask: 'e65_'+ taskID + '_creation',
-					currentDate: new Date().getTime(), 
+					createTask: 'e65_'+ taskId + '_creation',
+					currentDate: new Date(), 
 					priority: tpriority,
 					status: tstatus,
 					logindata: 'logindata_' +  new Date().getTime()
@@ -219,10 +227,95 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			});	
 					
 		}
+			
 		
-		requests.addCommentToTask = function(prj,taskID,tcomment){
+		requests.editTask = function(prj,newTask){
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+' {content: {tId}})-[:P4]->(E52:'+prj+')-[:P81]->(duration:E61:'+prj+'),\
+			(task)-[:P3]->(taskDesc:E62),\
+			(task)-[:P102]->(taskName),\
+			(task)-[r]->(editorOld:E21),\
+			(editorNew:E21:'+prj+' {content: {newEditor}})\
+			SET duration.from = {from}, duration.to = {to}, taskName.value = {name}, taskDesc.value = {desc}\
+			WITH task,duration, taskDesc,taskName, r,editorOld, editorNew\
+			DELETE r\
+			WITH task,duration, taskDesc,taskName,editorNew\
+			CREATE (task)-[:P14]->(editorNew)\
+			WITH task, duration, taskDesc,taskName,editorNew\
+			RETURN task,duration,taskName,taskDesc,editorNew';
+			
+			console.log(newTask.staffId);
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tId: newTask.ids.graph,
+					staffId: newTask.staffId,
+					from: newTask.from,
+					to: newTask.to,
+					name: newTask.task,
+					desc: newTask.desc,
+					newEditor: 'e21_' + newTask.staffId
+				}
+				});
+		};
+		
+		requests.connectTasks = function(prj,subpr,taskId,editorId){
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+' {content: {tID}}),(editor:E21:'+prj+' {content: {eId}})\
+				 CREATE (task)-[:P14]->(editor)\
+				 RETURN task,editor';
+			console.log(taskId, editorId);
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tID: taskId,
+					eId: 'e21_' + editorId
+				}
+			});
+		}
+		
+		requests.disconnectTask = function(prj,taskId,editorId){
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+' {content: {tID}})-[r]->(editor:E21:'+prj+' {content: {eId}})\
+				 DELETE r';
+			console.log(taskId, editorId);
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tID: taskId,
+					eId: 'e21_' + editorId
+				}
+			});
+		}
+		
+		requests.getTaskDates = function(prj,taskName){
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+')-[:P102]->(title:E35:'+prj+' {value: {tname}}),\
+			(task)-[:P3]->(taskDesc:E62),\
+			(task)-[:P14]->(person:E21)-[:P131]->(editor:E82),\
+			(task)-[:P4]->(:E52)-[:P81]->(time:E61),\
+			(task)-[:P2]->(status)-[:P127]->(typeS:E55 {content: "taskStatus"}),\
+			(task)-[:P2]->(priority)-[:P127]->(typeP:E55 {content: "taskPriority"})\
+			WITH task,title, taskDesc, time, collect(DISTINCT editor.content) as editors,status,priority\
+			RETURN task.content AS graphId, title.value AS name, taskDesc.value AS desc, editors AS editors, time.from AS from, time.to AS to,status.value AS status, priority.value AS priority';
+			
+			console.log(taskName);
+			console.log(prj);
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tname: taskName,
+				}
+			});
+		}
+		
+		requests.addCommentToTask = function(prj,taskId,tcomment){
 			var q = '';//KOMMENTAR -->logindata: Platzhalter für späteren Verfasser
-			q += 'MATCH (task:E7:'+prj+'{content: {tID}})';
+			q += 'MATCH (task:E7:'+prj+'{content: {tId}})';
 			q += 'CREATE (e62:E62:'+prj+'{value: {comment}})<-[:P3]-(e33:E33:'+prj+' {value: {lingObj}})<-[:P94]-(e65:E65:'+prj+' {value: {createComment}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})';
 			q += 'CREATE (e52:E52:'+prj+'{value: {timeSpanID}})-[:P82]->(e61:E61:'+prj+'{value:{currentDate}})';
 			q += 'CREATE (e65)-[:P4]->(e52)';
@@ -230,28 +323,56 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					tID: taskID,
+					tId: taskId,
 					comment: tcomment,
-					currentDate: new Date().getTime(), 
-					lingObj: 'e33_'+ taskID,
-					createComment: 'e65_e33_' + taskID,
-					timeSpanID:'e65_e33_e52' + taskID,
-					logindata: 'logindata_' +  new Date().getTime() //vorläufige eindeutige ID, wird später durch eingeloggt person ersetzt
+					currentDate: new Date, 
+					lingObj: 'e33_'+ taskId,
+					createComment: 'e65_e33_' + taskId,
+					timeSpanID:'e65_e33_e52' + taskId,
+					logindata: 'logindata_' +  Utilities.getUniqueId() //vorläufige eindeutige ID, wird später durch eingeloggt person ersetzt
 				}
 			});
 		}
 		
 		requests.getTasksFromSubproject = function(prj,subprj){
 			var q = '';
+			
+			/*MATCH (sub:E7:Proj_pDxnuzs {content: "subpDxnxll"}),
+			(p:E7:Proj_pDxnuzs)-[:P9]->(child:E7),
+			(child)-[:P102]->(title:E35),
+			(child)-[:P3]->(taskDesc:E62),
+			(child)-[:P14]->(person:E21)-[:P131]->(editor:E82),
+			(child)-[:P4]->(:E52)-[:P81]->(time:E61),
+			(child)-[:P2]->(status)-[:P127]->(typeS:E55 {content: "taskStatus"}),
+			(child)-[:P2]->(priority)-[:P127]->(typeP:E55 {content: "taskPriority"}),
+			path = (sub)-[:P9*]->(child)
+			OPTIONAL MATCH 
+			(p)-[:P1]->(subtitle),
+			(child)<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62),
+			(commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)
+			WITH subtitle, p, child, title, taskDesc, time, priority,status, collect(editor.content) as editors,collect(editor.value) as editorNames, collect(commentDesc.value) as comments, collect(creationDate.value) as commentCreation
+			RETURN {parent: p, title: subtitle} AS parent, collect({child: child, name: title.value, desc: taskDesc.value,  priority: priority.content, status: status.value, editors: editors, editorNames: editorNames, from: time.from, to: time.to, comments: comments, coCreat: commentCreation}) AS children*/
+			
+			
 			q = 'MATCH (sub:E7:'+prj+' {content: {subprj}}),\
 			(p:E7:'+prj+')-[:P9]->(child:E7),\
 			(child)-[:P102]->(title:E35),\
 			(child)-[:P3]->(taskDesc:E62),\
 			(child)-[:P14]->(person:E21)-[:P131]->(editor:E82),\
 			(child)-[:P4]->(:E52)-[:P81]->(time:E61),\
+			(child)-[:P2]->(status)-[:P127]->(typeS:E55 {content: "taskStatus"}),\
+			(child)-[:P2]->(priority)-[:P127]->(typeP:E55 {content: "taskPriority"}),\
 			path = (sub)-[:P9*]->(child)\
-			WITH p, child, title, taskDesc, time, collect(editor.content) as editors\
-			RETURN {parent: p} AS parent, collect({child: child, name: title.value, desc: taskDesc.value, editors: editors, from: time.from, to: time.to}) AS children';
+			OPTIONAL MATCH (p)-[:P1]->(subtitle)\
+			OPTIONAL MATCH (child)<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)\
+			OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)\
+			WITH\
+			subtitle, p, child, title, taskDesc, time, priority,status,\
+			collect(editor.content) as editors,collect(editor.value) as editorNames, collect(commentDesc.value) as comments,\
+			count(commentDesc.value) as amount, collect(creationDate.value) as commentCreation \
+			RETURN {parent: p, title: subtitle} AS parent, \
+			collect({child: child, name: title.value, desc: taskDesc.value,  priority: priority.value, status: status.value,\
+			editors: editors, editorNames: editorNames, from: time.from, to: time.to, comments: comments, coCreat: commentCreation, amountComments: amount}) AS children';
 			
 
 			return $http.post(phpUrl, {
@@ -262,41 +383,81 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				})
 		}
 		
+		requests.getAllTasks = function(prj){
+		var q = '';
+		
+		q = 'match (n:E55:'+prj+' {content: "task"})<-[:P2]-(task)-[:P102]->(name) return task.content AS taskID, name.value AS taskName';
+		return $http.post(phpUrl,{
+				query: q,
+			});		
+		
+		}
+		
+		requests.getTasksFromEditor = function(prj,editorId){
+			
+			var q = '';
+			q = 'MATCH (editor:E82:'+prj+' {content: '+editorId+'})<-[:P131]-(activity:E21)<-[:P14]-(task)-[:P102]->(name) RETURN task.content AS taskId, name.value AS taskName';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					eid: editorId,
+					
+				}
+			});
+		}
+		
 		requests.addStaffToGraph = function(prj,tid,name){
+			
 			var q = '';
 			q += 'MATCH (tpproj:E55:'+prj+'{content:"projectPerson"})';
-			q += 'CREATE (tpproj)<-[:P2]-(:E21:'+prj+' {content: {pid}})-[:P131]->(:E82:'+prj+' {content: {aid}, value: {name}})';
+			q += 'CREATE (tpproj)<-[:P2]-(:E21:'+prj+' {content: {pid}})-[:P131]->(:E82:'+prj+' {content: {tid}, value: {name}})';
 			
+			console.log(tid);
+			console.log(name);
 			
 			return $http.post(phpUrl,{
 				query: q,
 				params: {
 					name:  name,
 					pid:    'e21_' + tid,
-					aid: tid
-					
+					tid: tid	
 				}
 			});		
 		}
 		
-		requests.getCommentsFromTask = function(taskID){
+		requests.getCommentsFromTask = function(taskId){
 			var q = '';
-			q += 'MATCH (task:E7 {content: {tid}})<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)';
+			q += 'MATCH (task:E7 {content: {tId}})<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)';
 			q += 'OPTIONAL MATCH (commentActivity)<-[:P94]-(creationEvent:E65)-[:P4]->(:E52)-[:P82]->(creationDate:E61)';
 			q += 'RETURN creationDate.value AS date, commentDesc.value AS desc';
 			
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					tid: taskID,
+					tId: taskId,
 				}
 				})
 		}
 		
+		/* requests.countCommentsFromTask = function(taskId){
+			
+			var q = '';
+			q += 'MATCH (task:E7 {content: {tId}})<-[:P129]-(commentActivity:E33)-[:P3]->(commentDesc:E62)\
+			RETURN count(commentDesc.value) as amount';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tId: taskId,
+				}
+				})
+		} */
+		
 		requests.deleteTaskDates = function(prj,taskId){
 		var q = '';
-		q+= 'MATCH (task:E7:'+prj+' {content: "pwR2TNC"})-[:P4]->(:E52:'+prj+')-[:P81]->(duration:E61:'+prj+')\
-			SET duration.from =" " , duration.to = " "  RETURN duration';
+		q+= 'MATCH (task:E7:'+prj+' {content: {tid}})-[:P4]->(:E52:'+prj+')-[:P81]->(duration:E61:'+prj+')\
+			SET duration.from =\" \" , duration.to = \" \"  RETURN duration';
 		
 		return $http.post(phpUrl, {
 				query: q,
@@ -308,7 +469,26 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 		
 		}
 		
+		requests.setTaskDates = function(prj,taskId,from,to){
+		var q = '';
+		q+= 'MATCH (task:E7:'+prj+' {content: {tid}})-[:P4]->(:E52:'+prj+')-[:P81]->(duration:E61:'+prj+')\
+			SET duration.from ={from} , duration.to = {to}  RETURN duration';
+		
+		console.log(taskId);
+		
+		return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tid: taskId,
+					from: from,
+					to: to,
+					}
+				})
+		
+		}
+		
 		requests.deleteTask = function(prj,taskId){
+			
 			var q = '';
 			
 			/* q+= 'MATCH (start:E7:'+prj+' {content: {tid}}), (p:E7:'+prj+'),(p)-[:P9]->(child),path = (start)-[:P9*]->(child),\
@@ -339,18 +519,15 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 			(start)<-[c1]-(lingObjectS:E33),(lingObjectS:E3)-[d1]->(commentS:E62),(lingObjectS:E33)<-[e1]-(eventS:E65)-[f1]->(timespanCS:E52)-[g1]->(timeCS:E61)
 			DELETE start,child,desc,name,timespan,time,lingObject,comment,event,timespanC,timeC,creation,timespanCreation,timeCreation,creator,
 			nameS,descS,creationS,creatorS,timespanCreationS,timeCreationS,timespanS,timeS,lingObjectS,commentS,eventS,timespanCS,timeCS,f,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,i2,x2,a1,b1,c1,d1,e1,f1,g1,q1,p1*/
-			
-			console.log(taskId);
 				
 			q += 'MATCH (task:E7:'+prj+' {content: {tid}})-[g]-(),\
 				(task)-[r]->(timespan:E52)-[s]->(time:E61),\
-				(task)<-[t]-(creation:E65)-[u]->(timespanCreation:E52)-[v]->(timeCreation:E61),(creation:E65)-[w]->(creator:E21),\
+				(task)<-[t]-(creation:E65)-[u]->(timespanCreation:E52)-[v]->(timeCreation:E61),(creation:E65)-[w]->(),\
 				(task)-[x]->(desc:E62)-[x2]-(),(task)-[f]->(name:E35)\
 				OPTIONAL MATCH\
-				(task)<-[a]-(lingObject:E33), (lingObject)-[b]->(comment:E62),(lingObject)<-[c]-(event:E65)-[d]->(timespanC:E52)-[e]->(timeC:E61)\
-				DELETE task,name,timespan,time,creation,timespanCreation,timeCreation,creator,lingObject,event,timespan,timeC,desc,r,s,t,u,v,w,x,a,b,c,d,e,f,g,x2';
-	
-			console.log(q);
+				(task)<-[a]-(lingObject:E33), (lingObject)-[b]->(comment:E62),(lingObject)<-[c]-(event:E65)-[d]->(timespanC:E52)-[e]->(timeC:E61),(event)-[h]->()\
+				DELETE task,name,timespan,time,creation,timespanCreation,timeCreation,lingObject,event,timespan,timeC,desc,r,s,t,u,v,w,x,a,b,c,d,e,f,g,h,x2';
+			console.log(taskId)
 			
 			return $http.post(phpUrl, {
 				query: q,
@@ -361,24 +538,57 @@ webglServices.factory('neo4jRequest', ['$http', 'Utilities',
 				})
 		}
 		
-		/* requests.changePriority = function(prj, subprj, taskID, priorityOld,priorityNew){
-		
+		requests.deleteStaff = function(prj, staffId){
 			var q = '';
-			q += 'MATCH (n:'+prj+' {content: {subprj}})-[:P9]->(task:'+prj+' {content: {tid}})-[r:P2]->(priority)'
-			q += 'Delete r'
-			MATCH (n:Proj_pwLoMDJ {content: "subpwLoQXn"})-[:P9]->(task:Proj_pwLoMDJ {content: "pwLoYJM"})-[r:P2]->(priority)
-CREATE(task)-[:P2]->(prior:E55 {content: "priority_high"})
+			q += 'MATCH (editor:E21:'+prj+' {content:{sid}})-[r]->(editorDates:E82), (editor)-[a]-()\
+					DELETE editor,editorDates, r,a';
 			
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					subpr: subprj,
-					tid: taskID,
-					priority: priority
+					sid: 'e21_' + staffId,
 				}
 				})
 		
-		} */
+		} 
+		
+		requests.changePriority = function(prj, taskID, priorityOld, priorityNew){
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r]->(priorityOld:E55:'+prj+' {content: {pOld}}),(priorityNew:E55:'+prj+' {content: {pNew}})\
+				DELETE r\
+				WITH task,priorityNew\
+				CREATE (task)-[:P2]->(priorityNew)';
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tid: taskID,
+					pOld: priorityOld,
+					pNew: priorityNew
+				}
+				})
+		
+		} 
+		
+		requests.changeStatus = function(prj, taskID, statusOld, statusNew){
+		
+			var q = '';
+			q += 'MATCH (task:E7:'+prj+' {content:{tid}})-[r:P2]->(statusOld {content: {sOld}}),(statusNew:E55:'+prj+' {content: {sNew}})\
+				CREATE (task)-[:P2]->(statusNew) \
+				DELETE r ';
+			
+			console.log(taskID, statusOld, statusNew);
+			
+			return $http.post(phpUrl, {
+				query: q,
+				params: {
+					tid: taskID,
+					sOld: statusOld,
+					sNew: statusNew
+				}
+				})
+		
+		} 
 		
 		//alle Mitarbeiter holen
 		requests.getStaffFromProject = function(prj){
@@ -1233,17 +1443,25 @@ webglServices.factory('mysqlRequest',
 			});
 		};
 		
-		// staff
-		requests.getAllStaff = function() {
-			return $http.post('php/mysql/getAllStaff.php', {});
+		requests.getAllStaff = function(pid) {
+			return $http.post('php/mysql/getAllStaff.php', {
+				pid: pid				
+			});
 		};
 		
-		requests.addNewStaff = function(name,surname,mail,role) {
+		requests.getAllRoles = function() {
+			return $http.post('php/mysql/getAllRoles.php', {});
+		};
+		
+		requests.addNewStaff = function(id,name,surname,mail,role,pid) {
+			
 			return $http.post('php/mysql/addNewStaff.php', {
 				name: name,
-				surname:surname,
+				surname: surname,
+				sid: id,
 				mail:mail,
-				role:role
+				rid: role,
+				pid: pid
 			});
 		};
 		
@@ -1256,7 +1474,7 @@ webglServices.factory('mysqlRequest',
 			
 		};
 		
-		requests.updateSurname = function(surname,id) {
+		/* requests.updateSurname = function(surname,id) {
 			return $http.post('php/mysql/updateSurname.php', {
 				surname: surname,
 				sid: id,
@@ -1264,10 +1482,10 @@ webglServices.factory('mysqlRequest',
 			});
 			
 		};
-		
+		 */
 		requests.updateMail = function(mail,id) {
 			return $http.post('php/mysql/updateMail.php', {
-				mail: mail,
+				email: mail,
 				sid: id,
 				
 			});
@@ -1284,15 +1502,16 @@ webglServices.factory('mysqlRequest',
 		};
 		
 		
-		requests.removeStaff = function(id) {
+		requests.removeStaff = function(staffId,roleId,pid) {
 			return $http.post('php/mysql/removeStaff.php', {
-				sid: id
+				sid: staffId,
+				rid: roleId,
+				pid: pid,
 			});
 		};
 				
 		return requests;
-		
-	});
+	}); 
 	
 	
 webglServices.factory('neo4jExtraction',
@@ -1382,3 +1601,582 @@ webglServices.factory('neo4jExtraction',
 		
 	});
 
+webglServices.factory('Utilities',
+	function($alert) {
+		
+		var f = {};
+		
+		/**
+		  * Base62 encoder/decoder
+		*/
+		f.Base62 = function() {
+			var DEFAULT_CHARACTER_SET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			this.characterSet = DEFAULT_CHARACTER_SET;
+		};
+		f.Base62.prototype.encode = function(integer) {
+			if(integer === 0) return '0';
+			var s = '';
+			while(integer > 0) {
+				s = this.characterSet[integer % 62] + s;
+				integer = Math.floor(integer/62);
+			}
+			return s;
+		};
+		f.Base62.prototype.decode = function(base62String) {
+			var val = 0, base62Chars = base62String.split("").reverse();
+			base62Chars.forEach(function(character, index) {
+				val += this.characterSet.indexOf(character) * Math.pow(62, index);
+			});
+			return val;
+		};
+		f.Base62.prototype.setCharacterSet = function(chars) {
+			var arrayOfChars = chars.split(""), uniqueCharacters = [];
+
+			if(arrayOfChars.length != 62) throw Error("You must supply 62 characters");
+
+			arrayOfChars.forEach(function(char){
+				if(!~uniqueCharacters.indexOf(char)) uniqueCharacters.push(char);
+			});
+
+			if(uniqueCharacters.length != 62) throw Error("You must use unique characters.");
+
+			this.characterSet = arrayOfChars;
+		};
+				
+		/**
+		  * generate unique id from timestamp
+		*/
+		f.getUniqueId = function() {
+			f.sleep(1);
+			return new f.Base62().encode(new Date().getTime());
+		};
+		
+		
+		f.getFormattedDate = function(date) {
+    		var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes				() + ":" + date.getSeconds();
+		    return str;
+		}
+		/**
+		  * sleep function - application on hold
+		*/
+		f.sleep = function(milliseconds) {
+			var start = new Date().getTime();
+			for (var i = 0; i < 1e7; i++) {
+				if ((new Date().getTime() - start) > milliseconds){
+					break;
+				}
+			}
+		};
+		
+		/**
+		  * @desc wait until condition is met
+		  * @param
+		  *	  test - function that returns a value
+		  *	  expectedValue - value of the test function we are waiting for
+		  *	  msec - delay between the calls to test
+		  *	  callback - function to execute wehen the condition is met
+		  * @return nothing
+		*/
+		 f.waitfor = function(test, expectedValue, msec, params, callback) {
+			// check if condition met. if not, re-check later
+			while(test() !== expectedValue) {
+				setTimeout(function() {
+					waitfor(test, expectedValue, msec, params, callback);
+				}, msec);
+				return;
+			}
+			// condition finally met. callback() can be executed
+			callback(params);
+		}
+		
+		/**
+		  * extracts data from neo4j response object
+		  * if return values are nodes
+		*/
+		f.extractNeo4jData = function(data) {
+			var results = [];
+			for(var i=0; i<data.data.length; i++) {
+				var object = new Object();
+				for(var j=0; j<data.columns.length; j++) {
+					if(data.data[i][j] == null)
+						//object[data.columns[j]] = 'unbekannt';
+						object[data.columns[j]] = null;
+					else
+						object[data.columns[j]] = data.data[i][j].data;
+						//object[data.columns[j]] = data.data[i][j].data.content;
+				}
+				results.push(object);
+			}
+			return results;
+		};
+		
+		/**
+		  * extracts data from neo4j response object
+		  * if return values are normal values or objects
+		*/
+		f.cleanNeo4jData = function(data, selected) {
+			selected = selected || false;
+			var results = [];
+			for(var i=0; i<data.data.length; i++) {
+				var obj = new Object();
+				for(var j=0; j<data.columns.length; j++) {
+					if(data.data[i][j] == null)
+						//obj[data.columns[j]] = 'unbekannt';
+						obj[data.columns[j]] = null;
+					else
+						obj[data.columns[j]] = data.data[i][j];
+				}
+				if(selected)
+					obj.selected = false;
+				results.push(obj);
+			}
+			return results;
+		};
+		
+		/**
+		  * extracts array data from neo4j response object
+		  * (e.g. for getting a list of tags etc.)
+		*/
+		f.extractArrayFromNeo4jData = function(data) {
+			var results = [];
+			for(var i=0; i<data.data.length; i++) {
+				results.push(data.data[i][0]);
+			}
+			return results;
+		};
+		
+		// createHierarchy(data, ['file', 'obj'])
+		f.createHierarchy = function(data, props, isNode) {
+			var results = [];
+			for(var i=0, l=data.data.length; i<l; i++) {
+				var parent = {};
+				/*parent.file = data.data[i][0].file.data;
+				parent.obj = data.data[i][0].obj.data;*/
+				parent.content = data.data[i][0].parent.data.content;
+				if(data.data[i][0].title){
+					parent.parentName = data.data[i][0].title.data.content;
+				}
+				parent.children = [];
+				for(var j=0, m=data.data[i][1].length; j<m; j++) {
+					var child = {};
+					for(var k=0; k<props.length; k++) {
+						if(isNode)
+							child[props[k]] = data.data[i][1][j][props[k]].data;
+						else
+							child[props[k]] = data.data[i][1][j][props[k]];
+					}
+					// child.file = data.data[i][1][j].file.data;
+					// child.obj = data.data[i][1][j].obj.data;
+					child.content = data.data[i][1][j].child.data.content;
+					child.children = [];
+					parent.children.push(child);
+				}
+				results.push(parent);
+			}
+			for(var i=0; i<results.length; i++) {
+				for(var j=0, m=results.length; j<m; j++) {
+					if(i===j) continue;
+					var p = getElementInHierarchy(results[j], results[i].content);
+					if(p !== undefined) {
+						p.children = results[i].children;
+						results.splice(i,1);
+						i--;
+						break;
+					}
+				}
+			}
+			return results;
+		};
+		
+		function getElementInHierarchy(node, content) {
+			if(node.content === content) return node;
+			for(var i=0, l=node.children.length; i<l; i++) {
+				var obj = getElementInHierarchy(node.children[i], content);
+				if(obj !== undefined) return obj;
+			}
+			return undefined;
+		}
+		
+		/**
+		  * Alerts
+		*/
+		f.dangerAlert = function(message) {
+			$alert({
+				content: message,
+				type: 'danger',
+				duration: 5
+			});
+		};
+		
+		/**
+		  * Exceptions
+		*/
+		f.throwException = function(title, message, data) {
+			$alert({
+				title: title+':',
+				content: message,
+				type: 'danger',
+				duration: 5
+			});
+			console.error(title+': '+message, data);
+		};
+		f.throwNeo4jException = function(message, data) {
+			$alert({
+				title: 'Neo4jException:',
+				content: message,
+				type: 'danger',
+				duration: 5
+			});
+			console.error('Neo4jException: '+message, data);
+		};
+		
+		return f;
+		
+	});
+
+// Schnittstelle zwischen Three.js-Scope und Seite
+webglServices.factory('webglInterface',
+	function($rootScope) {
+		
+		var wi = {};
+		
+		// Funktionsaufrufe vom Controller
+		wi.callFunc = {};
+		
+		// Einstellungen
+		wi.viewportSettings = {};
+		wi.viewportSettings.shading = ['color', 'grey', 'transparent', 'onlyEdges', 'xray'];
+		wi.viewportSettings.shadingSel = wi.viewportSettings.shading[0];
+		wi.viewportSettings.edges = true;
+		wi.viewportSettings.camera = ['Perspective', 'Top', 'Front', 'Back', 'Left', 'Right', 'Custom'];
+		wi.viewportSettings.cameraSel = wi.viewportSettings.camera[0];
+		
+		wi.unsafeSettings = {};
+		
+		wi.vizSettings = {};
+		wi.vizSettings.opacitySelected = 100;
+		wi.vizSettings.edges = true;
+		wi.vizSettings.edgesOpacity = 100;
+		wi.vizSettings.edgesColor = 100
+		
+		// Listen
+		wi.objects = [];
+		wi.layerList = [];
+		wi.layers = [];
+		wi.hierarchList = [];
+		
+		wi.plans = [];
+		
+		var layerDict = {};
+		
+		wi.insertIntoLists = function(item) {
+			var objentry = new wi.ObjectEntry(item);
+			insertIntoHierarchList(objentry);
+			insertIntoLayerList(objentry);
+			$rootScope.$applyAsync();
+		};
+		
+		wi.insertIntoPlanlist = function(item) {
+			item.visible = true;
+			item.selected = false;
+			item.opacity = 1.0;
+			wi.plans.push(item);
+			$rootScope.$applyAsync();
+		};
+		
+		wi.clearLists = function() {
+			console.log('clearList');
+			wi.layerLists = [];
+			wi.layers = [];
+			wi.hierarchList = [];
+			wi.plans = [];
+		};
+		
+		wi.ObjectEntry = function(item) {
+			this.id = item.id;
+			this.name = item.name;
+			this.title = item.title;
+			this.type = item.type;
+			this.layer = item.layer || 0;
+			
+			this.parent = item.parent || null;
+			this.children = [];
+			
+			this.parentVisible = true;
+			this.visible = true;
+			this.selected = false;
+			this.expand = false;
+			this.opacity = 1.0;
+			
+			var scope = this;
+			
+			this.toggle = function() {
+				scope.visible = !scope.visible;
+				if(!scope.visible && scope.selected)
+					wi.callFunc.selectObject(scope.id, false, true);
+				wi.callFunc.toggleObject(scope, scope.visible);
+			};
+			this.select = function(event) {
+				if(scope.visible && event)
+					wi.callFunc.selectObject(scope.id, event.ctrlKey, false);
+			};
+			this.setOpacity = function(value) {
+				wi.callFunc.setObjectOpacity(scope, value);
+			};
+			this.focus = function() {
+				wi.callFunc.focusObject(scope.id);
+			};
+		};
+		
+		wi.PlanEntry = function(id, name, title, type) {
+			this.id = id;
+			this.name = name;
+			this.title = title;
+			this.type = type;
+			this.visible = true;
+			this.selected = false;
+			this.opacity = 1.0;
+			
+			var scope = this;
+			
+			this.toggle = function() {
+				scope.visible = !scope.visible;
+				if(!scope.visible && scope.selected)
+					wi.callFunc.selectPlan(scope.id, false, true);
+				wi.callFunc.togglePlan(scope.id, scope.visible);
+				
+			};
+			this.select = function(event) {
+				if(scope.visible && event)
+					wi.callFunc.selectPlan(scope.id, event.ctrlKey, false);
+			};
+			this.setOpacity = function(value) {
+				wi.callFunc.setPlanOpacity(scope.id, value);
+			};
+			this.setOrthoView = function() {
+				wi.callFunc.viewOrthoPlan(scope.id);
+			};
+		};
+		
+		function insertIntoHierarchList(item) {
+			var parentItem = findHierarchyObject(wi.hierarchList, item.parent);
+			if(parentItem !== undefined) {
+				item.parent = parentItem;
+				parentItem.children.push(item);
+			}
+			else {
+				item.parent = null;
+				wi.hierarchList.push(item);
+			}
+		}
+		
+		function insertIntoLayerList(item) {
+			wi.layerList.push(item);
+			if(item.layer in layerDict) {
+				layerDict[item.layer].count++;
+			}
+			else {
+				layerDict[item.layer] = {count: 1};
+				wi.layers.push({name: item.layer, visible: true, expand: false});
+			}
+		}
+		
+		function findHierarchyObject(list, id) {
+			for(var i=0, l=list.length; i<l; i++) {
+				var child = list[i];
+				if(child.id === id) return child;
+				var object = findHierarchyObject(child.children, id);
+				if(object !== undefined) return object;
+			}
+			return undefined;
+		}
+		
+		function findPlanlistObject(id) {
+			for(var i=0; i<wi.plans.length; i++) {
+				if(wi.plans[i].id === id)
+					return wi.plans[i];
+			}
+		}
+		
+		wi.selectListEntry = function(id, type) {
+			var item = (type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
+			item.selected = true;
+			if(item.parent) expandParents(item.parent);
+			$rootScope.$applyAsync();
+		};
+		
+		wi.deselectListEntry = function(id, type) {
+			var item = (type === 'plan') ? findPlanlistObject(id) : findHierarchyObject(wi.hierarchList, id);
+			item.selected = false;
+			$rootScope.$applyAsync();
+		};
+		
+		function expandParents(item) {
+			item.expand = true;
+			if(item.parent) expandParents(item.parent);
+		}
+		
+		return wi;
+		
+	});
+	
+webglServices.factory('webglContext',
+	function() {
+		
+		var wc = {};
+		
+		// Konstante maximale Sichtweite
+		var FAR = 1400;
+		var backgroundColor = 0x666666;
+		var selectionColor = 0xff4444;
+		
+		var initWidth = 800, initHeight = 600;
+		
+		
+		wc.objects = {};
+		wc.plans = {};
+		
+		// Camera
+		wc.camera = new THREE.CombinedCamera(initWidth, initHeight, 35, 0.1, FAR, 0.1, FAR);
+		wc.camera.position.set(-100, 60, 100);
+		
+		// Scene
+		wc.scene = new THREE.Scene();
+		wc.scene.add(wc.camera);
+		wc.scene.fog = new THREE.Fog(backgroundColor, FAR-100, FAR);
+		
+		// Grid
+		wc.scene.add(new THREE.GridHelper(100, 10));
+		
+		// Renderer
+		wc.renderer = new THREE.WebGLRenderer({antialias: true, alpha: false, preserveDrawingBuffer: true});
+		wc.renderer.setClearColor(backgroundColor, 1);
+		wc.renderer.setSize(initWidth, initHeight);
+		
+		// Stats
+		wc.stats = new Stats();
+		
+		// Controls (für Navigation)
+		wc.controls = new THREE.OrbitControls(wc.camera, wc.renderer.domElement);
+		//wc.controls.center.set(86, 0, -74);
+		wc.controls.zoomSpeed = 1.0;
+		//wc.controls.userPanSpeed = 1;
+		wc.camera.target = wc.controls.center;
+		
+		// Light
+		var alight = new THREE.AmbientLight(0x888888);
+		wc.scene.add(alight);
+		wc.directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+		wc.directionalLight.position.set(-2,8,4);
+		wc.scene.add(wc.directionalLight);
+		
+		// Axis helper
+		wc.axisRenderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+		wc.axisCamera = new THREE.OrthographicCamera(-30, 30, 30, -30, 1, 100);
+		wc.axisCamera.up = wc.camera.up;
+		wc.axisScene = new THREE.Scene();
+		wc.axisScene.add( new THREE.AxisHelper(30) );
+		
+		// Liste der Materials
+		wc.materials = {};
+		
+		// default mat
+		wc.materials['defaultMat'] = new THREE.MeshLambertMaterial({
+			name: 'defaultMat',
+			color: 0xdddddd });
+		wc.materials['defaultDoublesideMat'] = new THREE.MeshLambertMaterial({
+			name: 'defaultDoublesideMat',
+			color: 0xdddddd,
+			side: THREE.DoubleSide });
+		wc.materials['defaultUnsafeMat'] = new THREE.MeshLambertMaterial({
+			name: 'defaultUnsafeMat',
+			color: 0xaaaaaa,
+			transparent: true,
+			opacity: 0.5,
+			depthWrite: false });
+			
+		// default selection mat
+		wc.materials['selectionMat'] = new THREE.MeshLambertMaterial({
+			name: 'selectionMat',
+			color: selectionColor,
+			side: THREE.DoubleSide });
+			
+		// transparent mat
+		wc.materials['transparentMat'] = new THREE.MeshLambertMaterial({
+			name: 'transparentMat',
+			color: 0xcccccc,
+			transparent: true,
+			opacity: 0.5,
+			depthWrite: false });
+		wc.materials['transparentSelectionMat'] = new THREE.MeshLambertMaterial({
+			name: 'transparentSelectionMat',
+			color: selectionColor,
+			transparent: true,
+			opacity: 0.5,
+			depthWrite: false });
+		
+		// wireframe mat
+		wc.materials['wireframeMat'] = new THREE.MeshBasicMaterial({
+			name: 'wireframeMat',
+			color: 0x333333,
+			wireframe: true });
+		wc.materials['wireframeSelectionMat'] = new THREE.MeshBasicMaterial({
+			name: 'wireframeSelectionMat',
+			color: selectionColor,
+			wireframe: true });
+			
+		// highlight mat
+		wc.materials['highlightMat'] = new THREE.MeshLambertMaterial({
+			name: 'highlightMat',
+			color: 0xffff44 });
+		wc.materials['transparentHighlightMat'] = new THREE.MeshLambertMaterial({
+			name: 'transparentHighlightMat',
+			color: 0xffff44,
+			transparent: true,
+			opacity: 0.5 });
+		
+		// xray mat
+		wc.materials['xrayMat'] = new THREE.ShaderMaterial({
+			name: 'xrayMat',
+			side: THREE.DoubleSide,
+			transparent: true,
+			depthWrite: false,
+			depthTest: false,
+			uniforms: {
+				"ambient":{type:"f",value:0.05},
+				"edgefalloff":{type:"f",value:0.1},
+				"intensity":{type:"f",value:1.0},
+				"vColor":{type:"c",value:new THREE.Color(0x000000)} },
+			vertexShader: THREE.XRayShader.vertexShader,
+			fragmentShader: THREE.XRayShader.fragmentShader });
+		wc.materials['xraySelectionMat'] = new THREE.ShaderMaterial({
+			name: 'xraySelectionMat',
+			side: THREE.DoubleSide,
+			transparent: true,
+			depthWrite: false,
+			depthTest: false,
+			uniforms: {
+				"ambient":{type:"f",value:0.05},
+				"edgefalloff":{type:"f",value:0.3},
+				"intensity":{type:"f",value:1.5},
+				"vColor":{type:"c",value:new THREE.Color(selectionColor)} },
+			vertexShader: THREE.XRayShader.vertexShader,
+			fragmentShader: THREE.XRayShader.fragmentShader });
+		
+		// edges mat
+		wc.materials['edgesMat'] = new THREE.LineBasicMaterial({
+			name: 'edgesMat',
+			color: 0x333333 });
+		wc.materials['edgesSelectionMat'] = new THREE.LineBasicMaterial({
+			name: 'edgesSelectionMat',
+			color: selectionColor });
+			
+		// slice mat
+		wc.materials['invisibleMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, visible: false, name: 'invisibleMat'});
+		wc.materials['sliceMultiMat'] = [ wc.materials['defaultMat'], wc.materials['invisibleMat'], wc.materials['defaultMat'], wc.materials['invisibleMat'] ];
+		wc.materials['sliceLineMat'] = new THREE.LineBasicMaterial({color: 0xff0000, name: 'sliceLineMat'});
+		wc.materials['sliceMultiMat_debug'] = [new THREE.MeshLambertMaterial({color: 0xdd4444}),new THREE.MeshLambertMaterial({color: 0x44dd44}),new THREE.MeshLambertMaterial({color: 0x4444dd}),new THREE.MeshLambertMaterial({color: 0x44dddd})];
+		
+		return wc;
+		
+	});

@@ -17,7 +17,7 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'ngDragDrop',
 	'textAngular',
 	'ngTagsInput',
-	'minicolors'
+	'minicolors',
 ]);
 
 dokuvisApp.constant('API', 'api/');
@@ -115,7 +115,11 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				templateUrl: 'partials/test.html',
 				controller: 'testCtrl',
 				css: 'style/test.css'
-			});
+			.state('project.config', {
+				url: '/config',
+				templateUrl: 'partials/config.html',
+				controller: 'configCtrl',
+				css: 'style/config.css'			});
 		
 		// defaults
 		angular.extend($modalProvider.defaults, {

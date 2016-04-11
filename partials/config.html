@@ -1,0 +1,88 @@
+<div class="config"> <!-- Controller anpassen -->
+	<div class="configHeader">
+		<h2>Konfiguration</h2>
+		<hr/>
+	</div>
+
+	<div class="configBody">
+		<div class="editors">
+			<div class="panel-group" data-start-collapsed="true" bs-collapse>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a href=""  bs-collapse-toggle>Mitarbeiter hinzufügen</a>
+						</h4>
+					</div>
+				   
+					<div class="panel-collapse" bs-collapse-target>
+						<div class="panel-body">
+							<table class="table table-striped"> 
+								<thead>
+									<tr>
+										<th width="15">Name</th>
+										<th width="15">Nachname</th>
+										<th width="15">E-Mail</th>
+										<th width="15">Rolle</th>
+										<th width="15"></th>
+										
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="s in staff" >
+										<td><a style ="font-size: 13px" buttons = "no" e-style="width: 6em"  href="#" editable-text ="s.name" h searchsave = "updateName($data,s.sid)" >{{s.name}}</a></td>
+										<td><a style ="font-size: 13px" buttons = "no" e-style="width: 6em"  href="#" editable-text ="s.surname" h searchsave = "updateName($data,s.sid)" >{{s.surname}}</a></td>
+										<td><a href="#" editable-text ="s.email" style ="font-size: 13px" buttons = "no" e-style="width: 6em" onbeforesave = "updateMail($data,s.sid)">{{s.email}}</a></td>
+										<td style ="font-size: 13px">{{s.role}}</td>
+										<td><div class="input-group" >
+											<button type="button"  class="btn btn-info btn-md gradient" bs-tooltip="tooltip[8]" placement= "bottom" ng-click=removeStaff(s.sid,s.rid)>
+											<span class="fa fa-trash"></span>
+											</button>
+										</div></td>
+									</tr>
+									
+									<tr>
+										<td><input type="text" class="form-control" style="width: 6em;"  ng-model="newStaff.name" placeholder="Name"></td>
+										<td><input type="text" class="form-control" style="width: 6em;"  ng-model="newStaff.surname" placeholder="Nachname"></td>
+										<td><input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" ></td>
+										<td><select type="text" class="form-control" style="width: 6em" ng-model="newStaff.role">
+											<option value="" disabled='' selected=''>Rolle</option>
+											<option ng-repeat= "r in roles" value="{{r.rid}}">{{r.role}}</option> 
+										</select></td>
+										<td><div class = "col-md-2" >
+											<div class="input-group" >
+												<button class="btn btn-info btn-md gradient" bs-tooltip="tooltip[13]" placement= "bottom" ng-click="addNewStaffToProject()">
+												<span class="glyphicon glyphicon-plus"></span>
+												</button>	
+											</div>
+										</div> </td>
+										
+									</tr>
+								</tbody>
+						</table>
+								
+									
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+		<div class="rights">
+			<div class="panel-group" data-start-collapsed="true" bs-collapse>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a href=""  bs-collapse-toggle>Rechteverwaltung</a>
+						</h4>
+					</div>
+				   
+					<div class="panel-collapse" bs-collapse-target>
+						<div class="panel-body">
+									
+								</div>
+							</div>
+						</div>
+					</div>
+		
+		</div>
+<div>

@@ -2,7 +2,6 @@
 	$url = 'http://localhost:7474/db/data/cypher';
 	$content = file_get_contents("php://input");
 	
-	//var_dump($content);
 	$curl = curl_init($url);
 	
 	curl_setopt($curl, CURLOPT_URL, $url);
