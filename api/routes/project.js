@@ -141,7 +141,7 @@ var projects = {
 				(ttstatus)<-[:P127]-(ttsdone), \
 				(ttstatus)<-[:P127]-(ttstodo), '
 				// comments
-				'(ctype:E55:'+prj+' {content: "commentType"}), \
+			  +	'(ctype:E55:'+prj+' {content: "commentType"}), \
 				(:E55:'+prj+' {content: "commentGeneral"})-[:P127]->(ctype), \
 				(:E55:'+prj+' {content: "commentSource"})-[:P127]->(ctype), \
 				(:E55:'+prj+' {content: "commentAnswer"})-[:P127]->(ctype), \

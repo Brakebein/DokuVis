@@ -958,7 +958,8 @@ webglControllers.controller('configCtrl', ['$scope', '$stateParams', 'mysqlReque
 			mysqlRequest.getProjectEntry($stateParams.project).then(function(response) {
 				if(!response.data) { console.error('mysqlRequest failed on getProjectEntry()', response); return; }
 				$scope.pid = response.data.pid;		
-				$scope.getAllStaff($scope.pid);				
+				$scope.getAllStaff($scope.pid);
+				console.log(response);
 			});
 		}
 		
@@ -2398,7 +2399,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		$scope.getPid = function(){
 			mysqlRequest.getProjectEntry($stateParams.project).then(function(response) {
 				if(!response.data) { console.error('mysqlRequest failed on getProjectEntry()', response); return; }
-				$scope.pid = response.data.pid;		
+				$scope.pid = response.data.pid;
+				alert($scope.pid);
 				$scope.getAllStaff($scope.pid);				
 			});
 		}
@@ -2424,7 +2426,8 @@ webglControllers.controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '
 		};
 			
 		$scope.addNewStaffToProject = function() {
-			var id = Utilities.getUniqueId();		
+			var id = Utilities.getUniqueId();
+			alert($scope.pid);
 			mysqlRequest.addNewStaff(id, $scope.newStaff.name, $scope.newStaff.mail, $scope.newStaff.role,$scope.pid).then(function(response){
 						if(response.data != 'SUCCESS') {
 							console.error(response);

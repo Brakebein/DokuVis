@@ -1423,7 +1423,9 @@ webglServices.factory('mysqlRequest',
 		};
 		// Projekt Info
 		requests.getProjectEntry = function(proj) {
-			return $http.get(API + 'auth/projects/'+proj);
+			return $http.post('php/mysql/getProjectEntry.php', {
+				proj: proj
+			});
 		};
 		// Projekt löschen
 		requests.removeProjectEntry = function(proj) {
