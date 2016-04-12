@@ -1,6 +1,4 @@
-var webglDirectives = angular.module('webglDirectives', ['urish']);
-
-webglDirectives.directive('horizontalScroll',
+angular.module('dokuvisApp').directive('horizontalScroll',
 	function() {
 		return {
 			restrict: 'A',
@@ -16,7 +14,7 @@ webglDirectives.directive('horizontalScroll',
 		};
 	});
 
-webglDirectives.directive('alert', ['$timeout',
+angular.module('dokuvisApp').directive('alert', ['$timeout',
 	function($timeout) {
 		return {
 			restrict: 'A',
@@ -35,9 +33,9 @@ webglDirectives.directive('alert', ['$timeout',
 			}
 		};
 	}]);
-	
 
-webglDirectives.directive('dragMarker', ['$compile', '$timeout',
+
+angular.module('dokuvisApp').directive('dragMarker', ['$compile', '$timeout',
 	function($compile, $timeout) {
 		return {
 			restrict: 'A',
@@ -107,7 +105,7 @@ webglDirectives.directive('dragMarker', ['$compile', '$timeout',
 	}]);
                                                                                                                                                                                                                                                                              
 // zum Anpassen des Layouts
-webglDirectives.directive('resizer',
+angular.module('dokuvisApp').directive('resizer',
 	function($document) {
 		return {
 			scope: {
@@ -243,8 +241,8 @@ webglDirectives.directive('resizer',
 			}
 		};
 	});
-	
-webglDirectives.directive('rampSlider',
+
+angular.module('dokuvisApp').directive('rampSlider',
 	function($document) {
 		return {
 			scope: {
@@ -294,7 +292,7 @@ webglDirectives.directive('rampSlider',
 		};
 	});
 
-webglDirectives.directive('ngWheel',
+angular.module('dokuvisApp').directive('ngWheel',
 	function($parse) {
 		return {
 			restrict: 'A',
@@ -310,8 +308,8 @@ webglDirectives.directive('ngWheel',
 			}
 		};
 	});
-	
-webglDirectives.directive('syncScroll',
+
+angular.module('dokuvisApp').directive('syncScroll',
 	function() {
 		
 		return {
@@ -342,8 +340,8 @@ webglDirectives.directive('syncScroll',
 			}
 		};
 	});
-	
-webglDirectives.directive('convertToNumber',
+
+angular.module('dokuvisApp').directive('convertToNumber',
  function() {
 
 	return {
