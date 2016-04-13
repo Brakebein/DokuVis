@@ -1,27 +1,24 @@
-angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model',
-	function($scope, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Utilities, webglInterface, $modal, Source, Model) {
+angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Uploader', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model',
+	function($scope, $state, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Uploader, Utilities, webglInterface, $modal, Source, Model) {
 
 		// Initialisierung von Variablen
 		$scope.project = $stateParams.project;
 		
 		$scope.wi = webglInterface;
 		
-		$scope.views = new Object();
+		$scope.views = {};
 		$scope.views.activeMain = '3dview';
 		$scope.views.activeSide = 'objproperties';
 		// $scope.views.activeSide = 'comments';
-		$scope.views.enhancedOptions = {};
-		$scope.views.enhancedOptions.show = false;
-		$scope.views.enhancedOptions.tab = 'display';
 								
 		$scope.overlayParams = {url: '', params: {}};
 		
-		$scope.alert = new Object();
+		$scope.alert = {};
 		$scope.alert.showing = false;
 		$scope.alert.message = '';
 		
 		// Einstellungen für Quellenanzeige
-		$scope.sourcesSettings = new Object();
+		$scope.sourcesSettings = {};
 		$scope.sourcesSettings.listSize = 'normal';
 		$scope.sourcesSettings.orderBy = 'title';
 		$scope.sourcesSettings.reverse = false;
@@ -43,14 +40,14 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 		$scope.toggleSlice = false;
 		$scope.toggleCut = false;
 		
-		$scope.unsafeSettings = new Object();
+		$scope.unsafeSettings = {};
 		$scope.unsafeSettings.opacity = 50;
 		$scope.unsafeSettings.edges = true;
 		$scope.unsafeSettings.autoTransparent = false;
 		
-		$scope.viewportSettings = new Object();
+		$scope.viewportSettings = {};
 		
-		$scope.sliceSettings = new Object();
+		$scope.sliceSettings = {};
 		$scope.sliceSettings.enabled = false;
 		$scope.sliceSettings.axisAlign = 'z-axis';
 		$scope.sliceSettings.planePosition = 50;
@@ -58,18 +55,18 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 		$scope.sliceSettings.showSliceFaces = true;
 		
 		
-		$scope.coords = new Object();
+		$scope.coords = {};
 		$scope.coords.x = $scope.coords.y = $scope.coords.z = 0;
 		$scope.coords.xError = $scope.coords.yError = $scope.coords.zError = false;
 		$scope.coords.enabled = false;
 		
-		$scope.constructionPhases = new Object();
+		$scope.constructionPhases = {};
 		$scope.constructionPhases.select = 0;
 		
-		$scope.fellYear = new Object();
+		$scope.fellYear = {};
 		$scope.fellYear = 0;
 		
-		$scope.position = new Object();
+		$scope.position = {};
 		$scope.position.minAge = 1250;
 		$scope.position.maxAge = 1750;
 		
@@ -82,7 +79,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 		};
 		
 		//Balken
-		$scope.baulk = new Object();
+		$scope.baulk = {};
 		$scope.baulk.minAge = 1250;
 		$scope.baulk.maxAge = 1750;
 		
@@ -117,7 +114,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 	
 		// Uploader für Quellen
 		$scope.sourcesUploader = new FileUploader();
-		
+
 		$scope.sourcesUploader.filters.push({
 			name: 'sourceFilter',
 			fn: function(item, options) {
@@ -142,7 +139,20 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 			if(type === 'source') title = 'Quelle einfügen';
 			else if(type === 'model') title = 'Modell einfügen';
 			else if(type === 'zip') title = '3D-Plan hinzufügen';
-			$scope.modalParams = {
+			
+			console.log($scope.sourcesUploader);
+
+			$state.go('project.explorer.upload.type', { uploadType: type, title: title });
+
+			$timeout(function () {
+				for(var i=0; i<$scope.sourcesUploader.queue.length; i++)
+					Uploader.addToQueue($scope.sourcesUploader.queue[i]._file);
+				console.log('files', Uploader);
+				$scope.sourcesUploader.clearQueue();
+			},500);
+
+
+			/*$scope.modalParams = {
 				modalType: 'large',
 				type: type,
 				attachTo: attach || undefined,
@@ -155,12 +165,9 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 				controller: 'insertSourceCtrl',
 				scope: $scope,
 				show: true
-			});
+			});*/
 		};
-		$scope.openSourceTypeDialog = function() {
-			$scope.overlayParams.url = 'partials/source_type.html';
-		};
-		$scope.openSourceDetail = function(index) {
+		/*$scope.openSourceDetail = function(index) {
 			$scope.modalParams = {
 				modalType: 'large',
 				index: index
@@ -173,7 +180,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 				scope: $scope,
 				show: true
 			});
-		};
+		};*/
 		$scope.openScreenshotDetail = function(data) {
 			$scope.modalParams = {
 				modalType: 'xlarge',
@@ -222,7 +229,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 			if(update === 'category')
 				getAllCategories();
 			
-			$scope.overlayParams.params = {}
+			$scope.overlayParams.params = {};
 			$scope.overlayParams.url = '';
 			$scope.sourcesUploader.clearQueue();
 		};
@@ -304,7 +311,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 					$scope.callDirFunc.loadPlanIntoScene('data/Proj_Muristan/plans/models/', files[i].file);
 				}*/
 			});
-		}
+		};
 		
 		$scope.highlightObj = function(eid) {
 			neo4jRequest.getObjFromPlan(eid).success(function(data, status){
@@ -316,7 +323,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 					$scope.callDirFunc.highlightObj(files[i].eid);
 				}
 			});
-		}
+		};
 		
 		$scope.connectObjPlan = function() {
 			var res = $scope.callDirFunc.getObjForPlans();
@@ -328,111 +335,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 					});
 				}
 			}
-		}
-		
-		$scope.insertObjects = function() {
-			
-			$.getJSON('data/Proj_Muristan/models/_list.json', function(data) {
-				console.log(data);
-				for(var i=0; i<data.length; i++) {
-					neo4jRequest.insertObject(data[i]).success(function(data, status){
-						console.log(data);
-					});
-				}
-			});
-		}
-		
-		$scope.insertPlans = function() {
-			
-			$.getJSON('data/Proj_Muristan/plans/models/_list2.json', function(data) {
-				console.log(data);
-				
-				for(var i=0; i<data.length; i++) {
-					neo4jRequest.insertPlan(data[i][0], data[i][1]).success(function(data, status){
-						console.log(data);
-					});
-				}
-			});
-		}
-		
-		function multiplyMatrices(ae, be) {
-			var te = [];
-			te.length = 16;
-		
-			var a11 = ae[ 0 ], a12 = ae[ 4 ], a13 = ae[ 8 ], a14 = ae[ 12 ];
-			var a21 = ae[ 1 ], a22 = ae[ 5 ], a23 = ae[ 9 ], a24 = ae[ 13 ];
-			var a31 = ae[ 2 ], a32 = ae[ 6 ], a33 = ae[ 10 ], a34 = ae[ 14 ];
-			var a41 = ae[ 3 ], a42 = ae[ 7 ], a43 = ae[ 11 ], a44 = ae[ 15 ];
-
-			var b11 = be[ 0 ], b12 = be[ 4 ], b13 = be[ 8 ], b14 = be[ 12 ];
-			var b21 = be[ 1 ], b22 = be[ 5 ], b23 = be[ 9 ], b24 = be[ 13 ];
-			var b31 = be[ 2 ], b32 = be[ 6 ], b33 = be[ 10 ], b34 = be[ 14 ];
-			var b41 = be[ 3 ], b42 = be[ 7 ], b43 = be[ 11 ], b44 = be[ 15 ];
-
-			te[ 0 ] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
-			te[ 4 ] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
-			te[ 8 ] = a11 * b13 + a12 * b23 + a13 * b33 + a14 * b43;
-			te[ 12 ] = a11 * b14 + a12 * b24 + a13 * b34 + a14 * b44;
-
-			te[ 1 ] = a21 * b11 + a22 * b21 + a23 * b31 + a24 * b41;
-			te[ 5 ] = a21 * b12 + a22 * b22 + a23 * b32 + a24 * b42;
-			te[ 9 ] = a21 * b13 + a22 * b23 + a23 * b33 + a24 * b43;
-			te[ 13 ] = a21 * b14 + a22 * b24 + a23 * b34 + a24 * b44;
-
-			te[ 2 ] = a31 * b11 + a32 * b21 + a33 * b31 + a34 * b41;
-			te[ 6 ] = a31 * b12 + a32 * b22 + a33 * b32 + a34 * b42;
-			te[ 10 ] = a31 * b13 + a32 * b23 + a33 * b33 + a34 * b43;
-			te[ 14 ] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
-
-			te[ 3 ] = a41 * b11 + a42 * b21 + a43 * b31 + a44 * b41;
-			te[ 7 ] = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
-			te[ 11 ] = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
-			te[ 15 ] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
-			
-			return te;
 		};
-		
-		$scope.loadZwinger = function() {
-			
-			$.getJSON('data/Proj_Zwinger/models/_list.json', function(data) {
-			//$.getJSON('data/test/_list.json', function(data) {
-				console.log(data);
-				
-				function getNodes(nodes, parent) {
-					for(var i=0; i<nodes.length; i++) {
-						var scale = 1.0;
-						if(nodes[i].unit == 'centimeter') scale = 0.1;
-						if(nodes[i].children.length < 1) // mesh
-							$scope.callDirFunc.loadCTMIntoScene('data/Proj_Zwinger/models/', nodes[i].name, parent, nodes[i].matrix, scale);
-						else // group
-							$scope.callDirFunc.loadCTMIntoScene(0, nodes[i].name, parent, nodes[i].matrix, scale);
-						
-						getNodes(nodes[i].children, nodes[i].name);
-					}
-				}
-				//getNodes(data, 0, [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
-				getNodes(data, 0);
-				
-				
-				/*for(var i=0; i<data.length; i++) {
-					//$scope.callDirFunc.loadCTMIntoScene('data/Proj_Zwinger/models/', data[i][0]+'.ctm', data[i][1]);
-					$scope.callDirFunc.loadCTMIntoScene('data/test/', data[i][0]+'.ctm', data[i][1]);
-				}*/
-			});
-		};
-		
-		$scope.loadModels = function() {
-			neo4jRequest.getAllModels($scope.project).success(function(data, status){
-				//console.log(data);
-				var models = Utilities.extractNeo4jData(data);
-				console.log(models);
-				
-				for(var i=0, l=models.length; i<l; i++) {
-					$scope.callDirFunc.loadCTMIntoScene(models[i].object, models[i].file); 
-				}
-			});
-		};
-		
+
 		$scope.loadModelsWithChildren = function() {
 			// neo4jRequest.getModelsWithChildren($stateParams.project, $stateParams.subproject).then(function(response){
 				// if(response.data.exception) { console.error('neo4j failed on getModelsWithChildren()', response.data); return; }
@@ -464,22 +368,9 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 		$scope.logModels = function() {
 			console.log($scope.hierarchList);
 			console.log($scope.layerList);
-			/*var time = new Date().getTime();
-			console.log(time);
-			console.log(new Base62().encode(time));*/
 		};
 		
 		$scope.callDirFunc = {};
-		
-		// öffne oder schließe Tab im vpPanelContainer
-		$scope.openVpPanelTab = function(tab) {
-			if($scope.views.enhancedOptions.tab == tab)
-				$scope.views.enhancedOptions.tab = '';
-			else
-				$scope.views.enhancedOptions.tab = tab;
-		};
-		
-		
 		
 		//ein- und ausklappen des unteren Containers
 		$scope.expandPanelContainerHorizontal = function(e) {
@@ -659,8 +550,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 			phpRequest.searchText($stateParams.project, searchTerm).then(function(response){
 				console.log(response.data);
 			});
-			
-			Utilities.throwNeo4jException('on insertDocument()', {exception: 'SyntaxException'});
 		};
 		
 		// Kategorien
@@ -747,6 +636,13 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 			getAllCategories();
 			//$scope.loadModelsWithChildren();
 		}, 500);
+
+		// nach Upload aktualisieren
+		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
+			//console.log(fromState, fromParams);
+			if(fromState.name === 'project.explorer.upload.type' && fromParams.uploadType === 'source')
+				$scope.getAllDocuments();
+		});
 		
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function(event) {

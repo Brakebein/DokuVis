@@ -14,17 +14,26 @@ angular.module('dokuvisApp').factory('webglInterface',
 		wi.viewportSettings.edges = true;
 		wi.viewportSettings.camera = ['Perspective', 'Top', 'Front', 'Back', 'Left', 'Right', 'Custom'];
 		wi.viewportSettings.cameraSel = wi.viewportSettings.camera[0];
+		wi.viewportSettings.ssao = 'aa';
 		
 		wi.unsafeSettings = {};
 		
 		wi.categories = [];
-		wi.activeCategory;
+		wi.activeCategory = null;
+		
+		wi.vPanel = {};
+		wi.vPanel.expand = false;
+		wi.vPanel.tab = 'display';
+		wi.vPanel.openTab = function (value) {
+			if(wi.vPanel.tab === value) wi.vPanel.tab = '';
+			else wi.vPanel.tab = value;
+		};
 		
 		wi.vizSettings = {};
 		wi.vizSettings.opacitySelected = 100;
 		wi.vizSettings.edges = true;
 		wi.vizSettings.edgesOpacity = 100;
-		wi.vizSettings.edgesColor = 100
+		wi.vizSettings.edgesColor = 100;
 		
 		// Listen
 		wi.objects = [];

@@ -56,7 +56,7 @@ if ( !empty( $_FILES ) ) {
 			or exit('ERROR: mkdir() failed on'.$pureNewFileName);
 		
 		// pdf in jpg extrahieren
-		$res = system($pGhostscript.' -dNOPAUSE -dBATCH -sDEVICE=jpeg -r300 -sOutputFile="'.$pTemp.$DS.$pureNewFileName.$DS.$newFileName.'-%04d.jpg" '.$pTemp.$DS.$newFileName);
+		$res = system($pGhostscript.' -dNOPAUSE -dBATCH -sDEVICE=jpeg -sOutputFile="'.$pTemp.$DS.$pureNewFileName.$DS.$newFileName.'-%04d.jpg" '.$pTemp.$DS.$newFileName);
 		echo $res;
 		
 		// Dateien im Ordner durchgehen
@@ -81,9 +81,9 @@ if ( !empty( $_FILES ) ) {
 			$pageName = substr($file, 0, strrpos($file, "."));
 			
 			rename($pTemp.$DS.$pureNewFileName.$DS.$file.'.hocr', $upath.$pageName.'.hocr')
-				or exit('ERROR: rename() failed on '+$pageCount+'.hocr');
+				or exit('ERROR: rename() failed on '.$pageCount.'.hocr');
 			rename($pTemp.$DS.$pureNewFileName.$DS.$file, $upath.$pageName.'.jpg')
-				or exit('ERROR: rename() failed on '+$pageCount+'.jpg');
+				or exit('ERROR: rename() failed on '.$pageCount.'.jpg');
 			
 			array_push($pages, $pageName);
 			$pageCount++;

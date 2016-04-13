@@ -1,18 +1,18 @@
 <div class="modal-content">
 	
-	<div class="modal-header" ng-show="title">
-		<button type="button" class="close" aria-label="Close" ng-click="$hide()">
+	<div class="modal-header">
+		<button type="button" class="close" aria-label="Close" ng-click="close()">
 			<span aria-hidden="true">&times;</span>
 		</button>
 		<h4 class="modal-title" ng-bind="title"></h4>
 	</div>
 	
-	<div class="modal-body insertForm">
+	<div class="modal-body uploadForm">
 	
-		<div class="insert-header">
+		<div class="upload-header">
 			<div class="dropArea" uploader="uploader" nv-file-drop="" nv-file-over="" ng-click="openFileDialog($event)">
 				<input ng-hide="1" type="file" nv-file-select="" uploader="uploader" multiple  />
-				<div class="plus" ng-bind-html="$parent.plusSign"></div> <div>Quellen einfügen</div>
+				<div class="plus" ng-include="'img/plus-sign.svg'"></div> <div>Quellen einfügen</div>
 			</div>
 			
 			<div ng-show="uploader.queue.length" class="queueHeader">
@@ -36,13 +36,13 @@
 			</div>
 		</div>
 		
-		<div class="insert-body">
+		<div class="upload-body">
 		
 			<div ng-show="uploader.queue.length" class="queueBody">
 			<table class="table">
 				<tbody>
 					<tr ng-if="uploadType == 'source'" ng-repeat="item in uploader.queue">
-						<td width="300">
+						<td width="300" class="uploadMeta">
 							<div>
 								<strong>{{ item.file.name }}</strong>
 								&emsp; <small>{{ item.file.size/1024/1024|number:2 }}&nbsp;MB</small>
@@ -77,14 +77,14 @@
 								<div class="form-group" ng-class="item.titleError ? 'has-error' : ''">
 									<label for="docTitle" class="control-label col-sm-3">Titel</label>
 									<div class="col-sm-8">
-										<input type="text" class="form-control" ng-model="item.title" ng-focus="setTypeaheadArray('E35','content')" ng-blur="validateInput2(item, {prop: 'title', index: $index, label: 'E35'})" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. Aufriss Ostfassade" bs-tooltip="{title: 'Einzigartiger Titel (*)'}"/>
+										<input id="docTitle" type="text" class="form-control" ng-model="item.title" ng-focus="setTypeaheadArray('E35','content')" ng-blur="validateInput2(item, {prop: 'title', index: $index, label: 'E35'})" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. Aufriss Ostfassade" bs-tooltip="{title: 'Einzigartiger Titel (*)'}"/>
 									</div>
 								</div>
 								
 								<div class="form-group" ng-hide="globals.useAuthor">
 									<label for="docAuthor" class="control-label col-sm-3">Autor</label>
 									<div class="col-sm-8">
-										<input type="text" class="form-control" ng-model="item.author" ng-focus="setTypeaheadArray('E82','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. Conrad Schick" bs-tooltip="{title: 'Wer hat die Quelle erstellt?'}"/>
+										<input id="docAuthor" type="text" class="form-control" ng-model="item.author" ng-focus="setTypeaheadArray('E82','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. Conrad Schick" bs-tooltip="{title: 'Wer hat die Quelle erstellt?'}"/>
 									</div>
 								</div>
 								
@@ -94,9 +94,16 @@
 										<input type="text" class="form-control" ng-model="item.creationDate" ng-focus="setTypeaheadArray('E61','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. 1889" bs-tooltip="{title: 'Wann wurde die Quelle erstellt?'}"/>
 									</div>
 								</div>
+
+								<div class="form-group">
+									<label for="docRepros" class="control-label col-sm-3">Lit./publ. Repros</label>
+									<div class="col-sm-8">
+										<input id="docRepros" type="text" class="form-control" ng-model="item.repros" placeholder="z.B. Franz 1953, Abb. 1"/>
+									</div>
+								</div>
 								
 								<div class="form-group large">
-									<label for="docComment" class="control-label col-sm-3">Kommentar</label>
+									<label for="docComment" class="control-label col-sm-3">Sonstiges</label>
 									<div class="col-sm-8">
 										<textarea class="form-control" id="docComment" ng-model="item.comment" bs-tooltip="{title: 'Wichtige Anmerkungen'}"></textarea>
 									</div>
@@ -190,7 +197,7 @@
 					<!-- Modelle und andere Dateien -->
 					
 					<tr ng-if="uploadType == 'model' || uploadType == 'zip'" ng-repeat="item in uploader.queue" ng-class="{success: item.isSuccess && !item.isInserting, danger: item.isError}">
-						<td>
+						<td class="uploadMeta">
 							<strong>{{ item.file.name }}</strong>
 							&emsp; <small>{{ item.file.size/1024/1024|number:2 }} MB</small>
 						</td>
@@ -228,7 +235,7 @@
 			<span class="glyphicon glyphicon-upload"></span> Hochladen
 		</button>
 	
-		<button type="button" class="btn btn-default" ng-click="closeModal('source'); $hide()">Abbrechen</button>
+		<button type="button" class="btn btn-default" ng-click="close()">Abbrechen</button>
 	</div>
 	
 </div>

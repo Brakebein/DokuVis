@@ -17,7 +17,8 @@ var source = {
 			OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61) \
 			OPTIONAL MATCH (e31)-[:P48]->(archivenr:E42) \
 			OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36) \
-			OPTIONAL MATCH (e31)-[:P3]->(note:E62) \
+			OPTIONAL MATCH (e31)-[:P3]->(note:E62)-[:P3_1]->({content: "sourceComment"}) \
+			OPTIONAL MATCH (e31)-[:P3]->(repros:E62)-[:P3_1]->({content: "sourceRepros"}) \
 			OPTIONAL MATCH (e31)<-[:P128]-(:E84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41), \
 				(e78)-[:P52]->(:E40)-[:P131]->(inst:E82) \
 			OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG) \
@@ -33,6 +34,7 @@ var source = {
 				{name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, \
 				plan3d.content AS plan3d, \
 				note.value AS note, \
+				repros.value AS repros, \
 				collect(tag.content) as tags, \
 				count(ce33) AS commentLength';
 		var params = {
@@ -62,7 +64,8 @@ var source = {
 			OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61) \
 			OPTIONAL MATCH (e31)-[:P48]->(archivenr:E42) \
 			OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36) \
-			OPTIONAL MATCH (e31)-[:P3]->(note:E62) \
+			OPTIONAL MATCH (e31)-[:P3]->(note:E62)-[:P3_1]->({content: "sourceComment"}) \
+			OPTIONAL MATCH (e31)-[:P3]->(repros:E62)-[:P3_1]->({content: "sourceRepros"}) \
 			OPTIONAL MATCH (e31)<-[:P128]-(:E84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41), \
 				(e78)-[:P52]->(:E40)-[:P131]->(inst:E82) \
 			OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG) \
@@ -79,6 +82,7 @@ var source = {
 				{name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, \
 				plan3d.content AS plan3d, \
 				note.value AS note, \
+				repros.value AS repros, \
 				collect(tag.content) as tags, \
 				count(ce33) AS commentLength';
 		var params = {

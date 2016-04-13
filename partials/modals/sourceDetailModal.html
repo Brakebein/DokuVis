@@ -48,9 +48,13 @@
 				<strong>Erstellungsort</strong>
 				<p>{{item.place}}</p>
 			</div>
-			<div ng-show="item.comment">
-				<strong>Kommentar</strong>
-				<p>{{item.comment}}</p>
+			<div ng-show="item.repros">
+				<strong>Lit./publ. Repros</strong>
+				<p>{{item.repros}}</p>
+			</div>
+			<div ng-show="item.note">
+				<strong>Sonsitges</strong>
+				<p>{{item.note}}</p>
 			</div>
 			<div ng-show="item.tags.length">
 				<strong>Tags</strong>

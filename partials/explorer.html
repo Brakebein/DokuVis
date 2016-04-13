@@ -6,32 +6,7 @@
 	
 	<!-- Kontrollleiste über Viewport -->
 	<!--<div class="viewportCtrls">
-		
-		<!-- Buttons -> auf Objekt fokusieren --
-		<div class="ctrlGroup">
-			<button title="Focus All" class="ctrlBtn" ng-class="(activeBtn == 'zoom_all') ? 'active' : ''" ng-click="callDirFunc.focusAll()" ng-mousedown="activeBtn = 'zoom_all'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_all.png"/></button>
-			<button title="Focus Selection" class="ctrlBtn" ng-class="(activeBtn == 'zoom_sel') ? 'active' : ''"  ng-click="callDirFunc.focusSelected()" ng-mousedown="activeBtn = 'zoom_sel'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_sel.png"/></button>
-		</div>
-		
-		<!-- Dropdown-Liste Rendermode und Kamera --
-		<div class="ctrlGroup form-inline">
-			<select class="form-control input-sm" ng-model="shadingOption" ng-init="shadingOption = 'color+edges'">
-				<option value="color+edges">color + edges</option>
-				<option value="color-edges">color without edges</option>
-				<option value="grey+edges">grey + edges</option>
-				<option value="transparent+edges">transparent + edges</option>
-				<option value="edges">only edges</option>
-				<!--<option value="color+wireframe">color + wireframe</option>--
-				<option value="wireframe">only wireframe</option>
-			</select>
-			<select class="form-control input-sm" ng-model="cameraOption" ng-init="cameraOption = 'perspective'">
-				<option value="perspective">Perspective</option>
-				<option value="top">Top</option>
-				<option value="front">Front</option>
-				<option value="left">Left</option>
-			</select>
-		</div>
-		
+
 		<!-- MessTool-Button --
 		<div class="ctrlGroup">
 			<button title="Measurement Tool" class="ctrlBtn" ng-class="(activeBtn == 'measure') ? 'active' : ''" ng-click="ctrlBtnClick('measure')"><img src="img/icons/measure.png"/></button>
@@ -311,7 +286,7 @@
 		<button ng-click="openInsertForm('model')">upload model</button>
 		<button ng-click="getIndex()">get index</button>
 		<button ng-click="indexDocuments()">index</button>
-		<button ng-click="searchText('Vestibül')">search</button>
+		<button ng-click="searchText('schauspielhaus')">search</button>
 		<button ng-click="openIndexEdit()">index modal</button>
 		
 		<button ng-click="resizerValue = 800">resizerAnim</button>

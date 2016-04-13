@@ -3,46 +3,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 		
 		function link(scope, element, attr) {
 			
-			// Scripts werden nachgeladen, sobald diese directive genutzt wird
-			/*var scripts = [
-				'lib/webgl/three-r73.min.js',
-				'lib/webgl/Projector.js',
-				'lib/webgl/CanvasRenderer.js',
-				'lib/webgl/OrbitControls.js',
-				'lib/webgl/CombinedCamera.js',
-				'lib/webgl/OBJMTLLoader.js',
-				'lib/webgl/MTLLoader.js',
-				'lib/webgl/OBJExporter.js',
-				//'lib/webgl/ThreePlugins.js',
-				'lib/webgl/Gizmo.js',
-				'lib/webgl/ctm/lzma.js',
-				'lib/webgl/ctm/ctm.js',
-				'lib/webgl/ctm/CTMLoader.js',
-				'lib/webgl/RenderPass.js',
-				'lib/webgl/ShaderPass.js',
-				'lib/webgl/MaskPass.js',
-				'lib/webgl/CopyShader.js',
-				'lib/webgl/SSAOShader.js',
-				'lib/webgl/FXAAShader.js',
-				'lib/webgl/XRayShader.js',
-				'lib/webgl/EffectComposer.js',
-				'lib/webgl/DepthPassPlugin.js',
-				'lib/webgl/stats.min.js'
-			];
-			function loadScripts(counter) {
-				angularLoad.loadScript(scripts[counter]).then(function() {
-					console.log(scripts[counter] + ' loaded', counter);
-					if(++counter < scripts.length)
-						loadScripts(counter);
-					else
-						init();
-				}).catch(function() {
-					console.log(scripts[counter] + ' failed');
-				});
-			}
-			loadScripts(0);*/
-			
-			scope.wi = webglInterface;
+			//scope.wi = webglInterface;
+			scope.viewportSettings = webglInterface.viewportSettings;
+			scope.vPanel = webglInterface.vPanel;
+			scope.vizSettings = webglInterface.vizSettings;
+			scope.$applyAsync();
 			
 			// Konstante maximale Sichtweite
 			var FAR = 1400;
@@ -62,8 +27,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			var marks = {};
 			var sliced = [], hidden = [];
 			// Listen für die Schnittstelle mit der HTML-Seite
-			scope.objModels = [];
-			scope.planModels = [];
 			scope.marksModels = [];
 			
 			
@@ -90,8 +53,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				SELECT: 0,
 				ROTATE: 2,
 				PAN: 3,
-				ZOOM: 4,
-				
+				ZOOM: 4
 			};
 			var interactionState = {
 				SELECT: 0,
@@ -362,55 +324,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 			}
 			
-			
-			// Initialisierung des geladenen Objekts
-			function loadObjectHandler(obj) {
-				obj.traverse(function (child) {
-					if(child instanceof THREE.Mesh) {
-						
-						var isUnsafe = false
-						if(/unsicher/.test(child.name))
-							isUnsafe = true;
-						
-						setObjectMaterial(child, true, false, true, isUnsafe);
-						//child.castShadow = true;
-						//child.receiveShadow = true;
-						
-						// Kanten (wenn unsicher, dann gestrichelte Kanten)
-						var edges = new THREE.EdgesHelper(child, '#333333');
-						if(isUnsafe) {
-							var ldgeo = new THREE.Geometry();
-							var coords = edges.geometry.attributes.position.array;
-							for(var i=0; i<coords.length; i+=3) {
-								var v = new THREE.Vector3(coords[i],coords[i+1],coords[i+2]);
-								ldgeo.vertices.push(v);
-							}
-							var ldmat = new THREE.LineDashedMaterial({color:0x333333, scale:1.0, dashSize:0.5, gapSize:0.25, transparent:true, opacity:0.5});
-							edges = new THREE.Line(ldgeo, ldmat, THREE.LinePieces);
-							edges.geometry.computeLineDistances();
-							edges.geometry.lineDistancesNeedUpdate = true;
-						}
-						
-						// Mesh und Kanten der Scene hinzufügen
-						scene.add(child);
-						scene.add(edges);
-						
-						// userData
-						child.userData.eid = 'e22_'+child.name;
-						child.userData.type = 'object';
-						child.userData.unsafe = isUnsafe;
-						
-						// Liste, um zusammengehörige Objekte zu managen
-						objects[child.id] = {mesh: child, edges: edges, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true};
-						
-						// Liste für die Anzeige auf der HTML-Seite
-						scope.layerList.push({name: child.name, id: child.id, visible: child.visible});
-						scope.$apply();
-					}
-				});
-				console.log(scene);
-			}
-			
 			// Material für Objekte anpassen
 			function setObjectMaterial(obj, setAmbient, disableColor, disableSpecular, unsafe) {
 				if(obj.material.name in materials) {
@@ -436,33 +349,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				obj.material.side = THREE.DoubleSide;
 				materials[obj.material.name] = obj.material;
 				obj.userData.originalMat = obj.material.name;
-			}
-			
-			// Initialisierung des geladenen Plans
-			function loadPlanHandler(obj) {
-				obj.traverse(function (child) {
-					if(child instanceof THREE.Mesh) {
-						
-						setPlanMaterial(child);
-						
-						// Kanten
-						var edges = new THREE.EdgesHelper(child, '#333333');
-						
-						// Mesh und Kanten der Scene hinzufügen
-						scene.add(child);
-						scene.add(edges);
-						
-						// userData
-						child.userData.type = 'plan';
-						
-						// Liste, um zusammengehörige Objekte zu managen
-						plans[child.id] = {mesh: child, edges: edges, visible: true};
-						
-						// Liste für die Anzeige auf der HTML-Seite
-						scope.planModels.push({name: child.name, id: child.id, visible: child.visible});
-						scope.$apply();
-					}
-				});
 			}
 			
 			// Material für Pläne anpassen
@@ -1036,7 +922,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			// get intersection points of face and plane
 			function intersectionsFacePlane(pV, pN, v0, v1, v2) {
 				var num = 0;
-				var o = new Object();
+				var o = {};
 				
 				o.sideA = intersectionLinePlane(pV, pN, v0, v1);
 				if(!o.sideA.t) num++;
@@ -1391,9 +1277,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			});
 			
 			// watch edges settings
-			$rootScope.$watch(function() {
-				return webglInterface.vizSettings.edges;
-			}, function(value) {
+			scope.$watch('vizSettings.edges', function(value) {
 				for(var key in objects) {
 					var obj = objects[key];
 					if(obj.visible) {
@@ -1402,9 +1286,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 				}
 			});
-			$rootScope.$watch(function() {
-				return webglInterface.vizSettings.edgesOpacity;
-			}, function(value) {
+			scope.$watch('vizSettings.edgesOpacity', function(value) {
+				console.log(value);
 				if(!materials['edges']) return;
 				if(value === 100) {
 					materials['edgesMat'].transparent = false;
@@ -1419,7 +1302,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			});
 			
 			//scope.$watch('viewportSettings.shading', function(value) {
-			webglInterface.callFunc.setShading = function(value) {
+			scope.setShading = function(value) {
 				console.log('set shading', value);
 				if(!scene) return;
 				
@@ -1921,7 +1804,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						scene.remove(pin);
 						pin = null;
 						isPinning = false;
-						webglInterface.callFunc.setNavigationMode('select');
+						scope.setNavigationMode('select');
 						scope.$applyAsync();
 					}
 					// selection
@@ -1948,7 +1831,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 				}
 				else if(event.button === 2) {
-					webglInterface.callFunc.setNavigationMode('select');
+					scope.setNavigationMode('select');
 					scope.$apply();
 					
 					if(isPinning && pin) {
@@ -2045,7 +1928,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			}
 			
 			webglInterface.callFunc.startMarking = function() {
-				webglInterface.callFunc.setNavigationMode(false);
+				scope.setNavigationMode(false);
 				pin = new THREE.Pin(3, 0.5);
 				scene.add(pin);
 				isPinning = true;
@@ -2127,7 +2010,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 			};
 			
-			webglInterface.callFunc.setNavigationMode = function(mode) {
+			scope.setNavigationMode = function(mode) {
 				scope.navigation.select = false;
 				scope.navigation.rotate = false;
 				scope.navigation.pan = false;
@@ -2209,14 +2092,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						highlighted.push(obj);
 					}
 				}
-			}
-			
-			scope.internalCallFunc.loadObjIntoScene = function(path, file) {
-				objloader.load(path+file, path+'_empty.mtl', loadObjectHandler);
-			}
-			
-			scope.internalCallFunc.loadPlanIntoScene = function(path, file) {
-				objloader.load(path+file, path+'plans_muristan.mtl', loadPlanHandler);
 			}
 			
 			scope.internalCallFunc.loadCTMPlanIntoScene = function(plan3d, info, file) {
