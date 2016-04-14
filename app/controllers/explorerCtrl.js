@@ -313,8 +313,16 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			});
 		};
 		
-		$scope.highlightObj = function(eid) {
-			neo4jRequest.getObjFromPlan(eid).success(function(data, status){
+		$scope.highlightObj = function(plan) {
+			Source.getConnections(plan.eid).then(function (response) {
+				console.log(response);
+				for(var i=0; i<response.data.length; i++) {
+					webglInterface.callFunc.highlightObj(response.data[i].meshId);
+				}
+			}, function (err) {
+				Utilities.throwApiException('on Source.connect()', err);
+			});
+			/*neo4jRequest.getObjFromPlan(eid).success(function(data, status){
 			
 				var files = Utilities.cleanNeo4jData(data);
 				console.log(files);
@@ -322,19 +330,17 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				for(var i=0; i<files.length; i++) {
 					$scope.callDirFunc.highlightObj(files[i].eid);
 				}
-			});
+			});*/
 		};
 		
-		$scope.connectObjPlan = function() {
-			var res = $scope.callDirFunc.getObjForPlans();
+		$scope.connectPlanToObj = function(plan) {
+			var res = webglInterface.callFunc.getObjForPlans(plan.plan3d.meshId);
 			console.log(res);
-			for(var i=0; i<res.length; i++) {
-				for(var j=0; j<res[i].objs.length; j++) {
-					neo4jRequest.connectPlanToObj(res[i].plan, res[i].objs[j]).success(function(data, status){
-						//console.log(data);
-					});
-				}
-			}
+			Source.createConnections(plan.eid, res.objs).then(function (response) {
+				console.log('plan connected', response);
+			}, function (err) {
+				Utilities.throwApiException('on Source.connect()', err);
+			});
 		};
 
 		$scope.loadModelsWithChildren = function() {
@@ -406,38 +412,18 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}
 		};
 		
-		
-		
-		$scope.enterMenuItem = function(event) {
-			var li = $(event.target);
-			var ul = li.children('ul:first-child');
-			ul.show();
-			li.bind('mouseleave', function(event) {
-				ul.hide();
-				li.unbind('mouseleave');
-			});
-		};
-		
 		$scope.addSlider = function(event){
-				//console.log(event);
-								
-				var t = event.offsetX / event.delegateTarget.offsetWidth;
-				var newR = Math.round((1-t) * $scope.ramp.start[0] + t * $scope.ramp.end[0]);
-				var newG = Math.round((1-t) * $scope.ramp.start[1] + t * $scope.ramp.end[1]);
-				var newB = Math.round((1-t) * $scope.ramp.start[2] + t * $scope.ramp.end[2]);
-				
-				$scope.colorMarkerArray.push({
-					position: event.offsetX,
-					color: "rgb(" + newR + "," + newG + "," + newB + ")"
-				});
-				}
-				
-		$scope.onEnterField = function(event) {
-			event.target.select();
-		};
-		
-		$scope.clickdebug = function() {
-			console.log('button clicked');
+			//console.log(event);
+							
+			var t = event.offsetX / event.delegateTarget.offsetWidth;
+			var newR = Math.round((1-t) * $scope.ramp.start[0] + t * $scope.ramp.end[0]);
+			var newG = Math.round((1-t) * $scope.ramp.start[1] + t * $scope.ramp.end[1]);
+			var newB = Math.round((1-t) * $scope.ramp.start[2] + t * $scope.ramp.end[2]);
+			
+			$scope.colorMarkerArray.push({
+				position: event.offsetX,
+				color: "rgb(" + newR + "," + newG + "," + newB + ")"
+			});
 		};
 		
 		$scope.tooltip = function(event) {

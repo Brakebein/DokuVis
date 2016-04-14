@@ -266,8 +266,10 @@
 					<div class="btnBar">
 						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid })"><span class="glyphicon glyphicon-zoom-in"></span></a>
 						<!--<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>-->
-						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
-						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
+						<a ng-show="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
+						<a ng-show="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
+						<a ng-show="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><span class="fa fa-link"></span></a>
+						<a ng-show="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><span class="fa fa-lightbulb-o"></span></a>
 					</div>
 				</div>
 			</div>

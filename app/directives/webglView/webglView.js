@@ -507,7 +507,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				onlySelect = onlySelect || false;
 				onlyDeselect = onlyDeselect || false;
 				
-				//dehighlight();
+				dehighlight();
 				// deselect all
 				if(selected.length > 0 && !onlySelect) {
 					for(var i=0; i<selected.length; i++) {
@@ -711,22 +711,18 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			function overlapAABB(o1, o2) {
 				if(!o1.geometry.boundingBox) o1.geometry.computeBoundingBox();
 				if(!o2.geometry.boundingBox) o2.geometry.computeBoundingBox();
-				var box1 = o1.geometry.boundingBox;
-				var box2 = o2.geometry.boundingBox;
-				
-				var ext1 = new THREE.Vector3(box1.max.x - box1.min.x, box1.max.y - box1.min.y, box1.max.z - box1.min.z);
-				var ext2 = new THREE.Vector3(box2.max.x - box2.min.x, box2.max.y - box2.min.y, box2.max.z - box2.min.z);
-				
-				var pos1 = box1.min.add(box1.max).divideScalar(2).add(o1.position);
-				var pos2 = box2.min.add(box2.max).divideScalar(2).add(o2.position);
-				
-				var pdiff = pos1.sub(pos2);
+				var box1 = o1.geometry.boundingBox.clone().applyMatrix4(o1.matrixWorld);
+				var box2 = o2.geometry.boundingBox.clone().applyMatrix4(o2.matrixWorld);
+
+				var ext1 = new THREE.Vector3().subVectors(box1.max, box1.min);
+				var ext2 = new THREE.Vector3().subVectors(box2.max, box2.min);
+				var pdiff = new THREE.Vector3().subVectors(box1.center(), box2.center());
 				
 				return Math.abs(pdiff.x) <= ((ext1.x + ext2.x)/2)
-				&&
-				Math.abs(pdiff.y) <= ((ext1.y + ext2.y)/2)
-				&&
-				Math.abs(pdiff.z) <= ((ext1.z + ext2.z)/2);
+					&&
+					Math.abs(pdiff.y) <= ((ext1.y + ext2.y)/2)
+					&&
+					Math.abs(pdiff.z) <= ((ext1.z + ext2.z)/2);
 			}
 			
 			// slice object/faces
@@ -2019,37 +2015,47 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					scope.navigation[mode] = true;
 			};
 			
-			scope.internalCallFunc.getObjForPlans = function() {
+			webglInterface.callFunc.getObjForPlans = function(meshId) {
 				
-				var res = [];
-				
-				for(var key in plans) {
-					var pgeo = plans[key].mesh.geometry;
-					var objs = [];
-					
-					for(var i=0; i<pgeo.faces.length; i++) {
-						var tg = new THREE.Geometry();
-						tg.vertices.push(pgeo.vertices[pgeo.faces[i].a]);
-						tg.vertices.push(pgeo.vertices[pgeo.faces[i].b]);
-						tg.vertices.push(pgeo.vertices[pgeo.faces[i].c]);
-						var tm = new THREE.Mesh(tg);
-						
-						for(var k in objects) {
-							if(overlapAABB(objects[k].mesh, tm))
-								objs.push(objects[k].mesh.name);
-						}
+				if(!meshId in plans) return;
+
+				var pgeo = plans[meshId].mesh.geometry;
+				var pMatrix = plans[meshId].mesh.matrixWorld;
+				var objs = [];
+
+				var facesLength = pgeo.index.count * pgeo.index.itemSize;
+				for(var i=0; i<facesLength; i+=3) {
+					var tg = new THREE.Geometry();
+					for(var j=0; j<3; j++) {
+						var index = pgeo.index.array[i+j] * pgeo.attributes.position.itemSize;
+						var v = new THREE.Vector3(pgeo.attributes.position.array[index], pgeo.attributes.position.array[index+1], pgeo.attributes.position.array[index+2]);
+						tg.vertices.push(v);
 					}
-					
-					res.push({plan: plans[key].mesh.name, objs: objs});
+
+					tg.applyMatrix(pMatrix);
+					tg.computeBoundingBox();
+					var tm = new THREE.Mesh(tg, materials['defaultMat']);
+
+					for(var k in objects) {
+						if(objects[k].mesh.userData.type == 'group')
+							continue;
+						if(overlapAABB(objects[k].mesh, tm))
+							objs.push(objects[k].mesh.userData.eid);
+					}
+
+					tg.dispose();
 				}
-				
-				return res;
-			}
+
+				return { plan: plans[meshId].mesh.name, objs: objs };
+			};
 			
 			function dehighlight() {
 				for(var i=0; i< highlighted.length; i++) {
 					var obj = highlighted[i];
-					if(obj.material.map != null) {
+					
+					objects[obj.id].edges.material = materials['edgesMat'];
+					
+					/*if(obj.material.map != null) {
 						if(obj.userData.type == 'plan')
 							obj.material.color.setHex(0xffffff);
 						else
@@ -2064,16 +2070,20 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					else
 						obj.material = materials[obj.userData.originalMat];
 					if(obj.userData.type === 'object')
-						objects[obj.id].edges.material.color.setHex(0x333333);
+						objects[obj.id].edges.material.color.setHex(0x333333);*/
 				}
 				highlighted = [];
 			}
 			
-			scope.internalCallFunc.highlightObj = function(eid) {
+			webglInterface.callFunc.highlightObj = function(eid) {
 				//dehighlight();
 				for(var key in objects) {
-					if(objects[key].mesh.userData.eid == eid) {
+					if(objects[key].mesh.userData.eid === eid) {
 						var obj = objects[key].mesh;
+						
+						objects[key].edges.material = materials['edgesHighlightMat'];
+						
+						/*
 						if(obj.material.map != null) {
 							if(obj.userData.type == 'plan')
 								obj.material.color.setHex(0xff8888);
@@ -2087,7 +2097,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						else
 							obj.material = materials['highlightMat'];
 						if(scope.shading == shading.EDGE)
-							objects[obj.id].edges.material.color.setHex(0xffff44);
+							objects[obj.id].edges.material.color.setHex(0xffff44);*/
 						
 						highlighted.push(obj);
 					}
@@ -2276,7 +2286,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						JSZipUtils.getBinaryContent('data/' + file.path + file.edges, function(err, data) {
 							var zip = new JSZip(data);
 							var vobj = JSON.parse(zip.file(file.content + '.json').asText());
-							
+							if(vobj.data.attributes.position.array.length === 0)
+								return;
 							var floatarray = new Float32Array(vobj.data.attributes.position.array);
 							var egeo = new THREE.BufferGeometry();
 							egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
@@ -2316,7 +2327,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					mesh.applyMatrix(mat);
 					//mesh.add(edges);
 					mesh.matrixAutoUpdate = false;
-					
+
+					mesh.geometry.computeBoundingBox();
 					
 					mesh.name = info.content;
 					mesh.userData.name = info.name;
