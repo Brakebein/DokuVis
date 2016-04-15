@@ -46,8 +46,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			var isSliced = false;
 			var isSliceMoving = false;
 			
-			var measureTool;
-			var pin;
+			var measureTool, pin;
 			
 			var navigationState = {
 				SELECT: 0,
@@ -605,7 +604,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 							obj.material.color = materials['selectionMat'].color;
 						else	
 							//obj.material = materials['selectionMat'];
-							objects[obj.id].edges.material = materials['edgesSelectionMat'];
+							if(objects[obj.id].edges)
+								objects[obj.id].edges.material = materials['edgesSelectionMat'];
 						break;
 				}
 			}
@@ -704,6 +704,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			}
 			
 			function rejectHighlightMat(obj) {
+				obj.material.dispose();
 				obj.material = materials[obj.userData.originalMat];
 			}
 			
@@ -1928,6 +1929,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				pin = new THREE.Pin(3, 0.5);
 				scene.add(pin);
 				isPinning = true;
+			};
+			
+			scope.startMeasuring = function () {
+				scope.setNavigationMode(false);
+				measureTool = new THREE.Measure(2);
+				scene.add(measureTool);
 			};
 			
 			function setGizmoCoords(type, apply) {

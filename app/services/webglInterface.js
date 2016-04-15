@@ -1,6 +1,6 @@
 // Schnittstelle zwischen Three.js-Scope und Seite
-angular.module('dokuvisApp').factory('webglInterface',
-	function($rootScope) {
+angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorScroll', 'debounce',
+	function($rootScope, $anchorScroll, debounce) {
 		
 		var wi = {};
 		
@@ -183,6 +183,9 @@ angular.module('dokuvisApp').factory('webglInterface',
 				item.selected = true;
 				wi.selected.push(userData);
 				if(item.parent) expandParents(item.parent);
+				//$anchorScroll.yOffset = 200;
+				scrollToListEntry(item.id);
+
 				$rootScope.$applyAsync();
 			}
 		};
@@ -207,8 +210,13 @@ angular.module('dokuvisApp').factory('webglInterface',
 			wi.callFunc.colorByCategory(category);
 			wi.activeCategory = category;
 		};
+
+		var scrollToListEntry = debounce(function (id) {
+			console.log('anchorScroll called', 'list'+id);
+			$anchorScroll('list'+id);
+		}, 200, true);
 		
 		return wi;
 		
-	});
+	}]);
 	

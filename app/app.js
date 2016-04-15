@@ -5,6 +5,7 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'ct.ui.router.extras.previous',
 	'ngAnimate',
 	'ngSanitize',
+	'debounce',
 	'autocomplete',
 	'truncate',
 	'xeditable',

@@ -808,14 +808,6 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		requests.getObjFromPlan = function(plan) {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (:E31 {content:"'+plan+'"})-[:P70]->(e22:E22)'
-					+' RETURN e22.content AS eid',
-				params: {}
-			});
-		};
-		
 		requests.getAllPlanData = function(prj) {
 			/*return $http.post(phpUrl, {
 				query: 'MATCH (e31:E31)-[:P1]->(jpg:E75),'

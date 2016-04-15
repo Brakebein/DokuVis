@@ -313,6 +313,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			});
 		};
 		
+		// highlighte alle mit dem Plan verbundene Objekte
 		$scope.highlightObj = function(plan) {
 			Source.getConnections(plan.eid).then(function (response) {
 				console.log(response);
@@ -322,17 +323,9 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}, function (err) {
 				Utilities.throwApiException('on Source.connect()', err);
 			});
-			/*neo4jRequest.getObjFromPlan(eid).success(function(data, status){
-			
-				var files = Utilities.cleanNeo4jData(data);
-				console.log(files);
-				
-				for(var i=0; i<files.length; i++) {
-					$scope.callDirFunc.highlightObj(files[i].eid);
-				}
-			});*/
 		};
 		
+		// überprüfe, welche Objekte den Plan schneiden und verbinde sie in der Datenbank
 		$scope.connectPlanToObj = function(plan) {
 			var res = webglInterface.callFunc.getObjForPlans(plan.plan3d.meshId);
 			console.log(res);
@@ -344,9 +337,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 
 		$scope.loadModelsWithChildren = function() {
-			// neo4jRequest.getModelsWithChildren($stateParams.project, $stateParams.subproject).then(function(response){
-				// if(response.data.exception) { console.error('neo4j failed on getModelsWithChildren()', response.data); return; }
-				// console.log(response.data);
 			Model.getModels().then(function(response) {
 				console.log(response.data);
 				var root = Utilities.createHierarchy(response.data, ['file','obj','categories'], true)[0];

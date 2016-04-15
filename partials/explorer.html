@@ -101,7 +101,7 @@
 				
 				<h5>Plans</h5>
 				
-				<div class="listItem" ng-class="{selected: data.selected}" ng-repeat="data in wi.plans">
+				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="data in wi.plans">
 					<span class="glyphicon toggle" ng-class="data.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="data.toggle()"></span>
 					<div class="expand"></div>
 					<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
