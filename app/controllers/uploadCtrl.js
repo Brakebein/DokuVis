@@ -351,7 +351,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		}
 
 		$scope.getArchives = function() {
-			neo4jRequest.getArchives($scope.$parent.project).then(function(response){
+			neo4jRequest.getArchives($stateParams.project).then(function(response){
 				if(response.data.exception) { console.error('neo4j failed on getArchives()', response); return; }
 				if(response.data) $scope.archives = Utilities.cleanNeo4jData(response.data);
 				console.log('Archives:', $scope.archives);
@@ -377,7 +377,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		// typeahead input callbacks
 		$scope.setTypeaheadArray = function(label, prop) {
 			if(!label) return;
-			neo4jRequest.getAllLabelProps($scope.$parent.project, label, prop).then(function(response){
+			neo4jRequest.getAllLabelProps($stateParams.project, label, prop).then(function(response){
 				if(response.data.exception) { console.error('neo4j failed on setTypeaheadArray()', response); return; }
 				$scope.suggestions = Utilities.cleanNeo4jData(response.data);
 				//console.log($scope.suggestions);
@@ -395,7 +395,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 						item.titleError = true;
 				}
 				if(!item.titleError) {
-					neo4jRequest.findNodeWithSpecificContent($scope.$parent.project, params.label, item[params.prop]).success(function(data, status){
+					neo4jRequest.findNodeWithSpecificContent($stateParams.project, params.label, item[params.prop]).success(function(data, status){
 						//console.log(data);
 						if(data.data.length > 0)
 							item.titleError = true;
@@ -409,7 +409,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			//console.log(search, params);
 			if(search < 1) return;
 
-			neo4jRequest.searchForExistingNodes($scope.$parent.project, params.label, search).success(function(data, status){
+			neo4jRequest.searchForExistingNodes($stateParams.project, params.label, search).success(function(data, status){
 				$scope.suggestions = Utilities.cleanNeo4jData(data);
 				//console.log($scope.suggestions);
 			});
@@ -429,7 +429,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 						item.titleError = true;
 				}
 				if(!item.titleError) {
-					neo4jRequest.findNodeWithSpecificContent($scope.$parent.project, params.label, search).success(function(data, status){
+					neo4jRequest.findNodeWithSpecificContent($stateParams.project, params.label, search).success(function(data, status){
 						//console.log(data);
 						if(data.data.length > 0)
 							item.titleError = true;
