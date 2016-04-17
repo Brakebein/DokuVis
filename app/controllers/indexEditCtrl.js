@@ -32,9 +32,6 @@ angular.module('dokuvisApp').controller('indexEditCtrl', ['$scope', '$stateParam
 			});
 		}
 
-		getIndex();
-		getBlacklist();
-
 		$scope.addToWhitelist = function(entry) {
 			$scope.blacklist.splice($scope.blacklist.indexOf(entry), 1);
 			$scope.whitelist.push(entry);
@@ -64,5 +61,30 @@ angular.module('dokuvisApp').controller('indexEditCtrl', ['$scope', '$stateParam
 				getBlacklist();
 			});
 		};
+
+		$scope.loadIndex = function () {
+			getIndex();
+			getBlacklist();
+		};
+
+		$scope.logIndex = function() {
+			phpRequest.getIndex($stateParams.project).then(function(response){
+				console.log(response.data);
+			});
+		};
+		$scope.indexDocuments = function() {
+			phpRequest.indexDocuments($stateParams.project).then(function(response){
+				console.log(response.data);
+			});
+		};
+		$scope.searchIndex = function() {
+			if(!$scope.searchTerm) return;
+			phpRequest.searchText($stateParams.project, $scope.searchTerm).then(function(response){
+				console.log(response.data);
+			});
+		};
+
+		// init
+		$scope.loadIndex();
 
 	}]);

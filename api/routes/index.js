@@ -31,6 +31,7 @@ router.delete('/auth/project/:id', project.delete);
 
 // models
 router.get('/auth/project/:id/:subprj/models', models.getTree);
+router.post('/auth/project/:id/:subprj/models', models.insert);
 router.post('/auth/project/:id/:subprj/assignCategory', models.assignCategory);
 
 // categories

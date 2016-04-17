@@ -206,7 +206,7 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		
 		// category
 		wi.visualizeCategory = function(category) {
-			wi.callFunc.setShading('Custom');
+			//wi.callFunc.setShading('Custom');
 			wi.callFunc.colorByCategory(category);
 			wi.activeCategory = category;
 		};

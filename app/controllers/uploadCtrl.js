@@ -1,5 +1,5 @@
-angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'Source',
-	function($scope, $state, $stateParams, $previousState, Uploader, neo4jRequest, Utilities, $timeout, $modal, Source) {
+angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'Source', 'Model',
+	function($scope, $state, $stateParams, $previousState, Uploader, neo4jRequest, Utilities, $timeout, $modal, Source, Model) {
 
         $previousState.memo('modalInvoker');
 
@@ -45,6 +45,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		// FILTERS
 
 		if($scope.uploadType == 'source') {
+			$scope.title = 'Quelle einfügen';
 			uploader.filters.push({
 				name: 'sourceFilter',
 				fn: function(item, options) {
@@ -54,6 +55,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			});
 		}
 		else if($scope.uploadType == 'model') {
+			$scope.title = 'Modell einfügen';
 			uploader.filters.push({
 				name: 'modelFilter',
 				fn: function(item, options) {
@@ -63,6 +65,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			});
 		}
 		else if($scope.uploadType == 'zip') {
+			$scope.title = '3D-Plan hinzufügen';
 			uploader.filters.push({
 				name: 'zipFilter',
 				fn: function(item, options) {
@@ -86,8 +89,9 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 
 		uploader.onWhenAddingFileFailed = function(item, filter, options) {
 			console.info('onWhenAddingFileFailed', item, filter, options);
-			$scope.$parent.alert.message = 'Nicht unterstütztes Format!';
-			$scope.$parent.alert.showing = true;
+			Utilities.dangerAlert('Nicht unterstütztes Format!');
+			//$scope.$parent.alert.message = 'Nicht unterstütztes Format!';
+			//$scope.$parent.alert.showing = true;
 		};
 		uploader.onAfterAddingFile = function(item) {
 			console.info('onAfterAddingFile', item);
@@ -232,9 +236,11 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				 });
 				 insertNodes(params.obj.children);
 				 }*/
+				var objDatas = [];
 				function insertNodes(nodes) {
 					for(var i=0, l=nodes.length; i<l; i++) {
-						fileItem.anzInserting++;
+						objDatas.push(nodes[i]);
+						/*fileItem.anzInserting++;
 						neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, fileItem.formData[0], nodes[i]).then(function(response){
 							if(response.data.exception) { console.error('neo4j failed on insertModel()', response.data); return; }
 							console.log('insertModel', response.data);
@@ -243,7 +249,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 							console.log(fileItem.anzInserted, fileItem.anzInserting);
 							if(fileItem.anzInserted == fileItem.anzInserting)
 								fileItem.isInserting = false;
-						});
+						});*/
 						insertNodes(nodes[i].children);
 					}
 				}
@@ -284,6 +290,13 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				 }
 				 }*/
 				insertNodes(response);
+				console.log(fileItem.formData[0], objDatas);
+				Model.insert(fileItem.formData[0], objDatas).then(function(response) {
+					console.log('insertModel', response.data);
+					fileItem.isInserting = false;
+				}, function(err) {
+					Utilities.throwApiException('on getAllCategories()', err);
+				});
 			}
 
 			else if($scope.uploadType == 'zip') {
@@ -456,6 +469,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		$scope.close = function () {
 			this.$hide();
             Uploader.clearQueue();
+			Uploader.filters.pop();
 			this.$destroy();
 
 			if($previousState.get('modalInvoker').state)

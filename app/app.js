@@ -92,7 +92,7 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 					'style/explorer.css',
 					'style/panelContainer.css',
 					'style/modals/screenshotDetail.min.css',
-					'style/modals/indexEdit.css',
+					'style/modals/indexEdit.min.css',
 					'style/modals/categoryEdit.css'
 				]
 			})
@@ -128,7 +128,7 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			.state('project.explorer.upload.type', {
 				url: '/:uploadType',
 				params: {
-					title: null
+					attachTo: null
 				}
 			})
 			.state('project.tasks', {

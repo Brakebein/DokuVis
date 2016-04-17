@@ -602,10 +602,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					default:
 						if(obj.userData.modifiedMat)
 							obj.material.color = materials['selectionMat'].color;
-						else	
+						else {
 							//obj.material = materials['selectionMat'];
-							if(objects[obj.id].edges)
+							if (objects[obj.id].edges)
 								objects[obj.id].edges.material = materials['edgesSelectionMat'];
+						}
 						break;
 				}
 			}
@@ -643,18 +644,20 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						else
 							obj.material = materials['transparentMat'];
 						break;
-					case 'grey':
+					/*case 'grey':
 						if(obj.userData.modifiedMat)
 							obj.material.color = materials['defaultDoublesideMat'].color;
 						else
 							obj.material = materials['defaultDoublesideMat'];
-						break;
+						break;*/
 					default:
 						if(obj.userData.modifiedMat)
 							obj.material.color = materials[obj.userData.originalMat].color;
-						else	
+						else {
 							//obj.material = materials[obj.userData.originalMat];
-							objects[obj.id].edges.material = materials['edgesMat'];
+							if (objects[obj.id].edges)
+								objects[obj.id].edges.material = materials['edgesMat'];
+						}
 						break;
 				}
 			}
@@ -1303,8 +1306,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				console.log('set shading', value);
 				if(!scene) return;
 				
-				var uncoverObj = ['onlyEdges'].indexOf(currentShading) !== -1 ? true : false;
-				var uncoverEdge = webglInterface.viewportSettings.edges ? ['xray'].indexOf(currentShading) !== -1 ? true : false : false;
+				var uncoverObj = ['onlyEdges'].indexOf(currentShading) !== -1;
+				var uncoverEdge = webglInterface.viewportSettings.edges ? ['xray'].indexOf(currentShading) !== -1 : false;
 				if(currentShading === 'Custom') webglInterface.activeCategory = null;
 				currentShading = value;
 				webglInterface.viewportSettings.shadingSel = value;
@@ -2225,7 +2228,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					obj.userData.categories = child.categories;
 					
 					// only scale translation
-					t.multiplyScalar(scale);
+					if(!parent) {
+						t.multiplyScalar(scale);
+						s.multiplyScalar(scale);
+					}
 					mat.compose(t,q,s);
 					obj.applyMatrix(mat);
 					obj.matrixAutoUpdate = false;
@@ -2328,8 +2334,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 					
 					// scale translation and set scale component
-					t.multiplyScalar(scale);
-					s.multiplyScalar(scale);
+					if(!parent) {
+						t.multiplyScalar(scale);
+						s.multiplyScalar(scale);
+					}
 					mat.compose(t,q,s);
 					mesh.applyMatrix(mat);
 					//mesh.add(edges);
@@ -2547,6 +2555,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			// color all objects by its assigned category attribute
 			webglInterface.callFunc.colorByCategory = function(category) {
 				console.log(category);
+				scope.setShading('Custom');
 				for(var i=0; i<category.attributes.length; i++) {
 					if(category.attributes[i].id === 0 || category.attributes[i].id === -1) continue;
 					var cValues = category.attributes[i].color.match(/\d+(\.\d+)?/g);

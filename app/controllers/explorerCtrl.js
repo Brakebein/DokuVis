@@ -124,8 +124,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		});
         $scope.sourcesUploader.onWhenAddingFileFailed = function(item, filter, options) {
             console.info('onWhenAddingFileFailed', item, filter, options);
-			$scope.alert.message = 'Nicht unterstütztes Dateiformat';
-			$scope.alert.showing = true;
+			Utilities.dangerAlert('Nicht unterstütztes Format!');
         };
         $scope.sourcesUploader.onAfterAddingAll = function(addedFileItems) {
             console.info('onAfterAddingAll', addedFileItems);
@@ -135,14 +134,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		// Modal öffnen
 		$scope.openInsertForm = function(type, attach) {
-			var title;
-			if(type === 'source') title = 'Quelle einfügen';
-			else if(type === 'model') title = 'Modell einfügen';
-			else if(type === 'zip') title = '3D-Plan hinzufügen';
 			
-			console.log($scope.sourcesUploader);
+			//console.log($scope.sourcesUploader);
 
-			$state.go('project.explorer.upload.type', { uploadType: type, title: title });
+			$state.go('project.explorer.upload.type', { uploadType: type, attachTo: attach || undefined });
 
 			$timeout(function () {
 				for(var i=0; i<$scope.sourcesUploader.queue.length; i++)
@@ -510,22 +505,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				$scope.callDirFunc.setCoordsFromInput($scope.coords);
 			
 			console.log($scope.coords);
-		};
-		
-		$scope.getIndex = function() {
-			phpRequest.getIndex($stateParams.project).then(function(response){
-				console.log(response.data);
-			});
-		};
-		$scope.indexDocuments = function() {
-			phpRequest.indexDocuments($stateParams.project).then(function(response){
-				console.log(response.data);
-			});
-		};
-		$scope.searchText = function(searchTerm) {
-			phpRequest.searchText($stateParams.project, searchTerm).then(function(response){
-				console.log(response.data);
-			});
 		};
 		
 		// Kategorien
