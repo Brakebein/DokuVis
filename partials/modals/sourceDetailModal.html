@@ -7,9 +7,10 @@
 		<h4 class="modal-title" ng-bind="title"></h4>
 	</div>
 	
-	<div class="modal-body sourceDetail"><div>
+	<div class="modal-body sourceDetail" ng-class="{vertical: horizontalImage}">
 	
-		<div ng-class="horizontalImage ? 'imageHDiv' : 'imageVDiv'">
+		<div ng-if="!horizontalImage" class="imageVDiv">
+			<div>
 			<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="data/{{item.file.path + (item.file.display || item.file.img1024 || item.file.name)}}"/>
 			<div ng-if="item.type == 'text' && !textEdit" class="displayText" sync-scroll="vertical-scroll">
 				<div class="vertical-scroll text"
@@ -23,67 +24,78 @@
 			</div>
 			
 			<div ng-if="item.type == 'text' && textEdit" text-angular ta-toolbar="[['h3','p','quote'],['bold','italics','underline','ul','ol'],['undo','redo'],['html','insertLink']]" ng-model="editorInput"></div>
+			</div>
 		</div>
+		<div ng-if="horizontalImage" class="imageHDiv">
+			<img ng-src="data/{{item.file.path + (item.file.display || item.file.img1024 || item.file.name)}}"/>
+		</div>
+
 		<div ng-class="horizontalImage ? 'infoHDiv' : 'infoVDiv'">
-			
-			<div class="primaryIdenticator" title="Primärquelle" ng-show="item.primary"><div></div></div>
-			
-			<img ng-show="item.type == 'text'" ng-src="data/{{item.file.path}}_thumbs/{{item.file.thumb}}"/>
-			<h3>{{item.title}}</h3>
-			<hr/>
-			<div>
-				<strong>Autor</strong>
-				<p>{{item.author || 'unbekannt'}}</p>
+
+			<div class="title-section">
+				<div class="primaryIdenticator" title="Primärquelle" ng-show="item.primary"><div></div></div>
+				<img ng-show="item.type == 'text'" ng-src="data/{{item.file.path}}_thumbs/{{item.file.thumb}}"/>
+				<h3>{{item.title}}</h3>
+				<hr/>
 			</div>
-			<div ng-show="item.archive">
-				<strong>Archiv</strong>
-				<p>{{item.archive.institutionAbbr}} {{item.archive.collection}}<br/>
-				{{item.archive.identifier}}</p>
+
+			<div class="details">
+			<div class="info-section">
+				<div>
+					<strong>Autor</strong>
+					<p>{{item.author || 'unbekannt'}}</p>
+				</div>
+				<div ng-show="item.archive && (item.archive.institution || item.archive.identifier)">
+					<strong>Archiv</strong>
+					<p>{{item.archive.institutionAbbr}} {{item.archive.collection}}<br/>
+					{{item.archive.identifier}}</p>
+				</div>
+				<div ng-show="item.date">
+					<strong>Datierung</strong>
+					<p>{{item.date}}</p>
+				</div>
+				<div ng-show="item.place">
+					<strong>Erstellungsort</strong>
+					<p>{{item.place}}</p>
+				</div>
+				<div ng-show="item.repros">
+					<strong>Lit./publ. Repros</strong>
+					<p>{{item.repros}}</p>
+				</div>
+				<div ng-show="item.note" class="large">
+					<strong>Sonsitges</strong>
+					<p>{{item.note}}</p>
+				</div>
+				<div ng-show="item.tags.length">
+					<strong>Tags</strong>
+					<p>
+						<span ng-repeat="tag in item.tags | orderBy: tag">{{tag}} </span>
+					</p>
+				</div>
+				<div>
+					<strong>Links</strong>
+					<p><a ng-href="data/{{item.file.path + item.file.name}}" target="_blank">Originaldatei</a></p>
+					<p><a href="" ng-click="enterGraph(item.nId)">Graphensuche</a></p>
+				</div>
+				<div ng-show="item.type == 'text'">
+					<button class="btn btn-default btn-sm" ng-click="nextPage(-1)">vorige Seite</button>
+					<button class="btn btn-default btn-sm" ng-click="nextPage(1)">nächste Seite</button>
+
+					<p>Seite {{pageNr + 1}}</p>
+					<p>
+						<button class="btn btn-default btn-sm" ng-class="{active: showConfidence}" ng-click="toggleConfidence()">Fehler zeigen</button>
+					<!--	<button class="btn btn-default btn-sm" ng-click="editText()">Text bearbeiten</button>
+						<button class="btn btn-default btn-sm" ng-click="saveText()">Text speichern</button>
+					-->
+					</p>
+				</div>
 			</div>
-			<div ng-show="item.date">
-				<strong>Datierung</strong>
-				<p>{{item.date}}</p>
-			</div>
-			<div ng-show="item.place">
-				<strong>Erstellungsort</strong>
-				<p>{{item.place}}</p>
-			</div>
-			<div ng-show="item.repros">
-				<strong>Lit./publ. Repros</strong>
-				<p>{{item.repros}}</p>
-			</div>
-			<div ng-show="item.note">
-				<strong>Sonsitges</strong>
-				<p>{{item.note}}</p>
-			</div>
-			<div ng-show="item.tags.length">
-				<strong>Tags</strong>
-				<p>
-					<span ng-repeat="tag in item.tags | orderBy: tag">{{tag}} </span>
-				</p>
-			</div>
-			<div>
-				<p><a ng-href="data/{{item.file.path + item.file.name}}" target="_blank">Originaldatei</a></p>
-				<p><a href="" ng-click="enterGraph(item.nId)">Graphensuche</a></p>
-			</div>
-			<div ng-show="item.type == 'text'">
-				<button class="btn btn-default btn-sm" ng-click="nextPage(-1)">vorige Seite</button>
-				<button class="btn btn-default btn-sm" ng-click="nextPage(1)">nächste Seite</button>
-				
-				<p>Seite {{pageNr + 1}}</p>
-				<p>
-					<button class="btn btn-default btn-sm" ng-class="{active: showConfidence}" ng-click="toggleConfidence()">Fehler zeigen</button>
-				<!--	<button class="btn btn-default btn-sm" ng-click="editText()">Text bearbeiten</button>
-					<button class="btn btn-default btn-sm" ng-click="saveText()">Text speichern</button>
-				-->
-				</p>
-			</div>
-			
+
 			<div class="comment-section">
 				<strong>Kommentare</strong>
 				<textarea class="form-control" ng-model="newCommentInput"></textarea>
 				<button class="btn btn-default btn-sm" ng-click="postComment()"><i class="fa fa-paper-plane"></i>Posten</button>
-				
+
 				<div class="comment" ng-repeat="comment in comments | orderBy: 'date':true">
 					<div class="author-date">{{comment.author}} - {{comment.date | amCalendar}}</div>
 					{{comment.value}}
@@ -104,15 +116,15 @@
 					</div>
 				</div>
 			</div>
-			
+			</div>
 		</div>
 	
-	</div></div>
+	</div>
 	
 	<div class="modal-footer">
-		<button class="btn btn-default" ng-click="nextItem(-1)"><span class="glyphicon glyphicon-chevron-left"></span> Voriges</button>
-		<button class="btn btn-default" ng-click="nextItem(1)">Nächstes<span class="glyphicon glyphicon-chevron-right"></span></button>
-		<button type="button" class="btn btn-default" ng-click="close()">Abbrechen</button>
+		<button ng-show="switchable" class="btn btn-default" ng-click="nextItem(-1)"><span class="glyphicon glyphicon-chevron-left"></span> Voriges</button>
+		<button ng-show="switchable" class="btn btn-default" ng-click="nextItem(1)">Nächstes<span class="glyphicon glyphicon-chevron-right"></span></button>
+		<button type="button" class="btn btn-default" ng-click="close()">Schließen</button>
 	</div>
 	
 </div>

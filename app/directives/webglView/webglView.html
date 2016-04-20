@@ -25,6 +25,10 @@
 		<select class="form-control input-sm" ng-options="s for s in viewportSettings.shading" ng-model="viewportSettings.shadingSel" ng-change="setShading(viewportSettings.shadingSel)"></select>
 		<select class="form-control input-sm" ng-options="c for c in viewportSettings.camera" ng-model="viewportSettings.cameraSel" ng-change="setCamera(viewportSettings.cameraSel)"></select>
 	</div>
+
+	<div class="ctrlGroup">
+		<button title="Screenshot-Pin" class="ctrlBtn" ng-click="startMarking()"><i class="fa fa-thumb-tack"></i></button>
+	</div>
 	
 	<!--<div class="ctrlGroup">
 		<div class="btn-group btn-group-xs">
@@ -42,4 +46,4 @@
 <div ng-include="'partials/enhanced_options.html'" class="vpPanelContainer" ng-show="vPanel.expand"></div>
 <!--<div ng-include="'partials/enhanced_options_horizontal.html'" class="vpPanelContainerHorizontal"></div>-->
 
-<div class="ng-hide" legend="wi.activeCategory" ng-show="wi.activeCategory"></div>
+<div class="ng-hide" legend="activeCategory" ng-show="activeCategory"></div>

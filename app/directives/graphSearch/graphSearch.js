@@ -332,17 +332,24 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 
 			rules['E21'] = function (node) {
 				if(node.properties.title) return;
-				getTitle(node, 'E82', 'content');
+				getTitle(node, 'E82', 'value');
 			};
 			rules['E31'] = function (node) {
 				getTitle(node, 'E35', 'content');
 			};
 			rules['E52'] = function (node) {
-				getTitle(node, 'E61', 'content');
+				getTitle(node, 'E61', 'value');
+			};
+			rules['E53'] = function (node) {
+				getTitle(node, 'E48', 'content');
+			};
+			rules['P1-E75'] = function (endNode, link) {
+				graph.removeNode(endNode.id);
+				return true;
 			};
 			rules['P82-E61'] = function (endNode, link) {
 				var startNode = graph.findNode(link.startNode);
-				setTitle(startNode, endNode, 'content');
+				setTitle(startNode, endNode, 'value');
 				return true;
 			};
 			rules['P102-E35'] = function (endNode, link) {
@@ -352,8 +359,48 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 			};
 			rules['P131-E82'] = function (endNode, link) {
 				var startNode = graph.findNode(link.startNode);
-				setTitle(startNode, endNode, 'content');
+				setTitle(startNode, endNode, 'value');
 				return true;
+			};
+			rules['P138-E36'] = function (endNode, link) {
+				graph.removeNode(endNode.id);
+				return true;
+			};
+			rules['P129-E33'] = function (node, link) {
+				waitingForUpdate++;
+				GraphVis.getNodeNeighbours(+node.id).then(function (response) {
+					if(!response.data.results[0]) return;
+					var data = response.data.results[0].data;
+
+					for(var i=0; i<data.length; i++) {
+						var dataNodes = data[i].graph.nodes;
+						var dataLinks = data[i].graph.relationships;
+
+						for(var j=0; j<dataNodes.length; j++) {
+							graph.addNode(dataNodes[j]);
+						}
+						for(var j=0; j<dataLinks.length; j++) {
+							var link = dataLinks[j];
+							var endNodeId = link.startNode === node.id ? link.endNode : link.startNode;
+							var endNode = graph.findNode(endNodeId);
+							callRule(endNode.labels[0], endNode);
+							graph.addLink(link);
+						}
+					}
+
+					var linkP3 = graph.findLinkByType('P3', node);
+
+					if(linkP3) {
+						node.properties.value = linkP3.target.properties.value;
+						graph.removeNode(linkP3.target.id);
+						graph.removeLink(linkP3.id);
+
+						waitingForUpdate--;
+						if(waitingForUpdate === 0) graph.update();
+					}
+				}, function(err) {
+					Utilities.throwApiException('on GraphVis.getNodeNeighbours()', err);
+				});
 			};
 			rules['E65'] = function (node) {
 				waitingForUpdate++;
@@ -381,6 +428,7 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					var linkP94 = graph.findLinkByType('P94', node);
 					var linkP14 = graph.findLinkByType('P14', node);
 					var linkP4 = graph.findLinkByType('P4', node);
+					var linkP7 = graph.findLinkByType('P7', node);
 
 					if(linkP94 && linkP14) {
 						console.log(linkP94, linkP14);
@@ -403,10 +451,21 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 							target: linkP4.target
 						});
 					}
+					if(linkP94 && linkP7) {
+						graph.addLink({
+							id: linkP94.id+linkP7.id,
+							type: 'P7a',
+							startNode: linkP94.target.id,
+							source: linkP94.target,
+							endNode: linkP7.target.id,
+							target: linkP7.target
+						});
+					}
 
 					if(linkP94) graph.removeLink(linkP94.id);
 					if(linkP14) graph.removeLink(linkP14.id);
 					if(linkP4) graph.removeLink(linkP4.id);
+					if(linkP7) graph.removeLink(linkP7.id);
 					graph.removeNode(node.id);
 
 					waitingForUpdate--;
@@ -421,7 +480,7 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 			function getTitle(node, label, property) {
 				waitingForUpdate++;
 				GraphVis.getNodeTitle(node.id, label).then(function (response) {
-					node.properties.title = response.data[property];
+					node.properties.title = response.data[property] || response.data.content;
 					waitingForUpdate--;
 					if(waitingForUpdate === 0) graph.update();
 				}, function (err) {
@@ -429,7 +488,7 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				});
 			}
 			function setTitle(startNode, endNode, property) {
-				startNode.properties.title = endNode.properties[property];
+				startNode.properties.title = endNode.properties[property] || endNode.properties.content;
 				graph.removeNode(endNode.id);
 			}
 		}

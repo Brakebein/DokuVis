@@ -274,7 +274,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		$scope.togglePins = function() {
 			if($scope.screenshotPins.isVisible) {
 				for(var i=0; i<$scope.screenshots.length; i++) {
-					if($scope.screenshots[i].pin)
+					if($scope.screenshots[i].pin.matrix)
 						webglInterface.callFunc.addPin($scope.screenshots[i].id, $scope.screenshots[i].pin);
 				}
 			}

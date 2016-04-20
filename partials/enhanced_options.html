@@ -236,6 +236,10 @@
 			<span class="groupHeader">Messungstypen</span>
 			<button title="Measurement Tool" class="ctrlBtn" ng-class="(activeBtn == 'measure') ? 'active' : ''" ng-click="startMeasuring()"><img src="img/icons/measure.png"/></button>
 		</div>
+		<div class="optionGroup">
+			<span class="groupHeader">Ergebnis</span>
+			Entfernung: {{ measureDistance || 0 | number: 2 }} m
+		</div>
 	</div>
 </div>
 

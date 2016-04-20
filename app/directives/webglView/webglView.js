@@ -91,6 +91,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			// Übernahme aus webglContext
 			var objects = webglContext.objects;
 			var plans = webglContext.plans;
+			var geometries = webglContext.geometries;
 			var materials = webglContext.materials;
 			
 			// Initialisierung des Ganzen
@@ -1280,7 +1281,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			scope.$watch('vizSettings.edges', function(value) {
 				for(var key in objects) {
 					var obj = objects[key];
-					if(obj.visible) {
+					if(obj.visible && obj.edges) {
 						if(value) scene.add(obj.edges);
 						else scene.remove(obj.edges);
 					}
@@ -1308,7 +1309,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				var uncoverObj = ['onlyEdges'].indexOf(currentShading) !== -1;
 				var uncoverEdge = webglInterface.viewportSettings.edges ? ['xray'].indexOf(currentShading) !== -1 : false;
-				if(currentShading === 'Custom') webglInterface.activeCategory = null;
+				if(currentShading === 'Custom') scope.activeCategory = null;
 				currentShading = value;
 				webglInterface.viewportSettings.shadingSel = value;
 				
@@ -1927,17 +1928,26 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				});
 			}
 			
-			webglInterface.callFunc.startMarking = function() {
+			scope.startMarking = function() {
 				scope.setNavigationMode(false);
 				pin = new THREE.Pin(3, 0.5);
 				scene.add(pin);
 				isPinning = true;
+			};
+
+			webglInterface.callFunc.makeScreenshot = function () {
+				var sData = getScreenshot();
+				scope.screenshotCallback(sData);
 			};
 			
 			scope.startMeasuring = function () {
 				scope.setNavigationMode(false);
 				measureTool = new THREE.Measure(2);
 				scene.add(measureTool);
+				measureTool.onComplete = function (distance) {
+					scope.measureDistance = distance;
+					scope.$applyAsync();
+				};
 			};
 			
 			function setGizmoCoords(type, apply) {
@@ -2017,6 +2027,18 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			};
 			
 			scope.setNavigationMode = function(mode) {
+				
+				if(measureTool) {
+					scene.remove(measureTool);
+					measureTool = null;
+				}
+				if(pin) {
+					scene.remove(pin);
+					pin = null;
+					isPinning = false;
+					highlightObject(null);
+				}
+				
 				scope.navigation.select = false;
 				scope.navigation.rotate = false;
 				scope.navigation.pan = false;
@@ -2258,21 +2280,27 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					return defer.promise;
 				}
 				else if(info.type === 'object') {
-					ctmloader.load('data/' + file.path + file.content, ctmHandler, {useWorker: false});
-					defer.resolve();
+					if(geometries[file.content])
+						ctmHandler(geometries[file.content].meshGeo);
+					else
+						ctmloader.load('data/' + file.path + file.content, ctmHandler, {useWorker: false});
+
+					//defer.resolve();
 					return defer.promise;
 				}
 				
 				function ctmHandler(geo) {
 					//defer.resolve();
-					
+
 					geo.computeBoundingBox();
-					//geo.computeFaceNormals();
-					//geo.computeVertexNormals();
-					
-					var isUnsafe = false
-					if(/unsicher/.test(info.name))
-						isUnsafe = true;
+
+					if(!geometries[file.content]) {
+						geo.name = file.content;
+						geometries[file.content] = {meshGeo: geo};
+					}
+					defer.resolve();
+
+					var isUnsafe = /unsicher/.test(info.name);
 					
 					var mesh;
 					if(info.materialId) {
@@ -2293,44 +2321,56 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					// edges
 					var edges = null;
 					
-					
-					if(file.edges) {
-						// lade und entpacke geometry für edges
-						JSZipUtils.getBinaryContent('data/' + file.path + file.edges, function(err, data) {
-							var zip = new JSZip(data);
-							var vobj = JSON.parse(zip.file(file.content + '.json').asText());
-							if(vobj.data.attributes.position.array.length === 0)
-								return;
-							var floatarray = new Float32Array(vobj.data.attributes.position.array);
-							var egeo = new THREE.BufferGeometry();
-							egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
-							edges = new THREE.LineSegments(egeo, materials['edgesMat']);
-							edges.matrix = mesh.matrixWorld;
-							edges.matrixAutoUpdate = false;
-							scene.add(edges);
-							objects[mesh.id].edges = edges;
-						});
-					}
-					else {
-						// wenn noch keine geometry für edges da, berechne und speichere edges
-						edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
+					if (geometries[file.content].edgesGeo) {
+						edges = new THREE.LineSegments(geometries[file.content].edgesGeo, materials['edgesMat']);
 						edges.matrix = mesh.matrixWorld;
 						edges.matrixAutoUpdate = false;
 						scene.add(edges);
-						
-						var zip = new JSZip();
-						zip.file(file.content + '.json', JSON.stringify(edges.geometry.toJSON()));
-						var zipdata = zip.generate({compression:'DEFLATE'});
-						phpRequest.saveGeoToJson(file.path, file.content, zipdata).then(function(response){
-							if(response.data !== 'SUCCESS') {
-								console.error('phpRequest failed on saveGeoToJson()', response.data);
-								return $q.reject();
-							}
-							return neo4jRequest.addEdgesFile($stateParams.project, file.content, file.content+'.zip');
-						}).then(function(response){
-							if(response.data.exception) { console.error('neo4j failed on addEdgesFile()', response); return; }
-							file.edges = file.content+'.zip';
-						});
+					}
+					else {
+						if (file.edges) {
+							// lade und entpacke geometry für edges
+							JSZipUtils.getBinaryContent('data/' + file.path + file.edges, function (err, data) {
+								var zip = new JSZip(data);
+								var vobj = JSON.parse(zip.file(file.content + '.json').asText());
+								if (vobj.data.attributes.position.array.length === 0)
+									return;
+								var floatarray = new Float32Array(vobj.data.attributes.position.array);
+								var egeo = new THREE.BufferGeometry();
+								egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
+								edges = new THREE.LineSegments(egeo, materials['edgesMat']);
+								edges.matrix = mesh.matrixWorld;
+								edges.matrixAutoUpdate = false;
+								scene.add(edges);
+								geometries[file.content].edgesGeo = egeo;
+								objects[mesh.id].edges = edges;
+							});
+						}
+						else {
+							// wenn noch keine geometry für edges da, berechne und speichere edges
+							edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
+							edges.matrix = mesh.matrixWorld;
+							edges.matrixAutoUpdate = false;
+							scene.add(edges);
+							geometries[file.content].edgesGeo = edges.geometry;
+
+							var zip = new JSZip();
+							zip.file(file.content + '.json', JSON.stringify(edges.geometry.toJSON()));
+							var zipdata = zip.generate({compression: 'DEFLATE'});
+							phpRequest.saveGeoToJson(file.path, file.content, zipdata).then(function (response) {
+								if (response.data !== 'SUCCESS') {
+									console.error('phpRequest failed on saveGeoToJson()', response.data);
+									return $q.reject();
+								}
+								return neo4jRequest.addEdgesFile($stateParams.project, file.content, file.content + '.zip');
+							}).then(function (response) {
+								if (response.data.exception) {
+									console.error('neo4j failed on addEdgesFile()', response);
+									return;
+								}
+								file.edges = file.content + '.zip';
+							});
+						}
 					}
 					
 					// scale translation and set scale component
@@ -2342,8 +2382,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					mesh.applyMatrix(mat);
 					//mesh.add(edges);
 					mesh.matrixAutoUpdate = false;
-
-					mesh.geometry.computeBoundingBox();
 					
 					mesh.name = info.content;
 					mesh.userData.name = info.name;
@@ -2534,28 +2572,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 			};
 			
-			// get plan by id and add or remove mesh and edges //DEPRECATED
-			scope.internalCallFunc.showhidePlan = function(id, bool) {
-				var obj = scene.getObjectById(id);
-				if(bool && !obj) {
-					if(scope.shading != shading.EDGE)
-						scene.add(plans[id].mesh);
-					if(scope.shading == shading.COLOR_EDGE || scope.shading == shading.GREY_EDGE || scope.shading == shading.EDGE || scope.shading == shading.TRANSPARENT_EDGE)
-						scene.add(plans[id].edges);
-				}
-				if(!bool) {
-					if(scope.shading != shading.EDGE)
-						scene.remove(obj);
-					if(scope.shading == shading.COLOR_EDGE || scope.shading == shading.GREY_EDGE || scope.shading == shading.EDGE || scope.shading == shading.TRANSPARENT_EDGE)
-						scene.remove(plans[id].edges);
-				}
-				plans[id].visible = bool;
-			}
-			
 			// color all objects by its assigned category attribute
 			webglInterface.callFunc.colorByCategory = function(category) {
 				console.log(category);
 				scope.setShading('Custom');
+				scope.activeCategory = category;
 				for(var i=0; i<category.attributes.length; i++) {
 					if(category.attributes[i].id === 0 || category.attributes[i].id === -1) continue;
 					var cValues = category.attributes[i].color.match(/\d+(\.\d+)?/g);

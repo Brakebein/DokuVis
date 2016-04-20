@@ -3,7 +3,8 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		
 		console.log('sourceDetailCtrl init');
 		$previousState.memo('modalInvoker');
-		
+		$scope.switchable = $state.includes('project.explorer');
+
 		$scope.horizontalImage = false;
 		$scope.pageNr = 0; // für Textdokumente
 		
@@ -172,10 +173,10 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 			this.$hide();
 			this.$destroy();
 
-			if($previousState.get('modalInvoker').state)
+			if($previousState.get('modalInvoker').state && !$state.includes('project.explorer.source'))
 				$previousState.go('modalInvoker');
 			else
-				$state.go('project.explorer');
+				$state.go('^.^');
 		};
 
 		$scope.$on('$destroy', function (event) {

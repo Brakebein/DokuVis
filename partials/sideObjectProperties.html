@@ -44,7 +44,7 @@
 						<td>
 							<select class="form-control input-sm" ng-options="attr.id as attr.value for attr in c.attributes" ng-model="c.selected" ng-change="updateCategoryAttr(c)"></select>
 						</td>
-						<td><i class="glyphicon glyphicon-eye-open" ng-click="wi.visualizeCategory(c)"></i></td>
+						<td><i class="glyphicon glyphicon-eye-open" ng-click="wi.callFunc.colorByCategory(c)"></i></td>
 					</tr>
 				</tbody>
 			</table>

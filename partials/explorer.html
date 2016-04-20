@@ -125,9 +125,9 @@
 			<h4>Screenshots & Kommentare</h4>
 			<hr/>
 			
-			<div class="dropArea screenshot" ng-click="wi.callFunc.startMarking()">
-				<i class="plus fa fa-thumb-tack"></i> <div>Screenshot erstellen</div>
-				<!--<div class="plus" ng-bind-html="plusSign"></div> <div>Screenshot erstellen</div>-->
+			<div class="dropArea screenshot" ng-click="wi.callFunc.makeScreenshot()">
+				<i class="plus fa fa-plus"></i> <div>Screenshot erstellen</div>
+				<!--<div class="plus" ng-include="'img/plus-sign.svg'"></div> <div>Screenshot erstellen</div>-->
 			</div>
 			
 			<div class="checkbox">
@@ -141,7 +141,7 @@
 		<div class="sideContent smallFont">
 		
 		
-			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s)" ng-mouseenter="!screenshotPins.isVisible && wi.callFunc.addPin(s.id,s.pin)" ng-mouseleave="!screenshotPins.isVisible && wi.callFunc.removePin(s.id)">
+			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s)" ng-mouseenter="!screenshotPins.isVisible && s.pin.matrix && wi.callFunc.addPin(s.id,s.pin)" ng-mouseleave="!screenshotPins.isVisible && wi.callFunc.removePin(s.id)">
 				<div class="media-left pull-left">
 					<img class="media-object" ng-src="{{'data/' + s.path + '_thumbs/t_' + s.file}}"/>
 				</div>

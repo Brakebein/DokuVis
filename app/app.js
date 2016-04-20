@@ -144,6 +144,22 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			.state('project.graph.node', {
 				url: '/:startNode'
 			})
+			.state('project.graph.source', {
+				url: '/source',
+				onEnter: function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalLargeTpl.html',
+						contentTemplate: 'partials/modals/sourceDetailModal.html',
+						controller: 'sourceDetailCtrl',
+						show: true
+					});
+				},
+				css: 'style/modals/sourceDetail.min.css',
+				abstract: true
+			})
+			.state('project.graph.source.id', {
+				url: '/:sourceId'
+			})
 			.state('project.config', {
 				url: '/config',
 				templateUrl: 'partials/config.html',

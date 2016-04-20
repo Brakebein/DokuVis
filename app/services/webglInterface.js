@@ -203,13 +203,6 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			item.expand = true;
 			if(item.parent) expandParents(item.parent);
 		}
-		
-		// category
-		wi.visualizeCategory = function(category) {
-			//wi.callFunc.setShading('Custom');
-			wi.callFunc.colorByCategory(category);
-			wi.activeCategory = category;
-		};
 
 		var scrollToListEntry = debounce(function (id) {
 			console.log('anchorScroll called', 'list'+id);
