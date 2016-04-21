@@ -74,6 +74,7 @@
 				</div>
 				<div>
 					<strong>Links</strong>
+					<p ng-show="item.file.link"><a ng-href="{{item.file.link}}" target="_blank">SLUB-Link</a></p>
 					<p><a ng-href="data/{{item.file.path + item.file.name}}" target="_blank">Originaldatei</a></p>
 					<p><a href="" ng-click="enterGraph(item.nId)">Graphensuche</a></p>
 				</div>

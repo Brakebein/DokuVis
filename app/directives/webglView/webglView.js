@@ -709,7 +709,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			
 			function rejectHighlightMat(obj) {
 				obj.material.dispose();
-				obj.material = materials[obj.userData.originalMat];
+				switch(currentShading) {
+					case 'grey':
+						obj.material = materials['defaultDoublesideMat'];
+						break;
+					default:
+						obj.material = materials[obj.userData.originalMat];
+						break;
+				}
 			}
 			
 			// check for intersection of BoundingBoxes
@@ -1309,7 +1316,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				var uncoverObj = ['onlyEdges'].indexOf(currentShading) !== -1;
 				var uncoverEdge = webglInterface.viewportSettings.edges ? ['xray'].indexOf(currentShading) !== -1 : false;
-				if(currentShading === 'Custom') scope.activeCategory = null;
+				if(currentShading === 'Custom') { scope.activeCategory = null; webglInterface.activeCategory = null; }
 				currentShading = value;
 				webglInterface.viewportSettings.shadingSel = value;
 				
@@ -2576,7 +2583,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			webglInterface.callFunc.colorByCategory = function(category) {
 				console.log(category);
 				scope.setShading('Custom');
-				scope.activeCategory = category;
+				scope.activeCategory = category; webglInterface.activeCategory = category;
 				for(var i=0; i<category.attributes.length; i++) {
 					if(category.attributes[i].id === 0 || category.attributes[i].id === -1) continue;
 					var cValues = category.attributes[i].color.match(/\d+(\.\d+)?/g);

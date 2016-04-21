@@ -519,7 +519,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				}
 				webglInterface.categories = cats;
 				if(webglInterface.activeCategory)
-					webglInterface.visualizeCategory(webglInterface.activeCategory);
+					//webglInterface.visualizeCategory(webglInterface.activeCategory);
+					webglInterface.callFunc.colorByCategory(webglInterface.activeCategory);
 				console.log('Categories:', webglInterface.categories);
 			}, function(err) {
 				Utilities.throwApiException('on getAllCategories()', err);
@@ -547,7 +548,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 						delete webglInterface.selected[i].categories[c.id];
 				}
 				if(webglInterface.activeCategory === c)
-					webglInterface.visualizeCategory(c);
+					//webglInterface.visualizeCategory(c);
+					webglInterface.callFunc.colorByCategory(webglInterface.activeCategory);
 			}, function(err) {
 				Utilities.throwApiException('on assignCategoryToObjects()', err);
 			});

@@ -79,7 +79,7 @@ var source = {
 				pname.content AS place, \
 				date.content AS date, \
 				{identifier: archivenr.content, collection: coll.content, institution: inst.content, institutionAbbr: inst.abbr} AS archive, \
-				{name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, \
+				{name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb, link: file.link} AS file, \
 				plan3d.content AS plan3d, \
 				note.value AS note, \
 				repros.value AS repros, \

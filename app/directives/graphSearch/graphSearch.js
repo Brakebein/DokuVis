@@ -226,7 +226,7 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 
 				this.findLinkByType = function (type, startNode) {
 					for(var i in links) {
-						if(links[i].source === startNode && links[i].type === type) return links[i];
+						if((links[i].source === startNode || links[i].target === startNode) && links[i].type === type) return links[i];
 					}
 					return undefined;
 				};
@@ -337,13 +337,27 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 			rules['E31'] = function (node) {
 				getTitle(node, 'E35', 'content');
 			};
+			rules['E40'] = function (node) {
+				getTitle(node, 'E82', 'content');
+			};
 			rules['E52'] = function (node) {
 				getTitle(node, 'E61', 'value');
 			};
 			rules['E53'] = function (node) {
 				getTitle(node, 'E48', 'content');
 			};
+			rules['E78'] = function (node) {
+				getTitle(node, 'E41', 'content');
+			};
+			rules['P1-E41'] = function (endNode, link) {
+				graph.removeNode(endNode.id);
+				return true;
+			};
 			rules['P1-E75'] = function (endNode, link) {
+				graph.removeNode(endNode.id);
+				return true;
+			};
+			rules['P70-E36'] = function (endNode, link) {
 				graph.removeNode(endNode.id);
 				return true;
 			};
@@ -431,7 +445,6 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					var linkP7 = graph.findLinkByType('P7', node);
 
 					if(linkP94 && linkP14) {
-						console.log(linkP94, linkP14);
 						graph.addLink({
 							id: linkP94.id + linkP14.id,
 							type: 'P14a',
@@ -476,6 +489,105 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					Utilities.throwApiException('on GraphVis.getNodeNeighbours()', err);
 				});
 			};
+			rules['E84'] = function (node) {
+				waitingForUpdate++;
+				GraphVis.getNodeNeighbours(+node.id).then(function(response) {
+					if(!response.data.results[0]) return;
+					var data = response.data.results[0].data;
+					console.log(data);
+
+					for(var i=0; i<data.length; i++) {
+						var dataNodes = data[i].graph.nodes;
+						var dataLinks = data[i].graph.relationships;
+
+						for(var j=0; j<dataNodes.length; j++) {
+							graph.addNode(dataNodes[j]);
+						}
+						for(var j=0; j<dataLinks.length; j++) {
+							var link = dataLinks[j];
+							var endNodeId = link.startNode === node.id ? link.endNode : link.startNode;
+							var endNode = graph.findNode(endNodeId);
+							callRule(endNode.labels[0], endNode);
+							graph.addLink(link);
+						}
+					}
+
+					var linkP128 = graph.findLinkByType('P128', node);
+					var linkP46 = graph.findLinkByType('P46', node);
+
+					if(linkP128 && linkP46) {
+						graph.addLink({
+							id: linkP128.id + linkP46.id,
+							type: 'P128a',
+							startNode: linkP128.target.id,
+							source: linkP128.target,
+							endNode: linkP46.source.id,
+							target: linkP46.source
+						});
+					}
+
+					if(linkP128) graph.removeLink(linkP128.id);
+					if(linkP46) graph.removeLink(linkP46.id);
+					graph.removeNode(node.id);
+
+					waitingForUpdate--;
+					if(waitingForUpdate === 0) graph.update();
+
+					console.log(graph.getData());
+				}, function(err) {
+					Utilities.throwApiException('on GraphVis.getNodeNeighbours()', err);
+				});
+			};
+			rules['P70-E33'] = function (node) {
+				waitingForUpdate++;
+				GraphVis.getNodeNeighbours(+node.id).then(function(response) {
+					if(!response.data.results[0]) return;
+					var data = response.data.results[0].data;
+					console.log(data);
+
+					for(var i=0; i<data.length; i++) {
+						var dataNodes = data[i].graph.nodes;
+						var dataLinks = data[i].graph.relationships;
+
+						for(var j=0; j<dataNodes.length; j++) {
+							graph.addNode(dataNodes[j]);
+						}
+						for(var j=0; j<dataLinks.length; j++) {
+							var link = dataLinks[j];
+							var endNodeId = link.startNode === node.id ? link.endNode : link.startNode;
+							var endNode = graph.findNode(endNodeId);
+							callRule(endNode.labels[0], endNode);
+							graph.addLink(link);
+						}
+					}
+
+					var linkP70 = graph.findLinkByType('P70', node);
+					var linkP72 = graph.findLinkByType('P72', node);
+
+					if(linkP70 && linkP72) {
+						graph.addLink({
+							id: linkP70.id + linkP72.id,
+							type: 'P72a',
+							startNode: linkP70.source.id,
+							source: linkP70.source,
+							endNode: linkP72.target.id,
+							target: linkP72.target
+						});
+					}
+
+					if(linkP70) graph.removeLink(linkP70.id);
+					if(linkP72) graph.removeLink(linkP72.id);
+					graph.removeNode(node.id);
+
+					waitingForUpdate--;
+					if(waitingForUpdate === 0) graph.update();
+
+					console.log(graph.getData());
+				}, function(err) {
+					Utilities.throwApiException('on GraphVis.getNodeNeighbours()', err);
+				});
+			};
+
 
 			function getTitle(node, label, property) {
 				waitingForUpdate++;
