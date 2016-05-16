@@ -4,7 +4,7 @@ var neo4j = require('../neo4j-request');
 
 var models = {
 	
-	getTree: function(req, res) {
+	getTree: function (req, res) {
 		var prj = req.params.id;
 		var subprj = req.params.subprj;
 		var q = 'MATCH (root:E22:'+prj+' {content:{esub}}), (tsp:E55:'+prj+' {content:"subproject"}), (tcat:E55:'+prj+' {content:"category"}),';
@@ -46,8 +46,71 @@ var models = {
 			});		
 		
 	},
+
+	insert: function (req, res) {
+		var prj = req.params.id;
+		var subprj = req.params.subprj;
+		var formData = req.body.formData;
+		var statements = [];
+
+		for(var i=0, l=req.body.objDatas.length; i<l; i++) {
+			var objData = req.body.objDatas[i];
+
+			var q = 'MATCH (tmodel:E55:' + prj + ' {content: "model"})';
+			if (!objData.parentid)
+				q += ', (parent:E22:' + prj + ' {content: "e22_root_"+{subprj}})';
+			else
+				q += ' MERGE (parent:E22:' + prj + ' {content: {parentid}})';
+
+			q += ' MERGE (e22:E22:' + prj + ' {content: "e22_"+{contentid}})';
+			q += ' MERGE (parent)-[:P46]->(e22)';
+
+			q += ' CREATE (e22)<-[:P138]-(e36:E36:' + prj + ' {content: "e36_"+{contentid}})-[:P2]->(tmodel)';
+			q += ' MERGE (e75:E75:' + prj + ' {content:{e75content}.content})';
+			q += ' ON CREATE SET e75 = {e75content}';
+			q += ' CREATE (e73:E73:' + prj + ' {e73content})-[:P1]->(e75)';
+			q += ' CREATE (e36)-[:P106]->(e73)';
+
+			q += ' RETURN e22.content';
+
+			var params = {
+				subprj: subprj,
+				contentid: formData.tid + '_' + objData.id.replace(/ /g, "_"),
+				parentid: objData.parentid ? 'e22_' + formData.tid + '_' + objData.parentid.replace(/ /g, "_") : '',
+				e73content: {
+				content: 'e73_' + formData.tid + '_' + objData.id.replace(/ /g, "_"),
+					id: objData.id,
+					name: objData.name,
+					type: objData.type,
+					layer: objData.layer,
+					materialId: objData.material ? objData.material.id : '',
+					materialName: objData.material ? objData.material.name : '',
+					materialColor: objData.material ? objData.material.color : '',
+					unit: objData.unit,
+					upAxis: objData.upAxis,
+					matrix: objData.matrix
+				},
+				e75content: {
+					content: objData.geometryUrl.length > 0 ? formData.tid + '_' + objData.geometryUrl.replace(/ /g, "_") + '.ctm' : formData.newFileName ,
+					path: formData.path,
+					type: formData.fileType,
+					original: formData.newFileName,
+					geometryId: objData.geometryUrl
+				}
+			};
+
+			statements.push({ statement: q, parameters: params });
+		}
+
+		neo4j.transaction(statements).then(function (response) {
+			if(response.exception) { utils.error.neo4j(res, response, '#models.insert'); return; }
+			res.json(response);
+		}).catch(function(err) {
+			utils.error.neo4j(res, err, '#cypher');
+		});
+	},
 	
-	assignCategory: function(req, res) {
+	assignCategory: function (req, res) {
 		var prj = req.params.id;
 		var q = 'MATCH (attrNew:E55:'+prj+' {content: {attrId}})-[:P127]->(cat:E55)-[:P127]->(:E55 {content: "category"}), \
 			(e73:E73:'+prj+')<-[:P106]-(:E36)-[:P138]->(e22:E22) \

@@ -13,6 +13,7 @@ angular.module('dokuvisApp').factory('webglContext',
 		
 		wc.objects = {};
 		wc.plans = {};
+		wc.geometries = {};
 		
 		// Camera
 		wc.camera = new THREE.CombinedCamera(initWidth, initHeight, 35, 0.1, FAR, 0.1, FAR);
@@ -134,10 +135,10 @@ angular.module('dokuvisApp').factory('webglContext',
 			depthWrite: false,
 			depthTest: false,
 			uniforms: {
-				"ambient":{type:"f",value:0.05},
-				"edgefalloff":{type:"f",value:0.3},
-				"intensity":{type:"f",value:1.5},
-				"vColor":{type:"c",value:new THREE.Color(selectionColor)} },
+				"ambient": { type: "f", value: 0.05 },
+				"edgefalloff": {type: "f", value: 0.3 },
+				"intensity": {type: "f", value: 1.5},
+				"vColor": {type: "c" , value: new THREE.Color(selectionColor) } },
 			vertexShader: THREE.XRayShader.vertexShader,
 			fragmentShader: THREE.XRayShader.fragmentShader });
 		
@@ -148,6 +149,9 @@ angular.module('dokuvisApp').factory('webglContext',
 		wc.materials['edgesSelectionMat'] = new THREE.LineBasicMaterial({
 			name: 'edgesSelectionMat',
 			color: selectionColor });
+		wc.materials['edgesHighlightMat'] = new THREE.LineBasicMaterial({
+			name: 'edgesHighlightMat',
+			color: 0xffff44 });
 			
 		// slice mat
 		wc.materials['invisibleMat'] = new THREE.MeshLambertMaterial({color: 0xdddddd, visible: false, name: 'invisibleMat'});

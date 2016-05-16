@@ -6,32 +6,7 @@
 	
 	<!-- Kontrollleiste über Viewport -->
 	<!--<div class="viewportCtrls">
-		
-		<!-- Buttons -> auf Objekt fokusieren --
-		<div class="ctrlGroup">
-			<button title="Focus All" class="ctrlBtn" ng-class="(activeBtn == 'zoom_all') ? 'active' : ''" ng-click="callDirFunc.focusAll()" ng-mousedown="activeBtn = 'zoom_all'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_all.png"/></button>
-			<button title="Focus Selection" class="ctrlBtn" ng-class="(activeBtn == 'zoom_sel') ? 'active' : ''"  ng-click="callDirFunc.focusSelected()" ng-mousedown="activeBtn = 'zoom_sel'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_sel.png"/></button>
-		</div>
-		
-		<!-- Dropdown-Liste Rendermode und Kamera --
-		<div class="ctrlGroup form-inline">
-			<select class="form-control input-sm" ng-model="shadingOption" ng-init="shadingOption = 'color+edges'">
-				<option value="color+edges">color + edges</option>
-				<option value="color-edges">color without edges</option>
-				<option value="grey+edges">grey + edges</option>
-				<option value="transparent+edges">transparent + edges</option>
-				<option value="edges">only edges</option>
-				<!--<option value="color+wireframe">color + wireframe</option>--
-				<option value="wireframe">only wireframe</option>
-			</select>
-			<select class="form-control input-sm" ng-model="cameraOption" ng-init="cameraOption = 'perspective'">
-				<option value="perspective">Perspective</option>
-				<option value="top">Top</option>
-				<option value="front">Front</option>
-				<option value="left">Left</option>
-			</select>
-		</div>
-		
+
 		<!-- MessTool-Button --
 		<div class="ctrlGroup">
 			<button title="Measurement Tool" class="ctrlBtn" ng-class="(activeBtn == 'measure') ? 'active' : ''" ng-click="ctrlBtnClick('measure')"><img src="img/icons/measure.png"/></button>
@@ -126,7 +101,7 @@
 				
 				<h5>Plans</h5>
 				
-				<div class="listItem" ng-class="{selected: data.selected}" ng-repeat="data in wi.plans">
+				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="data in wi.plans">
 					<span class="glyphicon toggle" ng-class="data.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="data.toggle()"></span>
 					<div class="expand"></div>
 					<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
@@ -150,9 +125,9 @@
 			<h4>Screenshots & Kommentare</h4>
 			<hr/>
 			
-			<div class="dropArea screenshot" ng-click="wi.callFunc.startMarking()">
-				<i class="plus fa fa-thumb-tack"></i> <div>Screenshot erstellen</div>
-				<!--<div class="plus" ng-bind-html="plusSign"></div> <div>Screenshot erstellen</div>-->
+			<div class="dropArea screenshot" ng-click="wi.callFunc.makeScreenshot()">
+				<i class="plus fa fa-plus"></i> <div>Screenshot erstellen</div>
+				<!--<div class="plus" ng-include="'img/plus-sign.svg'"></div> <div>Screenshot erstellen</div>-->
 			</div>
 			
 			<div class="checkbox">
@@ -166,7 +141,7 @@
 		<div class="sideContent smallFont">
 		
 		
-			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s)" ng-mouseenter="!screenshotPins.isVisible && wi.callFunc.addPin(s.id,s.pin)" ng-mouseleave="!screenshotPins.isVisible && wi.callFunc.removePin(s.id)">
+			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s)" ng-mouseenter="!screenshotPins.isVisible && s.pin.matrix && wi.callFunc.addPin(s.id,s.pin)" ng-mouseleave="!screenshotPins.isVisible && wi.callFunc.removePin(s.id)">
 				<div class="media-left pull-left">
 					<img class="media-object" ng-src="{{'data/' + s.path + '_thumbs/t_' + s.file}}"/>
 				</div>
@@ -291,8 +266,10 @@
 					<div class="btnBar">
 						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid })"><span class="glyphicon glyphicon-zoom-in"></span></a>
 						<!--<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>-->
-						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
+						<a ng-ifw="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
 						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
+						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><span class="fa fa-link"></span></a>
+						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><span class="fa fa-lightbulb-o"></span></a>
 					</div>
 				</div>
 			</div>
@@ -309,9 +286,6 @@
 	<div class="debugBtns">
 		<button ng-click="loadModelsWithChildren()">load MWC</button>
 		<button ng-click="openInsertForm('model')">upload model</button>
-		<button ng-click="getIndex()">get index</button>
-		<button ng-click="indexDocuments()">index</button>
-		<button ng-click="searchText('Vestibül')">search</button>
 		<button ng-click="openIndexEdit()">index modal</button>
 		
 		<button ng-click="resizerValue = 800">resizerAnim</button>

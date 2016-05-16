@@ -1,0 +1,57 @@
+.indexEdit
+	position: relative
+	display: flex
+	overflow: hidden
+
+	.swapbtn
+		flex: 0 0 100px
+
+	.blacklist,
+	.whitelist
+		flex: 1 1 200px
+		margin: 10px 15px
+		display: flex
+		flex-direction: column
+
+		&>.caption
+			flex: 0 0 auto
+
+		&>.list
+			flex: 1 1 auto
+			border: 1px solid #ddd
+			border-radius: 3px
+			overflow-y: scroll
+
+	ul
+		list-style-type: none
+		padding: 0
+		position: relative
+
+		&>li
+			padding: 0 10px
+			line-height: 24px
+			cursor: pointer
+			transition: background-color 0.1s, opacity linear 0.2s, max-height linear 0.2s
+
+			&:hover
+				background-color: #ddd
+
+			&.ng-enter-active,
+			&.ng-leave
+				opacity: 1
+				max-height: 25px
+
+			&.ng-enter,
+			&.ng-leave-active
+				opacity: 0
+				max-height: 0
+
+			&.ng-enter,
+			&.ng-leave-active
+				opacity: 0
+				max-height: 0
+
+			&.ng-enter-active,
+			&.ng-leave
+				opacity: 1
+				max-height: 25px

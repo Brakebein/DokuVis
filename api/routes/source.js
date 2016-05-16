@@ -3,7 +3,7 @@ var neo4j = require('../neo4j-request');
 
 var source = {
 	
-	getAll: function(req, res) {
+	getAll: function (req, res) {
 		var prj = req.params.id;
 		var subprj = req.params.subprj;
 		var q = 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}), \
@@ -17,7 +17,8 @@ var source = {
 			OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61) \
 			OPTIONAL MATCH (e31)-[:P48]->(archivenr:E42) \
 			OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36) \
-			OPTIONAL MATCH (e31)-[:P3]->(note:E62) \
+			OPTIONAL MATCH (e31)-[:P3]->(note:E62)-[:P3_1]->({content: "sourceComment"}) \
+			OPTIONAL MATCH (e31)-[:P3]->(repros:E62)-[:P3_1]->({content: "sourceRepros"}) \
 			OPTIONAL MATCH (e31)<-[:P128]-(:E84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41), \
 				(e78)-[:P52]->(:E40)-[:P131]->(inst:E82) \
 			OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG) \
@@ -33,6 +34,7 @@ var source = {
 				{name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, \
 				plan3d.content AS plan3d, \
 				note.value AS note, \
+				repros.value AS repros, \
 				collect(tag.content) as tags, \
 				count(ce33) AS commentLength';
 		var params = {
@@ -49,7 +51,7 @@ var source = {
 			});
 	},
 
-	get: function(req, res) {
+	get: function (req, res) {
 		var prj = req.params.id;
 		var subprj = req.params.subprj;
 		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}), \
@@ -62,7 +64,8 @@ var source = {
 			OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61) \
 			OPTIONAL MATCH (e31)-[:P48]->(archivenr:E42) \
 			OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36) \
-			OPTIONAL MATCH (e31)-[:P3]->(note:E62) \
+			OPTIONAL MATCH (e31)-[:P3]->(note:E62)-[:P3_1]->({content: "sourceComment"}) \
+			OPTIONAL MATCH (e31)-[:P3]->(repros:E62)-[:P3_1]->({content: "sourceRepros"}) \
 			OPTIONAL MATCH (e31)<-[:P128]-(:E84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41), \
 				(e78)-[:P52]->(:E40)-[:P131]->(inst:E82) \
 			OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG) \
@@ -76,9 +79,10 @@ var source = {
 				pname.content AS place, \
 				date.content AS date, \
 				{identifier: archivenr.content, collection: coll.content, institution: inst.content, institutionAbbr: inst.abbr} AS archive, \
-				{name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb} AS file, \
+				{name: file.content, path: file.path, display: file.contentDisplay, thumb: file.thumb, link: file.link} AS file, \
 				plan3d.content AS plan3d, \
 				note.value AS note, \
+				repros.value AS repros, \
 				collect(tag.content) as tags, \
 				count(ce33) AS commentLength';
 		var params = {
@@ -89,11 +93,51 @@ var source = {
 		//neo4j.cypher(q, params)
 		neo4j.transaction([{statement: q, parameters: params}])
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#source.getAll'); return; }
-				if(neo4j.extractTransactionData(response.results[0]).length)
-					res.json(neo4j.extractTransactionData(response.results[0])[0]);
+				if(response.exception) { utils.error.neo4j(res, response, '#source.get'); return; }
+				var results = neo4j.extractTransactionData(response.results[0]);
+				if(results.length)
+					res.json(results[0]);
 				else
 					res.json(null);
+			}).catch(function(err) {
+			utils.error.neo4j(res, err, '#cypher');
+		});
+	},
+
+	createConnections: function (req, res) {
+		var prj = req.params.id;
+		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36), \
+			(e73:E73:'+prj+')<-[:P106]-(:E36)-[:P138]->(e22:E22) \
+			WHERE e73.content IN {targets} \
+			MERGE (e36)-[r:P138]->(e22) \
+			RETURN count(r) AS count';
+		var params = {
+			sourceId: req.params.sourceId,
+			targets: req.body.targets
+		};
+
+		neo4j.transaction([{statement: q, parameters: params}])
+			.then(function(response) {
+				if(response.exception) { utils.error.neo4j(res, response, '#source.createConnections'); return; }
+				res.json(neo4j.extractTransactionData(response.results[0])[0]);
+			}).catch(function(err) {
+			utils.error.neo4j(res, err, '#cypher');
+		});
+	},
+
+	getConnections: function (req, res) {
+		var prj = req.params.id;
+		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(:E36)-[:P138]->(:E22)<-[:P138]-(e36:E36)-[:P2]->(:E55 {content: "model"}), \
+			(e36)-[:P106]->(e73:E73) \
+			RETURN e73.content AS meshId';
+		var params = {
+			sourceId: req.params.sourceId
+		};
+
+		neo4j.transaction([{statement: q, parameters: params}])
+			.then(function(response) {
+				if(response.exception) { utils.error.neo4j(res, response, '#source.getConnections'); return; }
+				res.json(neo4j.extractTransactionData(response.results[0]));
 			}).catch(function(err) {
 			utils.error.neo4j(res, err, '#cypher');
 		});

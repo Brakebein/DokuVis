@@ -1,7 +1,7 @@
 // responsible for checking the user status
-dokuvisApp.factory('AuthenticationFactory',
+angular.module('dokuvisApp').factory('AuthenticationFactory',
 	function($window) {
-		var auth = {
+		return {
 			isLogged: false,
 			check: function() {
 				if($window.localStorage.token && $window.localStorage.user) {
@@ -12,12 +12,11 @@ dokuvisApp.factory('AuthenticationFactory',
 					delete this.user;
 				}
 			}
-		}
-		return auth;
-	});
+		};
+	})
 
 // responsible for contacting the login endpoint and validating the user (and logging out the user)	
-dokuvisApp.factory('UserAuthFactory',
+.factory('UserAuthFactory',
 	function($window, $state, $http, AuthenticationFactory, API) {
 		return {
 			login: function(email, password) {
@@ -52,10 +51,10 @@ dokuvisApp.factory('UserAuthFactory',
 				return $http.get(API + 'auth/checkJWT');
 			}
 		};
-	});
+	})
 	
 // responsible for sending in the access token and the key along with each request to the server
-dokuvisApp.factory('TokenInterceptor',
+.factory('TokenInterceptor',
 	function($q, $window) {
 		return {
 			request: function(config) {

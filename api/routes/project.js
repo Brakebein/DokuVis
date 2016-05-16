@@ -116,6 +116,7 @@ var projects = {
 				(tsource)<-[:P127]-(ttext), \
 				(tprime:E55:'+prj+' {content:"primarySource"}), \
 				(tsins:E55:'+prj+' {content:"sourceInsertion"}), \
+				(tsrepros:E55:'+prj+' {content:"sourceRepros"}), \
 				(tscomment:E55:'+prj+' {content:"sourceComment"}), '
 				// screenshot
 			  + '(tscreen:E55:'+prj+' {content:"screenshot"}),\

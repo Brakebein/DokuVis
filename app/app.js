@@ -5,6 +5,7 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'ct.ui.router.extras.previous',
 	'ngAnimate',
 	'ngSanitize',
+	'debounce',
 	'autocomplete',
 	'truncate',
 	'xeditable',
@@ -90,9 +91,8 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				css: [
 					'style/explorer.css',
 					'style/panelContainer.css',
-					'style/modals/insertSource.css',
 					'style/modals/screenshotDetail.min.css',
-					'style/modals/indexEdit.css',
+					'style/modals/indexEdit.min.css',
 					'style/modals/categoryEdit.css'
 				]
 			})
@@ -112,6 +112,25 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			.state('project.explorer.source.id', {
 				url: '/:sourceId'
 			})
+			.state('project.explorer.upload', {
+				url: '/upload',
+				onEnter: function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalLargeTpl.html',
+						contentTemplate: 'partials/modals/uploadModal.html',
+						controller: 'uploadCtrl',
+						show: true
+					});
+				},
+				css: 'style/modals/upload.min.css',
+				abstract: true
+			})
+			.state('project.explorer.upload.type', {
+				url: '/:uploadType',
+				params: {
+					attachTo: null
+				}
+			})
 			.state('project.tasks', {
 				url: '/tasks',
 				templateUrl: 'partials/tasks.html',
@@ -125,11 +144,21 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			.state('project.graph.node', {
 				url: '/:startNode'
 			})
-			.state('project.test', {
-				url: '/test',
-				templateUrl: 'partials/test.html',
-				controller: 'testCtrl',
-				css: 'style/test.css'
+			.state('project.graph.source', {
+				url: '/source',
+				onEnter: function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalLargeTpl.html',
+						contentTemplate: 'partials/modals/sourceDetailModal.html',
+						controller: 'sourceDetailCtrl',
+						show: true
+					});
+				},
+				css: 'style/modals/sourceDetail.min.css',
+				abstract: true
+			})
+			.state('project.graph.source.id', {
+				url: '/:sourceId'
 			})
 			.state('project.config', {
 				url: '/config',

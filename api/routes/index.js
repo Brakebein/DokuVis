@@ -31,6 +31,7 @@ router.delete('/auth/project/:id', project.delete);
 
 // models
 router.get('/auth/project/:id/:subprj/models', models.getTree);
+router.post('/auth/project/:id/:subprj/models', models.insert);
 router.post('/auth/project/:id/:subprj/assignCategory', models.assignCategory);
 
 // categories
@@ -45,6 +46,8 @@ router.delete('/auth/project/:id/category/:cid/attribute/:aid', category.deleteA
 // sources
 router.get('/auth/project/:id/:subprj/sources', source.getAll);
 router.get('/auth/project/:id/:subprj/source/:sourceId', source.get);
+router.get('/auth/project/:id/:subprj/source/:sourceId/connect', source.getConnections);
+router.post('/auth/project/:id/:subprj/source/:sourceId/connect', source.createConnections);
 
 // comments
 router.post('/auth/project/:id/comment', comment.create);

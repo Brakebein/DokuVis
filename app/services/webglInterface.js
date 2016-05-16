@@ -1,6 +1,6 @@
 // Schnittstelle zwischen Three.js-Scope und Seite
-angular.module('dokuvisApp').factory('webglInterface',
-	function($rootScope) {
+angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorScroll', 'debounce',
+	function($rootScope, $anchorScroll, debounce) {
 		
 		var wi = {};
 		
@@ -14,17 +14,26 @@ angular.module('dokuvisApp').factory('webglInterface',
 		wi.viewportSettings.edges = true;
 		wi.viewportSettings.camera = ['Perspective', 'Top', 'Front', 'Back', 'Left', 'Right', 'Custom'];
 		wi.viewportSettings.cameraSel = wi.viewportSettings.camera[0];
+		wi.viewportSettings.ssao = 'aa';
 		
 		wi.unsafeSettings = {};
 		
 		wi.categories = [];
-		wi.activeCategory;
+		wi.activeCategory = null;
+		
+		wi.vPanel = {};
+		wi.vPanel.expand = false;
+		wi.vPanel.tab = 'display';
+		wi.vPanel.openTab = function (value) {
+			if(wi.vPanel.tab === value) wi.vPanel.tab = '';
+			else wi.vPanel.tab = value;
+		};
 		
 		wi.vizSettings = {};
 		wi.vizSettings.opacitySelected = 100;
 		wi.vizSettings.edges = true;
 		wi.vizSettings.edgesOpacity = 100;
-		wi.vizSettings.edgesColor = 100
+		wi.vizSettings.edgesColor = 100;
 		
 		// Listen
 		wi.objects = [];
@@ -174,6 +183,9 @@ angular.module('dokuvisApp').factory('webglInterface',
 				item.selected = true;
 				wi.selected.push(userData);
 				if(item.parent) expandParents(item.parent);
+				//$anchorScroll.yOffset = 200;
+				scrollToListEntry(item.id);
+
 				$rootScope.$applyAsync();
 			}
 		};
@@ -191,15 +203,13 @@ angular.module('dokuvisApp').factory('webglInterface',
 			item.expand = true;
 			if(item.parent) expandParents(item.parent);
 		}
-		
-		// category
-		wi.visualizeCategory = function(category) {
-			wi.callFunc.setShading('Custom');
-			wi.callFunc.colorByCategory(category);
-			wi.activeCategory = category;
-		};
+
+		var scrollToListEntry = debounce(function (id) {
+			console.log('anchorScroll called', 'list'+id);
+			$anchorScroll('list'+id);
+		}, 200, true);
 		
 		return wi;
 		
-	});
+	}]);
 	

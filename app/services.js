@@ -797,15 +797,6 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		requests.connectPlanToObj = function(plan, obj) {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (e31:E31 {content:"e31_'+plan+'"}),'
-					+' (e22:E22 {content:"e22_'+obj+'"})'
-					+' MERGE (e31)-[:P70]->(e22)',
-				params: {}
-			});
-		};
-		
 		requests.getPlansFromObject = function(obj) {
 			return $http.post(cypherUrl, {
 				query: 'MATCH (:E22 {content:"'+obj+'"})<-[:P70]-(e31:E31)-[:P1]->(jpg:E75),'
@@ -813,14 +804,6 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 					+' (e31)-[:P102]->(title:E35),'
 					+' (e31)<-[:P94]-(:E65)-[:P14]->(e21)-[:P131]->(author:E82)'
 					+' RETURN e31.content AS eid, jpg.content AS jpg, obj.content AS obj, title.content AS title, author.content AS author',
-				params: {}
-			});
-		};
-		
-		requests.getObjFromPlan = function(plan) {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (:E31 {content:"'+plan+'"})-[:P70]->(e22:E22)'
-					+' RETURN e22.content AS eid',
 				params: {}
 			});
 		};
@@ -967,6 +950,8 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 			var q = '';
 			q += 'MATCH (e55:E55:'+prj+' {content: {sourceType}})';
 			q += ', (esub:E7:'+prj+' {content: {subprj}})';
+			q += ', (sc:E55:'+prj+' {content: "sourceComment"})';
+			q += ', (sr:E55:'+prj+' {content: "sourceRepros"})';
 			if(formData.archive.length > 0) {
 				q += ', (e78:E78:'+prj+' {content: {archive}})';
 			}
@@ -1018,7 +1003,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				q += ' CREATE (e61)<-[:P82]-(e52:E52:'+prj+' {content: "e52_e65_e31_"+{newFileName}})<-[:P4]-(e65)';
 			}
 			if(formData.comment.length > 0) {
-				q += ' CREATE (e31)-[:P3]->(e62:E62:'+prj+' {content: "'+ts+'_e31_"+{newFileName}, value: {comment}})';
+				q += ' CREATE (e31)-[:P3]->(:E62:'+prj+' {content: "'+ts+'_e31_note_"+{newFileName}, value: {comment}})-[:P3_1]->(sc)';
+			}
+			if(formData.repros.length > 0) {
+				q += ' CREATE (e31)-[:P3]->(:E62:'+prj+' {content: "'+ts+'e31_repros_"+{newFileName}, value: {repros}})-[:P3_1]->(sr)';
 			}
 			for(var i=0; i<formData.tags.length; i++) {
 				q += ' MERGE (tag'+i+':TAG:'+prj+' {content: "'+formData.tags[i].text+'"})';

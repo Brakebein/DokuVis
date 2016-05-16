@@ -12,8 +12,8 @@
 			<div class="value">{{ value }}</div>
 		</div>
 	</div>
-	<div>
+	<div ng-show="selectedNode.labels.indexOf('E31') > -1">
 		<strong>Link:</strong>
-		<a ui-sref="project.explorer.source.id({ sourceId: selectedNode.properties.content })">zur Quelle</a>
+		<a ui-sref="project.graph.source.id({ sourceId: selectedNode.properties.content })">zur Quelle</a>
 	</div>
 </div>

@@ -13,7 +13,8 @@ div[graph-search] {
     div[graph-search] .node:hover circle {
       stroke: #f00; }
     div[graph-search] .node.fixed circle {
-      stroke: #c0c; }
+      stroke: #fc4e2a;
+      stroke-width: 3px; }
     div[graph-search] .node text.title {
       fill: blue; }
     div[graph-search] .node text.shadow {
