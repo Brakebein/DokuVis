@@ -1,7 +1,4 @@
 var dokuvisApp = angular.module('dokuvisApp', [
-	'webglControllers',
-	'webglDirectives',
-	'webglServices',
 	'ui.router',
 	'ui.router.css',
 	'ct.ui.router.extras.sticky',
@@ -18,6 +15,24 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'textAngular',
 	'ngTagsInput',
 	'minicolors',
+	'urish',
+	'uiSlider',
+	'angularFileUpload',
+	'pw.canvas-painter',
+	'gantt',
+	'gantt.table',
+	'gantt.movable',
+	'gantt.tooltips',
+	'gantt.labels',
+	'gantt.sortable',
+	'gantt.drawtask',
+	'gantt.bounds',
+	'gantt.progress',
+	'gantt.tree',
+	'gantt.groups',
+	'gantt.overlap',
+	'gantt.resizeSensor',
+	'ang-drag-drop'
 ]);
 
 dokuvisApp.constant('API', 'api/');

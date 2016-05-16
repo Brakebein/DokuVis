@@ -183,7 +183,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 				//title: 'Source Detail',
 				templateUrl: 'partials/modals/_modalTpl.html',
 				contentTemplate: 'partials/modals/screenshotDetailModal.html',
-				controller: 'screenshotDetailCtrl',
+				controller: 'screenshotCtrl',
 				scope: $scope,
 				show: true
 			});
@@ -286,7 +286,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 				//console.log($scope.models);
 				//console.log(data, status);
 				if(!data) { console.error('neo4jRequest failed'); return; }
-				var edata = extractData(data)[0];
+				var edata = Utilities.extractNeo4jData(data)[0];
 				console.log(edata);
 				
 				plan.plan3d = $scope.callDirFunc.loadCTMPlanIntoScene(plan.plan3d, edata.object, edata.file);
@@ -297,7 +297,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 		$scope.getPlansForObj = function() {
 			neo4jRequest.getPlansFromObject($scope.selected.eid).success(function(data, status){
 				
-				$scope.sourceResults = cleanData(data);
+				$scope.sourceResults = Utilities.cleanNeo4jData(data);
 				console.log($scope.sourceResults);
 				
 				/*for(var i=0; i<files.length; i++) {
@@ -309,7 +309,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 		$scope.highlightObj = function(eid) {
 			neo4jRequest.getObjFromPlan(eid).success(function(data, status){
 			
-				var files = cleanData(data);
+				var files = Utilities.cleanNeo4jData(data);
 				console.log(files);
 				
 				for(var i=0; i<files.length; i++) {
@@ -424,7 +424,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$stateParams
 		$scope.loadModels = function() {
 			neo4jRequest.getAllModels($scope.project).success(function(data, status){
 				//console.log(data);
-				var models = extractData(data);
+				var models = Utilities.extractNeo4jData(data);
 				console.log(models);
 				
 				for(var i=0, l=models.length; i<l; i++) {

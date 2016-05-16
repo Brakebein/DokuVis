@@ -1,4 +1,4 @@
-webglControllers.controller('sourceDetailCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$http', 'Utilities', 'Source', 'Comment', '$timeout',
+angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$http', 'Utilities', 'Source', 'Comment', '$timeout',
 	function($scope, $state, $stateParams, $previousState, $http, Utilities, Source, Comment, $timeout) {
 		
 		console.log('sourceDetailCtrl init');
