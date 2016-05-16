@@ -108,6 +108,61 @@
 	padding-bottom: 20px;
 }
 
+.fa-flag#colHead{
+	opacity: 1;
+}
+
+.fa-flag#colHead:hover{
+	cursor:pointer;
+}
+
+.fa-flag#highPriority{
+	color: red;
+	opacity: 0.5;
+	-webkit-text-stroke-width: 0.5px;
+    -webkit-text-stroke-color: black;
+}
+
+.fa-flag#mediumPriority{
+	color: #ffbe37;
+	opacity: 0.5;
+	-webkit-text-stroke-width: 0.5px;
+    -webkit-text-stroke-color: black;
+}
+
+.fa-flag#lowPriority{
+	color: yellow;
+	opacity: 0.5;
+	-webkit-text-stroke-width: 0.5px;
+    -webkit-text-stroke-color: black;
+}
+
+.fa-flag#highPriority:hover{
+	cursor: pointer;
+	opacity: 1.0;
+
+}
+
+.fa-flag#mediumPriority:hover{
+	cursor: pointer;
+	opacity: 1.0;
+}
+
+.fa-flag#lowPriority:hover{
+	cursor: pointer;
+	opacity: 1.0;
+}
+
+.fa-exclamation{
+	opacity: 0.75;
+}
+
+.fa-exclamation:hover{
+	cursor: pointer;
+	opacity: 1.0;
+}
+
+
 .fa-exclamation#colHead{
 	opacity: 1;
 }
@@ -235,16 +290,49 @@
 	opacity: 1.0;
 }
 
+.glyphicon-file {
+	opacity: 0.5;
+}
+.glyphicon-file:hover {
+	cursor: pointer;
+	opacity: 1;
+}
+
+.glyphicon-folder-open{
+	cursor: pointer;
+	opacity: 0.5;
+}
+
+.glyphicon-folder-open:hover{
+	cursor: pointer;
+	opacity:1;
+}
+
+.fa-envelope{
+	color: red;
+	opacity: 0.5;
+}
+
+.fa-envelope:hover{
+	cursor: pointer;
+	opacity: 1.0;
+}
+
 .odd {
-  color: red;
+  color: black;
 }
 .even {
-  color: blue;
+  color: black;
+}
+
+.tasksLeft .project{
+	height: 10px;
+	margin-left: 20px;
 }
 
 .tasksLeft .overview{
 	height: 40px;
-	margin: 20px;
+	margin-left: 20px;
 }
 
 .tasksLeft .overview #title{
@@ -281,12 +369,12 @@
 
 .tasksLeft .optionsHeader #from{
 	position: absolute;
-	left: 16%;
+	left: 22.5%;
 }
 
 .tasksLeft .optionsHeader #to{
 	position: absolute;
-	right: 0.5%;
+	right: 0.0%;
 	
 }
 
@@ -316,6 +404,15 @@
 	font-size: 15px;
 	font-weight: bold;
 }
+
+.parent:hover {
+	font-style: normal;
+	font-size: 15px;
+	font-weight: bold;
+	cursor: pointer;
+	font-style: oblique;
+}
+
 .child {
 	font-style: normal;
 	font-size: 15px;
@@ -336,7 +433,15 @@
 
 .buffer{
 padding-top: 2px;
+margin: 20px;
 }
+
+.bufferModal{
+padding-top: 2px;
+margin-top: 10px;
+
+}
+
 
 
 .odd {
