@@ -17,3 +17,13 @@
 		<a ui-sref="project.graph.source.id({ sourceId: selectedNode.properties.content })">zur Quelle</a>
 	</div>
 </div>
+
+<div class="options">
+	<h4>Optionen</h4>
+
+	<div>
+		<strong>Transparenz</strong>
+		<slider ng-model="nodeTransparency" floor="10" ceiling="100" step="5"></slider>
+		{{nodeTransparency}}
+	</div>
+</div>

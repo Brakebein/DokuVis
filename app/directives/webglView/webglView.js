@@ -75,6 +75,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			var currentShading = webglInterface.viewportSettings.shadingSel;
 			
 			var camPerspective = true;
+			var needsAnimationRequest = false;
 			var renderSSAO = false;
 			
 			// für Navigation
@@ -129,6 +130,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				// Controls (für Navigation)
 				controls = webglContext.controls;
+				controls.addEventListener('change', animate);
 				
 				// Axis helper
 				axisRenderer = webglContext.axisRenderer;
@@ -154,29 +156,22 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				// Ladebalken
 				var manager = new THREE.LoadingManager();
 				manager.onProgress = function ( item, loaded, total ) {
-					// var pbar = element.find('#loadprogressbar');
-					// var pitem = element.find('#loadprogressitem');
-					// pbar.show();
-					// pitem.show();
 					scope.loading.visible = true;
-					//console.log( item, loaded, total );
-					//var percent = loaded / total * 100;
-					//pbar.css('width', percent + '%');
-					//pitem.html(item + ' &ndash; ' + loaded + ' / ' + total);
 					scope.loading.item = item;
 					scope.loading.loaded = loaded;
 					scope.loading.percent = loaded / total * 100;
 					scope.loading.total = total;
 					if(scope.loading.percent === 100) {
 						scope.loading.visible = false;
-						//$('#loadprogressbar').css('visibility' , 'hidden');
-						// pbar.delay(2000).fadeOut(2000);
-						// pitem.delay(2000).fadeOut(2000);
-						/*$timeout(function() {
-							scope.focusAll();
-						}, 100);*/
+						console.log('before timeout');
+						$timeout(function () {
+							console.log('after timeout');
+							scope.$apply();
+							animate();
+						}, 2000);
 					}
 					scope.$apply();
+					animate();
 				};
 				
 				objloader = new THREE.OBJMTLLoader(manager);
@@ -265,10 +260,28 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				animate();
 			}
-			
+
+			function enableAnimationRequest() {
+				if(!needsAnimationRequest) {
+					controls.removeEventListener('change', animate);
+					needsAnimationRequest = true;
+					animate();
+				}
+			}
+
 			// Animations- und Renderschleife
 			function animate() {
-				requestAnimationFrame(animate);
+				if(needsAnimationRequest) {
+					// nur wenn Tweens am Laufen sind
+					if(TWEEN.getAll().length) {
+						requestAnimationFrame(animate);
+					}
+					// wenn keine Tweens -> keine requests mehr
+					else {
+						needsAnimationRequest = false;
+						controls.addEventListener('change', animate);
+					}
+				}
 				
 				TWEEN.update();
 				controls.update();
@@ -1557,6 +1570,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			
 			
 			// transformiere Mousekoordinaten zu Viewportkoordinaten
+			// DEPRECATED
 			function mouseInputToViewport(event) {
 				var elementOffset = new THREE.Vector2();
 				elementOffset.x = element.offset().left - $(window).scrollLeft();
@@ -1590,7 +1604,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 					if(event.button === 0 && event.altKey && !isPanningView && webglInterface.viewportSettings.cameraSel === 'Perspective') {
 						if(activeGizmo) activeGizmo = false;
-						$('#webglViewport').addClass('cursor_orbit');
+						element.addClass('cursor_orbit');
 						isRotatingView = true;
 						controls.onMouseDown(event.originalEvent);
 					}
@@ -1600,7 +1614,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						// controls.onMouseDown(event.originalEvent);
 					// }
 					else if(event.button === 1 && !isRotatingView) {
-						$('#webglViewport').addClass('cursor_pan');
+						element.addClass('cursor_pan');
 						isPanningView = true;
 						controls.onMouseDown(event.originalEvent);
 					}
@@ -1771,8 +1785,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 					
 					selectArea(mStart, mEnd, event.ctrlKey);
+					animate();
 				}
 				
+				// complete navigation
 				else if(event.button === 0 && (scope.navigation.rotate || scope.navigation.pan || scope.navigation.zoom)) {
 					controls.onMouseUp(event.originalEvent);
 					isRotatingView = false;
@@ -1783,7 +1799,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				else if(event.button === 0 && !isPanningView) {
 					if(isRotatingView) {
 						isRotatingView = false;
-						$('#webglViewport').removeClass('cursor_orbit');
+						element.removeClass('cursor_orbit');
 						controls.onMouseUp(event.originalEvent);
 						return;
 					}
@@ -1819,6 +1835,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					else {
 						var mouse = mouseOffsetToViewport(event.offsetX, event.offsetY);
 						selectRay(mouse, event.ctrlKey);
+						animate();
 					}
 				}
 				
@@ -1833,9 +1850,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				else if(event.button === 1 && !isRotatingView) {
 					if(isPanningView) {
 						isPanningView = false;
-						$('#webglViewport').removeClass('cursor_pan');
+						element.removeClass('cursor_pan');
 						controls.onMouseUp(event.originalEvent);
-						return;
 					}
 				}
 				else if(event.button === 2) {
@@ -1859,8 +1875,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			// MouseWheel EventHandler
 			function mousewheel(event) {
 				event.preventDefault();
-				if(camPerspective)
+				if(camPerspective) {
 					controls.onMouseWheel(event.originalEvent);
+				}
 				else {
 					var delta = event.originalEvent.wheelDelta || -event.originalEvent.detail*40 || 0;
 					//console.log(delta);
@@ -1916,7 +1933,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				postprocessing.composer.passes[1].uniforms['size'].value.set(SCREEN_WIDTH * postprocessing.sampleRatio, SCREEN_HEIGHT * postprocessing.sampleRatio);
 				postprocessing.composer.passes[1].uniforms['tDepth'].value = postprocessing.depthTarget;
-				
+
+				animate();
 			}
 			
 			function addMouseHandler() {
@@ -1942,19 +1960,20 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				isPinning = true;
 			};
 
-			webglInterface.callFunc.makeScreenshot = function () {
-				var sData = getScreenshot();
-				scope.screenshotCallback(sData);
-			};
-			
 			scope.startMeasuring = function () {
 				scope.setNavigationMode(false);
 				measureTool = new THREE.Measure(2);
+				measureTool.addEventListener('change', animate);
 				scene.add(measureTool);
 				measureTool.onComplete = function (distance) {
 					scope.measureDistance = distance;
 					scope.$applyAsync();
 				};
+			};
+
+			webglInterface.callFunc.makeScreenshot = function () {
+				var sData = getScreenshot();
+				scope.screenshotCallback(sData);
 			};
 			
 			function setGizmoCoords(type, apply) {
@@ -2052,6 +2071,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				scope.navigation.zoom = false;
 				if(mode)
 					scope.navigation[mode] = true;
+
+				animate();
 			};
 			
 			webglInterface.callFunc.getObjForPlans = function(meshId) {
@@ -2242,7 +2263,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				//var scale = info.unit == 'centimeter' ? 0.1 : 1.0;
 				var scale;
 				switch(info.unit) {
-					case 'centimeter': scale = 0.1; break;
+					case 'centimeter': scale = 0.01; break;
 					case 'millimeter': scale = 0.001; break;
 					default: scale = 1.0;
 				}
@@ -2292,7 +2313,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					else
 						ctmloader.load('data/' + file.path + file.content, ctmHandler, {useWorker: false});
 
-					//defer.resolve();
+					defer.resolve();
 					return defer.promise;
 				}
 				
@@ -2305,7 +2326,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						geo.name = file.content;
 						geometries[file.content] = {meshGeo: geo};
 					}
-					defer.resolve();
+					//defer.resolve();
 
 					var isUnsafe = /unsicher/.test(info.name);
 					
@@ -2863,6 +2884,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					if(objects[key].mesh.userData.type === 'object') 
 						cc.push(objects[key].mesh);
 				}
+				if(cc.length < 1) return;
 				focusObjects(cc);
 			};
 			
@@ -2915,8 +2937,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					//controls.center = M.clone();
 					
 					// animate camera.position and controls.center
-					new TWEEN.Tween(camera.position).to(newpos, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
-					new TWEEN.Tween(controls.center).to(M, 500).easing(TWEEN.Easing.Quadratic.InOut).start();
+					new TWEEN.Tween(camera.position.clone()).to(newpos, 500).easing(TWEEN.Easing.Quadratic.InOut)
+						.onUpdate(function () { camera.position.copy(this); })
+						.start();
+					new TWEEN.Tween(controls.center.clone()).to(M, 500).easing(TWEEN.Easing.Quadratic.InOut)
+						.onUpdate(function () { controls.center.copy(this); })
+						.start();
+
+					enableAnimationRequest();
 				}
 				else {
 					if(scope.viewportSettings.camera == 'top')

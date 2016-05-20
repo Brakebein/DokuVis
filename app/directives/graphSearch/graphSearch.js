@@ -2,14 +2,20 @@
   * Directive für die graphbasierte Suche
   * Verwendung des D3.js - Frameworks
   */
-angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams', 'GraphVis', 'CidocDict', 'Utilities',
-	function($state, $stateParams, GraphVis, CidocDict, Utilities) {
+angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams', 'GraphVis', 'CidocDict', 'Utilities', '$compile',
+	function($state, $stateParams, GraphVis, CidocDict, Utilities, $compile) {
 		
 		function link(scope, element, attrs) {
-						
+
+			scope.nodeTransparency = 50;
+			var history = [];
+			var historyIndex = 0;
+			var stateForward = false;
+			
 			function Graph() {
 				
 				var link, node;
+				var fixedNodes = [];
 				var width = element.width(), height = element.height();
 				var centerPos = new THREE.Vector2( width / 2, height / 2 );
 				var clickPos = new THREE.Vector2( width / 2 - 10, height / 2 );
@@ -53,7 +59,10 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					link = svg.selectAll('.link')
 						.data(links);
 					var gLink = link.enter().insert('g', 'g.node')
-						.attr('class', 'link');
+						.attr('class', 'link')
+						.attr('ng-style', '{opacity: nodeTransparency / 100}')
+						.attr('id', function (d) { return 'link' + d.id; })
+						.call(function () { $compile(this[0].parentNode)(scope); });
 					gLink.append('path')
 						.attr('class', 'linkPath')
 						.attr('marker-end', 'url(#arrow)');
@@ -73,11 +82,14 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 						.data(nodes);
 					var gNode = node.enter().append('g')
 						.attr('class', 'node')
+						.attr('ng-style', '{opacity: nodeTransparency / 100}')
+						.attr('id', function (d) { return 'node' + d.id; })
 						.on('mouseover', onMouseover)
 						.on('mouseleave', onMouseleave)
 						.on('dblclick', this.onDblclick)
 						.on('contextmenu', onContextmenu)
-						.call(drag);
+						.call(drag)
+						.call(function () { $compile(this[0].parentNode)(scope); });
 					gNode.append('circle')
 						.attr('class', 'nodeChild')
 						.attr('fill', function(d) { return CidocDict.getNodeColor(d.labels[0]); })
@@ -136,25 +148,49 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				}
 				
 				function dragstart(d) {
-					console.log('dragstart', d);
+					//console.log('dragstart', d);
 					d3.select(this).classed('fixed', d.fixed = true);
 					scope.selectedNode = d;
+					if(fixedNodes.indexOf(d.id) === -1)
+						fixedNodes.push(d.id);
+					fixLinks();
 					scope.$apply();
+				}
+
+				function fixLinks() {
+					for(var i=0; i<links.length; i++) {
+						var link = links[i];
+						if(fixedNodes.indexOf(link.source.id) !== -1 && fixedNodes.indexOf(link.target.id) !== -1)
+							d3.select('#link'+link.id).classed('opaque', true);
+						else
+							d3.select('#link'+link.id).classed('opaque', false);
+					}
 				}
 				
 				function onMouseover(d) {
 					d3.select(this).select('circle')
 						.attr('fill', d3.rgb(CidocDict.getNodeColor(d.labels[0])).darker(0.2));
+					for(var i=0; i<links.length; i++) {
+						var link = links[i];
+						if(d.id === link.source.id || d.id === link.target.id) {
+							d3.select('#node'+link.source.id).classed('highlight', true);
+							d3.select('#node'+link.target.id).classed('highlight', true);
+							d3.select('#link'+link.id).classed('highlight', true);
+						}
+					}
 				}
 				function onMouseleave(d) {
 					d3.select(this).select('circle')
 						.attr('fill', d3.rgb(CidocDict.getNodeColor(d.labels[0])));
+					d3.selectAll('.node').classed('highlight', false);
+					d3.selectAll('.link').classed('highlight', false);
 				}
 				
 				function onContextmenu(d) {
 					d3.event.preventDefault();
 					d3.select(this).classed('fixed', d.fixed = false);
-					//console.log(this.getBBox());
+					fixedNodes.splice(fixedNodes.indexOf(d.id), 1);
+					fixLinks();
 				}
 				
 				// returns the graph object
@@ -172,6 +208,7 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 						node.x = newPos.x;
 						node.y = newPos.y;
 						nodes.push(node);
+						history[historyIndex].nodes.push(node.id);
 						return true;
 					}
 					return false;
@@ -227,6 +264,13 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				this.findLinkByType = function (type, startNode) {
 					for(var i in links) {
 						if((links[i].source === startNode || links[i].target === startNode) && links[i].type === type) return links[i];
+					}
+					return undefined;
+				};
+
+				this.findLinkByNodeId = function (nodeId) {
+					for(var i in links) {
+						if(links[i].source.id === nodeId || links[i].target.id === nodeId) return links[i];
 					}
 					return undefined;
 				};
@@ -304,20 +348,41 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 			
 			graph.onDblclick = function(d) {
 				//console.log('dbclick', d);
-				//getNodeNeighbours(+d.id);
 				graph.setClickPosition(d);
+				stateForward = true;
 				$state.go('project.graph.node', { startNode: d.id });
 			};
 
 			// init
 			//getNodeNeighbours(21235);
-			if($stateParams.startNode)
+			if($stateParams.startNode) {
+				history.push({ stateNode: $stateParams.startNode, nodes: [] });
 				getNodeNeighbours(+$stateParams.startNode);
+			}
 
 			scope.$on('$stateChangeSuccess', function (event, toState, toParams) {
 				console.log('graph state changed', toParams);
-				if(toParams.startNode)
+				if(toParams.startNode && stateForward) {
+					history.push({ stateNode: toParams.startNode, nodes: [] });
+					historyIndex++;
 					getNodeNeighbours(+toParams.startNode);
+				}
+				else if(toParams.startNode && !stateForward && historyIndex > 0) {
+					for(var i=0; i<history[historyIndex].nodes.length; i++) {
+						var nodeId = history[historyIndex].nodes[i];
+						if(!graph.findNode(nodeId)) continue;
+						var link;
+						while(link = graph.findLinkByNodeId(nodeId)) {
+							graph.removeLink(link.id);
+						}
+						graph.removeNode(nodeId);
+						graph.update();
+					}
+					history.splice(historyIndex, 1);
+					historyIndex--;
+				}
+				stateForward = false;
+				//console.log(history, historyIndex);
 			});
 
 			// rules
@@ -603,6 +668,7 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				startNode.properties.title = endNode.properties[property] || endNode.properties.content;
 				graph.removeNode(endNode.id);
 			}
+
 		}
 		
 		return {
