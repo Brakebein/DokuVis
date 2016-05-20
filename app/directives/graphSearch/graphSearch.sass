@@ -10,20 +10,24 @@ div[graph-search]
 
 	.node
 		cursor: pointer
+		opacity: 0.5
+		transition: opacity 0.2s
 		
 		circle
 			stroke: steelblue
 			stroke-width: 1.5px
 			//transition: all 0.2s
 			
-		&:hover circle
+		&:hover	circle
 			stroke: #f00
 			//fill: #fa0
-			
-		&.fixed circle
+
+		&.fixed	circle
 			stroke: $mainColor
 			stroke-width: 3px
-		
+		&:hover, &.fixed, &.highlight
+			opacity: 1 !important
+
 		text.title
 			fill: blue
 		
@@ -35,6 +39,12 @@ div[graph-search]
 		rect.bg-text
 			fill: #fff
 			fill-opacity: 0.7
+
+	.link
+		opacity: 0.5
+		transition: opacity 0.2s
+		&.highlight, &.opaque
+			opacity: 1 !important
 
 	.linkPath
 		fill: none
@@ -50,11 +60,10 @@ div[graph-search]
 	.linkLabel
 		fill: #000
 
-	.nodeDetails
+	.nodeDetails, .options
 		position: absolute
 		width: 350px
 		height: auto
-		left: 10px
 		bottom: 10px
 		background-color: $panelBackground
 		border: $panelBorder
@@ -62,6 +71,9 @@ div[graph-search]
 		color: $panelFontColor
 		font-size: $panelFontSize
 		padding: 10px
+
+	.nodeDetails
+		left: 10px
 
 		&>div
 			margin: 5px 0
@@ -81,3 +93,6 @@ div[graph-search]
 				flex: 0 0 65%
 				width: 65%
 				word-wrap: break-word
+
+	.options
+		right: 10px

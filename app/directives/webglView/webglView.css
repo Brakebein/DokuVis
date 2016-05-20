@@ -17,9 +17,9 @@ div[webgl-view] {
     color: #fafafa; }
   div[webgl-view] .loadprogressbar {
     position: absolute;
-    width: 0%;
+    width: 0;
     height: 5px;
-    bottom: 0px;
+    bottom: 0;
     background-color: #d00; }
   div[webgl-view] > .select-rectangle {
     position: absolute;

@@ -6,7 +6,9 @@ div[graph-search] {
   overflow: hidden;
   position: relative; }
   div[graph-search] .node {
-    cursor: pointer; }
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s; }
     div[graph-search] .node circle {
       stroke: steelblue;
       stroke-width: 1.5px; }
@@ -15,6 +17,8 @@ div[graph-search] {
     div[graph-search] .node.fixed circle {
       stroke: #fc4e2a;
       stroke-width: 3px; }
+    div[graph-search] .node:hover, div[graph-search] .node.fixed, div[graph-search] .node.highlight {
+      opacity: 1 !important; }
     div[graph-search] .node text.title {
       fill: blue; }
     div[graph-search] .node text.shadow {
@@ -24,6 +28,11 @@ div[graph-search] {
     div[graph-search] .node rect.bg-text {
       fill: #fff;
       fill-opacity: 0.7; }
+  div[graph-search] .link {
+    opacity: 0.5;
+    transition: opacity 0.2s; }
+    div[graph-search] .link.highlight, div[graph-search] .link.opaque {
+      opacity: 1 !important; }
   div[graph-search] .linkPath {
     fill: none;
     stroke: #ddd;
@@ -34,11 +43,10 @@ div[graph-search] {
     fill: #ddd; }
   div[graph-search] .linkLabel {
     fill: #000; }
-  div[graph-search] .nodeDetails {
+  div[graph-search] .nodeDetails, div[graph-search] .options {
     position: absolute;
     width: 350px;
     height: auto;
-    left: 10px;
     bottom: 10px;
     background-color: rgba(51, 51, 51, 0.8);
     border: 1px solid #999;
@@ -46,6 +54,8 @@ div[graph-search] {
     color: #fafafa;
     font-size: 12px;
     padding: 10px; }
+  div[graph-search] .nodeDetails {
+    left: 10px; }
     div[graph-search] .nodeDetails > div {
       margin: 5px 0; }
     div[graph-search] .nodeDetails .property {
@@ -62,5 +72,7 @@ div[graph-search] {
         flex: 0 0 65%;
         width: 65%;
         word-wrap: break-word; }
+  div[graph-search] .options {
+    right: 10px; }
 
 /*# sourceMappingURL=graphSearch.css.map */

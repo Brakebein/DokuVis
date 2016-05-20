@@ -14,10 +14,10 @@
 	
 	<!-- Buttons - navigieren -->
 	<div class="ctrlGroup">
-		<button title="Auswahl-Werkzeug" class="ctrlBtn" ng-class="(navigation.select) ? 'active' : ''"  ng-click="setNavigationMode('select')"><img src="img/icons/cursor80_w.svg" width="24"/></button>
-		<button title="Ansicht drehen" class="ctrlBtn" ng-class="(navigation.rotate) ? 'active' : ''"  ng-click="setNavigationMode('rotate')"><img src="img/icons/orbit_w.svg" width="24"/></button>
-		<button title="Ansicht verschieben" class="ctrlBtn" ng-class="(navigation.pan) ? 'active' : ''"  ng-click="setNavigationMode('pan')"><img src="img/icons/move_w.svg" width="24"/></button>
-		<button title="Ansicht zoomen" class="ctrlBtn" ng-class="(navigation.zoom) ? 'active' : ''" ng-click="setNavigationMode('zoom')"><img src="img/icons/zoom2_w.svg" width="24"/></button>
+		<button title="Auswahl-Werkzeug" class="ctrlBtn" ng-class="{ active: navigation.select }" ng-click="setNavigationMode('select')"><img src="img/icons/cursor80_w.svg" width="24"/></button>
+		<button title="Ansicht drehen" class="ctrlBtn" ng-class="{ active: navigation.rotate }" ng-click="setNavigationMode('rotate')"><img src="img/icons/orbit_w.svg" width="24"/></button>
+		<button title="Ansicht verschieben" class="ctrlBtn" ng-class="{ active: navigation.pan }" ng-click="setNavigationMode('pan')"><img src="img/icons/move_w.svg" width="24"/></button>
+		<button title="Ansicht zoomen" class="ctrlBtn" ng-class="{ active: navigation.zoom }" ng-click="setNavigationMode('zoom')"><img src="img/icons/zoom2_w.svg" width="24"/></button>
 	</div>
 	
 	<!-- Dropdown-Liste Rendermode und Kamera -->
