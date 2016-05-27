@@ -288,6 +288,20 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				webglInterface.callFunc.removePins();
 		};
 		
+		$scope.addPin = function (id, pinObj, event) {
+			console.log(pinObj, event);
+			var target = $(event.delegateTarget).offset();
+			console.log(target);
+			console.log($('#svGViz'));
+			var screenXY = webglInterface.callFunc.addPin(id, pinObj);
+			console.log(screenXY);
+			$scope.line = {x1: screenXY.x, y1: screenXY.y, x2: target.left, y2: target.top };
+		};
+		$scope.removePin = function (id) {
+			$scope.line = null;
+			webglInterface.callFunc.removePin(id);
+		};
+		
 		$scope.open3DPlan = function(plan) {
 			neo4jRequest.getAttached3DPlan($stateParams.project, plan.eid, plan.plan3d).success(function(data, status){
 				

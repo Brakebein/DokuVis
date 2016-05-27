@@ -91,7 +91,7 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				css: [
 					'style/explorer.css',
 					'style/panelContainer.css',
-					//'style/snapshot.css',
+					'style/snapshot.css',
 					'style/modals/screenshotDetail.min.css',
 					'style/modals/indexEdit.min.css',
 					'style/modals/categoryEdit.css'

@@ -143,7 +143,7 @@
 		<div class="sideContent smallFont">
 		
 		
-			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s)" ng-mouseenter="!screenshotPins.isVisible && s.pin.matrix && wi.callFunc.addPin(s.id,s.pin)" ng-mouseleave="!screenshotPins.isVisible && wi.callFunc.removePin(s.id)">
+			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s)" ng-mouseenter="!screenshotPins.isVisible && s.pin.matrix && addPin(s.id,s.pin, $event)" ng-mouseleave="!screenshotPins.isVisible && removePin(s.id)">
 				<div class="media-left pull-left">
 					<img class="media-object" ng-src="{{'data/' + s.path + '_thumbs/t_' + s.file}}"/>
 				</div>
@@ -329,7 +329,9 @@
 
 <div class="resizer-h" resizer="horizontal" resizer-top=".explorerUpperHalf" resizer-top-min="400" resizer-bottom=".explorerLowerHalf" resizer-bottom-min="234" resizer-end="wi.callFunc.resize"></div>
 
-
+<svg id="svgViz" class="svgViz">
+	<line ng-show="line" ng-attr-x1="{{line.x1}}" ng-attr-y1="{{line.y1}}" ng-attr-x2="{{line.x2}}" ng-attr-y2="{{line.y2}}" />
+</svg>
 
 <!-- alert -->
 <div ng-if="alert.showing" alert="alert" class="alert alert-warning" role="alert"></div>

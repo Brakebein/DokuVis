@@ -2830,6 +2830,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				scene.add(pin);
 				pins[id] = pin;
 				animate();
+				return toScreenXY(new THREE.Vector3(m[12], m[13], m[14]));
 			};
 			webglInterface.callFunc.removePin = function(id) {
 				if(pins[id]) {
@@ -2847,6 +2848,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				pins = [];
 				animate();
 			};
+
+			function toScreenXY(pos3D) {
+				//var projector = new THREE.Projector();
+				var v = pos3D.project(camera);
+				var left = SCREEN_WIDTH * (v.x + 1) / 2;
+				var top = SCREEN_HEIGHT * (-v.y + 1) / 2;
+				return new THREE.Vector2(left, top);
+			}
 			
 			webglInterface.callFunc.setScreenshotView = function(cameraData) {
 				new TWEEN.Tween(camera.position.clone())
