@@ -23,6 +23,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		$scope.sourcesSettings.orderBy = 'title';
 		$scope.sourcesSettings.reverse = false;
 		$scope.sourcesSettings.filterBy = '';
+		$scope.sourcesSettings.filterSelected = false;
 		$scope.sourcesSettings.activeTab = '';
 		
 		$scope.sourceResults = [];
@@ -234,11 +235,16 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			if(type == 'screenshot')
 				$scope.getScreenshots();
 		};
-		
-		// lädt alle Dokumente im Quellenbrowser
+
+		/**
+		 * get all sources/documents
+		 */
 		$scope.getAllDocuments = function() {
 			Source.getAll().then(function(response){
 				$scope.sourceResults = response.data;
+				for(var i=0; i<$scope.sourceResults.length; i++) {
+					$scope.sourceResults[i].selected = false;
+				}
 				Source.results.all = $scope.sourceResults;
 				//Source.results.filtered = $scope.filteredSourceResults;
 				console.log('Dokumente:', $scope.sourceResults);
@@ -307,27 +313,49 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				}*/
 			});
 		};
-		
-		// highlighte alle mit dem Plan verbundene Objekte
+
+		/**
+		 * highlight all objects connected to plan
+		 * @param plan
+         */
 		$scope.highlightObj = function(plan) {
 			Source.getConnections(plan.eid).then(function (response) {
 				console.log(response);
-				for(var i=0; i<response.data.length; i++) {
-					webglInterface.callFunc.highlightObj(response.data[i].meshId);
-				}
+				webglInterface.callFunc.highlightObjects(response.data);
 			}, function (err) {
-				Utilities.throwApiException('on Source.connect()', err);
+				Utilities.throwApiException('on Source.getConnections()', err);
 			});
 		};
-		
-		// überprüfe, welche Objekte den Plan schneiden und verbinde sie in der Datenbank
+
+		/**
+		 * check, which objects are intersected by plan and connect them within the database
+		 * @param plan
+         */
 		$scope.connectPlanToObj = function(plan) {
 			var res = webglInterface.callFunc.getObjForPlans(plan.plan3d.meshId);
 			console.log(res);
 			Source.createConnections(plan.eid, res.objs).then(function (response) {
 				console.log('plan connected', response);
 			}, function (err) {
-				Utilities.throwApiException('on Source.connect()', err);
+				Utilities.throwApiException('on Source.createConnections()', err);
+			});
+		};
+		
+		webglInterface.callFunc.highlightSources = function (obj) {
+			Model.getConnections(obj.name).then(function (response) {
+				console.log(response);
+				for(var i=0; i<$scope.sourceResults.length; i++) {
+					$scope.sourceResults[i].selected = false;
+					for (var j = 0; j < response.data.length; j++) {
+						if ($scope.sourceResults[i].eid === response.data[j].sourceId) {
+							$scope.sourceResults[i].selected = true;
+							$scope.sourcesSettings.filterSelected = true;
+							continue;
+						}
+					}
+				}
+			}, function (err) {
+				Utilities.throwApiException('on Model.getConnections()', err);
 			});
 		};
 
@@ -341,7 +369,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 					var cdefer = $q.defer();
 					nodes.reduce(function(cur, next) {
 						return cur.then(function() {
-							var p = $scope.callDirFunc.loadCTMIntoScene(next, parent);
+							var p = webglInterface.callFunc.loadCTMIntoScene(next, parent);
 							return getNodes(next.children, next.obj.content, p);
 						});
 					}, promise).then(function(){ cdefer.resolve(); });
@@ -354,6 +382,11 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}, function(err) {
 				Utilities.throwApiException('on getModels()', err);
 			});
+		};
+		
+		$scope.reloadModels = function () {
+			webglInterface.callFunc.resetScene();
+			$scope.loadModelsWithChildren();
 		};
 		
 		$scope.logModels = function() {
@@ -414,7 +447,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		$scope.tooltip = function(event) {
 			console.log(event);
 		};
-		
+
+		//old
 		$scope.selectResultItem = function(event, item) {
 			//console.log(event, item);
 			var btnbar = event.currentTarget.children[0].children[2];
@@ -431,7 +465,15 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				if(event.currentTarget != event.target)
 					item.selected = true;
 			}
-		}
+			$scope.sourcesSettings.filterSelected = false;
+		};
+		
+		$scope.filterSelected = function (value) {
+			if($scope.sourcesSettings.filterSelected)
+				return value.selected;
+			else
+				return true;
+		};
 		
 		//$scope.$watch('selected', function(value) {
 			
@@ -443,6 +485,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}*/
 		//});
 		
+		// DEPRECATED
 		$scope.ctrlBtnClick = function(btn) {
 			switch(btn) {
 				case 'slice_toggle':
@@ -525,7 +568,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}, function(err) {
 				Utilities.throwApiException('on getAllCategories()', err);
 			});
-		};
+		}
 		
 		// weise neue Kategorie zu
 		$scope.updateCategoryAttr = function(c) {

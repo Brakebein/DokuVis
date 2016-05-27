@@ -91,6 +91,7 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				css: [
 					'style/explorer.css',
 					'style/panelContainer.css',
+					//'style/snapshot.css',
 					'style/modals/screenshotDetail.min.css',
 					'style/modals/indexEdit.min.css',
 					'style/modals/categoryEdit.css'
@@ -159,6 +160,12 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			})
 			.state('project.graph.source.id', {
 				url: '/:sourceId'
+			})
+			.state('project.resources', {
+				url: '/resources',
+				templateUrl: 'partials/resources.html',
+				controller: 'resourcesCtrl',
+				css: 'style/resources.css'
 			})
 			.state('project.config', {
 				url: '/config',

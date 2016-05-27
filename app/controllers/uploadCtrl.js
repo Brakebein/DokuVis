@@ -1,5 +1,5 @@
-angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'Source', 'Model',
-	function($scope, $state, $stateParams, $previousState, Uploader, neo4jRequest, Utilities, $timeout, $modal, Source, Model) {
+angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'Source', 'Model', 'Archive',
+	function($scope, $state, $stateParams, $previousState, Uploader, neo4jRequest, Utilities, $timeout, $modal, Source, Model, Archive) {
 
         $previousState.memo('modalInvoker');
 
@@ -295,7 +295,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 					console.log('insertModel', response.data);
 					fileItem.isInserting = false;
 				}, function(err) {
-					Utilities.throwApiException('on getAllCategories()', err);
+					Utilities.throwApiException('on Model.insert()', err);
 				});
 			}
 
@@ -348,15 +348,16 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				}
 				uploader.uploadAll();
 			}, 1000);
-		}
+		};
 
 		$scope.getArchives = function() {
-			neo4jRequest.getArchives($stateParams.project).then(function(response){
-				if(response.data.exception) { console.error('neo4j failed on getArchives()', response); return; }
-				if(response.data) $scope.archives = Utilities.cleanNeo4jData(response.data);
+			Archive.getAll().then(function(response){
+				$scope.archives = response.data;
 				console.log('Archives:', $scope.archives);
+			}, function (err) {
+				Utilities.throwApiException('on Archive.getAll()', err);
 			});
-		}
+		};
 		$scope.getArchives();
 
 		$scope.addArchive = function() {

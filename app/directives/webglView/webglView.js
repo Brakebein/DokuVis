@@ -1,3 +1,7 @@
+/**
+ * @author Jonas Bruschke
+ */
+
 angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities',
 	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities) {
 		
@@ -8,7 +12,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			scope.vPanel = webglInterface.vPanel;
 			scope.vizSettings = webglInterface.vizSettings;
 			scope.$applyAsync();
-			
+
 			// Konstante maximale Sichtweite
 			var FAR = 1400;
 			
@@ -151,8 +155,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				// Light
 				dlight = webglContext.directionalLight;
-				
-				
+
 				// Ladebalken
 				var manager = new THREE.LoadingManager();
 				manager.onProgress = function ( item, loaded, total ) {
@@ -166,6 +169,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						console.log('before timeout');
 						$timeout(function () {
 							console.log('after timeout');
+							manager.reset();
 							scope.$apply();
 							animate();
 						}, 2000);
@@ -179,55 +183,76 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				
 				// Postprocessing
-				postprocessing.sampleRatio = 2;
-				var sampleRatio = 2;
-				var renderTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH, SCREEN_HEIGHT, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat});
-				var composer = new THREE.EffectComposer(renderer, renderTarget);
-				composer.setSize(SCREEN_WIDTH * sampleRatio, SCREEN_HEIGHT * sampleRatio);
+				//postprocessing.sampleRatio = 2;
+				//var sampleRatio = 2;
+				//var renderTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH, SCREEN_HEIGHT, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat});
+				//var composer = new THREE.EffectComposer(renderer, renderTarget);
+				//composer.setSize(SCREEN_WIDTH * sampleRatio, SCREEN_HEIGHT * sampleRatio);
 				//composer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-				var renderPass = new THREE.RenderPass(scene, camera);
-				composer.addPass(renderPass);
+				//var renderPass = new THREE.RenderPass(scene, camera);
+				//composer.addPass(renderPass);
 				
-				var depthShader = THREE.ShaderLib['depthRGBA'];
-				var depthUniforms = THREE.UniformsUtils.clone(depthShader.uniforms);
-				
-				postprocessing.depthMaterial = new THREE.ShaderMaterial({ fragmentShader: depthShader.fragmentShader, vertexShader: depthShader.vertexShader, uniforms: depthUniforms });
-				postprocessing.depthMaterial.blending = THREE.NoBlending;
+				// var depthShader = THREE.ShaderLib['depthRGBA'];
+				// var depthUniforms = THREE.UniformsUtils.clone(depthShader.uniforms);
+				//
+				// postprocessing.depthMaterial = new THREE.ShaderMaterial({ fragmentShader: depthShader.fragmentShader, vertexShader: depthShader.vertexShader, uniforms: depthUniforms });
+				// postprocessing.depthMaterial.blending = THREE.NoBlending;
 				
 				//postprocessing.depthTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH * sampleRatio, SCREEN_HEIGHT * sampleRatio, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, format: THREE.RGBAFormat});
-				postprocessing.depthTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH * sampleRatio, SCREEN_HEIGHT * sampleRatio, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat});
-				
-				var ssaoPass = new THREE.ShaderPass(THREE.SSAOShader);
-				ssaoPass.uniforms['tDepth'].value = postprocessing.depthTarget;
-				ssaoPass.uniforms['size'].value.set(SCREEN_WIDTH * sampleRatio, SCREEN_HEIGHT * sampleRatio);
-				ssaoPass.uniforms['cameraNear'].value = camera.near;
-				ssaoPass.uniforms['cameraFar'].value = camera.far;
+				// postprocessing.depthTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH * sampleRatio, SCREEN_HEIGHT * sampleRatio, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat});
+				//
+				// var ssaoPass = new THREE.ShaderPass(THREE.SSAOShader);
+				// ssaoPass.uniforms['tDepth'].value = postprocessing.depthTarget;
+				// ssaoPass.uniforms['size'].value.set(SCREEN_WIDTH * sampleRatio, SCREEN_HEIGHT * sampleRatio);
+				// ssaoPass.uniforms['cameraNear'].value = camera.near;
+				// ssaoPass.uniforms['cameraFar'].value = camera.far;
 				//ssaoPass.renderToScreen = true;
-				composer.addPass(ssaoPass);
+				// composer.addPass(ssaoPass);
 				
 				
-				var fxaaPass = new THREE.ShaderPass(THREE.FXAAShader);
-				fxaaPass.uniforms['resolution'].value.set(1/SCREEN_WIDTH, 1/SCREEN_HEIGHT);
-				//fxaaPass.renderToScreen = true;
-				fxaaPass.enabled = true;
-				//composer.addPass(fxaaPass);
+				// var fxaaPass = new THREE.ShaderPass(THREE.FXAAShader);
+				// fxaaPass.uniforms['resolution'].value.set(1/SCREEN_WIDTH, 1/SCREEN_HEIGHT);
+				// //fxaaPass.renderToScreen = true;
+				// fxaaPass.enabled = true;
+				// //composer.addPass(fxaaPass);
+				//
+				//
+				// var copyPass = new THREE.ShaderPass(THREE.CopyShader);
+				// copyPass.renderToScreen = true;
+				// composer.addPass(copyPass);
 				
-				
+				//postprocessing.composer = composer;
+				//console.log(composer);
+
+				// neu
+				//var renderTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH, SCREEN_HEIGHT, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat});
+				var composer = new THREE.EffectComposer(renderer);
+				composer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+				var renderPass = new THREE.RenderPass(scene, camera);
+				composer.addPass(renderPass);
+
+				// var maskPass = new THREE.MaskPass(scene, camera);
+				// composer.addPass(maskPass);
+
+				// var sobelPass = new THREE.ShaderPass(THREE.EdgeShader2);
+				// sobelPass.uniforms['aspect'].value.set(SCREEN_WIDTH, SCREEN_HEIGHT);
+				// composer.addPass(sobelPass);
+
 				var copyPass = new THREE.ShaderPass(THREE.CopyShader);
 				copyPass.renderToScreen = true;
 				composer.addPass(copyPass);
-				
+
 				postprocessing.composer = composer;
 				console.log(composer);
-				
-				
-				
+
 				/*objloader.load('data/steinmetzzeichen/Steinmetzzeichen_auswahl.obj', 'data/steinmetzzeichen/Steinmetzzeichen_auswahl.mtl', loadMasonMarkHandler);
 				*/
 				
 				// Gizmo
 				gizmoMove = new THREE.GizmoMove(10, 2.5, 1.2);
+				gizmoMove.addEventListener('change', animate);
 				gizmoRotate = new THREE.GizmoRotate(10);
+				gizmoRotate.addEventListener('change', animate);
 				//console.log(gizmo);
 				
 				// Schnittebene
@@ -261,6 +286,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				animate();
 			}
 
+			/**
+			 * starts animation loop
+			 */
 			function enableAnimationRequest() {
 				if(!needsAnimationRequest) {
 					controls.removeEventListener('change', animate);
@@ -269,14 +297,16 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 			}
 
-			// Animations- und Renderschleife
+			/**
+			 * animation loop
+			 */
 			function animate() {
 				if(needsAnimationRequest) {
-					// nur wenn Tweens am Laufen sind
+					// only if there are active Tweens
 					if(TWEEN.getAll().length) {
 						requestAnimationFrame(animate);
 					}
-					// wenn keine Tweens -> keine requests mehr
+					// if no Tweens -> stop animation loop
 					else {
 						needsAnimationRequest = false;
 						controls.addEventListener('change', animate);
@@ -287,12 +317,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				controls.update();
 				
 				// Steinmetzzeichen zeigen immer zur Kamera
-				for(var key in marks) {
-					if(marks[key].visible) {
-						for(var i=0; i<marks[key].mesh.children.length; i++)
-							marks[key].mesh.children[i].lookAt(camera.position);
-					}
-				}
+				// for(var key in marks) {
+				// 	if(marks[key].visible) {
+				// 		for(var i=0; i<marks[key].mesh.children.length; i++)
+				// 			marks[key].mesh.children[i].lookAt(camera.position);
+				// 	}
+				// }
 				
 				// position light depending on camera
 				dlight.position.set(4,4,4);
@@ -322,31 +352,41 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				stats.update();
 			}
 
+			/**
+			 * render calls
+			 */
 			function render() {
 				axisRenderer.render(axisScene, axisCamera);
 				
-				if(renderSSAO) {
-					// do postprocessing
-					scene.overrideMaterial = postprocessing.depthMaterial;
-					renderer.render(scene, camera, postprocessing.depthTarget);
-					scene.overrideMaterial = null;
-					postprocessing.composer.render();
-				}
-				else {
-					renderer.render(scene, camera);
-				}
+				// if(renderSSAO) {
+				// 	// do postprocessing
+				// 	scene.overrideMaterial = postprocessing.depthMaterial;
+				// 	renderer.render(scene, camera, postprocessing.depthTarget);
+				// 	scene.overrideMaterial = null;
+				// 	postprocessing.composer.render();
+				// }
+				// else {
+				// 	renderer.render(scene, camera);
+				// }
+
+				renderer.render(scene, camera);
+				//postprocessing.composer.render();
 			}
-			
-			// Material für Objekte anpassen
+
+			/**
+			 * set material for object
+			 * @param {THREE.Mesh} obj - object
+			 * @param {boolean} setAmbient
+			 * @param {boolean} disableColor
+             * @param {boolean} disableSpecular
+             * @param {boolean} [unsafe=false]
+             */
 			function setObjectMaterial(obj, setAmbient, disableColor, disableSpecular, unsafe) {
 				if(obj.material.name in materials) {
 					obj.material = materials[obj.material.name];
 					obj.userData.originalMat = obj.material.name;
 					return;
 				}
-				/*obj.material.color.r = Math.pow(obj.material.color.r, 1/2.2);
-				obj.material.color.g = Math.pow(obj.material.color.g, 1/2.2);
-				obj.material.color.b = Math.pow(obj.material.color.b, 1/2.2);*/
 				//obj.material.color.convertGammaToLinear();
 				obj.material.color.convertLinearToGamma();
 				if(setAmbient)
@@ -389,9 +429,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						for(var i=0; i<anz; i+=8) {
 							var geo = new THREE.PlaneGeometry(0.5,0.5);
 							// Mittelpunkt aus den 8 Eckpunkten des Würfels wird errechnet
-							var x = vs[i+0].x+vs[i+1].x+vs[i+2].x+vs[i+3].x+vs[i+4].x+vs[i+5].x+vs[i+6].x+vs[i+7].x;
-							var y = vs[i+0].y+vs[i+1].y+vs[i+2].y+vs[i+3].y+vs[i+4].y+vs[i+5].y+vs[i+6].y+vs[i+7].y;
-							var z = vs[i+0].z+vs[i+1].z+vs[i+2].z+vs[i+3].z+vs[i+4].z+vs[i+5].z+vs[i+6].z+vs[i+7].z;
+							var x = vs[i].x+vs[i+1].x+vs[i+2].x+vs[i+3].x+vs[i+4].x+vs[i+5].x+vs[i+6].x+vs[i+7].x;
+							var y = vs[i].y+vs[i+1].y+vs[i+2].y+vs[i+3].y+vs[i+4].y+vs[i+5].y+vs[i+6].y+vs[i+7].y;
+							var z = vs[i].z+vs[i+1].z+vs[i+2].z+vs[i+3].z+vs[i+4].z+vs[i+5].z+vs[i+6].z+vs[i+7].z;
 							
 							var mesh = new THREE.Mesh(geo, mat);
 							mesh.position.set(x/8, y/8, z/8);
@@ -410,22 +450,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 				});
 			}
-			
-			function setGizmo(obj, type, refs) {
-				if(gizmo)
-					gizmo.attachToObject(null);
-				
-				switch(type) {
-					case 'move': gizmo = gizmoMove; break;
-					case 'rotate': gizmo = gizmoRotate; break;
-					default: gizmo = null; break;
-				}
-				
-				if(gizmo)
-					gizmo.attachToObject(obj, refs);
-			}
-			
-			// selection by a simple click
+
+			/**
+			 * selection by a simple click
+			 * @param {THREE.Vector2} mouse - mouse position
+             * @param {boolean} ctrlKey - if ctrlKey is pressed
+             */
 			function selectRay(mouse, ctrlKey) {				
 			
 				var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
@@ -436,7 +466,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					if(objects[key].visible && objects[key].mesh.userData.type === 'object')
 						testObjects.push(objects[key].mesh);
 				}
-				for(var key in plans) {
+				for(key in plans) {
 					if(plans[key].visible)
 						testObjects.push(plans[key].mesh);
 				}
@@ -451,8 +481,13 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				else 
 					setSelected(null, ctrlKey);
 			}
-			
-			// selection by drawing a rectangle
+
+			/**
+			 * selection by drawing a rectangle
+			 * @param {THREE.Vector2} mStart - mouse position at start
+			 * @param {THREE.Vector2} mEnd - mouse position at end
+             * @param {boolean} ctrlKey - if ctrlKey is pressed
+             */
 			function selectArea(mStart, mEnd, ctrlKey) {
 				
 				var s0 = new THREE.Vector3(mStart.x, mStart.y, 0.5).unproject(camera);
@@ -513,9 +548,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 				}
 			}
-			
-			// deselect any selected obj and assign original material
-			// select obj and assign selectionMat
+
+			/**
+			 * deselect any selected object and assign original material,
+			 * then select object and assign selection material
+			 * @param {THREE.Mesh} obj - object to be set
+			 * @param {boolean} [onlySelect=false] - if true, no deselection
+             * @param {boolean} [onlyDeselect=false] - if true, no selection
+             */
 			function setSelected(obj, onlySelect, onlyDeselect) {
 				onlySelect = onlySelect || false;
 				onlyDeselect = onlyDeselect || false;
@@ -561,7 +601,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					selected.splice(selected.indexOf(obj), 1);
 				}
 			}
-			
+
+			/**
+			 * look for any children and select them
+			 * @param {Array} children
+             */
 			function selectChildren(children) {
 				for(var i=0, l=children.length; i<l; i++) {
 					var o = children[i];
@@ -571,6 +615,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					selectChildren(o.children);
 				}
 			}
+
+			/**
+			 * look for any children and deselect them
+			 * @param {Array} children
+             */
 			function deselectChildren(children) {
 				for(var i=0, l=children.length; i<l; i++) {
 					var o = children[i];
@@ -580,7 +629,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					deselectChildren(o.children);
 				}
 			}
-			
+
+			/**
+			 * assign selection material to object
+			 * @param {THREE.Mesh} obj - object
+             */
 			function assignSelectionMat(obj) {
 				// if(obj.material.map != null) {
 					// if(obj.userData.type == 'plan')
@@ -624,7 +677,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						break;
 				}
 			}
-			
+
+			/**
+			 * reject selection material from object
+			 * @param {THREE.Mesh} obj - object
+			 */
 			function rejectSelectionMat(obj) {
 				// if(obj.material.map != null) {
 					// if(obj.userData.type == 'plan')
@@ -1276,6 +1333,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						}
 					}
 				}
+				animate();
 			}, true);
 			
 			/*scope.$watch('viewportSettings.ssao', function(value) {
@@ -1295,6 +1353,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					case 'ssao': renderSSAO = true; break;
 					default: renderSSAO = false; break;
 				}
+				animate();
 			});
 			
 			// watch edges settings
@@ -1306,11 +1365,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						else scene.remove(obj.edges);
 					}
 				}
+				animate();
 			});
 			scope.$watch('vizSettings.edgesOpacity', function(value) {
 				console.log(value);
 				if(!materials['edges']) return;
-				if(value === 100) {
+				if(value == 100) {
 					materials['edgesMat'].transparent = false;
 					materials['edgesSelectionMat'].transparent = false;
 				}
@@ -1320,6 +1380,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					materials['edgesSelectionMat'].transparent = true;
 					materials['edgesSelectionMat'].opacity = value/100;
 				}
+				animate();
 			});
 			
 			//scope.$watch('viewportSettings.shading', function(value) {
@@ -1441,6 +1502,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						}
 						break;*/
 				}
+				animate();
 			};
 			
 			//scope.$watch('viewportSettings.camera', function(value) {
@@ -1450,14 +1512,13 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				switch(value) {
 					case 'Perspective':
-						camPerspective = true;
 						camera.toPerspective();
 						camera.setZoom(1);
 						break;
 					case 'Top':
 						camera.toOrthographic(controls.center);
 						camera.toTopView();
-						// break;
+						break;
 					case 'Front':
 						camera.toOrthographic(controls.center);
 						camera.toFrontView();
@@ -1476,6 +1537,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						break;
 					default: break;
 				}
+				animate();
 				console.log(camera);
 			};
 			
@@ -1505,6 +1567,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					edges.material.opacity = value/100;
 					
 				}
+				animate();
 			});
 			
 			// set opacity of objects
@@ -1516,6 +1579,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					setOpacity(mesh, edges, value);
 				item.opacity = value;
 				setChildrenOpacity(item.children, value);
+				animate();
 			};
 			
 			// set opacity of plans
@@ -1523,6 +1587,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				var mesh = plans[id].mesh;
 				var edges = plans[id].edges;
 				setOpacity(mesh, edges, value);
+				animate();
 			};
 			
 			function setChildrenOpacity(children, value) {
@@ -1537,7 +1602,13 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					setChildrenOpacity(children[i].children, value);
 				}
 			}
-			
+
+			/**
+			 * set opacity
+			 * @param {THREE.Mesh} mesh - reference to mesh
+			 * @param {THREE.Line} edges - reference to edges
+             * @param {number} value - opacity value
+             */
 			function setOpacity(mesh, edges, value) {
 				if(value == 1.0) {
 					if(selected.indexOf(mesh) === -1) {
@@ -1589,8 +1660,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				return mouse;
 			}
-			
-			// MouseDown EventHandler
+
+			/**
+			 * MouseDown EventHandler
+			 * @param event
+             */
 			function mousedown(event) {
 				//controls.onMouseDown(event.originalEvent);
 				//$(canvas).bind('mousemove', mousemove);
@@ -1640,8 +1714,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					element.append(sr);
 				}*/
 			}
-			
-			// MouseMove EventHandler
+
+			/**
+			 * MouseMove EventHandler
+			 * @param event
+             */
 			function mousemove(event) {
 				
 				event.preventDefault();
@@ -1751,8 +1828,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 				
 			}
-			
-			// MouseUp EventHandler
+
+			/**
+			 * MouseUp EventHandler
+			 * @param event
+             */
 			function mouseup(event) {
 				//controls.onMouseUp(event.originalEvent);
 				//$(canvas).unbind('mousemove', mousemove);
@@ -1826,6 +1906,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						
 						highlightObject(null);
 						scene.remove(pin);
+						pin.dispose();
 						pin = null;
 						isPinning = false;
 						scope.setNavigationMode('select');
@@ -1857,12 +1938,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				else if(event.button === 2) {
 					scope.setNavigationMode('select');
 					scope.$apply();
-					
-					if(isPinning && pin) {
-						scene.remove(pin);
-						pin = null;
-						isPinning = false;
-					}
+
 					
 					//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
 					//if(!mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
@@ -1871,8 +1947,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 				
 			}
-			
-			// MouseWheel EventHandler
+
+			/**
+			 * MouseWheel EventHandler
+			 * @param event
+             */
 			function mousewheel(event) {
 				event.preventDefault();
 				if(camPerspective) {
@@ -1899,6 +1978,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			}
 			
 			function keydown(event) {
+				if(event.target.tagName === 'INPUT') return;
 				controls.onKeyDown(event.originalEvent);
 			}
 			
@@ -1926,13 +2006,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 				
-				postprocessing.composer.setSize(SCREEN_WIDTH * postprocessing.sampleRatio, SCREEN_HEIGHT * postprocessing.sampleRatio);
-				
+				//postprocessing.composer.setSize(SCREEN_WIDTH * postprocessing.sampleRatio, SCREEN_HEIGHT * postprocessing.sampleRatio);
+				postprocessing.composer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
 				//postprocessing.depthTarget.setSize(SCREEN_WIDTH * postprocessing.sampleRatio, SCREEN_HEIGHT * postprocessing.sampleRatio);
-				postprocessing.depthTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH * postprocessing.sampleRatio, SCREEN_HEIGHT * postprocessing.sampleRatio, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat});
-				
-				postprocessing.composer.passes[1].uniforms['size'].value.set(SCREEN_WIDTH * postprocessing.sampleRatio, SCREEN_HEIGHT * postprocessing.sampleRatio);
-				postprocessing.composer.passes[1].uniforms['tDepth'].value = postprocessing.depthTarget;
+				// postprocessing.depthTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH * postprocessing.sampleRatio, SCREEN_HEIGHT * postprocessing.sampleRatio, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat});
+				//
+				//postprocessing.composer.passes[1].uniforms['aspect'].value.set(SCREEN_WIDTH, SCREEN_HEIGHT);
+				// postprocessing.composer.passes[1].uniforms['tDepth'].value = postprocessing.depthTarget;
 
 				animate();
 			}
@@ -1944,7 +2025,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				$(canvas).bind('mousewheel', mousewheel);
 				//$(canvas).bind('MozMousePixelScroll', mousewheel); // firefox
 				$(canvas).bind('DOMMouseScroll', mousewheel); // firefox
-				$(canvas).bind('keydown', keydown);
+				$(window).bind('keydown', keydown);
 				$(canvas).bind('keyup', keyup);
 				$(window).bind('resize', onWindowResize);
 				
@@ -1954,14 +2035,15 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			}
 			
 			scope.startMarking = function() {
-				scope.setNavigationMode(false);
+				scope.setNavigationMode();
 				pin = new THREE.Pin(3, 0.5);
+				pin.addEventListener('change', animate);
 				scene.add(pin);
 				isPinning = true;
 			};
 
 			scope.startMeasuring = function () {
-				scope.setNavigationMode(false);
+				scope.setNavigationMode();
 				measureTool = new THREE.Measure(2);
 				measureTool.addEventListener('change', animate);
 				scene.add(measureTool);
@@ -1971,10 +2053,25 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				};
 			};
 
-			webglInterface.callFunc.makeScreenshot = function () {
-				var sData = getScreenshot();
-				scope.screenshotCallback(sData);
-			};
+			/**
+			 * attach gizmo to object
+			 * @param {THREE.Mesh} [obj] - object to be transformed
+			 * @param {string} [type] - type of gizmo ('move'|'rotate')
+			 * @param {THREE.Object3D[]} [refs] - references to objects which need to be transformed too
+			 */
+			function setGizmo(obj, type, refs) {
+				if(gizmo)
+					gizmo.attachToObject(null);
+
+				switch(type) {
+					case 'move': gizmo = gizmoMove; break;
+					case 'rotate': gizmo = gizmoRotate; break;
+					default: gizmo = null; break;
+				}
+
+				if(gizmo)
+					gizmo.attachToObject(obj, refs);
+			}
 			
 			function setGizmoCoords(type, apply) {
 				scope.gizmoCoords.enabled = true;
@@ -2000,7 +2097,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			
 			// Funktionen, die auch von außen aufgerufen werden können
 			scope.internalCallFunc = scope.callFunc || {};
-			
+
+			/**
+			 * @deprecated
+			 * @param btn
+             */
 			scope.internalCallFunc.ctrlBtnHandler = function(btn) {
 				
 				switch(btn) {
@@ -2051,15 +2152,21 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						break;
 				}
 			};
-			
+
+			/**
+			 * set navigation mode
+			 * @param {string} [mode]
+             */
 			scope.setNavigationMode = function(mode) {
 				
 				if(measureTool) {
 					scene.remove(measureTool);
+					measureTool.dispose();
 					measureTool = null;
 				}
 				if(pin) {
 					scene.remove(pin);
+					pin.dispose();
 					pin = null;
 					isPinning = false;
 					highlightObject(null);
@@ -2074,7 +2181,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 
 				animate();
 			};
-			
+
+			/**
+			 * detect intersections between plan and objects
+			 * @param meshId - ID of plan mesh
+			 * @returns {{plan: *, objs: Array}}
+             */
 			webglInterface.callFunc.getObjForPlans = function(meshId) {
 				
 				if(!meshId in plans) return;
@@ -2108,7 +2220,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 
 				return { plan: plans[meshId].mesh.name, objs: objs };
 			};
-			
+
+			/**
+			 * clear all highlighted objects
+			 */
 			function dehighlight() {
 				for(var i=0; i< highlighted.length; i++) {
 					var obj = highlighted[i];
@@ -2134,35 +2249,42 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 				highlighted = [];
 			}
-			
-			webglInterface.callFunc.highlightObj = function(eid) {
+
+			/**
+			 * highlight objects
+			 * @param {Array} data - array of object/mesh IDs [{ meshId: * }]
+             */
+			webglInterface.callFunc.highlightObjects = function(data) {
+				setSelected(null, false, true);
 				//dehighlight();
-				for(var key in objects) {
-					if(objects[key].mesh.userData.eid === eid) {
-						var obj = objects[key].mesh;
-						
-						objects[key].edges.material = materials['edgesHighlightMat'];
-						
-						/*
-						if(obj.material.map != null) {
-							if(obj.userData.type == 'plan')
-								obj.material.color.setHex(0xff8888);
-							else
-								obj.material.ambient.setHex(0xff8888);
+				for(var i=0; i<data.length; i++) {
+					for (var key in objects) {
+						if (objects[key].mesh.userData.eid === data[i].meshId) {
+							var obj = objects[key].mesh;
+							//objects[key].edges.material = materials['edgesHighlightMat'];
+							setSelected(objects[key].mesh, true);
+							/*
+							 if(obj.material.map != null) {
+							 if(obj.userData.type == 'plan')
+							 obj.material.color.setHex(0xff8888);
+							 else
+							 obj.material.ambient.setHex(0xff8888);
+							 }
+							 else if(scope.shading == shading.TRANSPARENT_EDGE)
+							 obj.material = materials['transparentHighlightMat'];
+							 else if(scope.shading == shading.WIRE)
+							 obj.material = materials['wireframeSelectionMat'];
+							 else
+							 obj.material = materials['highlightMat'];
+							 if(scope.shading == shading.EDGE)
+							 objects[obj.id].edges.material.color.setHex(0xffff44);*/
+
+							//highlighted.push(obj);
 						}
-						else if(scope.shading == shading.TRANSPARENT_EDGE)
-							obj.material = materials['transparentHighlightMat'];
-						else if(scope.shading == shading.WIRE)
-							obj.material = materials['wireframeSelectionMat'];
-						else
-							obj.material = materials['highlightMat'];
-						if(scope.shading == shading.EDGE)
-							objects[obj.id].edges.material.color.setHex(0xffff44);*/
-						
-						highlighted.push(obj);
 					}
 				}
-			}
+				animate();
+			};
 			
 			scope.internalCallFunc.loadCTMPlanIntoScene = function(plan3d, info, file) {
 				
@@ -2237,7 +2359,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 			};
 			
-			scope.internalCallFunc.loadCTMIntoScene = function(child, parent) {
+			webglInterface.callFunc.loadCTMIntoScene = function(child, parent) {
 				
 				var defer = $q.defer();
 				
@@ -2442,15 +2564,52 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					
 				}
 			};
+
+			webglInterface.callFunc.resetScene = function () {
+				for(var key in objects) {
+					if(!objects.hasOwnProperty(key)) continue;
+					var obj = objects[key];
+					var p = obj.mesh.parent;
+					p.remove(obj.mesh);
+					//if(obj.mesh.geometry) obj.mesh.geometry.dispose();
+					if(obj.edges) {
+						scene.remove(obj.edges);
+						//obj.edges.geometry.dispose();
+					}
+					delete objects[key];
+				}
+				for(var key in geometries) {
+					if(!geometries.hasOwnProperty(key)) continue;
+					if(geometries[key].meshGeo) geometries[key].meshGeo.dispose();
+					if(geometries[key].edgesGeo) geometries[key].edgesGeo.dispose();
+					delete geometries[key];
+				}
+				animate();
+				webglInterface.clearLists();
+			};
+
+			// function removeObject(obj) {
+			// 		var p = obj.mesh.parent;
+			// 		p.remove(obj.mesh);
+			// 		if(obj.edges) scene.remove(obj.edges);
+			// 		obj.mesh.geometry.dispose();
+			// 		obj.edges.geometry.dispose();
+			// 		delete objects[obj.mesh.id];
+			// 		for(var i=0; i<obj.mesh.children.length; i++) {
+			// 			removeObject()
+			// 		}
+			// 	}
+			// }
 			
-			// auch alt
+			// DEPRECATED
 			scope.internalCallFunc.setCoordsFromInput = function(coords) {
 				if(gizmo instanceof THREE.GizmoMove)
 					gizmo.object.position.set(parseFloat(coords.x), parseFloat(coords.y), parseFloat(coords.z));
 				else if(gizmo instanceof THREE.GizmoRotate)
 					gizmo.object.rotation.set(THREE.Math.degToRad(coords.x), THREE.Math.degToRad(coords.y), THREE.Math.degToRad(coords.z));
 			};
-			
+
+			// ziemlich alt
 			scope.internalCallFunc.saveSelected = function() {
 				console.log('saveFunc called');
 				console.log(selected);
@@ -2475,10 +2634,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						[f.vertexNormals[1].x, f.vertexNormals[1].y, f.vertexNormals[1].z],
 						[f.vertexNormals[2].x, f.vertexNormals[2].y, f.vertexNormals[2].z] ];
 					*/
+					var face;
 					if(f.vertexNormals.length < 3)
-						var face = [ f.a, f.b, f.c];
+						face = [ f.a, f.b, f.c];
 					else {
-					var face = [ f.a, f.b, f.c,
+						face = [ f.a, f.b, f.c,
 						f.vertexNormals[0].x, f.vertexNormals[0].y, f.vertexNormals[0].z,
 						f.vertexNormals[1].x, f.vertexNormals[1].y, f.vertexNormals[1].z,
 						f.vertexNormals[2].x, f.vertexNormals[2].y, f.vertexNormals[2].z ];
@@ -2512,10 +2672,19 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				//var blob = new Blob([exporter.parse(selected.geometry)], {type: 'text/plain;charset=utf-8'});
 				//saveAs(blob, 'selected.obj');
 				
-			}
-			
+			};
+
+			webglInterface.callFunc.makeScreenshot = function () {
+				var sData = getScreenshot();
+				scope.screenshotCallback(sData);
+			};
+
+			/**
+			 * retrieve viewport image and camera data
+			 * @returns {{dataUrl: string, cameraMatrix: *, cameraFOV: *, cameraCenter: *, width: *, height: *}}
+             */
 			function getScreenshot() {
-				var screenData = {
+				return {
 					dataUrl: renderer.domElement.toDataURL("image/jpeg"),
 					cameraMatrix: camera.matrix.toArray(),
 					cameraFOV: camera.fov,
@@ -2523,28 +2692,25 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					width: SCREEN_WIDTH,
 					height: SCREEN_HEIGHT
 				};
-				return screenData;
-			};
-			
-			// select Object (from list)
-			webglInterface.callFunc.selectObjectById = function(id, event, type) {
-				if(type === 'plan' && plans[id].visible)
-					setSelected(plans[id].mesh, event.ctrlKey);
-				else if(objects[id].visible)
-					setSelected(objects[id].mesh, event.ctrlKey);
-			};
+			}
 			
 			webglInterface.callFunc.selectObject = function(id, ctrlKey, deselect) {
 				if(objects[id].visible)
 					setSelected(objects[id].mesh, ctrlKey, deselect);
+				animate();
 			};
 			
 			webglInterface.callFunc.selectPlan = function(id, ctrlKey, deselect) {
 				if(plans[id].visible)
 					setSelected(plans[id].mesh, ctrlKey, deselect);
+				animate();
 			};
-			
-			// get object by id and add or remove mesh and edges
+
+			/**
+			 * get object by id and add or remove mesh and edges
+			 * @param item
+             * @param {boolean} visible
+             */
 			webglInterface.callFunc.toggleObject = function(item, visible) {
 				var p;
 				if(item.parent)
@@ -2566,6 +2732,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					objects[item.id].visible = false;
 					removeChildren(item.children);
 				}
+
+				animate();
 			};
 			
 			function addChildren(children) {
@@ -2586,7 +2754,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 			}
 
-			// toggle plan
+			/**
+			 * toggle plan
+			 * @param pid
+             * @param {boolean} visible
+             */
 			webglInterface.callFunc.togglePlan = function(pid, visible) {
 				if(visible && !plans[pid].visible) {
 					scene.add(plans[pid].mesh);
@@ -2598,9 +2770,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					scene.remove(plans[pid].edges);
 					plans[pid].visible = false;
 				}
+
+				animate();
 			};
-			
-			// color all objects by its assigned category attribute
+
+			/**
+			 * color all objects by their assigned category attribute
+			 * @param category
+             */
 			webglInterface.callFunc.colorByCategory = function(category) {
 				console.log(category);
 				scope.setShading('Custom');
@@ -2640,6 +2817,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 							objects[key].mesh.material = materials['defaultDoublesideMat'];
 					}
 				}
+
+				animate();
 			};
 			
 			// add and remove pins
@@ -2650,29 +2829,37 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				pin.applyMatrix(new THREE.Matrix4().set(m[0],m[4],m[8],m[12],m[1],m[5],m[9],m[13],m[2],m[6],m[10],m[14],m[3],m[7],m[11],m[15]));
 				scene.add(pin);
 				pins[id] = pin;
+				animate();
 			};
 			webglInterface.callFunc.removePin = function(id) {
 				if(pins[id]) {
 					scene.remove(pins[id]);
+					pins[id].dispose();
 					delete pins[id];
 				}
+				animate();
 			};
 			webglInterface.callFunc.removePins = function() {
 				for(var key in pins) {
 					scene.remove(pins[key]);
+					pins[key].dispose();
 				}
 				pins = [];
+				animate();
 			};
 			
 			webglInterface.callFunc.setScreenshotView = function(cameraData) {
-				new TWEEN.Tween(camera.position)
+				new TWEEN.Tween(camera.position.clone())
 					.to(new THREE.Vector3(cameraData.matrix[12],cameraData.matrix[13],cameraData.matrix[14]), 500)
 					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () { camera.position.copy(this); })
 					.start();
-				new TWEEN.Tween(controls.center)
+				new TWEEN.Tween(controls.center.clone())
 					.to(new THREE.Vector3(cameraData.center[0],cameraData.center[1],cameraData.center[2]), 500)
 					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () { controls.center.copy(this); })
 					.start();
+				enableAnimationRequest();
 			};
 			
 			webglInterface.callFunc.resize = function() {
@@ -2796,8 +2983,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 				}
 			};
-			
-			// orthogonale Ansicht des Plans einnehmen
+
+			/**
+			 * set camera to orthogonal view to fit plan to viewport
+			 * @param pid
+             */
 			webglInterface.callFunc.viewOrthoPlan = function(pid) {
 				
 				var pgeo = plans[pid].mesh.geometry;
@@ -2831,23 +3021,30 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				newpos.addVectors(bsCenter, normal.setLength(h));
 				
 				// Kamerafahrt zur Ansicht
-				new TWEEN.Tween(camera.position)
+				new TWEEN.Tween(camera.position.clone())
 					.to(newpos, 500)
 					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () { camera.position.copy(this); })
 					.start();
-				new TWEEN.Tween(controls.center)
+				new TWEEN.Tween(controls.center.clone())
 					.to(bsCenter, 500)
 					.easing(TWEEN.Easing.Quadratic.InOut)
-					.start()
+					.onUpdate(function () { controls.center.copy(this); })
 					.onComplete(function() {
 						camera.toOrthographic(controls.center);
 						webglInterface.viewportSettings.cameraSel = 'Custom';
 						scope.$apply();
-					});
+					})
+					.start();
+
+				enableAnimationRequest();
 				console.log('orthoview');
 			};
-			
-			// Focus objects (call from object list)
+
+			/**
+			 * focus object (call from object list)
+			 * @param id
+             */
 			webglInterface.callFunc.focusObject = function(id) {
 				var objs = [objects[id].mesh];
 				var cc = [];
@@ -2861,8 +3058,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				collectChildren(objs);
 				focusObjects(cc);
 			};
-			
-			// Focus selected objects
+
+			/**
+			 * focus selected objects
+			 */
 			scope.focusSelected = function() {
 				if(selected.length === 0) return;
 				var cc = [];
@@ -2876,8 +3075,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				collectChildren(selected);
 				focusObjects(cc);
 			};
-			
-			// Focus all objects
+
+			/**
+			 * focus all objects
+			 */
 			scope.focusAll = function() {
 				var cc = [];
 				for(var key in objects) {
@@ -2919,9 +3120,13 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				computeFocusFromSphere(geo.boundingSphere.center, geo.boundingSphere.radius);
 			}
-			
-			// place camera in appropriate distance to selected object
-			// so the object will fit nicely within the viewport
+
+			/**
+			 * place camera in appropriate distance to selected object
+			 * so the object will fit nicely within the viewport
+			 * @param {THREE.Vector3} M - center position
+             * @param {number} r - radius
+             */
 			function computeFocusFromSphere(M, r) {
 				if(camera.inPerspectiveMode) {
 					// vector from current center to cam-position
@@ -2937,10 +3142,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					//controls.center = M.clone();
 					
 					// animate camera.position and controls.center
-					new TWEEN.Tween(camera.position.clone()).to(newpos, 500).easing(TWEEN.Easing.Quadratic.InOut)
+					new TWEEN.Tween(camera.position.clone())
+						.to(newpos, 500)
+						.easing(TWEEN.Easing.Quadratic.InOut)
 						.onUpdate(function () { camera.position.copy(this); })
 						.start();
-					new TWEEN.Tween(controls.center.clone()).to(M, 500).easing(TWEEN.Easing.Quadratic.InOut)
+					new TWEEN.Tween(controls.center.clone())
+						.to(M, 500)
+						.easing(TWEEN.Easing.Quadratic.InOut)
 						.onUpdate(function () { controls.center.copy(this); })
 						.start();
 
@@ -2956,7 +3165,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 			}
 			
-			scope.$on('$destroy', function(event) {
+			scope.$on('$destroy', function() {
 				setSelected(null, false, true);
 				console.log('destroy webgl directive');
 			});

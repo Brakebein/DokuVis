@@ -1,6 +1,6 @@
 <!-- Achsen-Viewport -->
 <div id="axis"></div>
-<!-- Ladebalken und Schrift -->
+<!-- Ladebalken und Ladeinfo -->
 <div class="loadprogressitem fadeLoadprogress ng-hide" ng-show="loading.visible">{{loading.item}} &ndash; {{loading.loaded}} / {{loading.total}}</div>
 <div class="loadprogressbar fadeLoadprogress ng-hide" ng-show="loading.visible" ng-style="{ width: loading.percent + '%' }"></div>
 
@@ -28,6 +28,7 @@
 
 	<div class="ctrlGroup">
 		<button title="Screenshot-Pin" class="ctrlBtn" ng-click="startMarking()"><i class="fa fa-thumb-tack"></i></button>
+		<button title="Snapshot" class="ctrlBtn" ng-click="startMarking()"><i class="fa fa-camera"></i></button>
 	</div>
 	
 	<!--<div class="ctrlGroup">
@@ -43,7 +44,9 @@
 </div>
 
 <!-- Erweiterte Optionen im Viewport -->
-<div ng-include="'partials/enhanced_options.html'" class="vpPanelContainer" ng-show="vPanel.expand"></div>
+<div ng-include="'partials/enhanced_options.html'" class="vpPanelContainer ng-hide" ng-show="vPanel.expand" bs-collapse ng-model="vPanel.activeTab"></div>
 <!--<div ng-include="'partials/enhanced_options_horizontal.html'" class="vpPanelContainerHorizontal"></div>-->
 
 <div class="ng-hide" legend="activeCategory" ng-show="activeCategory"></div>
+
+<!--<div ng-include="'partials/snapshot.html'"></div>-->

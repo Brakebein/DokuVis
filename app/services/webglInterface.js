@@ -23,6 +23,7 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		
 		wi.vPanel = {};
 		wi.vPanel.expand = false;
+		wi.vPanel.activeTab = 0;
 		wi.vPanel.tab = 'display';
 		wi.vPanel.openTab = function (value) {
 			if(wi.vPanel.tab === value) wi.vPanel.tab = '';
@@ -104,6 +105,9 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			this.focus = function() {
 				wi.callFunc.focusObject(scope.id);
 			};
+			this.showSources = function () {
+				wi.callFunc.highlightSources(scope);
+			}
 		};
 		
 		wi.PlanEntry = function(id, name, title, type) {

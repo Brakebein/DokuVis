@@ -89,7 +89,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 		$scope.views = new Object();
 		$scope.views.activeSide = 'staff';
 
-		$scope.newComment = new Object();
+		$scope.newComment = {};
 		$scope.newComment.text = '';
 
 		/*Aufgaben umsortieren*/
@@ -275,12 +275,6 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
             return 40 * zoom;
         };
 
-		function addDays(date, days) {
-			var result = new Date(date);
-			result.setDate(date.getDate() + days);
-			return result;
-		}
-
         //Neues Zeug --> Nach Treffen am 21.4. 2016
         $scope.fillDataObjectAC = function(sortby){ // liest Aufgabenobjekte und Unterprojekten ein, allerdings nur eine Unterprojektebene
             //Mitarbeiter einfügen
@@ -304,7 +298,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 
                         $scope.root.push(Utilities.createHierarchy(response.data,['title','name','desc','priority','status','editors','from','to','amountComments'], false)[i]);
 
-                    };
+                    }
                     console.log($scope.root);
                 }
                 else{
@@ -553,7 +547,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
                     });
             }
 
-        }
+        };
 
         $scope.extractEditorData = function(){	// extrahiert Editordaten aus Eintrag
             $.each($scope.newTask.clickedElement.editors,function(i){
@@ -562,7 +556,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
             });
             console.log($scope.editorIds);
             console.log($scope.editorNames);
-        }
+        };
 
         $scope.openNewTaskForm = function(row) { // öffnet Popup für neue Aufgaben
 
@@ -571,7 +565,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
             console.log($scope.newTask.clickedElement);
 
             $scope.modalParams = {
-                modalType: 'medium',
+                modalType: 'medium'
                 // type: type,
                 // attachTo: attach || undefined,
             };
@@ -583,7 +577,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
                 scope: $scope,
                 show: true
             });
-        }
+        };
 
         $scope.openEditTaskForm = function(row) { //öffnet Popup zum Editieren
             $scope.newTask.clickedElement = row.model;
