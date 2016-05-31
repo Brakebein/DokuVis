@@ -2,15 +2,16 @@
   position: absolute;
   width: 280px;
   top: 0;
-  right: 0;
+  right: -280px;
   background-color: rgba(51, 51, 51, 0.8);
   font-size: 8pt;
   color: #fafafa;
   border-left: 1px solid #999;
   transition: right 0.5s; }
+  .vpPanelContainer.expand {
+    right: 0; }
   .vpPanelContainer.ng-hide {
-    display: block !important;
-    right: -280px; }
+    right: -300px; }
   .vpPanelContainer .expandContainerBtn {
     position: absolute;
     width: 19px;

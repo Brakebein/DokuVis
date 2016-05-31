@@ -11,6 +11,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			scope.viewportSettings = webglInterface.viewportSettings;
 			scope.vPanel = webglInterface.vPanel;
 			scope.vizSettings = webglInterface.vizSettings;
+			scope.snapshot = webglInterface.snapshot;
 			scope.$applyAsync();
 
 			// Konstante maximale Sichtweite
@@ -126,7 +127,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					stats = webglContext.stats;
 					stats.domElement.style.position = 'absolute';
 					stats.domElement.style.top = '33px';
-					element.append( stats.domElement );
+					//element.append( stats.domElement );
 				}
 				
 				// MouseHandler für Viewport
@@ -2032,10 +2033,72 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				$(canvas).bind('contextmenu', function(event) {
 					event.preventDefault();
 				});
+				
+				// var pinLayer = element.find('.pinLayer');
+				// $(pinLayer).bind('mousemove', mousemoveOnPinLayer);
+				// $(pinLayer).bind('mouseup', mouseupOnPinLayer);
+				// console.log(pinLayer);
 			}
 			
-			scope.startMarking = function() {
+			scope.mousemoveOnPinLayer = function (event) {
+				if(isPinning && pin) {
+					var mouse = mouseInputToViewport(event);
+					var testObjects = [];
+					for(var key in objects) {
+						if(objects[key].visible)
+							testObjects.push(objects[key].mesh);
+					}
+					var obj = pin.mousehit(mouse.x, mouse.y, camera, testObjects);
+					highlightObject(obj);
+				}
+			};
+			
+			scope.mouseupOnPinLayer = function (event) {
+				if(isPinning && pin) {
+					// make screenshot
+					var sData = getScreenshot();
+					if(highlighted[0]) {
+						//sData.pinMatrix = pin.matrixWorld.toArray();
+						//sData.pinObject = highlighted[0].userData.eid;
+						var pinned = false;
+						for(var i=0; i<scope.snapshot.refObj.length; i++) {
+							if(scope.snapshot.refObj[i].eid === highlighted[0].userData.eid) {
+								pinned = true;
+								break;
+							}
+						}
+						if(!pinned) {
+							scope.snapshot.refObj.push({
+								eid: highlighted[0].userData.eid,
+								name: highlighted[0].userData.name,
+								pinMatrix: pin.matrixWorld.toArray()
+							});
+						}
+						//scope.screenshotCallback(sData);
+					}
+					console.log(sData);
+
+					scope.setNavigationMode('select');
+					scope.snapshot.mode = 'paint';
+					scope.$applyAsync();
+				}
+			};
+			
+			scope.openSnapshot = function () {
+				scope.snapshot.paintOptions.width = SCREEN_WIDTH;
+				scope.snapshot.paintOptions.height = SCREEN_HEIGHT;
+				scope.snapshot.active = true;
+			};
+			scope.abortSnapshot = function () {
+				scope.snapshot.active = false;
+				scope.snapshot.refObj = [];
+				scope.snapshot.refSrc = [];
+				scope.setNavigationMode('select');
+			};
+			
+			scope.startMarking = function () {
 				scope.setNavigationMode();
+				scope.snapshot.mode = 'pin';
 				pin = new THREE.Pin(3, 0.5);
 				pin.addEventListener('change', animate);
 				scene.add(pin);
@@ -2481,19 +2544,32 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						if (file.edges) {
 							// lade und entpacke geometry für edges
 							JSZipUtils.getBinaryContent('data/' + file.path + file.edges, function (err, data) {
-								var zip = new JSZip(data);
-								var vobj = JSON.parse(zip.file(file.content + '.json').asText());
-								if (vobj.data.attributes.position.array.length === 0)
-									return;
-								var floatarray = new Float32Array(vobj.data.attributes.position.array);
-								var egeo = new THREE.BufferGeometry();
-								egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
-								edges = new THREE.LineSegments(egeo, materials['edgesMat']);
-								edges.matrix = mesh.matrixWorld;
-								edges.matrixAutoUpdate = false;
-								scene.add(edges);
-								geometries[file.content].edgesGeo = egeo;
-								objects[mesh.id].edges = edges;
+								var worker = new Worker('lib/jszip/JSZipWorker.js');
+								worker.onmessage = function (event) {
+									if(event.data == 0) return;
+									var egeo = new THREE.BufferGeometry();
+									egeo.addAttribute('position', new THREE.BufferAttribute(event.data, 3));
+									edges = new THREE.LineSegments(egeo, materials['edgesMat']);
+									edges.matrix = mesh.matrixWorld;
+									edges.matrixAutoUpdate = false;
+									scene.add(edges);
+									geometries[file.content].edgesGeo = egeo;
+									objects[mesh.id].edges = edges;
+								};
+								worker.postMessage({ data: data, file: file.content });
+								// var zip = new JSZip(data);
+								// var vobj = JSON.parse(zip.file(file.content + '.json').asText());
+								// if (vobj.data.attributes.position.array.length === 0)
+								// 	return;
+								// var floatarray = new Float32Array(vobj.data.attributes.position.array);
+								// var egeo = new THREE.BufferGeometry();
+								// egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
+								// edges = new THREE.LineSegments(egeo, materials['edgesMat']);
+								// edges.matrix = mesh.matrixWorld;
+								// edges.matrixAutoUpdate = false;
+								// scene.add(edges);
+								// geometries[file.content].edgesGeo = egeo;
+								// objects[mesh.id].edges = edges;
 							});
 						}
 						else {
@@ -2504,8 +2580,15 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 							scene.add(edges);
 							geometries[file.content].edgesGeo = edges.geometry;
 
+							// Kommastellen kürzen
+							var json = edges.geometry.toJSON();
+							var array = json.data.attributes.position.array;
+							for(var i=0, l=array.length; i<l; i++) {
+								array[i] = parseFloat(array[i].toFixed(3));
+							}
+
 							var zip = new JSZip();
-							zip.file(file.content + '.json', JSON.stringify(edges.geometry.toJSON()));
+							zip.file(file.content + '.json', JSON.stringify(json));
 							var zipdata = zip.generate({compression: 'DEFLATE'});
 							phpRequest.saveGeoToJson(file.path, file.content, zipdata).then(function (response) {
 								if (response.data !== 'SUCCESS') {
@@ -2850,7 +2933,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			};
 
 			function toScreenXY(pos3D) {
-				//var projector = new THREE.Projector();
 				var v = pos3D.project(camera);
 				var left = SCREEN_WIDTH * (v.x + 1) / 2;
 				var top = SCREEN_HEIGHT * (-v.y + 1) / 2;
@@ -3176,6 +3258,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			
 			scope.$on('$destroy', function() {
 				setSelected(null, false, true);
+				if(scope.snapshot.active) scope.abortSnapshot();
 				console.log('destroy webgl directive');
 			});
 		}

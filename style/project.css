@@ -1,138 +1,106 @@
-.projectAll {
-	width: 100%;
-	height: 100%;
-	/*display: flex;*/
-}
-
 .prjSideNav {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	width: 36px;
-	z-index: 50;
-	
-	color: #999;
-	background-color: #333;
-	border-right: 1px solid #000;
-	
-	display: flex;
-	flex-direction: column;
-}
-.prjSideNav .smLogo {
-	flex: 0 0 35px;
-	/*height: 35px;*/
-	background-color: #fc4e2a;
-}
-.prjSideNav .smBtn {
-	flex: 0 0 35px;
-	/*height: 35px;*/
-	border-right: 2px solid rgba(252,78,42,0.5);
-	
-	padding: 7px;
-	transition: border-right-color 0.3s, color 0.3s, background-color 0.3s;
-}
-.prjSideNav .smBtn:hover {
-	border-right-color: rgba(252,78,42,1.0);
-	background-color: #444;
-	cursor: pointer;
-	color: #ddd;
-}
-.prjSideNav .smBtn.active {
-	border-right-color: rgba(252,78,42,1.0);
-	background-color: rgba(252,78,42,0.5);
-	cursor: pointer;
-	color: #ddd;
-}
-.prjSideNav .smBtn span {
-	font-size: 20px;
-}
-.prjSideNav .smSpace {
-	flex: 1 1 35px;
-}
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 36px;
+  z-index: 50; }
 
+.sideNav {
+  background-color: #333;
+  color: #999;
+  display: flex;
+  flex-direction: column; }
+  .sideNav .smLogo {
+    flex: 0 0 35px;
+    background-color: #fc4e2a;
+    cursor: pointer; }
+  .sideNav .smBtn {
+    flex: 0 0 35px;
+    padding: 7px;
+    transition: border 0.3s, color 0.3s, background-color 0.3s; }
+    .sideNav .smBtn:hover, .sideNav .smBtn.active {
+      cursor: pointer;
+      color: #ddd; }
+    .sideNav .smBtn:hover {
+      background-color: #444; }
+    .sideNav .smBtn.active {
+      background-color: rgba(252, 78, 42, 0.5); }
+    .sideNav .smBtn i, .sideNav .smBtn span {
+      font-size: 20px; }
+  .sideNav .smSpace {
+    flex: 1 1 35px; }
+  .sideNav.sideNav-left {
+    border-right: 1px solid #000; }
+    .sideNav.sideNav-left .smBtn {
+      border-right: 2px solid rgba(252, 78, 42, 0.5); }
+      .sideNav.sideNav-left .smBtn:hover, .sideNav.sideNav-left .smBtn.active {
+        border-right-color: #fc4e2a; }
+  .sideNav.sideNav-right {
+    border-left: 1px solid #000; }
+    .sideNav.sideNav-right .smBtn {
+      border-left: 2px solid rgba(252, 78, 42, 0.5); }
+      .sideNav.sideNav-right .smBtn:hover, .sideNav.sideNav-right .smBtn.active {
+        border-left-color: #fc4e2a; }
 
 .prjMainContainer {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 36px;
-	right: 0;
-	z-index: 30;
-	/*position: relative;*/
-}
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 36px;
+  right: 0;
+  z-index: 30; }
 
-/* resizer */
 .resizer-h {
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: 234px;
-	height: 6px;
-	cursor: n-resize;
-}
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 234px;
+  height: 6px;
+  cursor: n-resize; }
+
 .resizer-v {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 66%;
-	width: 6px;
-	cursor: e-resize;
-}
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 66%;
+  width: 6px;
+  cursor: e-resize; }
 
 .resizer-h, .resizer-v {
-	background-color: #333;
-}
+  background-color: #333; }
+
 .resizer-h:hover, .resizer-v:hover {
-	background-color: #789;
-}
-
-/*resizer tasks*/
-.resizer-vTask {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 100%;
-	width: 6px;
-	cursor: e-resize;
-}
+  background-color: #789; }
 
 .resizer-vTask {
-	background-color: #333;
-}
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: 6px;
+  cursor: e-resize; }
+
+.resizer-vTask {
+  background-color: #333; }
+
 .resizer-vTask:hover {
-	background-color: #789;
-}
+  background-color: #789; }
 
-/* modal */
-/*.modal {
-	position: absolute;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	padding: 50px 0;
-	/*background-image: url(../img/bg_schraffur2.png);
-	background-repeat: repeat;*/
-	/*background-color: rgba(128, 128, 128, 0.5);
-	z-index: 100;
-	
-}*/
 .closeXBtn {
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 25px;
-	height:25px;
-	padding: 3px 5px;
-	background-color:#e68f8d;
-	/*border: 1px solid #d43f3a;*/
-	border-bottom: 1px solid #888;
-	border-left: 1px solid #888;
-	border-bottom-left-radius: 4px;
-	color: #fff;
-	cursor: pointer;
-}
-.closeXBtn:hover {
-	background-color: #d2322d;
-	/*border-color:#ac2925;*/
-}
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 25px;
+  height: 25px;
+  padding: 3px 5px;
+  background-color: #e68f8d;
+  border-bottom: 1px solid #888;
+  border-left: 1px solid #888;
+  border-bottom-left-radius: 4px;
+  color: #fff;
+  cursor: pointer; }
+  .closeXBtn:hover {
+    background-color: #d2322d; }
+
+/*# sourceMappingURL=project.css.map */

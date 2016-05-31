@@ -4,16 +4,18 @@
 	position: absolute
 	width: 280px
 	top: 0
-	right: 0
+	right: -280px
 	background-color: $panelBackground
 	font-size: 8pt
 	color: $panelFontColor
 	border-left: $panelBorder
 	transition: right 0.5s
 
+	&.expand
+		right: 0
 	&.ng-hide
-		display: block !important
-		right: -280px
+		//display: block !important
+		right: -300px
 
 	.expandContainerBtn
 		position: absolute

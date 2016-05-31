@@ -2,18 +2,80 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  pointer-events: none; }
-  .snapshot .settings {
+  color: #fafafa;
+  font-size: 12px;
+  transition: opacity 0.5s; }
+  .snapshot.ng-enter, .snapshot.ng-leave.ng-leave-active {
+    opacity: 0; }
+  .snapshot.ng-enter.ng-enter-active, .snapshot.ng-leave {
+    opacity: 1; }
+  .snapshot .pinLayer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 30; }
+    .snapshot .pinLayer.active {
+      z-index: 40; }
+  .snapshot .paintLayer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 30; }
+    .snapshot .paintLayer.active {
+      z-index: 40; }
+    .snapshot .paintLayer > div {
+      position: relative;
+      width: 100%;
+      height: 100%; }
+      .snapshot .paintLayer > div div, .snapshot .paintLayer > div canvas {
+        width: 100%;
+        height: 100%; }
+  .snapshot .border {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid #ff0;
+    pointer-events: none;
+    z-index: 45;
+    transition: border-color 0.5s; }
+  .snapshot .settingsContainer {
     position: absolute;
     bottom: 0;
-    left: 50%;
-    transform: translate(-50%, 0);
+    width: 100%;
+    z-index: 50;
+    display: flex;
+    justify-content: center; }
+  .snapshot .settings {
     height: 33px;
     padding: 6px 6px 3px;
     background-color: rgba(51, 51, 51, 0.8);
     border: 1px solid #999;
     border-bottom: none;
     border-top-left-radius: 10px;
-    border-top-right-radius: 10px; }
+    border-top-right-radius: 10px;
+    transition: bottom 0.5s;
+    transition-delay: 0.5s; }
+    .snapshot .settings .sliderDiv {
+      display: inline-block;
+      vertical-align: middle;
+      margin: 0 5px; }
+      .snapshot .settings .sliderDiv input[type=range] {
+        width: 200px;
+        display: inline-block;
+        vertical-align: middle; }
+    .snapshot .settings .lineWidth {
+      display: inline-block;
+      vertical-align: middle;
+      width: 30px;
+      height: 20px; }
+      .snapshot .settings .lineWidth > div {
+        width: 30px;
+        background-color: #ddd; }
+    .snapshot .settings .minicolors {
+      display: inline-block;
+      margin: 0 5px; }
+      .snapshot .settings .minicolors > span {
+        width: 20px;
+        height: 20px; }
 
 /*# sourceMappingURL=snapshot.css.map */

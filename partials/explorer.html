@@ -45,7 +45,7 @@
 <!-- Seitenspalte -->
 <div class="sidePanel">
 
-	<div class="sidePanelSidemenu">
+	<div class="sidePanelSidemenu sideNav sideNav-right">
 	
 		<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide=='objlist'}" ng-click="views.activeSide = 'objlist'">
 			<span class="glyphicon glyphicon-list"></span>
@@ -121,7 +121,7 @@
 	</div>
 
 	<!-- Screenshots und Kommentare -->
-	<div ng-show="views.activeSide == 'comments'" class="sideContainer">
+	<div ng-show="views.activeSide == 'comments' && !wi.snapshot.active" class="sideContainer">
 		
 		<div class="sideHeader">
 			<h4>Screenshots & Kommentare</h4>
@@ -162,6 +162,32 @@
 			<!--<button class="btn btn-default" ng-click="makeScreenshot()">Screenshot erstellen</button>-->
 		</div>
 		
+	</div>
+
+	<div class="sideContainer" ng-show="views.activeSide == 'comments' && wi.snapshot.active">
+
+		<div class="sideHeader">
+			<h4>Neuer Modellkommentar</h4>
+			<hr/>
+		</div>
+
+		<div class="sideContent">
+			<textarea class="form-control" rows="6"></textarea>
+			<p>Gepinnte Objekte:</p>
+			<p>
+				<span class="tag-item" ng-repeat="ro in wi.snapshot.refObj">
+				{{ ro.name }} <a class="remove-button" ng-click="wi.snapshot.refObj.splice($index, 1)">×</a>
+				</span>
+			</p>
+			<p>Referenzierte Quellen:</p>
+			<div>
+				<div class="src-item" ng-repeat="rs in wi.snapshot.refSrc">
+					<img ng-src="data/{{rs.file.path}}_thumbs/{{rs.file.thumb}}" ng-attr-title="{{rs.title}}"/>
+					<a class="remove-button" ng-click="wi.snapshot.refSrc.splice($index, 1)">×</a>
+				</div>
+			</div>
+		</div>
+
 	</div>
 	
 	<!-- Objekteigenschaften -->
@@ -331,6 +357,7 @@
 
 <svg id="svgViz" class="svgViz">
 	<line ng-show="line" ng-attr-x1="{{line.x1}}" ng-attr-y1="{{line.y1}}" ng-attr-x2="{{line.x2}}" ng-attr-y2="{{line.y2}}" />
+	<path ng-show="path" ng-attr-d="{{path}}"/>
 </svg>
 
 <!-- alert -->

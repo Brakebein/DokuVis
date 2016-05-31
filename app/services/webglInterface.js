@@ -24,17 +24,22 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		wi.vPanel = {};
 		wi.vPanel.expand = false;
 		wi.vPanel.activeTab = 0;
-		wi.vPanel.tab = 'display';
-		wi.vPanel.openTab = function (value) {
-			if(wi.vPanel.tab === value) wi.vPanel.tab = '';
-			else wi.vPanel.tab = value;
-		};
 		
 		wi.vizSettings = {};
 		wi.vizSettings.opacitySelected = 100;
 		wi.vizSettings.edges = true;
 		wi.vizSettings.edgesOpacity = 100;
 		wi.vizSettings.edgesColor = 100;
+
+		wi.snapshot = { active: false, mode: 'paint', refObj: [], refSrc: [] };
+		wi.snapshot.paintOptions = {
+			opacity: 1.0,
+			color: 'rgba(255,255,0,1.0)', //'#ff0',
+			backgroundColor: 'rgba(255,255,255,0.0)',
+			lineWidth: 3,
+			undo: true,
+			imageSrc: false
+		};
 		
 		// Listen
 		wi.objects = [];

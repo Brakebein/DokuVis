@@ -289,18 +289,40 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 		
 		$scope.addPin = function (id, pinObj, event) {
-			console.log(pinObj, event);
+			//console.log(pinObj, event);
+			var targetHeight = $(event.delegateTarget).height();
 			var target = $(event.delegateTarget).offset();
-			console.log(target);
-			console.log($('#svGViz'));
+			//console.log(target);
+			var canvas = $('#svgViz').offset();
+			//console.log(canvas);
+			target.left -= canvas.left;
+			target.top -= canvas.top;
 			var screenXY = webglInterface.callFunc.addPin(id, pinObj);
-			console.log(screenXY);
-			$scope.line = {x1: screenXY.x, y1: screenXY.y, x2: target.left, y2: target.top };
+			//console.log(screenXY);
+			//$scope.line = { x1: screenXY.x, y1: screenXY.y, x2: target.left, y2: target.top };
+			var d = ['M' + target.left,
+				target.top,
+				'Q',
+				screenXY.x + 0.75 * Math.abs(screenXY.x - target.left),
+				(screenXY.y + target.top + targetHeight / 2) / 2 + ',',
+				screenXY.x,
+				screenXY.y,
+				'Q',
+				screenXY.x + 0.75 * Math.abs(screenXY.x - target.left),
+				(screenXY.y + target.top + targetHeight / 2) / 2 + ',',
+				target.left,
+				target.top+100
+			];
+			$scope.path = d.join(' ');
 		};
 		$scope.removePin = function (id) {
 			$scope.line = null;
+			$scope.path = null;
 			webglInterface.callFunc.removePin(id);
 		};
+		
+		// TODO: "Pin-Linie" muss sich bei Focus-Animation mitbewegen oder ausgeblendet werden
+		// TODO: abfragen, ob Pin sich überhaupt innerhalb des Viewports befindet
 		
 		$scope.open3DPlan = function(plan) {
 			neo4jRequest.getAttached3DPlan($stateParams.project, plan.eid, plan.plan3d).success(function(data, status){
@@ -468,6 +490,13 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			var btnbar = event.currentTarget.children[0].children[2];
 			if(event.target.parentElement == btnbar || event.target.parentElement.parentElement == btnbar)
 				return;
+			
+			if(webglInterface.snapshot.active) {
+				if(webglInterface.snapshot.refSrc.indexOf(item) === -1)
+					webglInterface.snapshot.refSrc.push(item);
+				return;
+			}
+			
 			if(event.ctrlKey) {
 				if(event.currentTarget != event.target)
 					item.selected = !item.selected;
@@ -529,10 +558,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}
 		};
 		
-		//$('#inputXCoord').bind('blur', coordInputHandler);
-		//$('#inputYCoord').bind('blur', coordInputHandler);
-		//$('#inputZCoord').bind('blur', coordInputHandler);
-		
 		$scope.validateCoord = function(coord, value, event) {
 			console.log('validate');
 			
@@ -586,7 +611,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		// weise neue Kategorie zu
 		$scope.updateCategoryAttr = function(c) {
-			if(c.selectec === -1) return;
+			if(c.selected === -1) return;
 			
 			var e73ids = [];
 			for(var i=0; i<webglInterface.selected.length; i++) {
