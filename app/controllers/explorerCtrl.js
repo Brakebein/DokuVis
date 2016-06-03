@@ -8,8 +8,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		$scope.views = {};
 		$scope.views.activeMain = '3dview';
-		$scope.views.activeSide = 'objproperties';
-		// $scope.views.activeSide = 'comments';
+		//$scope.views.activeSide = 'objproperties';
+		$scope.views.activeSide = 'comments';
 								
 		$scope.overlayParams = {url: '', params: {}};
 		
@@ -494,6 +494,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			if(webglInterface.snapshot.active) {
 				if(webglInterface.snapshot.refSrc.indexOf(item) === -1)
 					webglInterface.snapshot.refSrc.push(item);
+				console.log(webglInterface.snapshot.refSrc);
 				return;
 			}
 			

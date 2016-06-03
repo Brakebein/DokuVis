@@ -6,6 +6,7 @@ angular.module('dokuvisApp').factory('CidocDict',
 		var entities = {};
 		
 		entities['E21'] = { de: 'Person', prefProp: 'title', color: '#ffa992' };
+		entities['E22'] = { de: 'Objekt', prefProp: 'title' };
 		entities['E31'] = { de: 'Dokument', prefProp: 'title', color: '#cbf09a' };
 		entities['E33'] = { de: 'Kommentar', prefProp: 'value', color: '#cae4e8' };
 		entities['E35'] = { de: 'Titel', prefProp: 'value', color: '#cae4e8' };
@@ -29,6 +30,7 @@ angular.module('dokuvisApp').factory('CidocDict',
 		properties['P14'] = { de: 'wurde ausgeführt von', en: 'carried out by' };
 		properties['P15'] = { de: 'wurde beeinflusst durch', en: 'was influenced by' };
 		properties['P52'] = { de: 'im Besitz von', en: 'has current owner' };
+		properties['P70'] = { de: 'belegt', en: 'documents' };
 		properties['P94'] = { de: 'hat erschaffen', en: 'has produced' };
 		
 		properties['P4a'] = { de: 'wurde erstellt während', en: 'produced during' };

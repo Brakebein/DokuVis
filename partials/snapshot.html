@@ -1,4 +1,4 @@
-<div class="pinLayer" ng-class="{active: snapshot.mode === 'pin'}" ng-mousemove="mousemoveOnPinLayer($event)" ng-mouseup="mouseupOnPinLayer($event)"></div>
+<div class="pinLayer" ng-class="{active: snapshot.mode === 'pin'}" ng-mousemove="mousemoveOnPinLayer($event)" ng-mouseup="mouseupOnPinLayer($event)" no-context-menu></div>
 
 <div class="paintLayer" ng-class="{active: snapshot.mode === 'paint'}">
 	<div pw-canvas options="snapshot.paintOptions" version="snapshot.version" current-size="{width: snapshot.paintOptions.width, height: snapshot.paintOptions.height}"></div>

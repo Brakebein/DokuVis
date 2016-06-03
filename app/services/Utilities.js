@@ -200,6 +200,10 @@ angular.module('dokuvisApp').factory('Utilities',
 		/**
 		  * Alerts
 		*/
+		/**
+		 * shows a danger alert for 5 seconds
+		 * @param {string} message
+		 */
 		f.dangerAlert = function(message) {
 			$alert({
 				content: message,

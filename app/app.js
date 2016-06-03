@@ -63,7 +63,7 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				templateUrl: 'partials/projects.html',
 				controller: 'projectlistCtrl',
 				resolve: {
-					authenticate: authenticate
+					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate]
 				}
 			})
 			.state('project', {
@@ -72,7 +72,7 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				controller: 'projectCtrl',
 				css: 'style/project.css',
 				resolve: {
-					authenticate: authenticate,
+					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate],
 					checkProject: checkProject,
 					checkSubproject: checkSubproject
 				},
@@ -99,14 +99,14 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			})
 			.state('project.explorer.source', {
 				url: '/source',
-				onEnter: function ($modal) {
+				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalLargeTpl.html',
 						contentTemplate: 'partials/modals/sourceDetailModal.html',
 						controller: 'sourceDetailCtrl',
 						show: true
 					});
-				},
+				}],
 				css: 'style/modals/sourceDetail.min.css',
 				abstract: true
 			})
@@ -115,14 +115,14 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			})
 			.state('project.explorer.upload', {
 				url: '/upload',
-				onEnter: function ($modal) {
+				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalLargeTpl.html',
 						contentTemplate: 'partials/modals/uploadModal.html',
 						controller: 'uploadCtrl',
 						show: true
 					});
-				},
+				}],
 				css: 'style/modals/upload.min.css',
 				abstract: true
 			})
@@ -147,14 +147,14 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			})
 			.state('project.graph.source', {
 				url: '/source',
-				onEnter: function ($modal) {
+				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalLargeTpl.html',
 						contentTemplate: 'partials/modals/sourceDetailModal.html',
 						controller: 'sourceDetailCtrl',
 						show: true
 					});
-				},
+				}],
 				css: 'style/modals/sourceDetail.min.css',
 				abstract: true
 			})

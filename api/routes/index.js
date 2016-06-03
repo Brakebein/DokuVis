@@ -60,6 +60,7 @@ router.get('/auth/project/:id/comment/:targetId', comment.get);
 router.get('/auth/project/:id/graph/:nodeId', graph.getPaths);
 router.get('/auth/project/:id/graph/:nodeId/:label', graph.getTitle);
 router.get('/auth/project/:id/graph/:nodeId/:label', graph.getAbstractNodes);
+router.get('/auth/project/:id/graph/:nodeId/e22', graph.getE22Name);
 
 // persons
 router.get('/auth/project/:id/persons', person.getAll);

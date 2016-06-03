@@ -28,40 +28,28 @@ html, body
 	overflow: auto
 	outline: none
 
-.modal-dialog.large
-	height: 100%
-	width: 100%
-	max-width: 1200px
-	margin: 0 auto
-	padding: 30px
+.modal-dialog
+	&.large
+		max-width: 1200px
+	&.xlarge
+		max-width: 100%
 
-.modal-dialog.xlarge
-	height: 100%
-	width: 100%
-	max-width: 100%
-	margin: 0 auto
-	padding: 30px
+	&.large, &.xlarge
+		height: 100%
+		width: 100%
+		margin: 0 auto
+		padding: 30px
 
+		& > .modal-content
+			position: relative
+			height: 100%
+			display: flex
+			flex-direction: column
 
-.modal-dialog.large > .modal-content,
-.modal-dialog.xlarge > .modal-content
-	position: relative
-	height: 100%
-
-.modal-dialog.large > .modal-content,
-.modal-dialog.xlarge > .modal-content
-	display: flex
-	flex-direction: column
-
-.modal-dialog.large > .modal-content > .modal-header,
-.modal-dialog.xlarge > .modal-content > .modal-header,
-.modal-dialog.large > .modal-content > .modal-footer,
-.modal-dialog.xlarge > .modal-content > .modal-footer
-	flex: 0 0 auto
-
-.modal-dialog.large > .modal-content > .modal-body,
-.modal-dialog.xlarge > .modal-content > .modal-body
-	flex: 1 1 auto
+			& > .modal-header, & > .modal-footer
+				flex: 0 0 auto
+			& > .modal-body
+				flex: 1 1 auto
 
 
 // Tooltip Anpassungen

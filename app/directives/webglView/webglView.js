@@ -2,8 +2,8 @@
  * @author Jonas Bruschke
  */
 
-angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities',
-	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities) {
+angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment',
+	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment) {
 		
 		function link(scope, element, attr) {
 			
@@ -1977,18 +1977,34 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					orthocam.updateProjectionMatrix();
 				}
 			}
-			
+
+			/**
+			 * KeyDown EventHandler
+			 * @param event
+			 */
 			function keydown(event) {
-				if(event.target.tagName === 'INPUT') return;
+				if(['INPUT', 'TEXTAREA'].indexOf(event.target.tagName) !== -1) return;
 				controls.onKeyDown(event.originalEvent);
 			}
-			
+
+			/**
+			 * KeyUp EventHandler
+			 * @param event
+			 */
 			function keyup(event) {
-				console.log('keyup');
+				//console.log('keyup', event);
+				if(['INPUT', 'TEXTAREA'].indexOf(event.target.tagName) !== -1) return;
+
+				switch(event.keyCode) {
+					case 70: scope.setCamera('Front'); break;		// F
+					case 76: scope.setCamera('Left'); break;		// L
+					case 80: scope.setCamera('Perspective'); break;	// P
+					case 84: scope.setCamera('Top'); break;			// T
+				}
 			}
 			
 			
-			function onWindowResize(event) {
+			function onWindowResize() {
 				resizeViewport();
 			}
 			
@@ -2027,7 +2043,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				//$(canvas).bind('MozMousePixelScroll', mousewheel); // firefox
 				$(canvas).bind('DOMMouseScroll', mousewheel); // firefox
 				$(window).bind('keydown', keydown);
-				$(canvas).bind('keyup', keyup);
+				$(window).bind('keyup', keyup);
 				$(window).bind('resize', onWindowResize);
 				
 				$(canvas).bind('contextmenu', function(event) {
@@ -2054,20 +2070,21 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			};
 			
 			scope.mouseupOnPinLayer = function (event) {
-				if(isPinning && pin) {
+				event.preventDefault();
+				if(isPinning && pin && event.button === 0) {
 					// make screenshot
-					var sData = getScreenshot();
-					if(highlighted[0]) {
+					//var sData = getScreenshot();
+					if (highlighted[0]) {
 						//sData.pinMatrix = pin.matrixWorld.toArray();
 						//sData.pinObject = highlighted[0].userData.eid;
 						var pinned = false;
-						for(var i=0; i<scope.snapshot.refObj.length; i++) {
-							if(scope.snapshot.refObj[i].eid === highlighted[0].userData.eid) {
+						for (var i = 0; i < scope.snapshot.refObj.length; i++) {
+							if (scope.snapshot.refObj[i].eid === highlighted[0].userData.eid) {
 								pinned = true;
 								break;
 							}
 						}
-						if(!pinned) {
+						if (!pinned) {
 							scope.snapshot.refObj.push({
 								eid: highlighted[0].userData.eid,
 								name: highlighted[0].userData.name,
@@ -2076,8 +2093,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						}
 						//scope.screenshotCallback(sData);
 					}
-					console.log(sData);
-
+					//console.log(sData);
+					console.log(scope.snapshot.refObj);
+				}
+				if(event.button === 0 || event.button === 2) {
 					scope.setNavigationMode('select');
 					scope.snapshot.mode = 'paint';
 					scope.$applyAsync();
@@ -2088,13 +2107,47 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				scope.snapshot.paintOptions.width = SCREEN_WIDTH;
 				scope.snapshot.paintOptions.height = SCREEN_HEIGHT;
 				scope.snapshot.active = true;
+
+				scope.snapshot.sIndex = 0;
+				scope.snapshot.screenshots.push(getScreenshot());
+				//console.log(sData);
 			};
-			scope.abortSnapshot = function () {
+			webglInterface.callFunc.abortSnapshot = function () {
 				scope.snapshot.active = false;
 				scope.snapshot.refObj = [];
 				scope.snapshot.refSrc = [];
+				scope.snapshot.screenshots = [];
 				scope.setNavigationMode('select');
 			};
+			webglInterface.callFunc.saveSnapshot = function () {
+				scope.snapshot.screenshots[scope.snapshot.sIndex].pData = element.find('#pwCanvasMain')[0].toDataURL("image/png");
+				
+				Comment.create('model', scope.snapshot.text, scope.snapshot.title, scope.snapshot.refObj, scope.snapshot.refSrc, scope.snapshot.screenshots).then(function (response) {
+					console.log(response);
+				}, function (err) {
+					console.log(err);
+				});
+			};
+
+			webglInterface.callFunc.makeScreenshot = function () {
+				var sData = getScreenshot();
+				scope.screenshotCallback(sData);
+			};
+
+			/**
+			 * retrieve viewport image and camera data
+			 * @returns {{sData: string, cameraMatrix: *, cameraFOV: *, cameraCenter: *, width: *, height: *}}
+			 */
+			function getScreenshot() {
+				return {
+					sData: renderer.domElement.toDataURL("image/jpeg"),
+					cameraMatrix: camera.matrix.toArray(),
+					cameraFOV: camera.fov,
+					cameraCenter: controls.center.toArray(),
+					width: SCREEN_WIDTH,
+					height: SCREEN_HEIGHT
+				};
+			}
 			
 			scope.startMarking = function () {
 				scope.setNavigationMode();
@@ -2756,26 +2809,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				//saveAs(blob, 'selected.obj');
 				
 			};
-
-			webglInterface.callFunc.makeScreenshot = function () {
-				var sData = getScreenshot();
-				scope.screenshotCallback(sData);
-			};
-
-			/**
-			 * retrieve viewport image and camera data
-			 * @returns {{dataUrl: string, cameraMatrix: *, cameraFOV: *, cameraCenter: *, width: *, height: *}}
-             */
-			function getScreenshot() {
-				return {
-					dataUrl: renderer.domElement.toDataURL("image/jpeg"),
-					cameraMatrix: camera.matrix.toArray(),
-					cameraFOV: camera.fov,
-					cameraCenter: controls.center.toArray(),
-					width: SCREEN_WIDTH,
-					height: SCREEN_HEIGHT
-				};
-			}
 			
 			webglInterface.callFunc.selectObject = function(id, ctrlKey, deselect) {
 				if(objects[id].visible)
@@ -3026,24 +3059,29 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					new TWEEN.Tween(p.position)
 						.to(t, 500)
 						.easing(TWEEN.Easing.Quadratic.InOut)
+						//.onUpdate(function () { p.position.copy(this); })
 						.start();
 					
 					new TWEEN.Tween(p.quaternion)
 						.to(q, 500)
 						.easing(TWEEN.Easing.Quadratic.InOut)
+						//.onUpdate(function () { p.quaternion.copy(this); })
 						.start();
 					
 					if(plans[key].edges) {
 						new TWEEN.Tween(plans[key].edges.position)
 							.to(t, 500)
 							.easing(TWEEN.Easing.Quadratic.InOut)
+							//.onUpdate(function () { plans[key].edges.position.copy(this); })
 							.start();
 						new TWEEN.Tween(plans[key].edges.quaternion)
 							.to(q, 500)
 							.easing(TWEEN.Easing.Quadratic.InOut)
+							//.onUpdate(function () { plans[key].edges.quaternion.copy(this); })
 							.start();
 					}
 				}
+				enableAnimationRequest();
 			};
 			
 			// pläne in ausgangslage zurücksetzen
@@ -3056,23 +3094,28 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					new TWEEN.Tween(plans[key].mesh.position)
 						.to(t, 500)
 						.easing(TWEEN.Easing.Quadratic.InOut)
+						//.onUpdate(function () { plans[key].mesh.position.copy(this); })
 						.start();
 					new TWEEN.Tween(plans[key].mesh.quaternion)
 						.to(q, 500)
 						.easing(TWEEN.Easing.Quadratic.InOut)
+						//.onUpdate(function () { plans[key].mesh.quaternion.copy(this); })
 						.start();
 					
 					if(plans[key].edges) {
 						new TWEEN.Tween(plans[key].edges.position)
 							.to(t, 500)
 							.easing(TWEEN.Easing.Quadratic.InOut)
+							//.onUpdate(function () { plans[key].edges.position.copy(this); })
 							.start();
 						new TWEEN.Tween(plans[key].edges.quaternion)
 							.to(q, 500)
 							.easing(TWEEN.Easing.Quadratic.InOut)
+							//.onUpdate(function () { plans[key].edges.quaternion.copy(this); })
 							.start();
 					}
 				}
+				enableAnimationRequest();
 			};
 
 			/**

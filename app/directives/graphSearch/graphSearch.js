@@ -451,6 +451,18 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				if(node.properties.title) return;
 				getTitle(node, 'E82', 'value');
 			};
+			rules['E22'] = function (node) {
+				if(node.properties.title) return;
+				waitingForUpdate++;
+				GraphVis.getE22Name(+node.id).then(function (response) {
+					console.log(response);
+					node.properties.title = response.data.name || response.data.content;
+					waitingForUpdate--;
+					if(waitingForUpdate === 0) graph.update();
+				}, function (err) {
+					Utilities.throwApiException('on GraphVis.getE22Name()', err);
+				});
+			};
 			rules['E31'] = function (node) {
 				getTitle(node, 'E35', 'content');
 			};
@@ -474,10 +486,56 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				graph.removeNode(endNode.id);
 				return true;
 			};
-			rules['P70-E36'] = function (endNode, link) {
-				graph.removeNode(endNode.id);
-				return true;
-			};
+			/*rules['P70-E36'] = function (node, link) {
+				// graph.removeNode(node.id);
+				// return true;
+				waitingForUpdate++;
+				GraphVis.getNodeNeighbours(+node.id).then(function (response) {
+					if(!response.data.results[0]) return;
+					var data = response.data.results[0].data;
+
+					for(var i=0; i<data.length; i++) {
+						var dataNodes = data[i].graph.nodes;
+						var dataLinks = data[i].graph.relationships;
+
+						for(var j=0; j<dataNodes.length; j++) {
+							graph.addNode(dataNodes[j]);
+						}
+						for(var j=0; j<dataLinks.length; j++) {
+							var link = dataLinks[j];
+							var endNodeId = link.startNode === node.id ? link.endNode : link.startNode;
+							var endNode = graph.findNode(endNodeId);
+							callRule(endNode.labels[0], endNode);
+							graph.addLink(link);
+						}
+					}
+
+					var linkP70 = graph.findLinkByType('P70', node);
+					var linkP138 = graph.findLinkByType('P138', node);
+
+					if(linkP70 && linkP138) {
+						graph.addLink({
+							id: linkP70.id + linkP138.id,
+							type: 'P70a',
+							startNode: linkP70.source.id,
+							source: linkP70.source,
+							endNode: linkP138.target.id,
+							target: linkP138.target
+						});
+					}
+
+					if(linkP70) graph.removeLink(linkP70.id);
+					if(linkP138) graph.removeLink(linkP138.id);
+					graph.removeNode(node.id);
+
+					waitingForUpdate--;
+					if(waitingForUpdate === 0) graph.update();
+
+
+				}, function(err) {
+					Utilities.throwApiException('on GraphVis.getNodeNeighbours()', err);
+				});
+			};*/
 			rules['P82-E61'] = function (endNode, link) {
 				var startNode = graph.findNode(link.startNode);
 				setTitle(startNode, endNode, 'value');
@@ -493,10 +551,10 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				setTitle(startNode, endNode, 'value');
 				return true;
 			};
-			rules['P138-E36'] = function (endNode, link) {
+			/*rules['P138-E36'] = function (endNode, link) {
 				graph.removeNode(endNode.id);
 				return true;
-			};
+			};*/
 			rules['P129-E33'] = function (node, link) {
 				waitingForUpdate++;
 				GraphVis.getNodeNeighbours(+node.id).then(function (response) {

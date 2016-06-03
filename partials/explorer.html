@@ -172,20 +172,44 @@
 		</div>
 
 		<div class="sideContent">
-			<textarea class="form-control" rows="6"></textarea>
-			<p>Gepinnte Objekte:</p>
-			<p>
-				<span class="tag-item" ng-repeat="ro in wi.snapshot.refObj">
-				{{ ro.name }} <a class="remove-button" ng-click="wi.snapshot.refObj.splice($index, 1)">×</a>
-				</span>
-			</p>
-			<p>Referenzierte Quellen:</p>
-			<div>
-				<div class="src-item" ng-repeat="rs in wi.snapshot.refSrc">
-					<img ng-src="data/{{rs.file.path}}_thumbs/{{rs.file.thumb}}" ng-attr-title="{{rs.title}}"/>
-					<a class="remove-button" ng-click="wi.snapshot.refSrc.splice($index, 1)">×</a>
+			<div class="form-horizontal">
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Titel</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" ng-model="wi.snapshot.title" />
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-12">
+						<textarea class="form-control" rows="6" ng-model="wi.snapshot.text"></textarea>
+					</div>
 				</div>
 			</div>
+
+			<div>
+				<div class="form-group">
+					<label>Gepinnte Objekte</label>
+					<div>
+						<span class="tag-item" ng-repeat="ro in wi.snapshot.refObj">
+						{{ ro.name }} <a class="remove-button" ng-click="wi.snapshot.refObj.splice($index, 1)">×</a>
+						</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>Referenzierte Quellen</label>
+					<div>
+						<div class="src-item" ng-repeat="rs in wi.snapshot.refSrc">
+							<img ng-src="data/{{rs.file.path}}_thumbs/{{rs.file.thumb}}" ng-attr-title="{{rs.title}}"/>
+							<a class="remove-button" ng-click="wi.snapshot.refSrc.splice($index, 1)">×</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="sideFooter">
+			<button class="btn btn-primary" ng-click="wi.callFunc.saveSnapshot()">Kommentar erstellen</button>
+			<button class="btn btn-default" ng-click="wi.callFunc.abortSnapshot()">Verwerfen</button>
 		</div>
 
 	</div>
