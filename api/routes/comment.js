@@ -20,7 +20,7 @@ var comment = {
 		}
 
 		var screens = [];
-		var promises = [];
+		var promises = [], p;
 		var path = config.paths.data + '/' + req.body.path;
 
 		for(var i=0; i<req.body.screenshots.length; i++) {
@@ -31,19 +31,19 @@ var comment = {
 				screen.sData = screen.sData.replace(/^data:image\/\w+;base64,/, "");
 				screen.pData = screen.pData.replace(/^data:image\/\w+;base64,/, "");
 
-				promises.push(
-					fs.writeFileAsync(path + sFilename, new Buffer(screen.sData, 'base64')).then(function () {
-						return fs.writeFile(path + pFilename, new Buffer(screen.pData, 'base64'));
-					}).catch(function (err) {
-						//if (err) utils.error.server(res, err, '#writeFile screenshot.jpg or paint.png');
-						return Promise.reject(err);
-					}).then(function () {
-						return exec(config.exec.ImagickConvert + " " + path + sFilename + " -resize \"160x90^\" -gravity center -extent 160x90 " + path + "_thumbs/t_" + sFilename);
-					}).catch(function (err) {
-						//if (err) utils.error.server(res, err, '#ImagickConvert screenshot.jpg or paint.png');
-						return Promise.reject(err);
-					})
-				);
+				p =	fs.writeFileAsync(path + sFilename, new Buffer(screen.sData, 'base64')).then(function () {
+					return fs.writeFile(path + pFilename, new Buffer(screen.pData, 'base64'));
+				}).catch(function (err) {
+					//if (err) utils.error.server(res, err, '#writeFile screenshot.jpg or paint.png');
+					return Promise.reject(err);
+				}).then(function () {
+					return exec(config.exec.ImagickConvert + " " + path + sFilename + " -resize \"160x90^\" -gravity center -extent 160x90 " + path + "_thumbs/t_" + sFilename);
+				}).catch(function (err) {
+					//if (err) utils.error.server(res, err, '#ImagickConvert screenshot.jpg or paint.png');
+					return Promise.reject(err);
+				});
+
+				promises.push(p);
 
 				screens.push({
 					screen36content: {
@@ -70,6 +70,29 @@ var comment = {
 			})(req.body.screenshots[i]);
 		}
 
+		if(cType === 'commentModel') {
+			var objIds = [];
+			for(var j=0; j<req.body.targets.length; j++) {
+				objIds.push(req.body.targets[j].eid);
+			}
+			
+			var statement = 'MATCH (obj:'+prj+') WHERE obj.content IN {objIds} \
+				MATCH (obj)<-[:P106]-(:E36)-[:P138]->(target:E22) \
+				RETURN target.content AS target';
+
+			p = neo4j.transaction([{ statement: statement, parameters: { objIds: objIds } }])
+				.then(function (response) {
+					var res = neo4j.extractTransactionData(response.results[0]);
+					req.body.targets = [];
+					for(var i=0; i<res.length; i++) {
+						req.body.targets.push(res[i].target);
+					}
+				}).catch(function(err) {
+					return Promise.reject(err);
+				});
+			promises.push(p);
+		}
+
 		// TODO: e22 ids rausfinden und pins/pinMatrix einbinden
 
 		Promise.all(promises).catch(function (err) {
@@ -78,7 +101,7 @@ var comment = {
 		}).then(function () {
 
 			var q = 'MATCH (e21:E21:'+prj+' {content: {user}})-[:P131]->(userName:E82), \
-				(type:E55:'+prj+' {content: "commentModel"}) \
+				(type:E55:'+prj+' {content: {type}) \
 				WITH e21, userName, type \
 				OPTIONAL MATCH (target:'+prj+') WHERE target.content IN {targets} \
 				WITH e21, userName, type, collect(DISTINCT target) AS targets \
