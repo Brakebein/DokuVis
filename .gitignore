@@ -10,3 +10,4 @@ uploads
 /php/globalpaths.php
 /bower_components
 /node_modules
+/dist

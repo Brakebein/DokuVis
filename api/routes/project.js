@@ -120,7 +120,8 @@ var projects = {
 				(tscomment:E55:'+prj+' {content:"sourceComment"}), '
 				// screenshot
 			  + '(tscreen:E55:'+prj+' {content:"screenshot"}),\
-				(tscreencomment:E55:'+prj+' {content:"screenshotComment"}), '
+				(tscreencomment:E55:'+prj+' {content:"screenshotComment"}), \
+				(tudrawing:E55:'+prj+' {content:"userDrawing"}), '
 				// model
 			  + '(tmodel:E55:'+prj+' {content:"model"}), \
 				(tmodelplan:E55:'+prj+' {content:"model/plan"}), '

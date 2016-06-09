@@ -6,7 +6,6 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'ngAnimate',
 	'ngSanitize',
 	'debounce',
-	'autocomplete',
 	'truncate',
 	'xeditable',
 	'mgcrea.ngStrap',

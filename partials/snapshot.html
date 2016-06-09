@@ -1,6 +1,6 @@
 <div class="pinLayer" ng-class="{active: snapshot.mode === 'pin'}" ng-mousemove="mousemoveOnPinLayer($event)" ng-mouseup="mouseupOnPinLayer($event)" no-context-menu></div>
 
-<div class="paintLayer" ng-class="{active: snapshot.mode === 'paint'}">
+<div class="paintLayer" ng-class="{active: snapshot.mode === 'paint'}" no-context-menu>
 	<div pw-canvas options="snapshot.paintOptions" version="snapshot.version" current-size="{width: snapshot.paintOptions.width, height: snapshot.paintOptions.height}"></div>
 </div>
 
@@ -19,10 +19,6 @@
 		</div>
 		<div class="ctrlGroup">
 			<button class="btn btn-default btn-xs" ng-click="startMarking()"><i class="fa fa-thumb-tack"></i> Pinnen</button>
-		</div>
-		<div class="ctrlGroup">
-			<button class="btn btn-primary btn-xs" ng-click="">Speichern</button>
-			<button class="btn btn-default btn-xs" ng-click="abortSnapshot()">Abbrechen</button>
 		</div>
 	</div>
 </div>

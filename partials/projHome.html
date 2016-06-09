@@ -1,4 +1,4 @@
-<div class="leftHalf">
+<div class="leftHalf" ng-if="!isMaster">
 	<div class="page-header">
 		<h1>{{projInfo.name}} <small>{{projInfo.description}}</small></h1>
 	</div>
@@ -25,39 +25,65 @@
 	
 </div>
 
-<div class="rightHalf">
-	
-	<button ng-if="!isMaster" class="btn btn-default btn-sm" ui-sref="project.home({subproject: 'master'})">Zurück zum master</button>
-	
-	<div ng-if="isMaster">
-		<div class="page-header">
-			<h3>Unterprojekte</h3>
-		</div>
+<div class="leftHalf" ng-if="isMaster">
 
-		<div class="subproject" ng-repeat="sp in subprojects" ui-sref="project.home({ subproject: sp.subId })">
-			<h4>{{sp.title}}</h4>
-			<p>{{sp.desc}}</p>
-		</div>
-		
-		<div ng-if="subprojects.length < 1">
-			<p>Keine Unterprojekte vorhanden.</p>
-			<p>Unterprojekte können helfen, das Projekt zu strukturieren, z.B. wenn das Projekt mehrere Zeitschnitte aufweißt.</p>
-		</div>
-		
-		<button ng-if="!newSubproj.show" class="btn btn-default btn-sm" ng-click="newSubproj.show=true">Unterprojekt erstellen</button>
-		
-		<form ng-if="newSubproj.show" class="subproj">
-			<div class="form-group">
-				<label for="subprojTitleInput">Titel Unterprojekt</label>
-				<input type="text" id="subprojTitleInput" class="form-control" ng-model="newSubproj.title"/>
-			</div>
-			<div class="form-group">
-				<label for="subprojDescInput">Kurze Beschreibung</label>
-				<textarea id="subprojDescInput" class="form-control" rows="3" ng-model="newSubproj.desc"></textarea>
-			</div>
-			<button class="btn btn-default btn-sm" ng-click="createSubproject()">Erstellen</button>
-			<button class="btn btn-default btn-sm" ng-click="closeNewSubproj()">Abbrechen</button>
-		</form>
-		
+	<div class="page-header">
+		<h1>{{projInfo.name}} <small>{{projInfo.description}}</small></h1>
 	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Unterprojekte</h3>
+		</div>
+		<div class="panel-body">
+
+			<div ng-show="!subprojects.length">
+				<p>Keine Unterprojekte vorhanden.</p>
+				<p>Unterprojekte können helfen, das Projekt zu strukturieren, z.B. wenn das Projekt mehrere Zeitschnitte aufweißt.</p>
+			</div>
+
+			<table class="table table-striped" ng-show="subprojects.length">
+				<thead>
+					<tr>
+						<th width="300">Name</th>
+						<th>Beschreibung</th>
+						<th width="300"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="sp in subprojects | orderBy: 'title'">
+						<td>{{sp.title}}</td>
+						<td>{{sp.desc}}</td>
+						<td>
+							<button class="btn btn-primary btn-xs" ui-sref="project.home({ subproject: sp.subId })"><i class="fa fa-folder-open"></i> Öffnen</button>
+							<button class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Bearbeiten</button>
+							<button class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> Löschen</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<button ng-show="!newSubproj.show" class="btn btn-primary" ng-click="newSubproj.show=true"><i class="fa fa-plus"></i> Neues Unterprojekt</button>
+
+</div>
+
+<div class="rightHalf" ng-if="isMaster">
+		
+	<button ng-show="!newSubproj.show" class="btn btn-default btn-sm" ng-click="newSubproj.show=true">Unterprojekt erstellen</button>
+
+	<form ng-show="newSubproj.show" class="subproj">
+		<div class="form-group">
+			<label for="subprojTitleInput">Titel Unterprojekt</label>
+			<input type="text" id="subprojTitleInput" class="form-control" ng-model="newSubproj.title"/>
+		</div>
+		<div class="form-group">
+			<label for="subprojDescInput">Kurze Beschreibung</label>
+			<textarea id="subprojDescInput" class="form-control" rows="3" ng-model="newSubproj.desc"></textarea>
+		</div>
+		<button class="btn btn-default btn-sm" ng-click="createSubproject()">Erstellen</button>
+		<button class="btn btn-default btn-sm" ng-click="closeNewSubproj()">Abbrechen</button>
+	</form>
+
 </div>

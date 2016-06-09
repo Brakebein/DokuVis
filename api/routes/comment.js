@@ -19,7 +19,7 @@ var comment = {
 			default: cType = 'commentGeneral';
 		}
 
-		var screens = [];
+		var screens = [], pins = [];
 		var promises = [], p;
 		var path = config.paths.data + '/' + req.body.path;
 
@@ -46,35 +46,32 @@ var comment = {
 				promises.push(p);
 
 				screens.push({
-					screen36content: {
-						content: 'e36_' + sFilename,
-						cameraCenter: screen.cameraCenter,
-						cameraFOV: screen.cameraFOV,
-						cameraMatrix: screen.cameraCenter
-					},
-					screen75content: {
-						content: sFilename,
-						path: screen.path,
-						width: screen.width,
-						height: screen.height
-					},
+					screen36content: 'e36_' + sFilename,
+					cameraCenter: screen.cameraCenter,
+					cameraFOV: screen.cameraFOV,
+					cameraMatrix: screen.cameraMatrix,
+					screen75content: sFilename,
 					paintId: 'e36_' + pFilename,
-					paint75content: {
-						content: pFilename,
-						path: screen.path,
-						width: screen.width,
-						height: screen.height
-					}
+					paint75content: pFilename,
+					path: req.body.path,
+					width: screen.width,
+					height: screen.height
 				});
 
 			})(req.body.screenshots[i]);
 		}
 
+		// zusätzliche Aufbereitung der Daten für 'commentModel'
 		if(cType === 'commentModel') {
-			var objIds = [];
+			var objIds = [], refs = [];
 			for(var j=0; j<req.body.targets.length; j++) {
 				objIds.push(req.body.targets[j].eid);
+				pins.push(req.body.targets[j].pinMatrix.join(','));
 			}
+			for(j=0; j<req.body.refs.length; j++) {
+				refs.push(req.body.refs[j].eid);
+			}
+			req.body.refs = refs;
 			
 			var statement = 'MATCH (obj:'+prj+') WHERE obj.content IN {objIds} \
 				MATCH (obj)<-[:P106]-(:E36)-[:P138]->(target:E22) \
@@ -93,15 +90,14 @@ var comment = {
 			promises.push(p);
 		}
 
-		// TODO: e22 ids rausfinden und pins/pinMatrix einbinden
-
+		// fahre erst fort, wenn alle Aufgaben oben fertig sind
 		Promise.all(promises).catch(function (err) {
-			if (err) utils.error.server(res, err, '#Error writeFile or #ImagickConvert screenshot or paint');
-			return Promise.reject();
+			//if (err) utils.error.server(res, err, '#Error writeFile or #ImagickConvert screenshot or paint');
+			return Promise.reject(err);
 		}).then(function () {
 
 			var q = 'MATCH (e21:E21:'+prj+' {content: {user}})-[:P131]->(userName:E82), \
-				(type:E55:'+prj+' {content: {type}) \
+				(type:E55:'+prj+' {content: {type}}) \
 				WITH e21, userName, type \
 				OPTIONAL MATCH (target:'+prj+') WHERE target.content IN {targets} \
 				WITH e21, userName, type, collect(DISTINCT target) AS targets \
@@ -122,11 +118,12 @@ var comment = {
 			if(cType === 'commentModel')
 				q += 'WITH e33, e62, e61, userName, type \
 					MATCH (tSs:E55:'+prj+' {content: "screenshot"}), (tUd:E55:'+prj+' {content: "userDrawing"}) \
+					CREATE (e33)-[:P106]->(:E73:'+prj+' {content: "e73_" + {e33id} + "_pins", pins: {pins}}) \
 					FOREACH (s IN {screenshots} | \
-						CREATE (e33)-[:P67]->(screen:E36:'+prj+' {s.screen36content})-[:P2]->(tSs), \
-							(screen)-[:P1]->(:E75:'+prj+' {s.screen75content}), \
-							(screen)-[:P106]->(draw:E36:'+prj+' {content: {s.paintId}})-[:P2]->(tUd), \
-							(draw)-[:P1]->(:E75:'+prj+' {s.paint75content}) ) ';
+						CREATE (e33)-[:P67]->(screen:E36:'+prj+' {content: s.screen36content, cameraCenter: s.cameraCenter, cameraFOV: s.cameraFOV, cameraMatrix: s.cameraMatrix})-[:P2]->(tSs), \
+							(screen)-[:P1]->(:E75:'+prj+' {content: s.screen75content, path: s.path, width: s.width, height: s.height}), \
+							(screen)-[:P106]->(draw:E36:'+prj+' {content: s.paintId})-[:P2]->(tUd), \
+							(draw)-[:P1]->(:E75:'+prj+' {content: s.paint75content, path: s.path, width: s.width, height: s.height}) ) ';
 
 			q += 'RETURN e33.content AS id, e62.value AS value, e61.value AS date, userName.value AS author, type.content AS type';
 
@@ -145,17 +142,18 @@ var comment = {
 				},
 				date: req.body.date,
 				refs: req.body.refs || [],
-				screenshots: screens || []
+				screenshots: screens || [],
+				pins: pins || []
 			};
 		
-			res.json({statement: q, parameters: params, body: req.body});
-			//return neo4j.transaction([{statement: q, parameters: params}]);
+			//res.json({statement: q, parameters: params, body: req.body});
+			return neo4j.transaction([{statement: q, parameters: params}]);
 		}).then(function(response) {
-			//if(response.exception) { utils.error.neo4j(res, response, '#comment.create'); return; }
-			//res.json(neo4j.extractTransactionData(response.results[0]));
+			if(response.errors.length) { utils.error.neo4j(res, response, '#comment.create'); return; }
+			res.json(neo4j.extractTransactionData(response.results[0]));
 			//res.json(response);
 		}).catch(function(err) {
-			//utils.error.neo4j(res, err, '#cypher');
+			utils.error.neo4j(res, err, '#cypher');
 		});
 	},
 	
