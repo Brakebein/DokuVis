@@ -2,8 +2,8 @@
  * @author Jonas Bruschke
  */
 
-angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment',
-	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment) {
+angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService',
+	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService) {
 		
 		function link(scope, element, attr) {
 			
@@ -2113,17 +2113,27 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				//console.log(sData);
 			};
 			webglInterface.callFunc.abortSnapshot = function () {
-				scope.snapshot.active = false;
-				scope.snapshot.refObj = [];
-				scope.snapshot.refSrc = [];
-				scope.snapshot.screenshots = [];
-				scope.setNavigationMode('select');
+				ConfirmService.showAlert({
+					headerText: 'Vorgrang abbrechen',
+					bodyText: 'Snapshot nicht gespeichert! Fortfahren?'
+				}).then(function () {
+					scope.snapshot.active = false;
+					scope.snapshot.refObj = [];
+					scope.snapshot.refSrc = [];
+					scope.snapshot.screenshots = [];
+					scope.setNavigationMode('select');
+				});
 			};
 			webglInterface.callFunc.saveSnapshot = function () {
 				scope.snapshot.screenshots[scope.snapshot.sIndex].pData = element.find('#pwCanvasMain')[0].toDataURL("image/png");
 				
 				Comment.create('model', scope.snapshot.text, scope.snapshot.title, scope.snapshot.refObj, scope.snapshot.refSrc, scope.snapshot.screenshots).then(function (response) {
 					console.log(response);
+					scope.snapshot.active = false;
+					scope.snapshot.refObj = [];
+					scope.snapshot.refSrc = [];
+					scope.snapshot.screenshots = [];
+					scope.setNavigationMode('select');
 				}, function (err) {
 					console.log(err);
 				});
@@ -2148,7 +2158,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					height: SCREEN_HEIGHT
 				};
 			}
-			
+
 			scope.startMarking = function () {
 				scope.setNavigationMode();
 				scope.snapshot.mode = 'pin';

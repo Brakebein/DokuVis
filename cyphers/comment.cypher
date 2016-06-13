@@ -20,9 +20,9 @@ MATCH (tSs:E55:Proj_pIFGTJt {content: "screenshot"}), (tUd:E55:Proj_pIFGTJt {con
 CREATE (e33)-[:P106]->(:E73:Proj_pIFGTJt {content: "e73_" + {e33id} + "_pins", pins: {pins}})
 FOREACH (s IN {screenshots} |
 	CREATE (e33)-[:P67]->(screen:E36 {content: s.screen36content, cameraCenter: s.cameraCenter, cameraFOV: s.cameraFOV, cameraMatrix: s.cameraMatrix})-[:P2]->(tSs),
-    	(screen)-[:P1]->(:E75 {content: s.screen75content, path: s.path, width: s.width, height: s.height}),
-    	(screen)-[:P106]->(draw:E36 {content: s.paintId})-[:P2]->(tUd),
-    	(draw)-[:P1]->(:E75 {content: s.paint75content, path: s.path, width: s.width, height: s.height}) )
+		(screen)-[:P1]->(:E75 {content: s.screen75content, path: s.path, width: s.width, height: s.height}),
+		(screen)-[:P106]->(draw:E36 {content: s.paintId})-[:P2]->(tUd),
+		(draw)-[:P1]->(:E75 {content: s.paint75content, path: s.path, width: s.width, height: s.height}) )
 
 RETURN e33.content AS id, e62.value AS value, e61.value AS date, userName.value AS author, type.content AS type
 
@@ -56,12 +56,13 @@ FOREACH (r IN refs | CREATE (e33)-[:P67]->(r))
 
 WITH e33, e62, e61, userName, type, [{screen36content: "e36_sFilename0", cameraCenter: [3,2,1], cameraFOV: 35,	cameraMatrix: [2,4,5,6,2,2], screen75content: "sFilename0", paintId: "e36_pFilename0", paint75content: "pFilename0", path: "path/to", width: 1273, height: 783},{screen36content: "e36_sFilename1", cameraCenter: [3,2,1], cameraFOV: 35,	cameraMatrix: [2,4,5,6,2,2], screen75content: "sFilename1", paintId: "e36_pFilename1", paint75content: "pFilename1", path: "path/to", width: 1273, height: 783}] AS screenshots
 MATCH (tSs:E55 {content: "screenshot"}), (tUd:E55 {content: "userDrawing"})
-CREATE (e33)-[:P106]->(:E73 {content: "e73_e33_pNweIre_comment_pins", pins: ["-1.7865152912577287e-8,-5.551115123125783e-17,-1,0,0.7927761673927307,0.6095128655433655,5.551115123125783e-17,0,0.6095129251480103,-0.7927761673927307,-1.7865152912577287e-8,0,-49.61881637573242,24.400741577148438,195.1319122314453,1","-1.7865152912577287e-8,-5.551115123125783e-17,-1,0,0.7927761673927307,0.6095128655433655,5.551115123125783e-17,0,0.6095129251480103,-0.7927761673927307,-1.7865152912577287e-8,0,-49.61881637573242,24.400741577148438,195.1319122314453,1"]})
 FOREACH (s IN {screenshots} |
 	CREATE (e33)-[:P67]->(screen:E36 {content: s.screen36content, cameraCenter: s.cameraCenter, cameraFOV: s.cameraFOV, cameraMatrix: s.cameraMatrix})-[:P2]->(tSs),
 		(screen)-[:P1]->(:E75 {content: s.screen75content, path: s.path, width: s.width, height: s.height}),
 		(screen)-[:P106]->(draw:E36 {content: s.paintId})-[:P2]->(tUd),
-		(draw)-[:P1]->(:E75 {content: s.paint75content, path: s.path, width: s.width, height: s.height}) )
+		(draw)-[:P1]->(:E75 {content: s.paint75content, path: s.path, width: s.width, height: s.height})
+	FOREACH (p in s.pins |
+		CREATE (screen)-[:P106]->(:E73 {content: p.id, targetId: p.targetId, screenIndex: p.screenIndex, pinMatrix: p.pinMatrix}) ) )
 
 RETURN e33.content AS id, e62.value AS value, e61.value AS date, userName.value AS author, type.content AS type
 
@@ -72,15 +73,16 @@ MATCH (:E55 {content: "commentType"})<-[:P127]-(type:E55),
 (type)<-[:P2]-(e33:E33),
 (e33)-[:P3]->(text:E62),
 (e33)<-[:P94]-(e65:E65),
-    (e65)-[:P14]->(user:E21)-[:P131]->(userName:E82),
-    (e65)-[:P4]->(:E52)-[:P82]->(date:E61)
+	(e65)-[:P14]->(user:E21)-[:P131]->(userName:E82),
+	(e65)-[:P4]->(:E52)-[:P82]->(date:E61)
 OPTIONAL MATCH (e33)-[:P102]->(title:E35)
 OPTIONAL MATCH (e33)-[:P129]->(targets)
 OPTIONAL MATCH (e33)-[:P67]->(refs) WHERE NOT (refs)-[:P2]->(tSs)
-OPTIONAL MATCH (e33)-[:P106]->(pins:E73)
-WITH e33, text, title, type, user, userName, date, collect(DISTINCT targets.content) AS targets, collect(DISTINCT refs.content) AS refs, pins, tSs, tUd
+WITH e33, text, title, type, {authorId: user.content, authorName: userName.value, date: date.value} AS creation, collect(DISTINCT targets.content) AS targets, collect(DISTINCT refs.content) AS refs, tSs, tUd
 OPTIONAL MATCH (e33)-[:P67]->(screen:E36)-[:P2]->(tSs),
-    (screen)-[:P1]->(screenFile:E75),
-    (screen)-[:P106]->(paint:E36)-[:P2]->(tUd),
-    (paint)-[:P1]->(paintFile:E75)
-RETURN e33.content AS eid, text.value AS text, title.value AS title, {authorId: user.content, authorName: userName.value, date: date.value} AS creation, type.content AS type, targets AS targets, refs AS refs, pins.pins AS pins, CASE WHEN count(screen) = 0 THEN [] ELSE collect({screenId: screen.content, cameraCenter: screen.cameraCenter, cameraFOV: screen.cameraFOV, cameraMatrix: screen.cameraMatrix, file: screenFile.content, path: screenFile.path, width: screenFile.width, height: screenFile.height, paint: {id: paint.content, file: paintFile.content, path: paintFile.path, width: paintFile.width, height: paintFile.height}}) END AS screenshots
+	(screen)-[:P1]->(screenFile:E75),
+	(screen)-[:P106]->(paint:E36)-[:P2]->(tUd),
+	(paint)-[:P1]->(paintFile:E75)
+WITH e33, text, title, type, creation, targets, refs, CASE WHEN count(screen) = 0 THEN [] ELSE collect({screenId: screen.content, cameraCenter: screen.cameraCenter, cameraFOV: screen.cameraFOV, cameraMatrix: screen.cameraMatrix, file: screenFile.content, path: screenFile.path, width: screenFile.width, height: screenFile.height, paint: {id: paint.content, file: paintFile.content, path: paintFile.path, width: paintFile.width, height: paintFile.height}}) END AS screenshots, screen
+OPTIONAL MATCH (screen)-[:P106]->(pin:E73)
+RETURN e33.content AS eid, text.value AS text, title.value AS title, creation, type.content AS type, targets AS targets, refs AS refs, screenshots, collect(DISTINCT pin) AS pins

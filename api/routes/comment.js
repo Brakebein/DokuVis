@@ -7,7 +7,7 @@ var exec = require('child-process-promise').exec;
 
 var comment = {
 	
-	create: function(req, res) {
+	create: function (req, res) {
 		var prj = req.params.id;
 		
 		var cType = '';
@@ -19,7 +19,7 @@ var comment = {
 			default: cType = 'commentGeneral';
 		}
 
-		var screens = [], pins = [];
+		var screens = [], objIds = [];
 		var promises = [], p;
 		var path = config.paths.data + '/' + req.body.path;
 
@@ -45,7 +45,7 @@ var comment = {
 
 				promises.push(p);
 
-				screens.push({
+				var screenMap = {
 					screen36content: 'e36_' + sFilename,
 					cameraCenter: screen.cameraCenter,
 					cameraFOV: screen.cameraFOV,
@@ -56,23 +56,29 @@ var comment = {
 					path: req.body.path,
 					width: screen.width,
 					height: screen.height
-				});
+				};
+
+				if(cType === 'commentModel') {
+					var pins = [];
+					for (var j = 0; j < req.body.targets.length; j++) {
+						objIds.push(req.body.targets[j].eid);
+						pins.push({
+							id: 'e73_' + screenMap.screen36content + '_pin_' + j,
+							targetId: req.body.targets[j].eid,
+							screenIndex: i,
+							pinMatrix: req.body.targets[j].pinMatrix
+						});
+					}
+					screenMap.pins = pins;
+				}
+
+				screens.push(screenMap);
 
 			})(req.body.screenshots[i]);
 		}
 
 		// zusätzliche Aufbereitung der Daten für 'commentModel'
 		if(cType === 'commentModel') {
-			var objIds = [], refs = [];
-			for(var j=0; j<req.body.targets.length; j++) {
-				objIds.push(req.body.targets[j].eid);
-				pins.push(req.body.targets[j].pinMatrix.join(','));
-			}
-			for(j=0; j<req.body.refs.length; j++) {
-				refs.push(req.body.refs[j].eid);
-			}
-			req.body.refs = refs;
-			
 			var statement = 'MATCH (obj:'+prj+') WHERE obj.content IN {objIds} \
 				MATCH (obj)<-[:P106]-(:E36)-[:P138]->(target:E22) \
 				RETURN target.content AS target';
@@ -89,6 +95,13 @@ var comment = {
 				});
 			promises.push(p);
 		}
+
+		// refIds rausfiltern
+		var refs = [];
+		for(j=0; j<req.body.refs.length; j++) {
+			refs.push(req.body.refs[j].eid);
+		}
+		req.body.refs = refs;
 
 		// fahre erst fort, wenn alle Aufgaben oben fertig sind
 		Promise.all(promises).catch(function (err) {
@@ -118,12 +131,13 @@ var comment = {
 			if(cType === 'commentModel')
 				q += 'WITH e33, e62, e61, userName, type \
 					MATCH (tSs:E55:'+prj+' {content: "screenshot"}), (tUd:E55:'+prj+' {content: "userDrawing"}) \
-					CREATE (e33)-[:P106]->(:E73:'+prj+' {content: "e73_" + {e33id} + "_pins", pins: {pins}}) \
 					FOREACH (s IN {screenshots} | \
 						CREATE (e33)-[:P67]->(screen:E36:'+prj+' {content: s.screen36content, cameraCenter: s.cameraCenter, cameraFOV: s.cameraFOV, cameraMatrix: s.cameraMatrix})-[:P2]->(tSs), \
 							(screen)-[:P1]->(:E75:'+prj+' {content: s.screen75content, path: s.path, width: s.width, height: s.height}), \
 							(screen)-[:P106]->(draw:E36:'+prj+' {content: s.paintId})-[:P2]->(tUd), \
-							(draw)-[:P1]->(:E75:'+prj+' {content: s.paint75content, path: s.path, width: s.width, height: s.height}) ) ';
+							(draw)-[:P1]->(:E75:'+prj+' {content: s.paint75content, path: s.path, width: s.width, height: s.height}) \
+						FOREACH (p in s.pins | \
+							CREATE (screen)-[:P106]->(:E73:'+prj+' {content: p.id, targetId: p.targetId, screenIndex: p.screenIndex, pinMatrix: p.pinMatrix}) ) ) ';
 
 			q += 'RETURN e33.content AS id, e62.value AS value, e61.value AS date, userName.value AS author, type.content AS type';
 
@@ -142,8 +156,7 @@ var comment = {
 				},
 				date: req.body.date,
 				refs: req.body.refs || [],
-				screenshots: screens || [],
-				pins: pins || []
+				screenshots: screens || []
 			};
 		
 			//res.json({statement: q, parameters: params, body: req.body});
@@ -157,7 +170,7 @@ var comment = {
 		});
 	},
 	
-	get: function(req, res) {
+	get: function (req, res) {
 		var prj = req.params.id;
 		
 		var q = 'MATCH (target:'+prj+' {content: {id}})<-[:P129]-(ce33:E33)-[:P2]->(type)-[:P127]->(:E55 {content: "commentType"}), \
@@ -182,6 +195,30 @@ var comment = {
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
 			});
+	},
+
+	getAll: function (req, res) {
+
+		var q = 'MATCH (tSs:E55:'+prj+' {content: "screenshot"}), (tUd:E55:'+prj+' {content: "userDrawing"}) \
+			WITH tSs, tUd \
+			MATCH (:E55:'+prj+' {content: "commentType"})<-[:P127]-(type:E55), \
+				(type)<-[:P2]-(e33:E33), \
+				(e33)-[:P3]->(text:E62), \
+				(e33)<-[:P94]-(e65:E65), \
+				(e65)-[:P14]->(user:E21)-[:P131]->(userName:E82), \
+				(e65)-[:P4]->(:E52)-[:P82]->(date:E61) \
+			OPTIONAL MATCH (e33)-[:P102]->(title:E35) \
+			OPTIONAL MATCH (e33)-[:P129]->(targets) \
+			OPTIONAL MATCH (e33)-[:P67]->(refs) WHERE NOT (refs)-[:P2]->(tSs) \
+			WITH e33, text, title, type, {authorId: user.content, authorName: userName.value, date: date.value} AS creation, collect(DISTINCT targets.content) AS targets, collect(DISTINCT refs.content) AS refs, tSs, tUd \
+			OPTIONAL MATCH (e33)-[:P67]->(screen:E36)-[:P2]->(tSs), \
+				(screen)-[:P1]->(screenFile:E75), \
+				(screen)-[:P106]->(paint:E36)-[:P2]->(tUd), \
+				(paint)-[:P1]->(paintFile:E75) \
+			WITH e33, text, title, type, creation, targets, refs, CASE WHEN count(screen) = 0 THEN [] ELSE collect({screenId: screen.content, cameraCenter: screen.cameraCenter, cameraFOV: screen.cameraFOV, cameraMatrix: screen.cameraMatrix, file: screenFile.content, path: screenFile.path, width: screenFile.width, height: screenFile.height, paint: {id: paint.content, file: paintFile.content, path: paintFile.path, width: paintFile.width, height: paintFile.height}}) END AS screenshots, screen \
+			OPTIONAL MATCH (screen)-[:P106]->(pin:E73) \
+			RETURN e33.content AS eid, text.value AS text, title.value AS title, creation, type.content AS type, targets AS targets, refs AS refs, screenshots, collect(DISTINCT pin) AS pins';
+
 	}
 	
 };
