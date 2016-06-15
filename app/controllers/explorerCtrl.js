@@ -1,5 +1,5 @@
-angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Uploader', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model',
-	function($scope, $state, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Uploader, Utilities, webglInterface, $modal, Source, Model) {
+angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Uploader', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model', 'Comment',
+	function($scope, $state, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Uploader, Utilities, webglInterface, $modal, Source, Model, Comment) {
 
 		// Initialisierung von Variablen
 		$scope.project = $stateParams.project;
@@ -240,7 +240,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		 * get all sources/documents
 		 */
 		$scope.getAllDocuments = function() {
-			Source.getAll().then(function(response){
+			return Source.getAll().then(function(response){
 				$scope.sourceResults = response.data;
 				for(var i=0; i<$scope.sourceResults.length; i++) {
 					$scope.sourceResults[i].selected = false;
@@ -265,6 +265,33 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				if(response.data) $scope.screenshots = Utilities.cleanNeo4jData(response.data);
 				console.log('Screenshots:', $scope.screenshots);
 			});
+		};
+
+		// lädt alle Kommentare
+		$scope.getAllComments = function () {
+			Comment.getAll().then(function (response) {
+				var data = response.data;
+				// target reference
+				for(var i=0; i<data.length; i++) {
+					if(data[i].type !== 'commentSource') continue;
+					for(var j=0; j<data[i].targets.length; j++) {
+						for(var k=0; k<$scope.sourceResults.length; k++) {
+							if(data[i].targets[j] === $scope.sourceResults[k].eid) {
+								data[i].targets[j] = $scope.sourceResults[k];
+								break;
+							}
+						}
+					}
+				}
+				$scope.comments = data;
+				console.log('Comments:', $scope.comments);
+			}, function (err) {
+				Utilities.throwApiException('on Comment.getAll()', err);
+			});
+		};
+		
+		webglInterface.callFunc.updateComments = function () {
+			$scope.getAllComments();
 		};
 		
 		$scope.receiveScreenshot = function(data) {
@@ -671,7 +698,9 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		// oninit Funktionsaufrufe
 		$timeout(function() {
-			$scope.getAllDocuments();
+			$scope.getAllDocuments().then(function () {
+				$scope.getAllComments();
+			});
 			$scope.getScreenshots();
 			getAllCategories();
 			//$scope.loadModelsWithChildren();
@@ -679,7 +708,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 
 		// nach Upload aktualisieren
 		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
-			//console.log(fromState, fromParams);
+			console.log('stateChange', fromState, fromParams);
 			if(fromState.name === 'project.explorer.upload.type' && fromParams.uploadType === 'source')
 				$scope.getAllDocuments();
 		});

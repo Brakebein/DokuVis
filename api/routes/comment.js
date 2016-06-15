@@ -98,7 +98,7 @@ var comment = {
 
 		// refIds rausfiltern
 		var refs = [];
-		for(j=0; j<req.body.refs.length; j++) {
+		for(var j=0; j<req.body.refs.length; j++) {
 			refs.push(req.body.refs[j].eid);
 		}
 		req.body.refs = refs;
@@ -114,7 +114,7 @@ var comment = {
 				WITH e21, userName, type \
 				OPTIONAL MATCH (target:'+prj+') WHERE target.content IN {targets} \
 				WITH e21, userName, type, collect(DISTINCT target) AS targets \
-				MATCH (ref:'+prj+') WHERE ref.content IN {refs} \
+				OPTIONAL MATCH (ref:'+prj+') WHERE ref.content IN {refs} \
 				WITH e21, userName, type, targets, collect(DISTINCT ref) AS refs \
 				CREATE (e33:E33:'+prj+' {content: {e33id}})-[:P3]->(e62:E62:'+prj+' {e62content}), \
 					(e65:E65:'+prj+' {content: "e65_" + {e33id}})-[:P4]->(:E52:'+prj+' {content: "e52_e65_" + {e33id}})-[:P82]->(e61:E61:'+prj+' {value: {date}}), \
@@ -198,11 +198,13 @@ var comment = {
 	},
 
 	getAll: function (req, res) {
-
+		var prj = req.params.id;
+		
 		var q = 'MATCH (tSs:E55:'+prj+' {content: "screenshot"}), (tUd:E55:'+prj+' {content: "userDrawing"}) \
 			WITH tSs, tUd \
-			MATCH (:E55:'+prj+' {content: "commentType"})<-[:P127]-(type:E55), \
-				(type)<-[:P2]-(e33:E33), \
+			MATCH (:E55:'+prj+' {content: "commentType"})<-[:P127]-(type:E55) \
+			WHERE type.content <> "commentAnswer" \
+			MATCH (type)<-[:P2]-(e33:E33), \
 				(e33)-[:P3]->(text:E62), \
 				(e33)<-[:P94]-(e65:E65), \
 				(e65)-[:P14]->(user:E21)-[:P131]->(userName:E82), \
@@ -210,15 +212,25 @@ var comment = {
 			OPTIONAL MATCH (e33)-[:P102]->(title:E35) \
 			OPTIONAL MATCH (e33)-[:P129]->(targets) \
 			OPTIONAL MATCH (e33)-[:P67]->(refs) WHERE NOT (refs)-[:P2]->(tSs) \
-			WITH e33, text, title, type, {authorId: user.content, authorName: userName.value, date: date.value} AS creation, collect(DISTINCT targets.content) AS targets, collect(DISTINCT refs.content) AS refs, tSs, tUd \
+			OPTIONAL MATCH (e33)<-[:P129]-(answer:E33)-[:P2]->(:E55 {content: "commentAnswer"}) \
+			WITH e33, text, title, type, {id: user.content, name: userName.value } AS author, date.value AS date, collect(DISTINCT targets.content) AS targets, collect(DISTINCT refs.content) AS refs, count(answer) AS answerLength, tSs, tUd \
 			OPTIONAL MATCH (e33)-[:P67]->(screen:E36)-[:P2]->(tSs), \
 				(screen)-[:P1]->(screenFile:E75), \
 				(screen)-[:P106]->(paint:E36)-[:P2]->(tUd), \
 				(paint)-[:P1]->(paintFile:E75) \
-			WITH e33, text, title, type, creation, targets, refs, CASE WHEN count(screen) = 0 THEN [] ELSE collect({screenId: screen.content, cameraCenter: screen.cameraCenter, cameraFOV: screen.cameraFOV, cameraMatrix: screen.cameraMatrix, file: screenFile.content, path: screenFile.path, width: screenFile.width, height: screenFile.height, paint: {id: paint.content, file: paintFile.content, path: paintFile.path, width: paintFile.width, height: paintFile.height}}) END AS screenshots, screen \
+			WITH e33, text, title, type, author, date, targets, refs, CASE WHEN count(screen) = 0 THEN [] ELSE collect({screenId: screen.content, cameraCenter: screen.cameraCenter, cameraFOV: screen.cameraFOV, cameraMatrix: screen.cameraMatrix, file: screenFile.content, path: screenFile.path, width: screenFile.width, height: screenFile.height, paint: {id: paint.content, file: paintFile.content, path: paintFile.path, width: paintFile.width, height: paintFile.height}}) END AS screenshots, screen, answerLength \
 			OPTIONAL MATCH (screen)-[:P106]->(pin:E73) \
-			RETURN e33.content AS eid, text.value AS text, title.value AS title, creation, type.content AS type, targets AS targets, refs AS refs, screenshots, collect(DISTINCT pin) AS pins';
+			RETURN e33.content AS eid, text.value AS text, title.value AS title, author, date, type.content AS type, targets AS targets, refs AS refs, screenshots, collect(DISTINCT pin) AS pins, answerLength';
 
+		neo4j.transaction( [{ statement: q, parameters: {} }] )
+			.then(function(response) {
+				if(response.errors.length) { utils.error.neo4j(res, response, '#comment.getAll'); return; }
+				var results = neo4j.extractTransactionData(response.results[0]);
+				//res.json(neo4j.removeEmptyArrays(results, 'answers', 'id'));
+				res.json(results);
+			}).catch(function(err) {
+			utils.error.neo4j(res, err, '#cypher');
+		});
 	}
 	
 };

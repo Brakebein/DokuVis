@@ -2103,6 +2103,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 			};
 			
+			webglInterface.callFunc.openSnapshot = function () {
+				scope.openSnapshot();
+			};
+			
 			scope.openSnapshot = function () {
 				scope.snapshot.paintOptions.width = SCREEN_WIDTH;
 				scope.snapshot.paintOptions.height = SCREEN_HEIGHT;
@@ -2118,6 +2122,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					bodyText: 'Snapshot nicht gespeichert! Fortfahren?'
 				}).then(function () {
 					scope.snapshot.active = false;
+					scope.snapshot.text = '';
+					scope.snapshot.title = '';
 					scope.snapshot.refObj = [];
 					scope.snapshot.refSrc = [];
 					scope.snapshot.screenshots = [];
@@ -2125,15 +2131,25 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				});
 			};
 			webglInterface.callFunc.saveSnapshot = function () {
+				if(!scope.snapshot.text.length) {
+					Utilities.dangerAlert('Bitte geben Sie einen Text ein!'); return;
+				}
+				if(!scope.snapshot.title.length) {
+					Utilities.dangerAlert('Bitte geben Sie dem Kommentar einen Titel!'); return;
+				}
+
 				scope.snapshot.screenshots[scope.snapshot.sIndex].pData = element.find('#pwCanvasMain')[0].toDataURL("image/png");
 				
 				Comment.create('model', scope.snapshot.text, scope.snapshot.title, scope.snapshot.refObj, scope.snapshot.refSrc, scope.snapshot.screenshots).then(function (response) {
 					console.log(response);
 					scope.snapshot.active = false;
+					scope.snapshot.text = '';
+					scope.snapshot.title = '';
 					scope.snapshot.refObj = [];
 					scope.snapshot.refSrc = [];
 					scope.snapshot.screenshots = [];
 					scope.setNavigationMode('select');
+					webglInterface.callFunc.updateComments();
 				}, function (err) {
 					console.log(err);
 				});
@@ -2951,7 +2967,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			webglInterface.callFunc.addPin = function(id, pinObj) {
 				if(pins[id]) return;
 				var pin = new THREE.Pin(3, 0.5);
-				var m = pinObj.matrix;
+				var m = pinObj.pinMatrix;
 				pin.applyMatrix(new THREE.Matrix4().set(m[0],m[4],m[8],m[12],m[1],m[5],m[9],m[13],m[2],m[6],m[10],m[14],m[3],m[7],m[11],m[15]));
 				scene.add(pin);
 				pins[id] = pin;
@@ -2982,14 +2998,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				return new THREE.Vector2(left, top);
 			}
 			
-			webglInterface.callFunc.setScreenshotView = function(cameraData) {
+			webglInterface.callFunc.setScreenshotView = function(screenData) {
 				new TWEEN.Tween(camera.position.clone())
-					.to(new THREE.Vector3(cameraData.matrix[12],cameraData.matrix[13],cameraData.matrix[14]), 500)
+					.to(new THREE.Vector3(screenData.cameraMatrix[12],screenData.cameraMatrix[13],screenData.cameraMatrix[14]), 500)
 					.easing(TWEEN.Easing.Quadratic.InOut)
 					.onUpdate(function () { camera.position.copy(this); })
 					.start();
 				new TWEEN.Tween(controls.center.clone())
-					.to(new THREE.Vector3(cameraData.center[0],cameraData.center[1],cameraData.center[2]), 500)
+					.to(new THREE.Vector3(screenData.cameraCenter[0],screenData.cameraCenter[1],screenData.cameraCenter[2]), 500)
 					.easing(TWEEN.Easing.Quadratic.InOut)
 					.onUpdate(function () { controls.center.copy(this); })
 					.start();

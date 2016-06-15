@@ -11,7 +11,7 @@
 	
 		<div class="upload-header">
 			<div class="dropArea" uploader="uploader" nv-file-drop="" nv-file-over="" ng-click="openFileDialog($event)">
-				<input ng-hide="1" type="file" nv-file-select="" uploader="uploader" multiple  />
+				<input ng-hide="1" type="file" nv-file-select="" uploader="uploader" multiple ng-click="$event.stopPropagation()" />
 				<div class="plus" ng-include="'img/plus-sign.svg'"></div> <div>Quellen einfügen</div>
 			</div>
 			

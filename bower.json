@@ -36,7 +36,6 @@
     "angular-ui-router": "^0.3.1",
     "ui-router-extras": "^0.1.2",
     "angular-animate": "1.4.6",
-    "angular-file-upload": "^2.3.3",
     "angular-canvas-painter": "^0.5.3",
     "angular-moment": "^0.10.3",
     "ng-tags-input": "^3.1.1",
@@ -76,6 +75,7 @@
     "angular": "1.4.6",
     "angular-animate": "1.4.6",
     "moment": "^2.13.0",
-    "jquery-minicolors": "2.2.4"
+    "jquery-minicolors": "2.2.4",
+    "angular-file-upload": "1.1.5"
   }
 }

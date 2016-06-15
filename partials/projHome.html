@@ -56,7 +56,7 @@
 						<td>{{sp.desc}}</td>
 						<td>
 							<button class="btn btn-primary btn-xs" ui-sref="project.home({ subproject: sp.subId })"><i class="fa fa-folder-open"></i> Öffnen</button>
-							<button class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Bearbeiten</button>
+							<button class="btn btn-default btn-xs" ui-sref="project.home.subproject.edit({ subId: sp.subId, name: sp.title, desc: sp.desc })"><i class="fa fa-pencil"></i> Bearbeiten</button>
 							<button class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> Löschen</button>
 						</td>
 					</tr>
@@ -65,13 +65,13 @@
 		</div>
 	</div>
 
-	<button ng-show="!newSubproj.show" class="btn btn-primary" ng-click="newSubproj.show=true"><i class="fa fa-plus"></i> Neues Unterprojekt</button>
+	<button ng-show="!newSubproj.show" class="btn btn-primary" ui-sref="project.home.subproject.new"><i class="fa fa-plus"></i> Neues Unterprojekt</button>
 
 </div>
 
 <div class="rightHalf" ng-if="isMaster">
 		
-	<button ng-show="!newSubproj.show" class="btn btn-default btn-sm" ng-click="newSubproj.show=true">Unterprojekt erstellen</button>
+	<!--<button ng-show="!newSubproj.show" class="btn btn-default btn-sm" ng-click="newSubproj.show=true">Unterprojekt erstellen</button>
 
 	<form ng-show="newSubproj.show" class="subproj">
 		<div class="form-group">
@@ -84,6 +84,6 @@
 		</div>
 		<button class="btn btn-default btn-sm" ng-click="createSubproject()">Erstellen</button>
 		<button class="btn btn-default btn-sm" ng-click="closeNewSubproj()">Abbrechen</button>
-	</form>
+	</form>-->
 
 </div>

@@ -194,15 +194,31 @@
 	width: 30px
 
 .screenshotItem
+	position: relative
 	padding: 4px
 	border: 1px solid #ddd
 	border-radius: 4px
 	cursor: pointer
 	transition: background-color 0.3s
 
-.screenshotItem:hover
-	background-color: rgba(252,78,42,0.05)
+	&:hover
+		background-color: rgba(252,78,42,0.05)
+	.commentType
+		position: absolute
+		top: 0
+		bottom: 0
+		right: 0
+		width: 10px
+		background-color: #aaa
+	.commentModel
+		@extend .commentType
+		background-color: #74add1
+	.commentSource
+		@extend .commentType
+		background-color: #a6d96a
 
+	.media-body
+		padding-right: 20px
 
 // Ergebnisspalte bzw. Quellenspalte
 .sourcesPanel

@@ -59,7 +59,7 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 
 			ConfirmService.showAlert({
 				headerText: 'Projekt löschen',
-				bodyText: 'Soll das Projekt <strong>' + p.name + '</strong> wirklich gelöscht werden?'
+				bodyText: 'Soll das Projekt <strong>' + p.name + '</strong> wirklich gelöscht werden? Sämtliche Daten gehen dabei verloren!'
 			}).then(function () {
 				Project.delete(p.proj).then(function(response) {
 					console.log(response);

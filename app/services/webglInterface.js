@@ -31,7 +31,7 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		wi.vizSettings.edgesOpacity = 100;
 		wi.vizSettings.edgesColor = 100;
 
-		wi.snapshot = { active: false, mode: 'paint', refObj: [], refSrc: [], screenshots: [] };
+		wi.snapshot = { active: false, mode: 'paint', text: '', title: '', refObj: [], refSrc: [], screenshots: [] };
 		wi.snapshot.paintOptions = {
 			opacity: 1.0,
 			color: 'rgba(255,255,0,1.0)', //'#ff0',

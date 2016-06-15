@@ -6,11 +6,6 @@
 	
 	<!-- Kontrollleiste über Viewport -->
 	<!--<div class="viewportCtrls">
-
-		<!-- MessTool-Button --
-		<div class="ctrlGroup">
-			<button title="Measurement Tool" class="ctrlBtn" ng-class="(activeBtn == 'measure') ? 'active' : ''" ng-click="ctrlBtnClick('measure')"><img src="img/icons/measure.png"/></button>
-		</div>
 		
 		<!-- Slice-Buttons --
 		<div class="ctrlGroup">
@@ -127,16 +122,16 @@
 			<h4>Screenshots & Kommentare</h4>
 			<hr/>
 			
-			<div class="dropArea screenshot" ng-click="wi.callFunc.makeScreenshot()">
-				<i class="plus fa fa-plus"></i> <div>Screenshot erstellen</div>
+			<div class="dropArea screenshot" ng-click="wi.callFunc.openSnapshot()">
+				<i class="plus fa fa-plus"></i> <div>Snapshot erstellen</div>
 				<!--<div class="plus" ng-include="'img/plus-sign.svg'"></div> <div>Screenshot erstellen</div>-->
 			</div>
 			
-			<div class="checkbox">
+			<!--<div class="checkbox">
 				<label>
 					<input type="checkbox" ng-model="screenshotPins.isVisible" ng-change="togglePins()"/> Pins anzeigen
 				</label>
-			</div>
+			</div>-->
 			
 		</div>
 		
@@ -155,9 +150,54 @@
 					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="wi.callFunc.setScreenshotView(s.camera);$event.stopPropagation()"></span>
 				</div>
 			</div>
-			
+
+			<div class="media" ng-repeat="c in comments | orderBy: 'date':true" ng-switch="c.type">
+
+				<div class="media screenshotItem" ng-switch-when="commentModel" ng-mouseenter="!screenshotPins.isVisible && c.pins.length && addPin(c.eid,c.pins[0], $event)" ng-mouseleave="!screenshotPins.isVisible && removePin(c.eid)">
+					<div ng-class="c.type" title="Modellkommentar"></div>
+
+					<div class="media-left pull-left">
+						<img class="media-object" ng-src="{{'data/' + c.screenshots[0].path + '_thumbs/t_' + c.screenshots[0].file}}"/>
+					</div>
+
+					<div class="media-body">
+						<h4 class="media-heading">{{c.title}}</h4>
+						<p>{{c.text}}</p>
+						<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="wi.callFunc.setScreenshotView(c.screenshots[0]);$event.stopPropagation()"></span>
+
+						<div class="media-footer">
+							<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answerLength}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+							{{c.author.name}} - {{c.date | amCalendar}}
+						</div>
+
+					</div>
+
+				</div>
+
+				<div class="media screenshotItem" ng-switch-when="commentSource" ui-sref="project.explorer.source.id({ sourceId: c.targets[0].eid })">
+					<div ng-class="c.type" title="Quellenkommentar"></div>
+
+					<div class="media-left pull-left">
+						<img class="media-object" ng-src="{{'data/' + c.targets[0].file.path + '_thumbs/' + c.targets[0].file.thumb}}"/>
+					</div>
+
+					<div class="media-body">
+						<h4 class="media-heading">{{c.targets[0].title}}</h4>
+						<p>{{c.text}}</p>
+
+						<div class="media-footer">
+							<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answerLength}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+							{{c.author.name}} - {{c.date | amCalendar}}
+						</div>
+
+					</div>
+
+				</div>
+
+			</div>
+
 		</div>
-		
+
 		<div class="sideFooter">
 			<!--<button class="btn btn-default" ng-click="makeScreenshot()">Screenshot erstellen</button>-->
 		</div>
@@ -318,7 +358,7 @@
 					<div class="btnBar">
 						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid })"><span class="glyphicon glyphicon-zoom-in"></span></a>
 						<!--<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>-->
-						<a ng-ifw="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
+						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
 						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
 						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><span class="fa fa-link"></span></a>
 						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><span class="fa fa-lightbulb-o"></span></a>

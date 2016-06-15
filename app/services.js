@@ -665,8 +665,6 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		// TODO: subproject editieren
-		// TODO: subproject löschen
 		
 		/**
 		  * allgemeine Infos

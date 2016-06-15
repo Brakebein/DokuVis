@@ -49,6 +49,10 @@ angular.module('dokuvisApp').factory('Comment', ['$http', 'API', '$stateParams',
 			 */
 			get: function(targetId) {
 				return $http.get(API + 'auth/project/' + $stateParams.project + '/comment/' + targetId);
+			},
+			
+			getAll: function () {
+				return $http.get(API + 'auth/project/' + $stateParams.project + '/comments');
 			}
 			
 		};

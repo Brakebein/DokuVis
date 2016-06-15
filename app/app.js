@@ -83,6 +83,29 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				controller: 'projHomeCtrl',
 				css: 'style/projHome.css'
 			})
+			.state('project.home.subproject', {
+				url: '/subproject',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/subprojectModal.html',
+						controller: 'subprojectCtrl',
+						show: true
+					});
+				}],
+				abstract: true
+			})
+			.state('project.home.subproject.new', {
+				url: '/new'
+			})
+			.state('project.home.subproject.edit', {
+				url: '/edit',
+				params: {
+					name: '',
+					desc: '',
+					subId: ''
+				}
+			})
 			.state('project.explorer', {
 				url: '/explorer',
 				templateUrl: 'partials/explorer.html',
@@ -226,20 +249,33 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			});
 		}
 		
-		function checkSubproject($state, $stateParams, $q, neo4jRequest) {
+		function checkSubproject($state, $stateParams, $q, Subproject) {
+			//return $q.resolve();
 			if($stateParams.subproject === 'master')
 				return $q.resolve();
 			else {
-				return neo4jRequest.getSubprojectInfo($stateParams.project, $stateParams.subproject).then(function(response){
-					if(response.data.exception) {
-						console.error('neo4jRequest Exception on getSubprojectInfo()', response.data);
+				console.log('before', $stateParams);
+				return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
+					console.log('after', response);
+					if(!response.data.length) {
+						$state.go('project.home', {project: $stateParams.project, subproject: 'master'});
 						return $q.reject();
 					}
-					if(response.data.data.length === 0) {
-						$state.go('project.home', {subproject: 'master'});
-						return $q.reject();
-					}
+				}, function (err) {
+					Utilities.throwApiException('on Subproject.get()', err);
+					return $q.reject();
 				});
+				// return neo4jRequest.getSubprojectInfo($stateParams.project, $stateParams.subproject).then(function(response){
+				// 	console.log(response);
+				// 	if(response.data.exception) {
+				// 		console.error('neo4jRequest Exception on getSubprojectInfo()', response.data);
+				// 		return $q.reject();
+				// 	}
+				// 	if(response.data.data.length === 0) {
+				// 		$state.go('project.home', {subproject: 'master'});
+				// 		return $q.reject();
+				// 	}
+				// });
 			}
 		}
 		
