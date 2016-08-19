@@ -45,7 +45,8 @@
     "ng-debounce": "^0.1.7",
     "angular-truncate": "*",
     "textAngular": "^1.5.1",
-    "angular-ui-router-css": "*"
+    "angular-ui-router-css": "*",
+    "angular-file-upload": "^2.3.4"
   },
   "overrides": {
     "bootstrap": {
