@@ -13,7 +13,7 @@ angular.module('dokuvisApp').controller('projectCtrl', ['$scope', '$state', '$st
         };
 
         $scope.$on('modal.show', function(){
-            console.log('modal show')
+            console.log('modal show');
             var zIndex = 1040 + (10 * $('.modal:visible').length);
             $(this).css('z-index', zIndex);
             $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');

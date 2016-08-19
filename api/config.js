@@ -19,6 +19,12 @@ module.exports = {
 	
 	paths: {
 		data: 'C:/xampp/htdocs/DokuVis/data'
+	},
+	
+	exec: {
+		ImagickConvert: "C:/ServerTools/ImageMagick-6.9.2-4-Q16-x64/convert.exe",
+		ImagickMogrify: "C:/ServerTools/ImageMagick-6.9.2-4-Q16-x64/mogrify.exe",
+		ImagickIdentify: "C:/ServerTools/ImageMagick-6.9.2-4-Q16-x64/identify.exe"
 	}
 	
 };

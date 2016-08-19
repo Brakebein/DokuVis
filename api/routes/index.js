@@ -4,11 +4,14 @@ var router = express.Router();
 var auth = require('./auth');
 //var user = require('./user');
 var project = require('./project');
+var subproject = require('./subproject');
 var models = require('./models');
 var category = require('./category');
 var source = require('./source');
 var comment = require('./comment');
 var graph = require('./graph');
+var person = require('./person');
+var archive = require('./archive');
 
 // routes that can be accessed by any one
 router.post('/login', auth.login);
@@ -29,10 +32,17 @@ router.post('/auth/project', project.create);
 // router.put('/auth/project/:id', project.update);
 router.delete('/auth/project/:id', project.delete);
 
+// subproject
+router.post('/auth/project/:id/subproject', subproject.create);
+router.get('/auth/project/:id/subprojects', subproject.getAll);
+router.get('/auth/project/:id/subproject/:subId', subproject.get);
+router.put('/auth/project/:id/subproject/:subId', subproject.change);
+
 // models
 router.get('/auth/project/:id/:subprj/models', models.getTree);
 router.post('/auth/project/:id/:subprj/models', models.insert);
 router.post('/auth/project/:id/:subprj/assignCategory', models.assignCategory);
+router.get('/auth/project/:id/:subprj/model/:modelId/connect', models.getConnections);
 
 // categories
 router.get('/auth/project/:id/categories', category.getAll);
@@ -46,16 +56,24 @@ router.delete('/auth/project/:id/category/:cid/attribute/:aid', category.deleteA
 // sources
 router.get('/auth/project/:id/:subprj/sources', source.getAll);
 router.get('/auth/project/:id/:subprj/source/:sourceId', source.get);
-router.get('/auth/project/:id/:subprj/source/:sourceId/connect', source.getConnections);
 router.post('/auth/project/:id/:subprj/source/:sourceId/connect', source.createConnections);
+router.get('/auth/project/:id/:subprj/source/:sourceId/connect', source.getConnections);
 
 // comments
 router.post('/auth/project/:id/comment', comment.create);
 router.get('/auth/project/:id/comment/:targetId', comment.get);
+router.get('/auth/project/:id/comments', comment.getAll);
 
 // graph
 router.get('/auth/project/:id/graph/:nodeId', graph.getPaths);
 router.get('/auth/project/:id/graph/:nodeId/:label', graph.getTitle);
 router.get('/auth/project/:id/graph/:nodeId/:label', graph.getAbstractNodes);
+router.get('/auth/project/:id/graph/:nodeId/e22', graph.getE22Name);
+
+// persons
+router.get('/auth/project/:id/persons', person.getAll);
+
+// archives
+router.get('/auth/project/:id/archives', archive.getAll);
 
 module.exports = router;

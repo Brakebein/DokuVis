@@ -3,15 +3,15 @@
 	<div class="expandContainerLabel">Erweiterte Optionen</div>
 </div>
 
-<!-- Optionen für Bauphasendarstellung -->
+<!-- Optionen für Darstellung/Visualisierung -->
 <div id="vpCtrlBuild" class="ctrlPanel">
-	<div class="ctrlPanel-heading" ng-click="vPanel.openTab('display')">
+	<div class="ctrlPanel-heading" bs-collapse-toggle>
 		<div class="expandButton">
 			<span class="glyphicon glyphicon-chevron-down" ng-class="{'glyphicon-chevron-up': vPanel.tab=='display'}"></span>
 		</div>
 		Darstellungsoptionen
 	</div>
-	<div ng-show="vPanel.tab == 'display'" class="ctrlPanel-body" ng-scrollbars ng-scrollbars-config="scrollConfig">
+	<div class="ctrlPanel-body" bs-collapse-target><div ng-scrollbars ng-scrollbars-config="scrollConfig">
 		<div class="optionGroup">
 			<span class="groupHeader">Ausgewählte Objekte</span>
 			<span>Transp.</span>
@@ -79,20 +79,20 @@
 					<input type="checkbox" ng-model="unsafeSettings.autoTransparent"/> Transparenz abhängig von Blickwinkel <!--controller einfügen-->
 			</label>
 		</div>
-	</div>
+	</div></div>
 </div>
 
 
 <!-- Optionen für Markierungen -->
 <div id="vpCtrlMarkers" class="ctrlPanel">
-	<div class="ctrlPanel-heading" ng-click="vPanel.openTab('marks')">
+	<div class="ctrlPanel-heading" bs-collapse-toggle>
 		<div class="expandButton">
 			<span class="glyphicon glyphicon-chevron-down" ng-class="{'glyphicon-chevron-up': vPanel.tab=='marks'}"></span>
 		</div>
 		Optionen für Markierungen
 	</div>
-	
-	<div class="ctrlPanel-body" ng-show="vPanel.tab == 'marks'" ng-scrollbars ng-scrollbars-config="scrollConfig">
+
+	<div class="ctrlPanel-body" bs-collapse-target><div ng-scrollbars ng-scrollbars-config="scrollConfig">
 
 		<div class="optionGroup">
 			<span class="groupHeader">Bauphasenfärbung</span>
@@ -126,18 +126,18 @@
 
 		</div>
 		
-	</div>
+	</div></div>
 </div>
 
 <!-- Optionen für Unsicheres Wissen -->
 <div id="vpCtrlUnsafe" class="ctrlPanel">
-	<div class="ctrlPanel-heading" ng-click="vPanel.openTab('dendro')">
+	<div class="ctrlPanel-heading" bs-collapse-toggle>
 		<div class="expandButton">
 			<span class="glyphicon glyphicon-chevron-down" ng-class="{'glyphicon-chevron-up': vPanel.tab=='dendro'}"></span>
 		</div>
 		Optionen für Dendrochronologische Daten
 	</div>
-	<div class="ctrlPanel-body" ng-show="vPanel.tab == 'dendro'">
+	<div class="ctrlPanel-body" bs-collapse-target><div>
 		
 		<div class="mainOptionGroup">
 			<button title = "focusRoof" class="ctrlBtn" ng-class="(activeBtn == 'focusRoof') ? 'active' : ''" ng-click="ctrlBtnClick('focusRoof')"> Fokus auf das Dach</button> <!--controller einfügen -->
@@ -175,18 +175,18 @@
 			</tbody></table>
 		
 		</div>
-	</div>
+	</div></div>
 </div>
 
 <!-- Optionen für Schnitte -->
 <div id="vpCtrlSlice" class="ctrlPanel">
-	<div class="ctrlPanel-heading" ng-click="vPanel.openTab('slice')">
+	<div class="ctrlPanel-heading" bs-collapse-toggle>
 		<div class="expandButton">
 			<span class="glyphicon glyphicon-chevron-down" ng-class="{'glyphicon-chevron-up': vPanel.tab=='slice'}"></span>
 		</div>
 		Querschnitt
 	</div>
-	<div class="ctrlPanel-body" ng-show="vPanel.tab == 'slice'">
+	<div class="ctrlPanel-body" bs-collapse-target><div>
 		<div class="mainOptionGroup checkbox">
 			<label>
 				<input type="checkbox" ng-model="sliceSettings.enabled"/> Querschnitt aktivieren
@@ -220,18 +220,18 @@
 				<input type="checkbox" ng-model="sliceSettings.showSliceFaces"/> Schnittflächen schließen
 			</label>
 		</div>
-	</div>
+	</div></div>
 </div>
 
 <!-- Messwerkzeug -->
 <div id="vpCtrlMeasure" class="ctrlPanel">
-	<div class="ctrlPanel-heading" ng-click="vPanel.openTab('measure')">
+	<div class="ctrlPanel-heading" bs-collapse-toggle>
 		<div class="expandButton">
 			<span class="glyphicon glyphicon-chevron-down" ng-class="{'glyphicon-chevron-up': vPanel.tab=='measure'}"></span>
 		</div>
 		Messwerkzeug
 	</div>
-	<div class="ctrlPanel-body" ng-show="vPanel.tab == 'measure'">
+	<div class="ctrlPanel-body" bs-collapse-target><div>
 		<div class="optionGroup">
 			<span class="groupHeader">Messungstypen</span>
 			<button title="Measurement Tool" class="ctrlBtn" ng-class="(activeBtn == 'measure') ? 'active' : ''" ng-click="startMeasuring()"><img src="img/icons/measure.png"/></button>
@@ -240,6 +240,6 @@
 			<span class="groupHeader">Ergebnis</span>
 			Entfernung: {{ measureDistance || 0 | number: 2 }} m
 		</div>
-	</div>
+	</div></div>
 </div>
 

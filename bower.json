@@ -1,0 +1,81 @@
+{
+  "name": "dokuvis-gui",
+  "homepage": "https://github.com/Brakebein/DokuVis",
+  "authors": [
+    "Brakebein <bruschie@hotmail.com>"
+  ],
+  "description": "",
+  "main": [
+    "app/app.js",
+    "style/general.sass"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "api",
+    "data",
+    "tmp",
+    "uploads",
+    "cyphers"
+  ],
+  "dependencies": {
+    "d3": "^3.5.17",
+    "jquery": "^2.2.4",
+    "bootstrap": "^3.3.6",
+    "tween.js": "tweenjs#^16.3.4",
+    "font-awesome": "Font-Awesome#^4.6.3",
+    "angular-strap": "^2.3.8",
+    "angular": "1.4.6",
+    "moment": "^2.13.0",
+    "angular-minicolors": "^0.0.7",
+    "angular-ui-router": "^0.3.1",
+    "ui-router-extras": "^0.1.2",
+    "angular-animate": "1.4.6",
+    "angular-canvas-painter": "^0.5.3",
+    "angular-moment": "^0.10.3",
+    "ng-tags-input": "^3.1.1",
+    "jquery-minicolors": "2.2.4",
+    "bootstrap-additions": "^0.3.1",
+    "angular-xeditable": "^0.1.12",
+    "ng-debounce": "^0.1.7",
+    "angular-truncate": "*",
+    "textAngular": "^1.5.1",
+    "angular-ui-router-css": "*"
+  },
+  "overrides": {
+    "bootstrap": {
+      "main": [
+        "dist/css/bootstrap.min.css",
+        "dist/js/bootstrap.min.js"
+      ]
+    },
+    "font-awesome": {
+      "main": [
+        "css/font-awesome.min.css"
+      ]
+    },
+    "moment": {
+      "main": [
+        "min/moment-with-locales.min.js"
+      ]
+    },
+    "ng-tags-input": {
+      "main": [
+        "ng-tags-input.js"
+      ]
+    }
+  },
+  "resolutions": {
+    "angular-ui-router": "^0.3.1",
+    "angular": "1.4.6",
+    "angular-animate": "1.4.6",
+    "moment": "^2.13.0",
+    "jquery-minicolors": "2.2.4",
+    "angular-file-upload": "1.1.5"
+  }
+}

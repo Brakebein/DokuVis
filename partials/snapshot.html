@@ -1,0 +1,24 @@
+<div class="pinLayer" ng-class="{active: snapshot.mode === 'pin'}" ng-mousemove="mousemoveOnPinLayer($event)" ng-mouseup="mouseupOnPinLayer($event)" no-context-menu></div>
+
+<div class="paintLayer" ng-class="{active: snapshot.mode === 'paint'}" no-context-menu>
+	<div pw-canvas options="snapshot.paintOptions" version="snapshot.version" current-size="{width: snapshot.paintOptions.width, height: snapshot.paintOptions.height}"></div>
+</div>
+
+<div class="border" ng-style="{'border-color': snapshot.mode === 'pin' ? '#0f0' : snapshot.paintOptions.color}"></div>
+
+<div class="settingsContainer">
+	<div class="settings">
+		<div class="ctrlGroup">
+			<button class="btn btn-default btn-xs" ng-click="snapshot.version=snapshot.version-1" ng-disabled="!snapshot.version"><i class="fa fa-undo"></i> Rückgängig ({{snapshot.version}})</button>
+			<div class="sliderDiv">
+				Linienstärke
+				<input class="dvSlider" type="range" min="1" max="20" ng-model="snapshot.paintOptions.lineWidth"/>
+				<div class="lineWidth"><div ng-style="{ height: snapshot.paintOptions.lineWidth, 'margin-top': (20-snapshot.paintOptions.lineWidth)/2 }"></div></div>
+			</div>
+			<input type="hidden" minicolors="{ control: 'wheel', opacity: true, position: 'top left', format: 'rgb',changeDelay: 200 }" ng-model="snapshot.paintOptions.color" ng-change="updateColor(c.id, a.id, a.color)"/>
+		</div>
+		<div class="ctrlGroup">
+			<button class="btn btn-default btn-xs" ng-click="startMarking()"><i class="fa fa-thumb-tack"></i> Pinnen</button>
+		</div>
+	</div>
+</div>

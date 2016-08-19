@@ -169,20 +169,20 @@
 
 	
 
-	<div class="sidePanelSidemenu">
+	<div class="sidePanelSidemenu sideNav sideNav-right">
 	
 		<div ng-hide = "views.activeSide != 'staff'" title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
-			<span class="glyphicon glyphicon-user"></span>
+			<i class="glyphicon glyphicon-user"></i>
 		</div>
 		<div  ng-hide = "views.activeSide == 'staff'" title="Kommentare" class="smBtn" ng-class="views.activeSide=='comments'?'active':''" ng-click="views.activeSide = 'comments'">
-			<span class="glyphicon glyphicon-comment"></span>
+			<i class="glyphicon glyphicon-comment"></i>
 		</div>
 		<div ng-hide = "views.activeSide == 'staff'" title="Neue Aufgabe" class="smBtn" ng-class="views.activeSide=='newTask'?'active':''" ng-click="views.activeSide = 'newTask'">
-			<span class="glyphicon glyphicon-tasks"></span>
+			<i class="glyphicon glyphicon-tasks"></i>
 		</div>
 		
 		<div ng-hide = "views.activeSide == 'staff'" title="Dokumentenverwaltung" class="smBtn" ng-class="views.activeSide=='document'?'active':''" ng-click="views.activeSide = 'document'">
-			<span class="glyphicon glyphicon-paperclip"></span>
+			<i class="glyphicon glyphicon-paperclip"></i>
 		</div>
 		
 		

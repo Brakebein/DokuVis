@@ -66,6 +66,28 @@ var graph = {
 			}).catch(function(err) {
 			utils.error.neo4j(res, err, '#cypher');
 		});
+	},
+
+	getE22Name: function (req, res) {
+		var prj = req.params.id;
+
+		var statements = [{
+			statement: 'match (n:'+prj+')<-[:P138]-(e36:E36)-[:P2]->(:E55 {content: "model"}) where id(n) = {id} match (e36)-[:P106]->(e73:E73) return e73 AS title',
+			parameters: {
+				id: +req.params.nodeId
+			},
+			resultDataContents: ['row', 'graph']
+		}];
+
+		neo4j.transaction(statements)
+			.then(function(response) {
+				if(response.results[0] && response.results[0].data[0])
+					res.json(response.results[0].data[0].row[0]);
+				else
+					res.send();
+			}).catch(function(err) {
+			utils.error.neo4j(res, err, '#cypher');
+		});
 	}
 	
 };

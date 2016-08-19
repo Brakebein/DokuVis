@@ -356,3 +356,13 @@ angular.module('dokuvisApp').directive('convertToNumber',
       }
     };
   });
+
+angular.module('dokuvisApp').directive('noContextMenu', function () {
+	return {
+		compile: function (element) {
+			element.bind('contextmenu', function (event) {
+				event.preventDefault();
+			});
+		}
+	};
+});

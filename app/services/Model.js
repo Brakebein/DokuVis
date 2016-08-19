@@ -9,6 +9,10 @@ angular.module('dokuvisApp').factory('Model', ['$http', 'API', '$stateParams',
 
 			insert: function(formData, objDatas) {
 				return $http.post(API + 'auth/project/'+$stateParams.project+'/'+$stateParams.subproject+'/models', { formData: formData, objDatas: objDatas });
+			},
+
+			getConnections: function(id) {
+				return $http.get(API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/' + id +'/connect');
 			}
 			
 		};

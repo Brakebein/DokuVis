@@ -1,0 +1,121 @@
+@import 'variables'
+
+.prjSideNav
+	position: absolute
+	top: 0
+	bottom: 0
+	left: 0
+	width: $navWidth
+	z-index: 50
+
+// side menu
+.sideNav
+	background-color: $navBackgroundColor
+	color: $navFontColor
+
+	display: flex
+	flex-direction: column
+
+	.smLogo
+		flex: 0 0 $navButtonHeight
+		background-color: $dvPrimaryColor
+		cursor: pointer
+
+	.smBtn
+		flex: 0 0 $navButtonHeight
+		padding: 7px
+		transition: border 0.3s, color 0.3s, background-color 0.3s
+
+		&:hover, &.active
+			cursor: pointer
+			color: $navFontColorHover
+		&:hover
+			background-color: #444
+		&.active
+			background-color: rgba($dvPrimaryColor, 0.5)
+		i, span
+			font-size: 20px
+
+	.smSpace
+		flex: 1 1 $navButtonHeight
+
+	&.sideNav-left
+		border-right: 1px solid #000
+		.smBtn
+			border-right: 2px solid rgba($dvPrimaryColor, 0.5)
+			&:hover, &.active
+				border-right-color: $dvPrimaryColor
+	&.sideNav-right
+		border-left: 1px solid #000
+		.smBtn
+			border-left: 2px solid rgba($dvPrimaryColor, 0.5)
+			&:hover, &.active
+				border-left-color: $dvPrimaryColor
+
+// main window
+.prjMainContainer
+	position: absolute
+	top: 0
+	bottom: 0
+	left: $navWidth
+	right: 0
+	z-index: 30
+
+// resizer
+.resizer-h
+	position: absolute
+	left: 0
+	right: 0
+	bottom: 234px
+	height: 6px
+	cursor: n-resize
+
+.resizer-v
+	position: absolute
+	top: 0
+	bottom: 0
+	left: 66%
+	width: 6px
+	cursor: e-resize
+
+.resizer-h, .resizer-v
+	background-color: #333
+
+.resizer-h:hover, .resizer-v:hover
+	background-color: #789
+
+
+//resizer tasks
+.resizer-vTask
+	position: absolute
+	top: 0
+	bottom: 0
+	left: 100%
+	width: 6px
+	cursor: e-resize
+
+.resizer-vTask
+	background-color: #333
+
+.resizer-vTask:hover
+	background-color: #789
+
+// DEPRECATED
+.closeXBtn
+	position: absolute
+	top: 0
+	right: 0
+	width: 25px
+	height: 25px
+	padding: 3px 5px
+	background-color: #e68f8d
+	//border: 1px solid #d43f3a;*/
+	border-bottom: 1px solid #888
+	border-left: 1px solid #888
+	border-bottom-left-radius: 4px
+	color: #fff
+	cursor: pointer
+
+	&:hover
+		background-color: #d2322d
+		//border-color:#ac2925;*/

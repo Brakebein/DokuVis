@@ -11,7 +11,11 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 			var history = [];
 			var historyIndex = 0;
 			var stateForward = false;
-			
+
+			/**
+			 * D3.js force layout graph
+			 * @constructor
+             */
 			function Graph() {
 				
 				var link, node;
@@ -53,8 +57,10 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					.append('path')
 						.attr('class', 'arrowHead')
 						.attr('d', 'M0,-5L10,0L0,5');
-				
-				// updates the SVG
+
+				/**
+				 * update SVG
+				 */
 				this.update = function() {
 					link = svg.selectAll('.link')
 						.data(links);
@@ -132,8 +138,10 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				};
 				
 				// events
-				
-				// force layout simulation step
+
+				/**
+				 * force layout simulation step
+				 */
 				function tick() {
 					link.select('.linkPath').attr('d', function(d) {
 						return 'M'+d.source.x+' '+d.source.y+'L'+d.target.x+' '+d.target.y;
@@ -146,7 +154,11 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					});
 					node.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 				}
-				
+
+				/**
+				 * called when node starts to be dragged
+				 * @param d - node object
+                 */
 				function dragstart(d) {
 					//console.log('dragstart', d);
 					d3.select(this).classed('fixed', d.fixed = true);
@@ -157,6 +169,9 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					scope.$apply();
 				}
 
+				/**
+				 * make link opaque, if source and target are fixed
+				 */
 				function fixLinks() {
 					for(var i=0; i<links.length; i++) {
 						var link = links[i];
@@ -199,8 +214,12 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				};
 				
 				// organize graph data
-				
-				// add node to the graph object
+
+				/**
+				 * add node to the graph object
+				 * @param node
+                 * @returns {boolean}
+                 */
 				this.addNode = function(node) {
 					if(this.findNode(node.id) === undefined) {
 						var newPos = getRandomPosition();
@@ -213,8 +232,12 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					}
 					return false;
 				};
-				
-				// add link to the graph object
+
+				/**
+				 * add link to the graph object
+				 * @param link
+                 * @returns {boolean}
+                 */
 				this.addLink = function(link) {
 					if(this.findLink(link.id) === undefined) {
 						if(!link.source) link.source = this.findNode(link.startNode);
@@ -225,7 +248,11 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					return false;
 				};
 
-				// remove node from graph object
+				/**
+				 * remove node from graph object
+				 * @param nodeId
+                 * @returns {boolean}
+                 */
 				this.removeNode = function (nodeId) {
 					for(var i=0; i<nodes.length; i++) {
 						if(nodes[i].id === nodeId) {
@@ -235,8 +262,12 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					}
 					return false;
 				};
-				
-				// remove link from graph object
+
+				/**
+				 * remove link from graph object
+				 * @param linkId
+                 * @returns {boolean}
+                 */
 				this.removeLink = function (linkId) {
 					for(var i in links) {
 						if(links[i].id === linkId) {
@@ -261,13 +292,24 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					return undefined;
 				};
 
-				this.findLinkByType = function (type, startNode) {
+				/**
+				 * find link by type and one node
+				 * @param {string} type - relationship type
+                 * @param node - node object
+                 * @returns {*}
+                 */
+				this.findLinkByType = function (type, node) {
 					for(var i in links) {
-						if((links[i].source === startNode || links[i].target === startNode) && links[i].type === type) return links[i];
+						if((links[i].source === node || links[i].target === node) && links[i].type === type) return links[i];
 					}
 					return undefined;
 				};
 
+				/**
+				 * find link by node ID
+				 * @param nodeId
+                 * @returns {*}
+                 */
 				this.findLinkByNodeId = function (nodeId) {
 					for(var i in links) {
 						if(links[i].source.id === nodeId || links[i].target.id === nodeId) return links[i];
@@ -282,13 +324,20 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					else
 						return text;
 				}
-				
-				// get and store bounding box of selection
+
+				/**
+				 * get and store bounding box of selection
+				 * @param selection
+                 * @param bbox
+                 */
 				function getBBox(selection, bbox) {
 					selection.each(function(d) { d[bbox] = this.getBBox() });
 				}
-				
-				// get position near to the clicked node, but outwards (because most nodes will be around the center)
+
+				/**
+				 * get position near to the clicked node, but outwards (because most nodes will be around the center)
+				 * @returns {*}
+                 */
 				function getRandomPosition() {
 					var newPos = new THREE.Vector2().subVectors(clickPos, centerPos);
 					newPos.setLength(Math.random() * 200 + 100);
@@ -296,8 +345,11 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 					//console.log(clickPos, centerPos, newPos);
 					return newPos.add(clickPos); 
 				}
-				
-				// store position of clicked node
+
+				/**
+				 * store position of clicked node
+				 * @param d
+                 */
 				this.setClickPosition = function(d) {
 					clickPos.set(d.x, d.y);
 				};
@@ -399,6 +451,18 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				if(node.properties.title) return;
 				getTitle(node, 'E82', 'value');
 			};
+			rules['E22'] = function (node) {
+				if(node.properties.title) return;
+				waitingForUpdate++;
+				GraphVis.getE22Name(+node.id).then(function (response) {
+					console.log(response);
+					node.properties.title = response.data.name || response.data.content;
+					waitingForUpdate--;
+					if(waitingForUpdate === 0) graph.update();
+				}, function (err) {
+					Utilities.throwApiException('on GraphVis.getE22Name()', err);
+				});
+			};
 			rules['E31'] = function (node) {
 				getTitle(node, 'E35', 'content');
 			};
@@ -422,10 +486,56 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				graph.removeNode(endNode.id);
 				return true;
 			};
-			rules['P70-E36'] = function (endNode, link) {
-				graph.removeNode(endNode.id);
-				return true;
-			};
+			/*rules['P70-E36'] = function (node, link) {
+				// graph.removeNode(node.id);
+				// return true;
+				waitingForUpdate++;
+				GraphVis.getNodeNeighbours(+node.id).then(function (response) {
+					if(!response.data.results[0]) return;
+					var data = response.data.results[0].data;
+
+					for(var i=0; i<data.length; i++) {
+						var dataNodes = data[i].graph.nodes;
+						var dataLinks = data[i].graph.relationships;
+
+						for(var j=0; j<dataNodes.length; j++) {
+							graph.addNode(dataNodes[j]);
+						}
+						for(var j=0; j<dataLinks.length; j++) {
+							var link = dataLinks[j];
+							var endNodeId = link.startNode === node.id ? link.endNode : link.startNode;
+							var endNode = graph.findNode(endNodeId);
+							callRule(endNode.labels[0], endNode);
+							graph.addLink(link);
+						}
+					}
+
+					var linkP70 = graph.findLinkByType('P70', node);
+					var linkP138 = graph.findLinkByType('P138', node);
+
+					if(linkP70 && linkP138) {
+						graph.addLink({
+							id: linkP70.id + linkP138.id,
+							type: 'P70a',
+							startNode: linkP70.source.id,
+							source: linkP70.source,
+							endNode: linkP138.target.id,
+							target: linkP138.target
+						});
+					}
+
+					if(linkP70) graph.removeLink(linkP70.id);
+					if(linkP138) graph.removeLink(linkP138.id);
+					graph.removeNode(node.id);
+
+					waitingForUpdate--;
+					if(waitingForUpdate === 0) graph.update();
+
+
+				}, function(err) {
+					Utilities.throwApiException('on GraphVis.getNodeNeighbours()', err);
+				});
+			};*/
 			rules['P82-E61'] = function (endNode, link) {
 				var startNode = graph.findNode(link.startNode);
 				setTitle(startNode, endNode, 'value');
@@ -441,10 +551,10 @@ angular.module('dokuvisApp').directive('graphSearch', ['$state', '$stateParams',
 				setTitle(startNode, endNode, 'value');
 				return true;
 			};
-			rules['P138-E36'] = function (endNode, link) {
+			/*rules['P138-E36'] = function (endNode, link) {
 				graph.removeNode(endNode.id);
 				return true;
-			};
+			};*/
 			rules['P129-E33'] = function (node, link) {
 				waitingForUpdate++;
 				GraphVis.getNodeNeighbours(+node.id).then(function (response) {

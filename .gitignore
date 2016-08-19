@@ -5,6 +5,8 @@ uploads
 /php/tesseract.exe.stackdump
 /api/node_modules
 /.idea
-/cyphers
 /DokuVisProject
 /php/globalpaths.php
+/bower_components
+/node_modules
+/dist

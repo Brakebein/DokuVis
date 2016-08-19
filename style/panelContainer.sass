@@ -1,0 +1,274 @@
+@import 'variables'
+
+.vpPanelContainer
+	position: absolute
+	width: 280px
+	top: 0
+	right: -280px
+	background-color: $panelBackground
+	font-size: 8pt
+	color: $panelFontColor
+	border-left: $panelBorder
+	transition: right 0.5s
+
+	&.expand
+		right: 0
+	&.ng-hide
+		//display: block !important
+		right: -300px
+
+	.expandContainerBtn
+		position: absolute
+		width: 19px
+		height: 19px
+		top: 0
+		left: -20px
+		background-color: $panelBackground
+		font-size: 8pt
+		padding: 6px 4px 0
+		color: #999
+		cursor: pointer
+
+		&:hover
+			color: $panelFontColor
+
+		.expandContainerLabel
+			-webkit-transform: rotate(-90deg)
+			-moz-transform: rotate(-90deg)
+			-ms-transform: rotate(-90deg)
+			-o-transform: rotate(-90deg)
+			transform: rotate(-90deg)
+			-webkit-transform-origin: 0 0
+			-moz-transform-origin: 0 0
+			-ms-transform-origin: 0 0
+			-o-transform-origin: 0 0
+			transform-origin: 0 0
+
+			position: absolute
+			width: 120px
+			height: 19px
+			top: 139px
+			left: 0
+			padding: 2px 5px
+			text-align: center
+			background-color: $panelBackground
+			border-top-left-radius: 5px
+
+	.ctrlPanel
+		position: relative
+		width: 100%
+		border-bottom: 1px solid #999
+
+		.ctrlPanel-heading
+			background-color: rgba(100,100,100,0.8)
+			font-weight: bold
+			padding: 5px 15px
+			cursor: pointer
+
+			.expandButton
+				float: right
+				padding-top: 1px
+				height: 14px
+
+		.ctrlPanel-body
+			max-height: 300px
+
+			&>div
+				padding: 10px
+				border-top: 1px solid #999
+				overflow: hidden
+				opacity: 1
+				//transition: all 0.5s
+
+			&.collapse.am-collapse
+				animation-duration: 0.5s
+				animation-timing-function: ease
+				animation-fill-mode: backwards
+				overflow: hidden
+				&.in-remove
+					animation-name: collapse
+					display: block
+				&.in-add
+					animation-name: expand
+			//	max-height: 300px
+			//	opacity: 1
+			//	padding: 10px
+
+			//&.ng-hide
+			//	max-height: 0
+			//	opacity: 0
+			//	padding-top: 0
+			//	padding-bottom: 0
+
+			[ng-scrollbars]
+				padding: 10px 0
+				height: 300px
+
+			.mainOptionGroup
+				position: relative
+				margin: 5px 0
+				padding: 0 10px
+
+			.mainOptionGroup + .optionGroup
+				margin-top: 8px
+
+			.optionGroup
+				position: relative
+				margin: 13px 0 8px
+				padding: 10px 10px 4px
+				border: 1px solid #333
+				border-radius: 3px
+
+				.groupHeader
+					position: absolute
+					top: -7px
+					left: 4px
+					padding: 0 5px
+					background-color: #333
+					border-radius: 3px
+					color: #ddd
+					font-size: 7pt
+
+				#ramp
+					//position: absolute
+					//top: 30px
+					//left: 10px
+					display: inline-block
+					width: 200px
+					height: 20px
+
+				#colorField
+					//position: absolute
+					//top: 30px
+					//left: 215px
+					display: inline-block
+					width: 20px
+					height: 20px
+
+			slider
+				width: 140px
+				margin: 5px
+
+			label
+				display: block
+				padding-top: 2px
+				padding-bottom: 2px
+
+			input[type='radio'], input[type='checkbox']
+				//margin: 1px 7px 0 0
+				margin-top: 1px
+				margin-right: 7px
+
+			select
+				padding: 0
+				height: 22px
+
+			table td
+				display: table-cell
+				padding-right: 6px
+
+			input[type="number"]
+				width: 44px
+
+
+// horizontale Leiste
+.vpPanelContainerHorizontal
+	position: absolute
+	height: 100px
+	width: 100%
+	bottom: -85px
+	background-color: rgba(51,51,51,0.8)
+	font-size: 8pt
+	color: #fafafa
+	border-left: 1px solid #999
+
+	.expandContainerBtnHorizontal
+		position: absolute
+		width: 19px
+		height: 19px
+		top: 0
+		left: 500px
+		font-size: 8pt
+		padding: 2px 4px 0
+		color: #999
+		cursor: pointer
+
+		&:hover
+			color: #fafafa
+
+	.expandContainerBtnPhases
+		position: absolute
+		width: 19px
+		height: 19px
+		top: 15px
+		left: 0
+		font-size: 8pt
+		padding: 2px 4px 0
+		color: #999
+		cursor: pointer
+
+		&:hover
+			color: #fafafa
+
+	.labelComplete
+		position: absolute
+		top: 15px
+		left: 50px
+
+	.labelText
+		position: relative
+		top: 0
+		left: 50px
+
+	.labelColorSecure
+		position: absolute
+		top: 15px
+		left: 50px
+		width: 10px
+		height: 12px
+		background-color: hsl(43,74%,59%)
+		border-radius: 5px
+
+	.labelTable
+		position: absolute
+		top: 30px
+
+	.row2
+		position: absolute
+		opacity: 0
+		top: 45px
+
+		.labelColorUnsecure
+			position: absolute
+			top: 1px
+			left: 100px
+			width: 10px
+			height: 10px
+			background-color: hsl(43,74%,59%)
+			border-radius: 5px
+
+			&:hover
+				position: absolute
+				opacity: 0.5
+				border: dashed
+
+	.timeSlider
+		position: absolute
+		top: 20px
+		left: 20px
+		height: 50px
+
+		.timeNumbers
+			position: absolute
+			top: 35px
+
+	slider
+		position: absolute
+		left: 20px
+		width: 950px
+
+.gradient-marker
+	position: absolute
+	background: #ffffff
+	width: 2px
+	height: 20px

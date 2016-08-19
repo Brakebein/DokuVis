@@ -6,7 +6,6 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'ngAnimate',
 	'ngSanitize',
 	'debounce',
-	'autocomplete',
 	'truncate',
 	'xeditable',
 	'mgcrea.ngStrap',
@@ -41,11 +40,10 @@ dokuvisApp.constant('API', 'api/');
 dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
 	function($stateProvider, $stickyStateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
+		// add interceptors
 		$httpProvider.interceptors.push('TokenInterceptor');
 		
 		$urlRouterProvider.otherwise('/home');
-
-		//$stickyStateProvider.enableDebug(true);
 		
 		$stateProvider
 			.state('home', {
@@ -63,7 +61,7 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				templateUrl: 'partials/projects.html',
 				controller: 'projectlistCtrl',
 				resolve: {
-					authenticate: authenticate
+					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate]
 				}
 			})
 			.state('project', {
@@ -72,7 +70,7 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				controller: 'projectCtrl',
 				css: 'style/project.css',
 				resolve: {
-					authenticate: authenticate,
+					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate],
 					checkProject: checkProject,
 					checkSubproject: checkSubproject
 				},
@@ -84,6 +82,29 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				controller: 'projHomeCtrl',
 				css: 'style/projHome.css'
 			})
+			.state('project.home.subproject', {
+				url: '/subproject',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/subprojectModal.html',
+						controller: 'subprojectCtrl',
+						show: true
+					});
+				}],
+				abstract: true
+			})
+			.state('project.home.subproject.new', {
+				url: '/new'
+			})
+			.state('project.home.subproject.edit', {
+				url: '/edit',
+				params: {
+					name: '',
+					desc: '',
+					subId: ''
+				}
+			})
 			.state('project.explorer', {
 				url: '/explorer',
 				templateUrl: 'partials/explorer.html',
@@ -91,6 +112,7 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				css: [
 					'style/explorer.css',
 					'style/panelContainer.css',
+					'style/snapshot.css',
 					'style/modals/screenshotDetail.min.css',
 					'style/modals/indexEdit.min.css',
 					'style/modals/categoryEdit.css'
@@ -98,14 +120,14 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			})
 			.state('project.explorer.source', {
 				url: '/source',
-				onEnter: function ($modal) {
+				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalLargeTpl.html',
 						contentTemplate: 'partials/modals/sourceDetailModal.html',
 						controller: 'sourceDetailCtrl',
 						show: true
 					});
-				},
+				}],
 				css: 'style/modals/sourceDetail.min.css',
 				abstract: true
 			})
@@ -114,14 +136,14 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			})
 			.state('project.explorer.upload', {
 				url: '/upload',
-				onEnter: function ($modal) {
+				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalLargeTpl.html',
 						contentTemplate: 'partials/modals/uploadModal.html',
 						controller: 'uploadCtrl',
 						show: true
 					});
-				},
+				}],
 				css: 'style/modals/upload.min.css',
 				abstract: true
 			})
@@ -146,19 +168,25 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			})
 			.state('project.graph.source', {
 				url: '/source',
-				onEnter: function ($modal) {
+				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalLargeTpl.html',
 						contentTemplate: 'partials/modals/sourceDetailModal.html',
 						controller: 'sourceDetailCtrl',
 						show: true
 					});
-				},
+				}],
 				css: 'style/modals/sourceDetail.min.css',
 				abstract: true
 			})
 			.state('project.graph.source.id', {
 				url: '/:sourceId'
+			})
+			.state('project.resources', {
+				url: '/resources',
+				templateUrl: 'partials/resources.html',
+				controller: 'resourcesCtrl',
+				css: 'style/resources.css'
 			})
 			.state('project.config', {
 				url: '/config',
@@ -182,14 +210,16 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 		
 		// resolve functions
 		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory) {
+			
 			if(AuthenticationFactory.isLogged) {
+				
 				return UserAuthFactory.checkJWT().then(function(response) {
 					console.log(response);
 					// check if user object exists else fetch it. this is incase of a page refresh
 					if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;
 					if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;
 					//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
-				return $q.when();
+					return $q.when();
 				}, function(reason) {
 					console.log(reason);
 					if(reason.status === 400) {
@@ -202,37 +232,53 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				});
 			}
 			else {
+				
 				$timeout(function() {
 					$state.go('home');
 				});
 				return $q.reject();
+				
 			}
 		}
 		
 		function checkProject($state, $stateParams, $q, $rootScope, Project) {
+			
 			return Project.get($stateParams.project).then(function(response){
+				
 				console.log(response, $stateParams);
+				
 				if(response.data === 'NO ENTRY') {
+					
 					$state.go('projectlist');
 					return $q.reject();
+					
 				}
+				
 				$rootScope.userRole = response.data.role;
+				
 			});
+			
 		}
 		
-		function checkSubproject($state, $stateParams, $q, neo4jRequest) {
+		function checkSubproject($state, $stateParams, $q, Subproject) {
+			
 			if($stateParams.subproject === 'master')
 				return $q.resolve();
 			else {
-				return neo4jRequest.getSubprojectInfo($stateParams.project, $stateParams.subproject).then(function(response){
-					if(response.data.exception) {
-						console.error('neo4jRequest Exception on getSubprojectInfo()', response.data);
+				console.log('before', $stateParams);
+				return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
+					
+					console.log('after', response);
+					if(!response.data.length) {
+						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });
 						return $q.reject();
 					}
-					if(response.data.data.length === 0) {
-						$state.go('project.home', {subproject: 'master'});
-						return $q.reject();
-					}
+					
+				}, function (err) {
+					
+					Utilities.throwApiException('on Subproject.check()', err);
+					return $q.reject();
+					
 				});
 			}
 		}

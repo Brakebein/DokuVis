@@ -78,7 +78,7 @@ var models = {
 				contentid: formData.tid + '_' + objData.id.replace(/ /g, "_"),
 				parentid: objData.parentid ? 'e22_' + formData.tid + '_' + objData.parentid.replace(/ /g, "_") : '',
 				e73content: {
-				content: 'e73_' + formData.tid + '_' + objData.id.replace(/ /g, "_"),
+					content: 'e73_' + formData.tid + '_' + objData.id.replace(/ /g, "_"),
 					id: objData.id,
 					name: objData.name,
 					type: objData.type,
@@ -131,6 +131,23 @@ var models = {
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
 			});
+	},
+
+	getConnections: function (req, res) {
+		var prj = req.params.id;
+		var q = 'MATCH (e73:E73:'+prj+' {content: {modelId}})<-[:P106]-(:E36)-[:P138]->(:E22)<-[:P138]-(:E36)<-[:P70]-(e31:E31) \
+			RETURN e31.content AS sourceId';
+		var params = {
+			modelId: req.params.modelId
+		};
+
+		neo4j.transaction([{statement: q, parameters: params}])
+			.then(function(response) {
+				if(response.exception) { utils.error.neo4j(res, response, '#source.getConnectionsInverse'); return; }
+				res.json(neo4j.extractTransactionData(response.results[0]));
+			}).catch(function(err) {
+			utils.error.neo4j(res, err, '#cypher');
+		});
 	}
 	
 };

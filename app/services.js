@@ -665,8 +665,6 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		// TODO: subproject editieren
-		// TODO: subproject löschen
 		
 		/**
 		  * allgemeine Infos
@@ -868,6 +866,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		// alle Institutionen mit Archiven
+		// DEPRECATED
 		requests.getArchives = function(prj) {
 			return $http.post(phpUrl, {
 				query: 
@@ -1091,6 +1090,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
+		// DEPRECATED
 		requests.getAllModels = function(prj) {
 			var q = 'MATCH (e22:E22:'+prj+')<-[:P138]-(:E36)-[:P106]->(e73:E73)-[:P1]->(e75:E75)';
 			q += ' RETURN e73 AS object, e75 AS file';
@@ -1101,6 +1101,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
+		// DEPRECATED
 		requests.getModelsWithChildren = function(prj, subprj) {
 			
 			var q = 'MATCH (root:E22:'+prj+' {content:{esub}}), (tsp:E55:'+prj+' {content:"subproject"}),';
@@ -1252,7 +1253,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		
 		requests.getScreenshotsWithMarkers = function(prj) {
 			var q = '';
-			q += 'MATCH (e22:E22:'+prj+')<-[P138]-(e36:E36:'+prj+')-[:P2]->(:E55 {content: "screenshot"})';
+			q += 'MATCH (e22:E22:'+prj+')<-[:P138]-(e36:E36:'+prj+')-[:P2]->(:E55 {content: "screenshot"})';
 			q += ',(e36)-[:P1]->(e75:E75)'
 			q += ',(e36)-[:P102]->(e35:E35)'
 			q += ',(e36)-[:P106]->(marker:E90)-[:P3]->(comment:E62)'

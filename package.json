@@ -1,0 +1,28 @@
+{
+  "name": "dokuvis-gui",
+  "version": "1.0.0",
+  "description": "Online tool for the documentation of digital reconstructions and their modelling processes",
+  "main": "app/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Brakebein/DokuVis.git"
+  },
+  "author": "Brakebein",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Brakebein/DokuVis/issues"
+  },
+  "homepage": "https://github.com/Brakebein/DokuVis#readme",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-bower-concat": "^1.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.1",
+    "grunt-usemin": "^3.1.1",
+    "grunt-wiredep": "^3.0.1"
+  }
+}

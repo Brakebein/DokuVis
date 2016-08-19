@@ -13,6 +13,10 @@ angular.module('dokuvisApp').factory('GraphVis', ['$http', 'API', '$stateParams'
 			
 			getNodeTitle: function (id, label) {
 				return $http.get(API + 'auth/project/' + $stateParams.project + '/graph/' + id + '/' + label);
+			},
+			
+			getE22Name: function (id) {
+				return $http.get(API + 'auth/project/' + $stateParams.project + '/graph/' + id + '/e22');
 			}
 
 		};

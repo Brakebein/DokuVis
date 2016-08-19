@@ -1,5 +1,5 @@
-angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', 'mysqlRequest', 'Utilities', 'AuthenticationFactory', 'Project',
-	function($scope, mysqlRequest, Utilities, AuthenticationFactory, Project) {
+angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'mysqlRequest', 'Utilities', 'AuthenticationFactory', 'Project', 'ConfirmService',
+	function($scope, $state, $window, mysqlRequest, Utilities, AuthenticationFactory, Project, ConfirmService) {
 		
 		// TODO: index.config und blacklist.txt in Projektordner verschieben beim Anlegen
 		
@@ -48,15 +48,25 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', 'mysqlRequ
 			});
 		};
 		
-		$scope.deleteProject = function(prj) {
+		$scope.openProject = function (prj) {
+			var url = $state.href('project.home', { project: prj, subproject: 'master'});
+			$window.open(url, '_blank');
+		};
+		
+		$scope.deleteProject = function(p) {
 			
-			console.log('delete '+prj);
-			
-			Project.delete(prj).then(function(response) {
-				console.log(response);
-				$scope.getAllProjects();
-			}, function(err) {
-				Utilities.throwApiException('on deleteProject()', err);
+			console.log('delete ', p);
+
+			ConfirmService.showAlert({
+				headerText: 'Projekt löschen',
+				bodyText: 'Soll das Projekt <strong>' + p.name + '</strong> wirklich gelöscht werden? Sämtliche Daten gehen dabei verloren!'
+			}).then(function () {
+				Project.delete(p.proj).then(function(response) {
+					console.log(response);
+					$scope.getAllProjects();
+				}, function(err) {
+					Utilities.throwApiException('on deleteProject()', err);
+				});
 			});
 		};
 		

@@ -1,0 +1,8 @@
+<div class="alert" tabindex="-1" ng-class="'alert-' + alertOptions.type">
+	<strong ng-bind="alertOptions.headerText"></strong>
+	<p ng-bind-html="alertOptions.bodyText"></p>
+	<p>
+		<button class="btn btn-default btn-sm" ng-click="alertOptions.ok()">{{alertOptions.actionButtonText}}</button>
+		<button class="btn btn-default btn-sm" ng-click="alertOptions.abort()">{{alertOptions.abortButtonText}}</button>
+	</p>
+</div>
