@@ -40,11 +40,10 @@ dokuvisApp.constant('API', 'api/');
 dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
 	function($stateProvider, $stickyStateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
+		// add interceptors
 		$httpProvider.interceptors.push('TokenInterceptor');
 		
 		$urlRouterProvider.otherwise('/home');
-
-		//$stickyStateProvider.enableDebug(true);
 		
 		$stateProvider
 			.state('home', {
@@ -211,14 +210,16 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 		
 		// resolve functions
 		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory) {
+			
 			if(AuthenticationFactory.isLogged) {
+				
 				return UserAuthFactory.checkJWT().then(function(response) {
 					console.log(response);
 					// check if user object exists else fetch it. this is incase of a page refresh
 					if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;
 					if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;
 					//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
-				return $q.when();
+					return $q.when();
 				}, function(reason) {
 					console.log(reason);
 					if(reason.status === 400) {
@@ -231,51 +232,54 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 				});
 			}
 			else {
+				
 				$timeout(function() {
 					$state.go('home');
 				});
 				return $q.reject();
+				
 			}
 		}
 		
 		function checkProject($state, $stateParams, $q, $rootScope, Project) {
+			
 			return Project.get($stateParams.project).then(function(response){
+				
 				console.log(response, $stateParams);
+				
 				if(response.data === 'NO ENTRY') {
+					
 					$state.go('projectlist');
 					return $q.reject();
+					
 				}
+				
 				$rootScope.userRole = response.data.role;
+				
 			});
+			
 		}
 		
 		function checkSubproject($state, $stateParams, $q, Subproject) {
-			//return $q.resolve();
+			
 			if($stateParams.subproject === 'master')
 				return $q.resolve();
 			else {
 				console.log('before', $stateParams);
 				return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
+					
 					console.log('after', response);
 					if(!response.data.length) {
-						$state.go('project.home', {project: $stateParams.project, subproject: 'master'});
+						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });
 						return $q.reject();
 					}
+					
 				}, function (err) {
-					Utilities.throwApiException('on Subproject.get()', err);
+					
+					Utilities.throwApiException('on Subproject.check()', err);
 					return $q.reject();
+					
 				});
-				// return neo4jRequest.getSubprojectInfo($stateParams.project, $stateParams.subproject).then(function(response){
-				// 	console.log(response);
-				// 	if(response.data.exception) {
-				// 		console.error('neo4jRequest Exception on getSubprojectInfo()', response.data);
-				// 		return $q.reject();
-				// 	}
-				// 	if(response.data.data.length === 0) {
-				// 		$state.go('project.home', {subproject: 'master'});
-				// 		return $q.reject();
-				// 	}
-				// });
 			}
 		}
 		

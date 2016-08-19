@@ -16,7 +16,7 @@ angular.module('dokuvisApp').factory('Project', ['$http', 'API', '$stateParams',
 			
 			// Projekt Info
 			get: function(prj) {
-				return $http.get(API + 'auth/project/' + prj);
+				return $http.get(API + 'auth/project/' + prj, { cache: true });
 			},
 			
 			// Projekt löschen

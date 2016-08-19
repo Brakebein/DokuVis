@@ -1,7 +1,7 @@
-angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams', 'APIRequest', 'neo4jRequest', 'Utilities', 'Subproject',
-	function($scope, $stateParams, APIRequest, neo4jRequest, Utilities, Subproject) {
+angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams', 'APIRequest', 'neo4jRequest', 'Utilities', 'Project', 'Subproject',
+	function($scope, $stateParams, APIRequest, neo4jRequest, Utilities, Project, Subproject) {
 
-		$scope.isMaster = $stateParams.subproject === 'master' ? true : false;
+		$scope.isMaster = $stateParams.subproject === 'master';
 
 		$scope.projInfo = {};
 
@@ -18,22 +18,16 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 		$scope.newSubproj.desc = '';
 		$scope.newSubproj.show = false;
 
-		// init
-		if($stateParams.subproject === 'master') {
-			getProjectInfoFromTable();
-			getAllSubprojects();
-		}
-		else
-			getSubprojectInfo();
-		getProjectInfoFromNodes();
 
 		function getProjectInfoFromTable() {
-			APIRequest.getProjectEntry($stateParams.project).then(function(response) {
-				if(!response.data) { console.error('mysqlRequest failed on getProjectEntry()', response); return; }
+			Project.get($stateParams.project).then(function (response) {
 				$scope.projInfo.name = response.data.name;
 				$scope.projInfo.description = response.data.description;
+			}, function (err) {
+				Utilities.throwApiException('on Project.get()', err);
 			});
 		}
+
 		function getProjectInfoFromNodes() {
 			neo4jRequest.getProjInfos($stateParams.project, $stateParams.subproject).then(function(response) {
 				if(response.data.exception) { console.error('neo4jRequest Exception on getProjInfos()', response.data); return; }
@@ -41,6 +35,7 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 				console.log($scope.projInfo);
 			});
 		}
+
 		function getSubprojectInfo() {
 			Subproject.get($stateParams.subproject).then(function (response) {
 				$scope.projInfo.name = response.data[0].name;
@@ -49,14 +44,8 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 			}, function (err) {
 				Utilities.throwApiException('on Subproject.get()', err);
 			});
-			// neo4jRequest.getSubprojectInfo($stateParams.project, $stateParams.subproject).then(function(response) {
-			// 	if(response.data.exception) { console.error('neo4jRequest Exception on getSubprojectInfo()', response.data); return; }
-			// 	var cdata = Utilities.cleanNeo4jData(response.data)[0];
-			// 	$scope.projInfo.name = cdata.name;
-			// 	$scope.projInfo.description = cdata.desc;
-			// 	console.log(response.data);
-			// });
 		}
+
 		function getAllSubprojects() {
 			Subproject.getAll().then(function (response) {
 				$scope.subprojects = response.data;
@@ -134,8 +123,17 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 			});
 		};
 
+		// init
+		if($stateParams.subproject === 'master') {
+			getProjectInfoFromTable();
+			getAllSubprojects();
+		}
+		else
+			getSubprojectInfo();
+		getProjectInfoFromNodes();
+
 		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
-			if(fromState.name === 'project.home.subproject.new')
+			if(fromState.name === 'project.home.subproject.new' || fromState.name === 'project.home.subproject.edit')
 				getAllSubprojects();
 		});
 

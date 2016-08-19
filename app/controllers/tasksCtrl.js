@@ -86,7 +86,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 		$scope.editTask = false;
 
 		/*Views*/
-		$scope.views = new Object();
+		$scope.views = {};
 		$scope.views.activeSide = 'staff';
 
 		$scope.newComment = {};
@@ -129,12 +129,13 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 
 		];
 
-		$scope.options = { // dient der Konfiguration der Tabelle
-			useData: $scope.data, // welches Datenobjekt
-			scale: 'day',			// Skalierung--> Tage, Wochen, Monate, Jahre
-			sortMode: undefined,	// Sortierun nach Priorität, Datum,...
-			sideMode: 'TreeTable', 	//
-			canDraw: function(event) { //Möglichkeit zum Zeichnen von Aufgaben
+		// Konfiguration der Tabelle
+		$scope.options = {
+			useData: $scope.data,		// welches Datenobjekt
+			scale: 'day',				// Skalierung--> Tage, Wochen, Monate, Jahre
+			sortMode: undefined,		// Sortierun nach Priorität, Datum,...
+			sideMode: 'TreeTable', 		//
+			canDraw: function(event) {	//Möglichkeit zum Zeichnen von Aufgaben
 				var isLeftMouseButton = event.button === 0 || event.button === 1;
 				return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
 			},
@@ -147,7 +148,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 			},
 			draw: true,
 			daily: false,
-			fromDate:  getFormattedDate(new Date()),
+			fromDate: getFormattedDate(new Date()),
 			toDate: getFormattedDate(addDays(new Date(),30)),
 			currentDateValue: new Date(),
 			maxHeight: false,
@@ -634,7 +635,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
         $scope.sortDataBy = function(by) { // sortiert nach Status und Prioritöt --> halbwegse
             switch(by){
                 case "priority":
-                    $scope.options.sortMode === 'model.priority' ? $scope.options.sortMode = '-model.priority' : $scope.options.sortMode = 'model.priority';;
+                    $scope.options.sortMode === 'model.priority' ? $scope.options.sortMode = '-model.priority' : $scope.options.sortMode = 'model.priority';
                     break;
                 case "status":
                     //alert('test');

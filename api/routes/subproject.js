@@ -86,8 +86,8 @@ module.exports = {
 			(tpdesc:E55:'+prj+' {content: "projDesc"}), \
 			(sub)-[:P102]->(title:E35) \
 			OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(tpdesc) \
-			CASE WHEN desc IS NULL AND length({desc}) > 0 THEN CREATE (sub)-[:P3]->(:E62:'+prj+' {content: "e62_" + sub.content, value: {desc})-[:P3_1]->(tpdesc) \
-			ELSE SET desc.value = {desc} END \
+			FOREACH ( ignoreMe IN CASE WHEN desc IS NULL AND length({desc}) > 0 THEN [1] ELSE [] END | CREATE (sub)-[:P3]->(:E62:'+prj+' {content: "e62_" + sub.content, value: {desc}})-[:P3_1]->(tpdesc) ) \
+			FOREACH ( ignoreMe IN CASE WHEN NOT desc IS NULL THEN [1] ELSE [] END | SET desc.value = {desc} ) \
 			SET title.value = {title}';
 
 		var params = {

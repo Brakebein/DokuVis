@@ -13,7 +13,7 @@ angular.module('dokuvisApp').controller('subprojectCtrl', ['$scope', '$state', '
 
 			if($stateParams.subId) {
 				Subproject.change($stateParams.subId, $scope.name, $scope.desc).then(function () {
-					console.log('subproject changed');
+					//console.log('subproject changed');
 					$scope.close();
 				}, function (err) {
 					Utilities.throwApiException('on Subproject.change()', err);
@@ -21,7 +21,7 @@ angular.module('dokuvisApp').controller('subprojectCtrl', ['$scope', '$state', '
 			}
 			else {
 				Subproject.create($scope.name, $scope.desc).then(function () {
-					console.log('subproject created');
+					//console.log('subproject created');
 					$scope.close();
 				}, function (err) {
 					Utilities.throwApiException('on Subproject.create()', err);

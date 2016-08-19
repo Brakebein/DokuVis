@@ -16,7 +16,7 @@ angular.module('dokuvisApp').factory('Subproject', ['$http', 'API', '$stateParam
 			},
 			
 			get: function (id) {
-				return $http.get(API + 'auth/project/' + $stateParams.project + '/subproject/' + id);
+				return $http.get(API + 'auth/project/' + $stateParams.project + '/subproject/' + id, { cache: true });
 			},
 			
 			change: function (id, name, desc) {
@@ -27,7 +27,7 @@ angular.module('dokuvisApp').factory('Subproject', ['$http', 'API', '$stateParam
 			},
 
 			check: function (prjId, subId) {
-				return $http.get(API + 'auth/project/' + prjId + '/subproject/' + subId);
+				return $http.get(API + 'auth/project/' + prjId + '/subproject/' + subId, { cache: true });
 			}
 			
 		};
