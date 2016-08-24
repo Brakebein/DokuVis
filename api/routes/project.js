@@ -56,7 +56,7 @@ var projects = {
 	create: function(req, res) {
 		
 		var prj = req.body.proj;
-		var pProj = config.paths.data + '/' + prj;
+		var pProj = config.path.data + '/' + prj;
 		
 		// Ordner anlegen
 		fs.mkdirsSync(pProj);
@@ -68,7 +68,7 @@ var projects = {
 		fs.mkdirsSync(pProj + '/plans/models/maps');
 		
 		// swish.config kopieren und editieren
-		fs.copyAsync(config.paths.data + '/default_swish.config', pProj + '/swish.config').then(function() {
+		fs.copyAsync(config.path.data + '/default_swish.config', pProj + '/swish.config').then(function() {
 			var addLines = "\nIgnoreWords File: " + pProj + "/blacklist.txt";
 			addLines += "\nBuzzwords File: " + pProj + "/whitelist.txt";
 			return fs.appendFileAsync(pProj + '/swish.config', addLines.replace(/\//g,"\\"));
@@ -244,7 +244,7 @@ var projects = {
 			
 		}).then(function() {
 			// Ordner löschen
-			return fs.removeAsync(config.paths.data + '/' + prj);
+			return fs.removeAsync(config.path.data + '/' + prj);
 		}).then(function() {
 			console.log(prj+': folders deleted');
 			res.send('SUCCESS');

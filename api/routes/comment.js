@@ -21,7 +21,7 @@ var comment = {
 
 		var screens = [], objIds = [];
 		var promises = [], p;
-		var path = config.paths.data + '/' + req.body.path;
+		var path = config.path.data + '/' + req.body.path;
 
 		for(var i=0; i<req.body.screenshots.length; i++) {
 			(function (screen) {

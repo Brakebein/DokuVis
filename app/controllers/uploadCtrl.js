@@ -1,5 +1,5 @@
-angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'Source', 'Model', 'Archive',
-	function($scope, $state, $stateParams, $previousState, Uploader, neo4jRequest, Utilities, $timeout, $modal, Source, Model, Archive) {
+angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$window', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'API', 'Source', 'Model', 'Archive',
+	function($scope, $state, $stateParams, $previousState, $window, Uploader, neo4jRequest, Utilities, $timeout, $modal, API, Source, Model, Archive) {
 
         $previousState.memo('modalInvoker');
 
@@ -128,7 +128,8 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			}
 			else if($scope.uploadType === 'model') {
 				item.sourceType = 'model';
-				item.url = 'php/processDAE.php';
+				//item.url = 'php/processDAE.php';
+				item.url = API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
 			}
 			else if($scope.uploadType === 'zip') {
 				item.sourceType = 'plans/model';
@@ -223,6 +224,9 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			}
 
 			else if($scope.uploadType == 'model') {
+
+				console.log('done', response);
+				return;
 
 				/*function neo4jinsertNode(formData, params) {
 				 neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, formData, params.obj).then(function(response){

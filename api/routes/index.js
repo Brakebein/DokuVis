@@ -1,6 +1,23 @@
+var config = require('../config');
 var express = require('express');
 var router = express.Router();
 
+// multer
+var multer = require('multer');
+var storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, config.path.tmp);
+	},
+	filename: function (req, file, cb) {
+		if(req.body.newFileName)
+			cb(null, req.body.newFileName);
+		else
+			cb(null, 'file-' + Date.now());
+	}
+});
+var mUpload = multer({ storage: storage });
+
+// index
 var auth = require('./auth');
 //var user = require('./user');
 var project = require('./project');
@@ -12,6 +29,7 @@ var comment = require('./comment');
 var graph = require('./graph');
 var person = require('./person');
 var archive = require('./archive');
+var upload = require('./upload');
 
 // routes that can be accessed by any one
 router.post('/login', auth.login);
@@ -43,6 +61,7 @@ router.get('/auth/project/:id/:subprj/models', models.getTree);
 router.post('/auth/project/:id/:subprj/models', models.insert);
 router.post('/auth/project/:id/:subprj/assignCategory', models.assignCategory);
 router.get('/auth/project/:id/:subprj/model/:modelId/connect', models.getConnections);
+router.post('/auth/project/:id/:suprj/model/upload', mUpload.any(), upload.model);
 
 // categories
 router.get('/auth/project/:id/categories', category.getAll);

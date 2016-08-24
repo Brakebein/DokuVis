@@ -17,8 +17,9 @@ module.exports = {
 		return 'verysecretkey'
 	},
 	
-	paths: {
-		data: 'C:/xampp/htdocs/DokuVis/data'
+	path: {
+		data: 'C:/xampp/htdocs/DokuVis/data',
+		tmp: 'C:/xampp/htdocs/DokuVis/tmp'
 	},
 	
 	exec: {

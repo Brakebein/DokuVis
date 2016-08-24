@@ -1,3 +1,5 @@
+var dateFormat = require('dateformat');
+
 module.exports = {
 	
 	error: {
@@ -26,6 +28,21 @@ module.exports = {
 			res.json({
 				message: message,
 				originalErr: err
+			});
+		},
+		general: function (res, err) {
+			res.status(500);
+			res.json({
+				message: 'ERROR',
+				error: err
+			});
+		}
+	},
+	
+	log: {
+		fileupload: function (files) {
+			files.forEach(function (f) {
+				console.log(dateFormat(new Date(), 'isoDateTime'), 'File Upload:', f.originalname, f.path + f.filename, f.size);
 			});
 		}
 	}

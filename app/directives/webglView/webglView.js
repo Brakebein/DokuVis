@@ -2439,7 +2439,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					geo.computeBoundingBox();
 					geo.computeBoundingSphere();
 					
-					var scale = 0.001;
+					var scale = 0.01;
 					geo.scale(scale, scale, scale);
 					
 					var texture = THREE.ImageUtils.loadTexture('data/' + info.materialMapPath + info.materialMap);
@@ -2527,6 +2527,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				//var scale = info.unit == 'centimeter' ? 0.1 : 1.0;
 				var scale;
 				switch(info.unit) {
+					case 'decimeter': scale = 0.1; break;
 					case 'centimeter': scale = 0.01; break;
 					case 'millimeter': scale = 0.001; break;
 					default: scale = 1.0;
@@ -2577,7 +2578,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					else
 						ctmloader.load('data/' + file.path + file.content, ctmHandler, {useWorker: false});
 
-					defer.resolve();
+					//defer.resolve();
 					return defer.promise;
 				}
 				
@@ -2590,7 +2591,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						geo.name = file.content;
 						geometries[file.content] = {meshGeo: geo};
 					}
-					//defer.resolve();
+					defer.resolve();
 
 					var isUnsafe = /unsicher/.test(info.name);
 					
