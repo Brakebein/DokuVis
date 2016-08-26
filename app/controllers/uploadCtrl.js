@@ -204,6 +204,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				fileItem.formData[0].pages = response.data.pages;
 			}
 
+			return;
 			fileItem.isInserting = true;
 
 			if($scope.uploadType == 'source') {

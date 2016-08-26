@@ -42,7 +42,7 @@ module.exports = {
 	log: {
 		fileupload: function (files) {
 			files.forEach(function (f) {
-				console.log(dateFormat(new Date(), 'isoDateTime'), 'File Upload:', f.originalname, f.path + f.filename, f.size);
+				console.log(dateFormat(new Date(), 'isoDateTime'), 'File Upload:', f.originalname, f.path, f.size);
 			});
 		}
 	}
