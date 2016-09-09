@@ -25,12 +25,12 @@ module.exports = {
 		var processDAE = fork('process/dae-file', [ file.path, tid, upath ]);
 
 		processDAE.on('message', function (m) {
-			console.log('PARENT got message');
+			console.debug('PARENT got message');
 			res.json(m);
 		});
 
 		processDAE.on('close', function (code) {
-			console.log('child process exited', code);
+			console.debug('child process exited', code);
 		});
 
 		// processDAE.send({

@@ -1,4 +1,25 @@
 angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$window', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'API', 'Source', 'Model', 'Archive',
+
+	/**
+	 * Controller of the Upload modal
+	 * @memberof dokuvisApp
+	 * @ngdoc controller
+	 * @name uploadCtrl
+	 * @param $scope {service} controller scope
+	 * @param $state {service} ui.router state
+	 * @param $stateParams {service} ui.router stateParams
+	 * @param $previousState {service} ui.router previousState
+	 * @param $window {service} Angular $window service
+	 * @param Uploader {service} instance of nervgh/angular-file-upload uploader
+	 * @param neo4jRequest {service} neo4jRequest [DEPRECATED]
+	 * @param Utilities {service} Utilities
+	 * @param $timeout {service} Angular $timeout
+	 * @param $modal {service} AngularStrap $modal service
+	 * @param API {service} API url constant [DEPRECATED]
+	 * @param Source {service} Source http
+	 * @param Model {service} Model http
+	 * @param Archive {service} Archive http
+	 */
 	function($scope, $state, $stateParams, $previousState, $window, Uploader, neo4jRequest, Utilities, $timeout, $modal, API, Source, Model, Archive) {
 
         $previousState.memo('modalInvoker');
@@ -471,7 +492,11 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
             });
 		});
 
-		// closing
+		/**
+		 * Closes the modal and destroys the controller instance
+		 * @memberof uploadCtrl
+		 * @function close
+		 */
 		$scope.close = function () {
 			this.$hide();
             Uploader.clearQueue();

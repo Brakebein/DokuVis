@@ -13,6 +13,9 @@ mysql.createConnection({
 	database: config.database.database
 }).then(function(conn) {
 	connection = conn;
+}).catch(function (err) {
+	console.error(err);
+	process.exit();
 });
 
 var projects = {

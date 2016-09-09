@@ -1399,7 +1399,7 @@ angular.module('dokuvisApp').factory('mysqlRequest',
 		  * Projekte
 		 */
 		// neues Projekt anlegen
-		requests.newProjectEntry = function(proj, name, desc, email, name) {
+		requests.newProjectEntry = function(proj, name, desc, email, username) {
 			return $http.post(API + 'auth/projects', {
 				proj: proj,
 				name: name,

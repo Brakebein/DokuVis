@@ -1,8 +1,22 @@
-/**
- * @author Jonas Bruschke
- */
-
 angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService',
+	/**
+	 * Directive implementing the 3D viewport and all 3D functionalities using {@link http://threejs.org/|threes.js}
+	 * @memberof dokuvisApp
+	 * @ngdoc directive
+	 * @name webglView
+	 * @param $stateParams {service}
+	 * @param $timeout {service}
+	 * @param webglContext {service}
+	 * @param webglInterface {service}
+	 * @param $rootScope {service}
+	 * @param phpRequest {service}
+	 * @param neo4jRequest {service}
+	 * @param $http {service}
+	 * @param $q {service}
+	 * @param Utilities {service}
+	 * @param Comment {service}
+	 * @param ConfirmService {service}
+	 */
 	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService) {
 		
 		function link(scope, element, attr) {
@@ -2439,7 +2453,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					geo.computeBoundingBox();
 					geo.computeBoundingSphere();
 					
-					var scale = 0.01;
+					var scale = 0.001;
 					geo.scale(scale, scale, scale);
 					
 					var texture = THREE.ImageUtils.loadTexture('data/' + info.materialMapPath + info.materialMap);
@@ -2578,7 +2592,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					else
 						ctmloader.load('data/' + file.path + file.content, ctmHandler, {useWorker: false});
 
-					//defer.resolve();
+					defer.resolve();
 					return defer.promise;
 				}
 				
@@ -2591,7 +2605,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						geo.name = file.content;
 						geometries[file.content] = {meshGeo: geo};
 					}
-					defer.resolve();
+					//defer.resolve();
 
 					var isUnsafe = /unsicher/.test(info.name);
 					
@@ -3283,8 +3297,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			}
 
 			/**
-			 * place camera in appropriate distance to selected object
+			 * place camera in appropriate distance to selected object,
 			 * so the object will fit nicely within the viewport
+			 * @memberof webglView
 			 * @param {THREE.Vector3} M - center position
              * @param {number} r - radius
              */

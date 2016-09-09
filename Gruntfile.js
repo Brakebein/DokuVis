@@ -6,6 +6,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-usemin');
 	grunt.loadNpmTasks('grunt-wiredep');
+	grunt.loadNpmTasks('grunt-jsdoc');
 	
 	// Project configuration
 	grunt.initConfig({
@@ -32,6 +33,20 @@ module.exports = function (grunt) {
 
 		usemin: {
 			html: ['dist/index.html']
+		},
+		
+		jsdoc: {
+			dist: {
+				src: ['app/*', 'app/directives/webglView/webglView.js'],
+				options: {
+					destination: 'docs',
+					configure: 'node_modules/angular-jsdoc/common/conf.json',
+					template: 'node_modules/angular-jsdoc/angular-template',
+					tutorials: 'docs/tutorials',
+					readme: 'docs/README.md',
+					private: true
+				}
+			}
 		}
 	});
 
