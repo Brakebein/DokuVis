@@ -1,4 +1,10 @@
 angular.module('dokuvisApp').factory('webglContext',
+	/**
+	 * This service initializes standard objects and materials for the 3D viewport and holds all mesh/geometry instances. So the 3D content is kept in the memory, even if the viewport (respectively webglView directive) gets destroyed, and doesn't need to be reloaded when the user returns to the 3D viewport.
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name weblgContext
+	 */
 	function() {
 		
 		var wc = {};
@@ -13,7 +19,6 @@ angular.module('dokuvisApp').factory('webglContext',
 		
 		wc.objects = {};
 		wc.plans = {};
-		wc.geometries = {};
 		
 		// Camera
 		wc.camera = new THREE.CombinedCamera(initWidth, initHeight, 35, 0.1, FAR, 0.1, FAR);
@@ -55,7 +60,11 @@ angular.module('dokuvisApp').factory('webglContext',
 		wc.axisCamera.up = wc.camera.up;
 		wc.axisScene = new THREE.Scene();
 		wc.axisScene.add( new THREE.AxisHelper(30) );
-		
+
+		// Geometry instances
+		wc.geometries = {};
+		wc.geometries['initgeo'] = new THREE.Geometry();
+
 		// Liste der Materials
 		wc.materials = {};
 		

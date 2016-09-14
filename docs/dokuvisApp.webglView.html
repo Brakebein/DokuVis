@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>JSDoc: Project</title>
+    <title>JSDoc: webglView</title>
     <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">
     <link href="css/site.css" type="text/css" rel="stylesheet">
   </head>
@@ -83,11 +83,12 @@
     </nav>
     <div id="content" class="page-wrap">
       <h3 style="float:right; color:#ccc">
-        Angular service
+        Angular directive
       </h3>
       <h1 class="title">
-        Project
-        <a class="name-link signature-attributes" href="source/dokuvisApp.Project.html#line3">source</a>
+        webglView
+        <a class="name-link signature-attributes" href="source/dokuvisApp.webglView.html#line2">source</a>
+        <a class="name-link signature-attributes" href="templates\app_directives_webglView_webglView.html">template</a>
       </h1>
       <div id="main" class="big-container">
         <!-- source code html -->
@@ -100,7 +101,7 @@
   <div class="clearfix"></div>
   <div class="description">
     <h4>Description</h4>
-    <p>$http methods for project related tasks</p>
+    <p>Directive implementing the 3D viewport and all 3D functionalities using <a href="http://threejs.org/|threes.js.html">http://threejs.org/|threes.js</a></p>
   </div>
   <div class="details"></div>
   <div>
@@ -112,6 +113,76 @@
       <tbody>
         <tr>
           <td class="name" nowrap="">
+            <a id="$stateParams"></a>
+            $stateParams
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="service.html">service</a>
+          </span></td>
+          <td class="description last">
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="$timeout"></a>
+            $timeout
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="service.html">service</a>
+          </span></td>
+          <td class="description last">
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="webglContext"></a>
+            webglContext
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="service.html">service</a>
+          </span></td>
+          <td class="description last">
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="webglInterface"></a>
+            webglInterface
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="service.html">service</a>
+          </span></td>
+          <td class="description last">
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="$rootScope"></a>
+            $rootScope
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="service.html">service</a>
+          </span></td>
+          <td class="description last">
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="phpRequest"></a>
+            phpRequest
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="service.html">service</a>
+          </span></td>
+          <td class="description last">
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="neo4jRequest"></a>
+            neo4jRequest
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="service.html">service</a>
+          </span></td>
+          <td class="description last">
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
             <a id="$http"></a>
             $http
           </td>
@@ -119,22 +190,46 @@
             <a href="service.html">service</a>
           </span></td>
           <td class="description last">
-            <span>
-              <p>Angular HTTP request service</p>
-            </span>
           </td>
         </tr><tr>
           <td class="name" nowrap="">
-            <a id="API"></a>
-            API
+            <a id="$q"></a>
+            $q
           </td>
           <td class="type"><span class="param-type">
             <a href="service.html">service</a>
           </span></td>
           <td class="description last">
-            <span>
-              <p>API url constant</p>
-            </span>
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="Utilities"></a>
+            Utilities
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="service.html">service</a>
+          </span></td>
+          <td class="description last">
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="Comment"></a>
+            Comment
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="service.html">service</a>
+          </span></td>
+          <td class="description last">
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="ConfirmService"></a>
+            ConfirmService
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="service.html">service</a>
+          </span></td>
+          <td class="description last">
           </td>
         </tr>
       </tbody>
@@ -145,20 +240,18 @@
   <h3 class="subsection-title">Methods</h3>
   <dl>
     <dt>
-      <a href="source/dokuvisApp.Project.html#line16" class="name-link" id="create">
+      <a href="source/dokuvisApp.webglView.html#line3276" class="name-link" id="computeFocusFromSphere">
         <h4 class="name">
-          create
-          <span class="signature">(proj, name, desc, email, username)</span>
-          <span class="type-signature">
-            -&gt; Promise
-          </span>
+          computeFocusFromSphere
+          <span class="signature">(M, r)</span>
         </h4>
       </a>
     </dt>
     <dd>
       <div class="description">
         <span>
-          <p>Create a new project</p>
+          <p>place camera in appropriate distance to selected object,
+so the object will fit nicely within the viewport</p>
         </span>
       </div>
       <div>
@@ -169,75 +262,23 @@
           </thead>
           <tbody>
             <tr>
-              <td class="name">proj</td>
+              <td class="name">M</td>
               <td class="type"><span class="param-type">
-                string
+                <a href="THREE.Vector3.html">THREE.Vector3</a>
               </span></td>
               <td class="description last">
                 <span>
-                  <p>new project ID</p>
+                  <p>center position</p>
                 </span>
               </td>
             </tr><tr>
-              <td class="name">name</td>
+              <td class="name">r</td>
               <td class="type"><span class="param-type">
-                string
+                number
               </span></td>
               <td class="description last">
                 <span>
-                  <p>project name</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">desc</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <p>description (can also be empty)</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">email</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <p>email of the user</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">username</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <p>username</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div>
-        <h4>Returns</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="type">
-                <span class="param-type">
-                  <a href="Promise.html">Promise</a>
-                </span>
-              </td>
-              <td class="description last">
-                <span>
-                  <p>$http promise</p>
+                  <p>radius</p>
                 </span>
               </td>
             </tr>
@@ -247,10 +288,10 @@
     </dd>
   </dl><dl>
     <dt>
-      <a href="source/dokuvisApp.Project.html#line37" class="name-link" id="get">
+      <a href="source/dokuvisApp.webglView.html#line2525" class="name-link" id="webglInterface.callFunc.loadCTMIntoScene">
         <h4 class="name">
-          get
-          <span class="signature">(prj)</span>
+          webglInterface.callFunc.loadCTMIntoScene
+          <span class="signature">(child, parent)</span>
           <span class="type-signature">
             -&gt; Promise
           </span>
@@ -260,7 +301,7 @@
     <dd>
       <div class="description">
         <span>
-          <p>Get data of projekt with given ID</p>
+          <p>loads .ctm file into the scene</p>
         </span>
       </div>
       <div>
@@ -271,13 +312,23 @@
           </thead>
           <tbody>
             <tr>
-              <td class="name">prj</td>
+              <td class="name">child</td>
               <td class="type"><span class="param-type">
-                string
+                Object
               </span></td>
               <td class="description last">
                 <span>
-                  <p>project ID</p>
+                  <p>relevant information of the child</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">parent</td>
+              <td class="type"><span class="param-type">
+                Object
+              </span></td>
+              <td class="description last">
+                <span>
+                  <p>parent information</p>
                 </span>
               </td>
             </tr>
@@ -299,7 +350,7 @@
               </td>
               <td class="description last">
                 <span>
-                  <p>$http promise</p>
+                  <p>resolved promise when object is set</p>
                 </span>
               </td>
             </tr>
