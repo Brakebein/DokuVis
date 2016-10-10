@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <base href="../">
+    <title>JSDoc: source : auth.factory.js</title>
+    <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">
+    <link href="css/site.css" type="text/css" rel="stylesheet">
+  </head>
+  <body ng-app="">
+    <nav id="toc">
+      <input placeholder="Filter" id="filter-input" class="col12 block field" type="text">
+      <div class="nav-wrapper">
+      <h2><a href="index.html">Index</a></h2>
+      <ul class="module">
+        <!-- dokuvis_pp -->
+        <h2 class="module">
+          <a chref="" ng-click="moduledokuvis_pp = !moduledokuvis_pp">
+            module: dokuvisApp
+          </a>
+          <i ng-cloak="" ng-show="moduledokuvis_pp">+</i>
+        </h2>
+        <li id="dokuvisApp" ng-hide="moduledokuvis_pp">
+          <ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppservice = !dokuvis_ppservice">
+                service
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppservice">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppservice">
+              <li>
+                <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
+              </li><li>
+                <a href="dokuvisApp.Project.html">Project</a>
+              </li><li>
+                <a href="dokuvisApp.TokenInterceptor.html">TokenInterceptor</a>
+              </li><li>
+                <a href="dokuvisApp.UserAuthFactory.html">UserAuthFactory</a>
+              </li><li>
+                <a href="dokuvisApp.weblgContext.html">weblgContext</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppconfig = !dokuvis_ppconfig">
+                config
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppconfig">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppconfig">
+              <li>
+                <a href="dokuvisApp.config.html">config</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppcontroller = !dokuvis_ppcontroller">
+                controller
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppcontroller">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppcontroller">
+              <li>
+                <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppdirective = !dokuvis_ppdirective">
+                directive
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppdirective">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppdirective">
+              <li>
+                <a href="dokuvisApp.webglView.html">webglView</a>
+              </li>
+            </ul>
+          </ul>
+        </li>
+      </ul>
+      </div>
+    </nav>
+    <div id="content" class="page-wrap">
+      <h1 class="title">
+        source : auth.factory.js
+      </h1>
+      <div id="main" class="big-container">
+        <!-- source code html -->
+        <article>
+          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',	/**	 * Service responsible for checking the user status	 * @memberof dokuvisApp	 * @ngdoc service	 * @name AuthenticationFactory	 * @param $window {service} Angular $window service	 */	function($window) {		return {			isLogged: false,			check: function() {				if($window.localStorage.token && $window.localStorage.user) {					this.isLogged = true;				}				else {					this.isLogged = false;					delete this.user;				}			}		};	}]).factory('UserAuthFactory', ['$window', '$state', '$http', 'AuthenticationFactory', 'API',	/**	 * Service responsible for contacting the login endpoint and validating the user (and logging out the user)	 * @memberof dokuvisApp	 * @ngdoc service	 * @name UserAuthFactory	 * @param $window {service} Angular $window service	 * @param $state {service} ui.router $state	 * @param $http {service} Angular http request service	 * @param AuthenticationFactory {service} {@link dokuvisApp.AuthenticationFactory}	 * @param API {constant} API url constant	 */	function($window, $state, $http, AuthenticationFactory, API) {		return {			login: function(email, password) {				return $http.post(API + 'login', {					email: email,					password: password				});			},			logout: function() {				if(AuthenticationFactory.isLogged) {					AuthenticationFactory.isLogged = false;					delete AuthenticationFactory.user;					delete AuthenticationFactory.userName;					//delete AuthenticationFactory.userRole;					delete $window.localStorage.token;					delete $window.localStorage.user;					delete $window.localStorage.userName;					//delete $window.localStorage.userRole;					$state.go('home');				}			},			register: function(email, username, password) {				return $http.post(API + 'register', {					email: email,					username: username,					password: password				});			},			checkJWT: function() {				return $http.get(API + 'auth/checkJWT');			}		};	}]).factory('TokenInterceptor', ['$q', '$window',	/**	 * Service responsible for sending in the access token and the key along with each request to the server&lt;br/>	 * from tutorial: {@link http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543}	 * @memberof dokuvisApp	 * @ngdoc service	 * @name TokenInterceptor	 * @param $q {service} Angular promise service	 * @param $window {service} Angular $window service	 */	function($q, $window) {		return {			request: function(config) {				config.headers = config.headers || {};				if($window.localStorage.token) {					config.headers['X-Access-Token'] = $window.localStorage.token;					config.headers['X-Key'] = $window.localStorage.user;					config.headers['Content-Type'] = "application/json";				}				return config || $q.when(config);			},			response: function(response) {				return response || $q.when(response);			}		};	}]);</code></pre>
+        </article>
+        <!-- index.html -->
+        <!-- class files -->
+      </div>
+      <footer style="clear:both">
+        Documentation generated by
+        <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a>
+        using
+        <a href="https://github.com/allenhwkim/angular-jsdoc">Angular-JSDoc template</a>
+      </footer>
+    </div>
+    <script src="js/prettify.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/site.js"></script>
+    <!--%= prettyJson %-->
+    <script>
+      prettyPrint();
+      var lineNo = window.location.hash.match(/#line([0-9]+)$/);
+      lineNo && document.querySelector("ol li:nth-child("+(lineNo[1])+")").scrollIntoView();
+    </script>
+  </body>
+</html>

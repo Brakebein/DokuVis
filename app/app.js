@@ -1,3 +1,7 @@
+/**
+ * @namespace dokuvisApp
+ */
+
 var dokuvisApp = angular.module('dokuvisApp', [
 	'ui.router',
 	'ui.router.css',
@@ -37,8 +41,20 @@ var dokuvisApp = angular.module('dokuvisApp', [
 
 dokuvisApp.constant('API', 'api/');
 
-dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
-	function($stateProvider, $stickyStateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
+dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
+	/**
+	 * Configures ui.router states, state resolve functions, and some defaults
+	 * @memberof dokuvisApp
+	 * @ngdoc config
+	 * @name config
+	 * @param $stateProvider {service} provider to configure states
+	 * @param $urlRouterProvider {service} Watches $location and provides interface to default state
+	 * @param $httpProvider {service} Used to push new interceptors
+	 * @param $modalProvider {service} provider to configure defaults
+	 * @param $alertProvider {service} provider to configure defaults
+	 * @param $tooltipProvider {service} provider to configure defaults
+	 */
+	function($stateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
 		// add interceptors
 		$httpProvider.interceptors.push('TokenInterceptor');
@@ -259,7 +275,17 @@ dokuvisApp.config(['$stateProvider', '$stickyStateProvider', '$urlRouterProvider
 			});
 			
 		}
-		
+
+		/**
+		 * Resolve function: check, if the subproject exists
+		 * @memberof config
+		 * @private
+		 * @param $state {service} ui.router state service
+		 * @param $stateParams {service} ui.router state parameter
+		 * @param $q {service} Angular promise service
+		 * @param Subproject {service} API calls for subproject
+		 * @returns {Promise} A promise that will either be resolved or rejected, if the subproject couldn't be found (or an error occured).
+		 */
 		function checkSubproject($state, $stateParams, $q, Subproject) {
 			
 			if($stateParams.subproject === 'master')

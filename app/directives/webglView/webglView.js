@@ -1,8 +1,22 @@
-/**
- * @author Jonas Bruschke
- */
-
-angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService',
+angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', 'debounce',
+	/**
+	 * Directive implementing the 3D viewport and all 3D functionalities using {@link http://threejs.org/|threes.js}
+	 * @memberof dokuvisApp
+	 * @ngdoc directive
+	 * @name webglView
+	 * @param $stateParams {service}
+	 * @param $timeout {service}
+	 * @param webglContext {service}
+	 * @param webglInterface {service}
+	 * @param $rootScope {service}
+	 * @param phpRequest {service}
+	 * @param neo4jRequest {service}
+	 * @param $http {service}
+	 * @param $q {service}
+	 * @param Utilities {service}
+	 * @param Comment {service}
+	 * @param ConfirmService {service}
+	 */
 	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService) {
 		
 		function link(scope, element, attr) {
@@ -2500,14 +2514,22 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				
 			};
-			
+
+			/**
+			 * loads .ctm file into the scene
+			 * via weblInterface.callFunc
+			 * @memberof webglView
+			 * @param child {Object} child information object
+			 * @param parent {Object} parent information object
+			 * @returns {Promise} resolved promise when object is set
+			 */
 			webglInterface.callFunc.loadCTMIntoScene = function(child, parent) {
 				
 				var defer = $q.defer();
 				
 				var info = child.obj;
 				var file = child.file;
-				
+
 				var m = info.matrix;
 				var mat = new THREE.Matrix4();
 				mat.set(m[0],m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8],m[9],m[10],m[11],m[12],m[13],m[14],m[15]);
@@ -2523,63 +2545,58 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				var q = new THREE.Quaternion();
 				var s = new THREE.Vector3();
 				mat.decompose(t,q,s);
-				
-				//var scale = info.unit == 'centimeter' ? 0.1 : 1.0;
+
 				var scale;
 				switch(info.unit) {
+					case 'decimeter': scale = 0.1; break;
 					case 'centimeter': scale = 0.01; break;
 					case 'millimeter': scale = 0.001; break;
 					default: scale = 1.0;
 				}
-				
-				if(info.type === 'group') {
-					var obj = new THREE.Object3D();
-					obj.name = info.content;
-					obj.userData.name = info.name;
-					obj.userData.eid = info.content;
-					obj.userData.type = info.type;
-					obj.userData.layer = info.layer;
-					obj.userData.categories = child.categories;
+
+				var obj = info.type === 'group' ? new THREE.Object3D() : new THREE.Mesh(geometries['initgeo'], materials['defaultMat']);
+
+				obj.name = info.content;
+				obj.userData.name = info.name;
+				obj.userData.eid = info.content;
+				obj.userData.type = info.type;
+				obj.userData.layer = info.layer;
+				obj.userData.categories = child.categories;
 					
-					// only scale translation
-					if(!parent) {
-						t.multiplyScalar(scale);
-						s.multiplyScalar(scale);
-					}
-					mat.compose(t,q,s);
-					obj.applyMatrix(mat);
-					obj.matrixAutoUpdate = false;
-					
-					var parentid = null;
-					if(parent && (p = scene.getObjectByName(parent, true))) {
-						p.add(obj);
-						parentid = p.id;
-					}
-					else
-						scene.add(obj);
-					
-					
-					// Liste, um zusammengehörige Objekte zu managen
-					objects[obj.id] = {mesh: obj, edges: null, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true, parent: parentid};
-					
-					// Liste für die Anzeige auf der HTML-Seite
-					webglInterface.insertIntoLists({ name: obj.name, id: obj.id, title: obj.userData.name, layer: obj.userData.layer, type: obj.userData.type, parent: parentid, parentVisible: true});
-					
-					// if(scope.layers.indexOf(obj.userData.layer) === -1)
-						// scope.layers.push(obj.userData.layer);
-					
-					defer.resolve();
-					return defer.promise;
+				// only scale translation
+				if(!parent) {
+					t.multiplyScalar(scale);
+					s.multiplyScalar(scale);
 				}
-				else if(info.type === 'object') {
+				mat.compose(t,q,s);
+				obj.applyMatrix(mat);
+				obj.matrixAutoUpdate = false;
+					
+				var parentid = null;
+				if(parent && (p = scene.getObjectByName(parent, true))) {
+					p.add(obj);
+					parentid = p.id;
+				}
+				else
+					scene.add(obj);
+
+				// Liste, um zusammengehörige Objekte zu managen
+				objects[obj.id] = {mesh: obj, edges: null, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true, parent: parentid};
+
+				// Liste für die Anzeige auf der HTML-Seite
+				webglInterface.insertIntoLists({ name: obj.name, id: obj.id, title: obj.userData.name, layer: obj.userData.layer, type: obj.userData.type, parent: parentid, parentVisible: true});
+
+				// if(scope.layers.indexOf(obj.userData.layer) === -1)
+					// scope.layers.push(obj.userData.layer);
+
+				if(info.type === 'object') {
 					if(geometries[file.content])
 						ctmHandler(geometries[file.content].meshGeo);
 					else
 						ctmloader.load('data/' + file.path + file.content, ctmHandler, {useWorker: false});
-
-					defer.resolve();
-					return defer.promise;
 				}
+
+				defer.resolve();
 				
 				function ctmHandler(geo) {
 					//defer.resolve();
@@ -2593,8 +2610,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					//defer.resolve();
 
 					var isUnsafe = /unsicher/.test(info.name);
-					
-					var mesh;
+
+					obj.geometry = geo;
+
+					//var mesh;
 					if(info.materialId) {
 						var material = new THREE.MeshLambertMaterial();
 						//material.color = new THREE.Color(Math.pow(info.materialColor[0], 1/2.2), Math.pow(info.materialColor[1], 1/2.2), Math.pow(info.materialColor[2], 1/2.2));
@@ -2602,12 +2621,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						//material.ambient = material.color.clone();
 						material.name = info.materialId;
 						//materials[info.materialId] = material;
-						mesh = new THREE.Mesh(geo, material);
-						setObjectMaterial(mesh, true, false, true, isUnsafe);
+						//mesh = new THREE.Mesh(geo, material);
+						obj.material = material;
+						setObjectMaterial(obj, true, false, true, isUnsafe);
 					}
 					else {
-						mesh = new THREE.Mesh(geo, materials['defaultDoublesideMat']);
-						mesh.userData.originalMat = 'defaultDoublesideMat';
+						//mesh = new THREE.Mesh(geo, materials['defaultDoublesideMat']);
+						obj.material = materials['defaultDoublesideMat'];
+						obj.userData.originalMat = 'defaultDoublesideMat';
 					}
 					
 					// edges
@@ -2623,32 +2644,32 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						if (file.edges) {
 							// lade und entpacke geometry für edges
 							JSZipUtils.getBinaryContent('data/' + file.path + file.edges, function (err, data) {
-								var worker = new Worker('lib/jszip/JSZipWorker.js');
-								worker.onmessage = function (event) {
-									if(event.data == 0) return;
-									var egeo = new THREE.BufferGeometry();
-									egeo.addAttribute('position', new THREE.BufferAttribute(event.data, 3));
-									edges = new THREE.LineSegments(egeo, materials['edgesMat']);
-									edges.matrix = mesh.matrixWorld;
-									edges.matrixAutoUpdate = false;
-									scene.add(edges);
-									geometries[file.content].edgesGeo = egeo;
-									objects[mesh.id].edges = edges;
-								};
-								worker.postMessage({ data: data, file: file.content });
-								// var zip = new JSZip(data);
-								// var vobj = JSON.parse(zip.file(file.content + '.json').asText());
-								// if (vobj.data.attributes.position.array.length === 0)
-								// 	return;
-								// var floatarray = new Float32Array(vobj.data.attributes.position.array);
-								// var egeo = new THREE.BufferGeometry();
-								// egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
-								// edges = new THREE.LineSegments(egeo, materials['edgesMat']);
-								// edges.matrix = mesh.matrixWorld;
-								// edges.matrixAutoUpdate = false;
-								// scene.add(edges);
-								// geometries[file.content].edgesGeo = egeo;
-								// objects[mesh.id].edges = edges;
+								// var worker = new Worker('lib/jszip/JSZipWorker.js');
+								// worker.onmessage = function (event) {
+								// 	if(event.data == 0) return;
+								// 	var egeo = new THREE.BufferGeometry();
+								// 	egeo.addAttribute('position', new THREE.BufferAttribute(event.data, 3));
+								// 	edges = new THREE.LineSegments(egeo, materials['edgesMat']);
+								// 	edges.matrix = obj.matrixWorld;
+								// 	edges.matrixAutoUpdate = false;
+								// 	scene.add(edges);
+								// 	geometries[file.content].edgesGeo = egeo;
+								// 	objects[obj.id].edges = edges;
+								// };
+								// worker.postMessage({ data: data, file: file.content });
+								var zip = new JSZip(data);
+								var vobj = JSON.parse(zip.file(file.content + '.json').asText());
+								if (vobj.data.attributes.position.array.length === 0)
+									return;
+								var floatarray = new Float32Array(vobj.data.attributes.position.array);
+								var egeo = new THREE.BufferGeometry();
+								egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
+								edges = new THREE.LineSegments(egeo, materials['edgesMat']);
+								edges.matrix = obj.matrixWorld;
+								edges.matrixAutoUpdate = false;
+								scene.add(edges);
+								geometries[file.content].edgesGeo = egeo;
+								objects[obj.id].edges = edges;
 							});
 						}
 						else {
@@ -2658,6 +2679,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 							edges.matrixAutoUpdate = false;
 							scene.add(edges);
 							geometries[file.content].edgesGeo = edges.geometry;
+							objects[obj.id].edges = edges;
 
 							// Kommastellen kürzen
 							var json = edges.geometry.toJSON();
@@ -2685,46 +2707,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						}
 					}
 					
-					// scale translation and set scale component
-					if(!parent) {
-						t.multiplyScalar(scale);
-						s.multiplyScalar(scale);
-					}
-					mat.compose(t,q,s);
-					mesh.applyMatrix(mat);
-					//mesh.add(edges);
-					mesh.matrixAutoUpdate = false;
-					
-					mesh.name = info.content;
-					mesh.userData.name = info.name;
-					mesh.userData.eid = info.content;
-					mesh.userData.type = info.type;
-					mesh.userData.layer = info.layer;
-					mesh.userData.categories = child.categories;
-					//mesh.userData.originalMat = origMat;
-					mesh.userData.unsafe = isUnsafe;
-					
-					// mesh in scene einfügen
-					var parentid = null;
-					if(parent && (p = scene.getObjectByName(parent, true))) {
-						p.add(mesh);
-						parentid = p.id;
-					}
-					else {
-						scene.add(mesh);
-					}
-					
-					// Liste, um zusammengehörige Objekte zu managen
-					objects[mesh.id] = {mesh: mesh, edges: edges, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true, parent: parentid, parentVisible: true};
-					
-					// Liste für die Anzeige auf der HTML-Seite
-					webglInterface.insertIntoLists({ name: mesh.name, id: mesh.id, title: mesh.userData.name, layer: mesh.userData.layer, type: mesh.userData.type, parent: parentid });
-					
-					// if(scope.layers.indexOf(mesh.userData.layer) === -1)
-						// scope.layers.push(mesh.userData.layer);
-					
-					
 				}
+
+				return defer.promise;
+				
 			};
 
 			webglInterface.callFunc.resetScene = function () {
@@ -3282,8 +3268,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			}
 
 			/**
-			 * place camera in appropriate distance to selected object
+			 * place camera in appropriate distance to selected object,
 			 * so the object will fit nicely within the viewport
+			 * @memberof webglView
 			 * @param {THREE.Vector3} M - center position
              * @param {number} r - radius
              */

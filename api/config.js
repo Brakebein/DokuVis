@@ -17,14 +17,16 @@ module.exports = {
 		return 'verysecretkey'
 	},
 	
-	paths: {
-		data: 'C:/xampp/htdocs/DokuVis/data'
+	path: {
+		data: 'C:/xampp/htdocs/DokuVis/data',
+		tmp: 'C:/xampp/htdocs/DokuVis/tmp'
 	},
 	
 	exec: {
 		ImagickConvert: "C:/ServerTools/ImageMagick-6.9.2-4-Q16-x64/convert.exe",
 		ImagickMogrify: "C:/ServerTools/ImageMagick-6.9.2-4-Q16-x64/mogrify.exe",
-		ImagickIdentify: "C:/ServerTools/ImageMagick-6.9.2-4-Q16-x64/identify.exe"
+		ImagickIdentify: "C:/ServerTools/ImageMagick-6.9.2-4-Q16-x64/identify.exe",
+		CTMconv: "\"C:/Program Files (x86)/OpenCTM 1.0.3/bin/ctmconv.exe\""
 	}
 	
 };

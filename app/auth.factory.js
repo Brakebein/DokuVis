@@ -1,5 +1,11 @@
-// responsible for checking the user status
-angular.module('dokuvisApp').factory('AuthenticationFactory',
+angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
+	/**
+	 * Service responsible for checking the user status
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name AuthenticationFactory
+	 * @param $window {service} Angular $window service
+	 */
 	function($window) {
 		return {
 			isLogged: false,
@@ -13,10 +19,20 @@ angular.module('dokuvisApp').factory('AuthenticationFactory',
 				}
 			}
 		};
-	})
+	}])
 
-// responsible for contacting the login endpoint and validating the user (and logging out the user)	
-.factory('UserAuthFactory',
+.factory('UserAuthFactory', ['$window', '$state', '$http', 'AuthenticationFactory', 'API',
+	/**
+	 * Service responsible for contacting the login endpoint and validating the user (and logging out the user)
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name UserAuthFactory
+	 * @param $window {service} Angular $window service
+	 * @param $state {service} ui.router $state
+	 * @param $http {service} Angular http request service
+	 * @param AuthenticationFactory {service} {@link dokuvisApp.AuthenticationFactory}
+	 * @param API {constant} API url constant
+	 */
 	function($window, $state, $http, AuthenticationFactory, API) {
 		return {
 			login: function(email, password) {
@@ -51,10 +67,18 @@ angular.module('dokuvisApp').factory('AuthenticationFactory',
 				return $http.get(API + 'auth/checkJWT');
 			}
 		};
-	})
-	
-// responsible for sending in the access token and the key along with each request to the server
-.factory('TokenInterceptor',
+	}])
+
+.factory('TokenInterceptor', ['$q', '$window',
+	/**
+	 * Service responsible for sending in the access token and the key along with each request to the server<br/>
+	 * from tutorial: {@link http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543}
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name TokenInterceptor
+	 * @param $q {service} Angular promise service
+	 * @param $window {service} Angular $window service
+	 */
 	function($q, $window) {
 		return {
 			request: function(config) {
@@ -70,4 +94,4 @@ angular.module('dokuvisApp').factory('AuthenticationFactory',
 				return response || $q.when(response);
 			}
 		};
-	});
+	}]);

@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <base href="../">
+    <title>JSDoc: source : app.js</title>
+    <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">
+    <link href="css/site.css" type="text/css" rel="stylesheet">
+  </head>
+  <body ng-app="">
+    <nav id="toc">
+      <input placeholder="Filter" id="filter-input" class="col12 block field" type="text">
+      <div class="nav-wrapper">
+      <h2><a href="index.html">Index</a></h2>
+      <ul class="module">
+        <!-- dokuvis_pp -->
+        <h2 class="module">
+          <a chref="" ng-click="moduledokuvis_pp = !moduledokuvis_pp">
+            module: dokuvisApp
+          </a>
+          <i ng-cloak="" ng-show="moduledokuvis_pp">+</i>
+        </h2>
+        <li id="dokuvisApp" ng-hide="moduledokuvis_pp">
+          <ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppservice = !dokuvis_ppservice">
+                service
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppservice">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppservice">
+              <li>
+                <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
+              </li><li>
+                <a href="dokuvisApp.Project.html">Project</a>
+              </li><li>
+                <a href="dokuvisApp.TokenInterceptor.html">TokenInterceptor</a>
+              </li><li>
+                <a href="dokuvisApp.UserAuthFactory.html">UserAuthFactory</a>
+              </li><li>
+                <a href="dokuvisApp.weblgContext.html">weblgContext</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppconfig = !dokuvis_ppconfig">
+                config
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppconfig">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppconfig">
+              <li>
+                <a href="dokuvisApp.config.html">config</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppcontroller = !dokuvis_ppcontroller">
+                controller
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppcontroller">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppcontroller">
+              <li>
+                <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppdirective = !dokuvis_ppdirective">
+                directive
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppdirective">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppdirective">
+              <li>
+                <a href="dokuvisApp.webglView.html">webglView</a>
+              </li>
+            </ul>
+          </ul>
+        </li>
+      </ul>
+      </div>
+    </nav>
+    <div id="content" class="page-wrap">
+      <h1 class="title">
+        source : app.js
+      </h1>
+      <div id="main" class="big-container">
+        <!-- source code html -->
+        <article>
+          <pre class="prettyprint source linenums"><code>/** * @namespace dokuvisApp */var dokuvisApp = angular.module('dokuvisApp', [	'ui.router',	'ui.router.css',	'ct.ui.router.extras.sticky',	'ct.ui.router.extras.previous',	'ngAnimate',	'ngSanitize',	'debounce',	'truncate',	'xeditable',	'mgcrea.ngStrap',	'angularMoment',	'ngScrollbars',	'ngDragDrop',	'textAngular',	'ngTagsInput',	'minicolors',	'urish',	'uiSlider',	'angularFileUpload',	'pw.canvas-painter',	'gantt',	'gantt.table',	'gantt.movable',	'gantt.tooltips',	'gantt.labels',	'gantt.sortable',	'gantt.drawtask',	'gantt.bounds',	'gantt.progress',	'gantt.tree',	'gantt.groups',	'gantt.overlap',	'gantt.resizeSensor',	'ang-drag-drop']);dokuvisApp.constant('API', 'api/');dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',	/**	 * Configures ui.router states, state resolve functions, and some defaults	 * @memberof dokuvisApp	 * @ngdoc config	 * @name config	 * @param $stateProvider {service} provider to configure states	 * @param $urlRouterProvider {service} Watches $location and provides interface to default state	 * @param $httpProvider {service} Used to push new interceptors	 * @param $modalProvider {service} provider to configure defaults	 * @param $alertProvider {service} provider to configure defaults	 * @param $tooltipProvider {service} provider to configure defaults	 */	function($stateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {		// add interceptors		$httpProvider.interceptors.push('TokenInterceptor');		$urlRouterProvider.otherwise('/home');		$stateProvider			.state('home', {				url: '/home',				templateUrl: 'partials/home.html',				controller: 'homeCtrl'			})			.state('register', {				url: '/register',				templateUrl: 'partials/register.html',				controller: 'registerCtrl'			})			.state('projectlist', {				url: '/projects',				templateUrl: 'partials/projects.html',				controller: 'projectlistCtrl',				resolve: {					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate]				}			})			.state('project', {				url: '/:project/:subproject',				templateUrl: 'partials/project.html',				controller: 'projectCtrl',				css: 'style/project.css',				resolve: {					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate],					checkProject: checkProject,					checkSubproject: checkSubproject				},				abstract: true			})			.state('project.home', {				url: '/home',				templateUrl: 'partials/projHome.html',				controller: 'projHomeCtrl',				css: 'style/projHome.css'			})			.state('project.home.subproject', {				url: '/subproject',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalTpl.html',						contentTemplate: 'partials/modals/subprojectModal.html',						controller: 'subprojectCtrl',						show: true					});				}],				abstract: true			})			.state('project.home.subproject.new', {				url: '/new'			})			.state('project.home.subproject.edit', {				url: '/edit',				params: {					name: '',					desc: '',					subId: ''				}			})			.state('project.explorer', {				url: '/explorer',				templateUrl: 'partials/explorer.html',				controller: 'explorerCtrl',				css: [					'style/explorer.css',					'style/panelContainer.css',					'style/snapshot.css',					'style/modals/screenshotDetail.min.css',					'style/modals/indexEdit.min.css',					'style/modals/categoryEdit.css'				]			})			.state('project.explorer.source', {				url: '/source',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalLargeTpl.html',						contentTemplate: 'partials/modals/sourceDetailModal.html',						controller: 'sourceDetailCtrl',						show: true					});				}],				css: 'style/modals/sourceDetail.min.css',				abstract: true			})			.state('project.explorer.source.id', {				url: '/:sourceId'			})			.state('project.explorer.upload', {				url: '/upload',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalLargeTpl.html',						contentTemplate: 'partials/modals/uploadModal.html',						controller: 'uploadCtrl',						show: true					});				}],				css: 'style/modals/upload.min.css',				abstract: true			})			.state('project.explorer.upload.type', {				url: '/:uploadType',				params: {					attachTo: null				}			})			.state('project.tasks', {				url: '/tasks',				templateUrl: 'partials/tasks.html',				controller: 'tasksCtrl',				css: 'style/tasks.css'			})			.state('project.graph', {				url: '/graph',				templateUrl: 'partials/graph.html'			})			.state('project.graph.node', {				url: '/:startNode'			})			.state('project.graph.source', {				url: '/source',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalLargeTpl.html',						contentTemplate: 'partials/modals/sourceDetailModal.html',						controller: 'sourceDetailCtrl',						show: true					});				}],				css: 'style/modals/sourceDetail.min.css',				abstract: true			})			.state('project.graph.source.id', {				url: '/:sourceId'			})			.state('project.resources', {				url: '/resources',				templateUrl: 'partials/resources.html',				controller: 'resourcesCtrl',				css: 'style/resources.css'			})			.state('project.config', {				url: '/config',				templateUrl: 'partials/config.html',				controller: 'configCtrl',				css: 'style/config.css'			});		// defaults		angular.extend($modalProvider.defaults, {			backdrop: 'static',			keyboard: false		});		angular.extend($alertProvider.defaults, {			keyboard: false		});		angular.extend($tooltipProvider.defaults, {			placement: 'right',			delay: {show: 500, hide: 100}		});		// resolve functions		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory) {			if(AuthenticationFactory.isLogged) {				return UserAuthFactory.checkJWT().then(function(response) {					console.log(response);					// check if user object exists else fetch it. this is incase of a page refresh					if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;					if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;					//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;					return $q.when();				}, function(reason) {					console.log(reason);					if(reason.status === 400) {						UserAuthFactory.logout();						$timeout(function() {							$state.go('home');						});						return $q.reject();					}				});			}			else {				$timeout(function() {					$state.go('home');				});				return $q.reject();			}		}		function checkProject($state, $stateParams, $q, $rootScope, Project) {			return Project.get($stateParams.project).then(function(response){				console.log(response, $stateParams);				if(response.data === 'NO ENTRY') {					$state.go('projectlist');					return $q.reject();				}				$rootScope.userRole = response.data.role;			});		}		/**		 * Check, if the subproject exists		 * @memberof config		 * @private		 * @param $state {service} ui.router state service		 * @param $stateParams {service} ui.router state parameter		 * @param $q {service} Angular promise service		 * @param Subproject {service} API calls for subproject		 * @returns {Promise} A promise that will either be resolved or rejected, if the subproject couldn't be found (or an error occured).		 */		function checkSubproject($state, $stateParams, $q, Subproject) {			if($stateParams.subproject === 'master')				return $q.resolve();			else {				console.log('before', $stateParams);				return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {					console.log('after', response);					if(!response.data.length) {						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });						return $q.reject();					}				}, function (err) {					Utilities.throwApiException('on Subproject.check()', err);					return $q.reject();				});			}		}		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});	}]);dokuvisApp.run(function($rootScope, $state, $previousState, AuthenticationFactory, amMoment, editableOptions) {	// when the page refreshes, check if the user is already logged in	AuthenticationFactory.check();	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {		$rootScope.isLogged = AuthenticationFactory.isLogged;		$rootScope.userName = AuthenticationFactory.userName;		//$rootScope.role = AuthenticationFactory.userRole;		// if the user is already logged in, take him to the home page		if(AuthenticationFactory.isLogged && $state.is('login')) {			console.log('change2');			$state.go('home');		}	});	amMoment.changeLocale('de');	editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'});dokuvisApp.filter('filterEditor', function(){	return function(items, search) {		if(!search) return items;		return items.filter(function(element, index, array) {			return element.editors.indexOf(search) !== -1;		});	}});</code></pre>
+        </article>
+        <!-- index.html -->
+        <!-- class files -->
+      </div>
+      <footer style="clear:both">
+        Documentation generated by
+        <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a>
+        using
+        <a href="https://github.com/allenhwkim/angular-jsdoc">Angular-JSDoc template</a>
+      </footer>
+    </div>
+    <script src="js/prettify.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/site.js"></script>
+    <!--%= prettyJson %-->
+    <script>
+      prettyPrint();
+      var lineNo = window.location.hash.match(/#line([0-9]+)$/);
+      lineNo && document.querySelector("ol li:nth-child("+(lineNo[1])+")").scrollIntoView();
+    </script>
+  </body>
+</html>

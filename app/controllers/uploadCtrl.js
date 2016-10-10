@@ -1,5 +1,26 @@
-angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'Source', 'Model', 'Archive',
-	function($scope, $state, $stateParams, $previousState, Uploader, neo4jRequest, Utilities, $timeout, $modal, Source, Model, Archive) {
+angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$window', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'API', 'Source', 'Model', 'Archive',
+
+	/**
+	 * Controller of the Upload modal
+	 * @memberof dokuvisApp
+	 * @ngdoc controller
+	 * @name uploadCtrl
+	 * @param $scope {service} controller scope
+	 * @param $state {service} ui.router state
+	 * @param $stateParams {service} ui.router stateParams
+	 * @param $previousState {service} ui.router previousState
+	 * @param $window {service} Angular $window service
+	 * @param Uploader {service} instance of nervgh/angular-file-upload uploader
+	 * @param neo4jRequest {service} neo4jRequest [DEPRECATED]
+	 * @param Utilities {service} Utilities
+	 * @param $timeout {service} Angular $timeout
+	 * @param $modal {service} AngularStrap $modal service
+	 * @param API {service} API url constant [DEPRECATED]
+	 * @param Source {service} Source http
+	 * @param Model {service} Model http
+	 * @param Archive {service} Archive http
+	 */
+	function($scope, $state, $stateParams, $previousState, $window, Uploader, neo4jRequest, Utilities, $timeout, $modal, API, Source, Model, Archive) {
 
         $previousState.memo('modalInvoker');
 
@@ -129,6 +150,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			else if($scope.uploadType === 'model') {
 				item.sourceType = 'model';
 				item.url = 'php/processDAE.php';
+				//item.url = API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
 			}
 			else if($scope.uploadType === 'zip') {
 				item.sourceType = 'plans/model';
@@ -179,7 +201,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			item.formData.push(formData);
 		};
 		uploader.onProgressItem = function(fileItem, progress) {
-			console.info('onProgressItem', fileItem, progress);
+			//console.info('onProgressItem', fileItem, progress);
 			if(progress == 100)
 				fileItem.isProcessing = true;
 		};
@@ -191,7 +213,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 
 			fileItem.isProcessing = false;
 
-			if(!(response instanceof Object)) {
+			if(!(response instanceof Object) || response.error) {
 				console.error(response);
 				fileItem.isSuccess = false;
 				fileItem.isError = true;
@@ -203,6 +225,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				fileItem.formData[0].pages = response.data.pages;
 			}
 
+			return;
 			fileItem.isInserting = true;
 
 			if($scope.uploadType == 'source') {
@@ -223,6 +246,9 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			}
 
 			else if($scope.uploadType == 'model') {
+
+				console.log('done', response);
+				return;
 
 				/*function neo4jinsertNode(formData, params) {
 				 neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, formData, params.obj).then(function(response){
@@ -466,7 +492,11 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
             });
 		});
 
-		// closing
+		/**
+		 * Closes the modal and destroys the controller instance
+		 * @memberof uploadCtrl
+		 * @function close
+		 */
 		$scope.close = function () {
 			this.$hide();
             Uploader.clearQueue();
