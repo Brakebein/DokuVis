@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService',
+angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', 'debounce',
 	/**
 	 * Directive implementing the 3D viewport and all 3D functionalities using {@link http://threejs.org/|threes.js}
 	 * @memberof dokuvisApp
@@ -2517,9 +2517,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 
 			/**
 			 * loads .ctm file into the scene
+			 * via weblInterface.callFunc
 			 * @memberof webglView
-			 * @param child {Object} relevant information of the child
-			 * @param parent {Object} parent information
+			 * @param child {Object} child information object
+			 * @param parent {Object} parent information object
 			 * @returns {Promise} resolved promise when object is set
 			 */
 			webglInterface.callFunc.loadCTMIntoScene = function(child, parent) {
@@ -2643,32 +2644,32 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						if (file.edges) {
 							// lade und entpacke geometry für edges
 							JSZipUtils.getBinaryContent('data/' + file.path + file.edges, function (err, data) {
-								var worker = new Worker('lib/jszip/JSZipWorker.js');
-								worker.onmessage = function (event) {
-									if(event.data == 0) return;
-									var egeo = new THREE.BufferGeometry();
-									egeo.addAttribute('position', new THREE.BufferAttribute(event.data, 3));
-									edges = new THREE.LineSegments(egeo, materials['edgesMat']);
-									edges.matrix = obj.matrixWorld;
-									edges.matrixAutoUpdate = false;
-									scene.add(edges);
-									geometries[file.content].edgesGeo = egeo;
-									objects[obj.id].edges = edges;
-								};
-								worker.postMessage({ data: data, file: file.content });
-								// var zip = new JSZip(data);
-								// var vobj = JSON.parse(zip.file(file.content + '.json').asText());
-								// if (vobj.data.attributes.position.array.length === 0)
-								// 	return;
-								// var floatarray = new Float32Array(vobj.data.attributes.position.array);
-								// var egeo = new THREE.BufferGeometry();
-								// egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
-								// edges = new THREE.LineSegments(egeo, materials['edgesMat']);
-								// edges.matrix = mesh.matrixWorld;
-								// edges.matrixAutoUpdate = false;
-								// scene.add(edges);
-								// geometries[file.content].edgesGeo = egeo;
-								// objects[mesh.id].edges = edges;
+								// var worker = new Worker('lib/jszip/JSZipWorker.js');
+								// worker.onmessage = function (event) {
+								// 	if(event.data == 0) return;
+								// 	var egeo = new THREE.BufferGeometry();
+								// 	egeo.addAttribute('position', new THREE.BufferAttribute(event.data, 3));
+								// 	edges = new THREE.LineSegments(egeo, materials['edgesMat']);
+								// 	edges.matrix = obj.matrixWorld;
+								// 	edges.matrixAutoUpdate = false;
+								// 	scene.add(edges);
+								// 	geometries[file.content].edgesGeo = egeo;
+								// 	objects[obj.id].edges = edges;
+								// };
+								// worker.postMessage({ data: data, file: file.content });
+								var zip = new JSZip(data);
+								var vobj = JSON.parse(zip.file(file.content + '.json').asText());
+								if (vobj.data.attributes.position.array.length === 0)
+									return;
+								var floatarray = new Float32Array(vobj.data.attributes.position.array);
+								var egeo = new THREE.BufferGeometry();
+								egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
+								edges = new THREE.LineSegments(egeo, materials['edgesMat']);
+								edges.matrix = obj.matrixWorld;
+								edges.matrixAutoUpdate = false;
+								scene.add(edges);
+								geometries[file.content].edgesGeo = egeo;
+								objects[obj.id].edges = edges;
 							});
 						}
 						else {

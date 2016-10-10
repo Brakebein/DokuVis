@@ -166,8 +166,8 @@
 			exit('ERROR: ctm Converter failed on '.$fname.'.dae');
 		
 		// lösche temporäre dae-Datei
-		unlink($tmppath.$fname.".dae")
-			or exit('ERROR: unlink() failed on '.$fname.'.dae');
+//		unlink($tmppath.$fname.".dae")
+//			or exit('ERROR: unlink() failed on '.$fname.'.dae');
 		// verschiebe ctm-Datei in Projektordner
 		rename($tmppath.$fname.".ctm", $upath.$fname.".ctm")
 			or exit('ERROR: rename() failed on '.$fname.'.ctm');

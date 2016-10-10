@@ -277,7 +277,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		}
 
 		/**
-		 * Check, if the subproject exists
+		 * Resolve function: check, if the subproject exists
 		 * @memberof config
 		 * @private
 		 * @param $state {service} ui.router state service

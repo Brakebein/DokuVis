@@ -149,8 +149,8 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			}
 			else if($scope.uploadType === 'model') {
 				item.sourceType = 'model';
-				//item.url = 'php/processDAE.php';
-				item.url = API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
+				item.url = 'php/processDAE.php';
+				//item.url = API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
 			}
 			else if($scope.uploadType === 'zip') {
 				item.sourceType = 'plans/model';
@@ -201,7 +201,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			item.formData.push(formData);
 		};
 		uploader.onProgressItem = function(fileItem, progress) {
-			console.info('onProgressItem', fileItem, progress);
+			//console.info('onProgressItem', fileItem, progress);
 			if(progress == 100)
 				fileItem.isProcessing = true;
 		};
@@ -213,7 +213,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 
 			fileItem.isProcessing = false;
 
-			if(!(response instanceof Object)) {
+			if(!(response instanceof Object) || response.error) {
 				console.error(response);
 				fileItem.isSuccess = false;
 				fileItem.isError = true;
