@@ -31,7 +31,11 @@
               <li>
                 <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
               </li><li>
+                <a href="dokuvisApp.ConfirmService.html">ConfirmService</a>
+              </li><li>
                 <a href="dokuvisApp.Project.html">Project</a>
+              </li><li>
+                <a href="dokuvisApp.Subproject.html">Subproject</a>
               </li><li>
                 <a href="dokuvisApp.TokenInterceptor.html">TokenInterceptor</a>
               </li><li>
@@ -61,6 +65,14 @@
             </h2>
             <ul ng-hide="dokuvis_ppcontroller">
               <li>
+                <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projectModalCtrl.html">projectModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projHomeCtrl.html">projHomeCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.subprojectModalCtrl.html">subprojectModalCtrl</a>
+              </li><li>
                 <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
               </li>
             </ul>
@@ -101,7 +113,8 @@
   <div class="clearfix"></div>
   <div class="description">
     <h4>Description</h4>
-    <p>Directive implementing the 3D viewport and all 3D functionalities using <a href="http://threejs.org/|threes.js.html">http://threejs.org/|threes.js</a></p>
+    <!--<p>Directive implementing the 3D viewport and all 3D functionalities using <a href="http://threejs.org/ threes.js.html">http://threejs.org/ threes.js</a></p>-->
+    <p>Directive implementing the 3D viewport and all 3D functionalities using <a href="http://threejs.org/">threes.js</a></p>
   </div>
   <div class="details"></div>
   <div>
@@ -240,7 +253,7 @@
   <h3 class="subsection-title">Methods</h3>
   <dl>
     <dt>
-      <a href="source/dokuvisApp.webglView.html#line3276" class="name-link" id="computeFocusFromSphere">
+      <a href="source/dokuvisApp.webglView.html#line3277" class="name-link" id="computeFocusFromSphere">
         <h4 class="name">
           computeFocusFromSphere
           <span class="signature">(M, r)</span>
@@ -250,6 +263,8 @@
     <dd>
       <div class="description">
         <span>
+          <!--<p>place camera in appropriate distance to selected object,
+so the object will fit nicely within the viewport</p>-->
           <p>place camera in appropriate distance to selected object,
 so the object will fit nicely within the viewport</p>
         </span>
@@ -268,6 +283,7 @@ so the object will fit nicely within the viewport</p>
               </span></td>
               <td class="description last">
                 <span>
+                  <!--<p>center position</p>-->
                   <p>center position</p>
                 </span>
               </td>
@@ -278,6 +294,7 @@ so the object will fit nicely within the viewport</p>
               </span></td>
               <td class="description last">
                 <span>
+                  <!--<p>radius</p>-->
                   <p>radius</p>
                 </span>
               </td>
@@ -288,7 +305,7 @@ so the object will fit nicely within the viewport</p>
     </dd>
   </dl><dl>
     <dt>
-      <a href="source/dokuvisApp.webglView.html#line2525" class="name-link" id="webglInterface.callFunc.loadCTMIntoScene">
+      <a href="source/dokuvisApp.webglView.html#line2526" class="name-link" id="webglInterface.callFunc.loadCTMIntoScene">
         <h4 class="name">
           webglInterface.callFunc.loadCTMIntoScene
           <span class="signature">(child, parent)</span>
@@ -301,7 +318,10 @@ so the object will fit nicely within the viewport</p>
     <dd>
       <div class="description">
         <span>
-          <p>loads .ctm file into the scene</p>
+          <!--<p>loads .ctm file into the scene
+via weblInterface.callFunc</p>-->
+          <p>loads .ctm file into the scene
+via weblInterface.callFunc</p>
         </span>
       </div>
       <div>
@@ -318,7 +338,8 @@ so the object will fit nicely within the viewport</p>
               </span></td>
               <td class="description last">
                 <span>
-                  <p>relevant information of the child</p>
+                  <!--<p>child information object</p>-->
+                  <p>child information object</p>
                 </span>
               </td>
             </tr><tr>
@@ -328,7 +349,8 @@ so the object will fit nicely within the viewport</p>
               </span></td>
               <td class="description last">
                 <span>
-                  <p>parent information</p>
+                  <!--<p>parent information object</p>-->
+                  <p>parent information object</p>
                 </span>
               </td>
             </tr>
@@ -350,6 +372,7 @@ so the object will fit nicely within the viewport</p>
               </td>
               <td class="description last">
                 <span>
+                  <!--<p>resolved promise when object is set</p>-->
                   <p>resolved promise when object is set</p>
                 </span>
               </td>

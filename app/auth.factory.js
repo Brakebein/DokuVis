@@ -4,11 +4,21 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 	 * @memberof dokuvisApp
 	 * @ngdoc service
 	 * @name AuthenticationFactory
-	 * @param $window {service} Angular $window service
+	 * @param $window {$window} Angular window service
 	 */
 	function($window) {
 		return {
+			/**
+			 * A variable stating, if user is logged in or not
+			 * @type {boolean}
+			 * @memberof AuthenticationFactory
+			 */
 			isLogged: false,
+
+			/**
+			 * Check, if token and user are set in localstorage
+			 * @memberof AuthenticationFactory
+			 */
 			check: function() {
 				if($window.localStorage.token && $window.localStorage.user) {
 					this.isLogged = true;
@@ -27,11 +37,11 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 	 * @memberof dokuvisApp
 	 * @ngdoc service
 	 * @name UserAuthFactory
-	 * @param $window {service} Angular $window service
-	 * @param $state {service} ui.router $state
-	 * @param $http {service} Angular http request service
-	 * @param AuthenticationFactory {service} {@link dokuvisApp.AuthenticationFactory}
-	 * @param API {constant} API url constant
+	 * @param $window {$window} Angular $window service
+	 * @param $state {$state} ui.router $state
+	 * @param $http {$http} Angular http request service
+	 * @param AuthenticationFactory {AuthenticationFactory} [AuthenticationFactory]{@link dokuvisApp.AuthenticationFactory.html}
+	 * @param API {API} API url constant
 	 */
 	function($window, $state, $http, AuthenticationFactory, API) {
 		return {
@@ -76,8 +86,8 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 	 * @memberof dokuvisApp
 	 * @ngdoc service
 	 * @name TokenInterceptor
-	 * @param $q {service} Angular promise service
-	 * @param $window {service} Angular $window service
+	 * @param $q {$q} Angular promise service
+	 * @param $window {$window} Angular $window service
 	 */
 	function($q, $window) {
 		return {

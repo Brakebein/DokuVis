@@ -1,3 +1,6 @@
+(function () {
+	'use strict';
+
 /**
  * @namespace dokuvisApp
  */
@@ -47,12 +50,13 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 	 * @memberof dokuvisApp
 	 * @ngdoc config
 	 * @name config
-	 * @param $stateProvider {service} provider to configure states
-	 * @param $urlRouterProvider {service} Watches $location and provides interface to default state
-	 * @param $httpProvider {service} Used to push new interceptors
-	 * @param $modalProvider {service} provider to configure defaults
-	 * @param $alertProvider {service} provider to configure defaults
-	 * @param $tooltipProvider {service} provider to configure defaults
+	 * @author Brakebein
+	 * @param $stateProvider {$stateProvider} provider to configure states
+	 * @param $urlRouterProvider {$urlRouterProvider} Watches $location and provides interface to default state
+	 * @param $httpProvider {$httpProvider} Used to push new interceptors
+	 * @param $modalProvider {$modalProvider} provider to configure defaults
+	 * @param $alertProvider {$alertProvider} provider to configure defaults
+	 * @param $tooltipProvider {$tooltipProvider} provider to configure defaults
 	 */
 	function($stateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
@@ -80,6 +84,29 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate]
 				}
 			})
+			.state('projectlist.project', {
+				url: '/project',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/projectModal.html',
+						controller: 'projectModalCtrl',
+						show: true
+					})
+				}],
+				abstract: true
+			})
+			.state('projectlist.project.new', {
+				url: '/new'
+			})
+			.state('projectlist.project.edit', {
+				url: '/edit',
+				params: {
+					name: '',
+					desc: '',
+					pId: ''
+				}
+			})
 			.state('project', {
 				url: '/:project/:subproject',
 				templateUrl: 'partials/project.html',
@@ -87,8 +114,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				css: 'style/project.css',
 				resolve: {
 					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate],
-					checkProject: checkProject,
-					checkSubproject: checkSubproject
+					checkProject: ['$q', '$state', '$stateParams', '$rootScope', 'Project', checkProject],
+					checkSubproject: ['$q', '$state', '$stateParams', 'Subproject', checkSubproject]
 				},
 				abstract: true
 			})
@@ -103,8 +130,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/subprojectModal.html',
-						controller: 'subprojectCtrl',
+						contentTemplate: 'partials/modals/projectModal.html',
+						controller: 'subprojectModalCtrl',
 						show: true
 					});
 				}],
@@ -223,12 +250,24 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 			placement: 'right',
 			delay: {show: 500, hide: 100}
 		});
-		
-		// resolve functions
+
+		// resolver functions
+		/**
+		 * Resolve function to authenticate user / check, if user is logged in
+		 * @memberof config
+		 * @private
+		 * @param $q {$q} Angular promise service
+		 * @param $state {$state} ui.router state service
+		 * @param $window {$window} Angular window service
+		 * @param $timeout {timeout} Angular timeout
+		 * @param AuthenticationFactory {AuthenticationFactory} [AuthenticationFactory]{@link dokuvisApp.AuthenticationFactory.html}
+		 * @param UserAuthFactory {UserAuthFactory} [UserAuthFactory]{@link dokuvisApp.UserAuthFactory.html}
+		 * @returns {Promise} Resolves, if user has been authenticated
+		 */
 		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory) {
-			
+
 			if(AuthenticationFactory.isLogged) {
-				
+
 				return UserAuthFactory.checkJWT().then(function(response) {
 					console.log(response);
 					// check if user object exists else fetch it. this is incase of a page refresh
@@ -248,67 +287,82 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				});
 			}
 			else {
-				
+
 				$timeout(function() {
 					$state.go('home');
 				});
 				return $q.reject();
-				
+
 			}
-		}
-		
-		function checkProject($state, $stateParams, $q, $rootScope, Project) {
-			
-			return Project.get($stateParams.project).then(function(response){
-				
-				console.log(response, $stateParams);
-				
-				if(response.data === 'NO ENTRY') {
-					
-					$state.go('projectlist');
-					return $q.reject();
-					
-				}
-				
-				$rootScope.userRole = response.data.role;
-				
-			});
-			
+
 		}
 
 		/**
-		 * Resolve function: check, if the subproject exists
+		 * Resolve function to check, if project exists
 		 * @memberof config
 		 * @private
-		 * @param $state {service} ui.router state service
-		 * @param $stateParams {service} ui.router state parameter
-		 * @param $q {service} Angular promise service
-		 * @param Subproject {service} API calls for subproject
-		 * @returns {Promise} A promise that will either be resolved or rejected, if the subproject couldn't be found (or an error occured).
+		 * @param $q {$q} Angular promise service
+		 * @param $state {$state} ui.router state service
+		 * @param $stateParams {$stateParams} ui.router state parameter
+		 * @param $rootScope {$rootScope} Angular rootScope
+		 * @param Project {Project} Project http
+		 * @returns {Promise} Resolves, if project exists
 		 */
-		function checkSubproject($state, $stateParams, $q, Subproject) {
-			
+		function checkProject($q, $state, $stateParams, $rootScope, Project) {
+
+			return Project.get($stateParams.project).then(function(response){
+
+				console.log(response, $stateParams);
+
+				if(response.data === 'NO ENTRY') {
+
+					$state.go('projectlist');
+					return $q.reject();
+
+				}
+
+				$rootScope.userRole = response.data.role;
+
+			}, function (err) {
+				console.error('API Exception on Project.get()', err);
+				return $q.reject();
+			});
+
+		}
+
+		/**
+		 * Resolve function to check, if the subproject exists
+		 * @memberof config
+		 * @private
+		 * @param $q {$q} Angular promise service
+		 * @param $state {$state} ui.router state service
+		 * @param $stateParams {$stateParams} ui.router state parameter
+		 * @param Subproject {Subproject} Subproject http
+		 * @returns {Promise} A promise that will either be resolved or rejected, if the subproject couldn't be found (or an error occured)
+		 */
+		function checkSubproject($q, $state, $stateParams, Subproject) {
+
 			if($stateParams.subproject === 'master')
 				return $q.resolve();
 			else {
-				console.log('before', $stateParams);
+				//console.log('before', $stateParams);
 				return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
-					
-					console.log('after', response);
+
+					//console.log('after', response);
 					if(!response.data.length) {
 						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });
 						return $q.reject();
 					}
-					
+
 				}, function (err) {
-					
-					Utilities.throwApiException('on Subproject.check()', err);
+					console.error('API Exception on Subproject.check()', err);
+					//Utilities.throwApiException('on Subproject.check()', err);
 					return $q.reject();
-					
 				});
 			}
+
 		}
-		
+
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 	
@@ -339,3 +393,5 @@ dokuvisApp.filter('filterEditor', function(){
 		});
 	}
 });
+
+})();

@@ -31,7 +31,11 @@
               <li>
                 <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
               </li><li>
+                <a href="dokuvisApp.ConfirmService.html">ConfirmService</a>
+              </li><li>
                 <a href="dokuvisApp.Project.html">Project</a>
+              </li><li>
+                <a href="dokuvisApp.Subproject.html">Subproject</a>
               </li><li>
                 <a href="dokuvisApp.TokenInterceptor.html">TokenInterceptor</a>
               </li><li>
@@ -61,6 +65,14 @@
             </h2>
             <ul ng-hide="dokuvis_ppcontroller">
               <li>
+                <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projectModalCtrl.html">projectModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projHomeCtrl.html">projHomeCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.subprojectModalCtrl.html">subprojectModalCtrl</a>
+              </li><li>
                 <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
               </li>
             </ul>
@@ -87,7 +99,7 @@
       </h3>
       <h1 class="title">
         config
-        <a class="name-link signature-attributes" href="source/dokuvisApp.config.html#line45">source</a>
+        <a class="name-link signature-attributes" href="source/dokuvisApp.config.html#line48">source</a>
       </h1>
       <div id="main" class="big-container">
         <!-- source code html -->
@@ -100,6 +112,7 @@
   <div class="clearfix"></div>
   <div class="description">
     <h4>Description</h4>
+    <!--<p>Configures ui.router states, state resolve functions, and some defaults</p>-->
     <p>Configures ui.router states, state resolve functions, and some defaults</p>
   </div>
   <div class="details"></div>
@@ -116,10 +129,11 @@
             $stateProvider
           </td>
           <td class="type"><span class="param-type">
-            <a href="service.html">service</a>
+            <a href="$stateProvider.html">$stateProvider</a>
           </span></td>
           <td class="description last">
             <span>
+              <!--<p>provider to configure states</p>-->
               <p>provider to configure states</p>
             </span>
           </td>
@@ -129,10 +143,11 @@
             $urlRouterProvider
           </td>
           <td class="type"><span class="param-type">
-            <a href="service.html">service</a>
+            <a href="$urlRouterProvider.html">$urlRouterProvider</a>
           </span></td>
           <td class="description last">
             <span>
+              <!--<p>Watches $location and provides interface to default state</p>-->
               <p>Watches $location and provides interface to default state</p>
             </span>
           </td>
@@ -142,10 +157,11 @@
             $httpProvider
           </td>
           <td class="type"><span class="param-type">
-            <a href="service.html">service</a>
+            <a href="$httpProvider.html">$httpProvider</a>
           </span></td>
           <td class="description last">
             <span>
+              <!--<p>Used to push new interceptors</p>-->
               <p>Used to push new interceptors</p>
             </span>
           </td>
@@ -155,10 +171,11 @@
             $modalProvider
           </td>
           <td class="type"><span class="param-type">
-            <a href="service.html">service</a>
+            <a href="$modalProvider.html">$modalProvider</a>
           </span></td>
           <td class="description last">
             <span>
+              <!--<p>provider to configure defaults</p>-->
               <p>provider to configure defaults</p>
             </span>
           </td>
@@ -168,10 +185,11 @@
             $alertProvider
           </td>
           <td class="type"><span class="param-type">
-            <a href="service.html">service</a>
+            <a href="$alertProvider.html">$alertProvider</a>
           </span></td>
           <td class="description last">
             <span>
+              <!--<p>provider to configure defaults</p>-->
               <p>provider to configure defaults</p>
             </span>
           </td>
@@ -181,10 +199,11 @@
             $tooltipProvider
           </td>
           <td class="type"><span class="param-type">
-            <a href="service.html">service</a>
+            <a href="$tooltipProvider.html">$tooltipProvider</a>
           </span></td>
           <td class="description last">
             <span>
+              <!--<p>provider to configure defaults</p>-->
               <p>provider to configure defaults</p>
             </span>
           </td>
@@ -192,6 +211,10 @@
       </tbody>
     </table>
   </div>
+  <div>
+    <h4>Authors</h4>
+    Brakebein
+  </(.*)></div>
 </div>
 <div class="members">
   <h3 class="subsection-title">Members</h3>
@@ -215,10 +238,10 @@
   <h3 class="subsection-title">Methods</h3>
   <dl>
     <dt>
-      <a href="source/dokuvisApp.config.html#line289" class="name-link" id="checkSubproject">
+      <a href="source/dokuvisApp.config.html#line267" class="name-link" id="authenticate">
         <h4 class="name">
-          checkSubproject
-          <span class="signature">($state, $stateParams, $q, Subproject)</span>
+          authenticate
+          <span class="signature">($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory)</span>
           <span class="type-signature">
             -&gt; Promise
           </span>
@@ -228,7 +251,8 @@
     <dd>
       <div class="description">
         <span>
-          <p>Check, if the subproject exists</p>
+          <!--<p>Resolve function to authenticate user / check, if user is logged in</p>-->
+          <p>Resolve function to authenticate user / check, if user is logged in</p>
         </span>
       </div>
       <div>
@@ -239,43 +263,69 @@
           </thead>
           <tbody>
             <tr>
-              <td class="name">$state</td>
-              <td class="type"><span class="param-type">
-                <a href="service.html">service</a>
-              </span></td>
-              <td class="description last">
-                <span>
-                  <p>ui.router state service</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">$stateParams</td>
-              <td class="type"><span class="param-type">
-                <a href="service.html">service</a>
-              </span></td>
-              <td class="description last">
-                <span>
-                  <p>ui.router state parameter</p>
-                </span>
-              </td>
-            </tr><tr>
               <td class="name">$q</td>
               <td class="type"><span class="param-type">
-                <a href="service.html">service</a>
+                <a href="$q.html">$q</a>
               </span></td>
               <td class="description last">
                 <span>
+                  <!--<p>Angular promise service</p>-->
                   <p>Angular promise service</p>
                 </span>
               </td>
             </tr><tr>
-              <td class="name">Subproject</td>
+              <td class="name">$state</td>
               <td class="type"><span class="param-type">
-                <a href="service.html">service</a>
+                <a href="$state.html">$state</a>
               </span></td>
               <td class="description last">
                 <span>
-                  <p>API calls for subproject</p>
+                  <!--<p>ui.router state service</p>-->
+                  <p>ui.router state service</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">$window</td>
+              <td class="type"><span class="param-type">
+                <a href="$window.html">$window</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>Angular window service</p>-->
+                  <p>Angular window service</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">$timeout</td>
+              <td class="type"><span class="param-type">
+                <a href="timeout.html">timeout</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>Angular timeout</p>-->
+                  <p>Angular timeout</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">AuthenticationFactory</td>
+              <td class="type"><span class="param-type">
+                <a href="AuthenticationFactory.html">AuthenticationFactory</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>[AuthenticationFactory]<a href="dokuvisApp.AuthenticationFactory.html.html">dokuvisApp.AuthenticationFactory.html</a></p>-->
+                  <p> <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a></p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">UserAuthFactory</td>
+              <td class="type"><span class="param-type">
+                <a href="UserAuthFactory.html">UserAuthFactory</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>[UserAuthFactory]<a href="dokuvisApp.UserAuthFactory.html.html">dokuvisApp.UserAuthFactory.html</a></p>-->
+                  <p> <a href="dokuvisApp.UserAuthFactory.html">UserAuthFactory</a></p>
                 </span>
               </td>
             </tr>
@@ -297,7 +347,215 @@
               </td>
               <td class="description last">
                 <span>
-                  <p>A promise that will either be resolved or rejected, if the subproject couldn't be found (or an error occured).</p>
+                  <!--<p>Resolves, if user has been authenticated</p>-->
+                  <p>Resolves, if user has been authenticated</p>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.config.html#line311" class="name-link" id="checkProject">
+        <h4 class="name">
+          checkProject
+          <span class="signature">($q, $state, $stateParams, $rootScope, Project)</span>
+          <span class="type-signature">
+            -&gt; Promise
+          </span>
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Resolve function to check, if project exists</p>-->
+          <p>Resolve function to check, if project exists</p>
+        </span>
+      </div>
+      <div>
+        <h4>Parameters</h4>
+        <table class="params">
+          <thead>
+            <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="name">$q</td>
+              <td class="type"><span class="param-type">
+                <a href="$q.html">$q</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>Angular promise service</p>-->
+                  <p>Angular promise service</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">$state</td>
+              <td class="type"><span class="param-type">
+                <a href="$state.html">$state</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>ui.router state service</p>-->
+                  <p>ui.router state service</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">$stateParams</td>
+              <td class="type"><span class="param-type">
+                <a href="$stateParams.html">$stateParams</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>ui.router state parameter</p>-->
+                  <p>ui.router state parameter</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">$rootScope</td>
+              <td class="type"><span class="param-type">
+                <a href="$rootScope.html">$rootScope</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>Angular rootScope</p>-->
+                  <p>Angular rootScope</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">Project</td>
+              <td class="type"><span class="param-type">
+                <a href="Project.html">Project</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>Project http</p>-->
+                  <p>Project http</p>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>Returns</h4>
+        <table class="params">
+          <thead>
+            <tr><th>Type</th><th class="last">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="type">
+                <span class="param-type">
+                  <a href="Promise.html">Promise</a>
+                </span>
+              </td>
+              <td class="description last">
+                <span>
+                  <!--<p>Resolves, if project exists</p>-->
+                  <p>Resolves, if project exists</p>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.config.html#line343" class="name-link" id="checkSubproject">
+        <h4 class="name">
+          checkSubproject
+          <span class="signature">($q, $state, $stateParams, Subproject)</span>
+          <span class="type-signature">
+            -&gt; Promise
+          </span>
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Resolve function to check, if the subproject exists</p>-->
+          <p>Resolve function to check, if the subproject exists</p>
+        </span>
+      </div>
+      <div>
+        <h4>Parameters</h4>
+        <table class="params">
+          <thead>
+            <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="name">$q</td>
+              <td class="type"><span class="param-type">
+                <a href="$q.html">$q</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>Angular promise service</p>-->
+                  <p>Angular promise service</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">$state</td>
+              <td class="type"><span class="param-type">
+                <a href="$state.html">$state</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>ui.router state service</p>-->
+                  <p>ui.router state service</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">$stateParams</td>
+              <td class="type"><span class="param-type">
+                <a href="$stateParams.html">$stateParams</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>ui.router state parameter</p>-->
+                  <p>ui.router state parameter</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">Subproject</td>
+              <td class="type"><span class="param-type">
+                <a href="Subproject.html">Subproject</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>Subproject http</p>-->
+                  <p>Subproject http</p>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>Returns</h4>
+        <table class="params">
+          <thead>
+            <tr><th>Type</th><th class="last">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="type">
+                <span class="param-type">
+                  <a href="Promise.html">Promise</a>
+                </span>
+              </td>
+              <td class="description last">
+                <span>
+                  <!--<p>A promise that will either be resolved or rejected, if the subproject couldn't be found (or an error occured)</p>-->
+                  <p>A promise that will either be resolved or rejected, if the subproject couldn't be found (or an error occured)</p>
                 </span>
               </td>
             </tr>

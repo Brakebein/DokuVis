@@ -1,17 +1,29 @@
-angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'mysqlRequest', 'Utilities', 'AuthenticationFactory', 'Project', 'ConfirmService',
-	function($scope, $state, $window, mysqlRequest, Utilities, AuthenticationFactory, Project, ConfirmService) {
-		
-		// TODO: index.config und blacklist.txt in Projektordner verschieben beim Anlegen
+angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'Utilities', 'AuthenticationFactory', 'Project', 'ConfirmService',
+	/**
+	 * Controller for view to list and organize all projects
+	 * @memberof dokuvisApp
+	 * @ngdoc controller
+	 * @name projectlistCtrl
+	 * @param $scope {$scope} controller scope
+	 * @param $state {$state} ui.router state
+	 * @param $window {$window} Angular window service
+	 * @param Utilities {Utilities} Utilities
+	 * @param AuthenticationFactory {AuthenticationFactory} AuthenticationFactory
+	 * @param Project {Project} Project http
+	 * @param ConfirmService {ConfirmService} confirm dialog
+	 */
+	function($scope, $state, $window, Utilities, AuthenticationFactory, Project, ConfirmService) {
 		
 		// Initialisierung von Variablen
 		$scope.projects = [];
 				
-		$scope.newProject = new Object();
-		$scope.newProject.name = '';
-		$scope.newProject.nameError = false;
-		$scope.newProject.description = '';
+		$scope.newProject = {
+			name: '',
+			nameError: false,
+			description: ''
+		};
 		
-		$scope.getAllProjects = function() {
+		function getAllProjects() {
 			Project.getAll().then(function(response){
 				console.log(response);
 				if(response.data instanceof Array)
@@ -21,8 +33,13 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 			}, function(err) {
 				Utilities.throwApiException('on getAllProjects()', err);
 			});
-		};
-		
+		}
+
+		/**
+		 * Initiate project creation by checking input and calling API
+		 * @memberof projectlistCtrl
+		 * @function createNewProject
+		 */
 		$scope.createNewProject = function() {
 			// Eingabe überprüfen
 			if($scope.newProject.name.length < 1) {
@@ -42,17 +59,29 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 				console.log(response);
 				$scope.newProject.name = '';
 				$scope.newProject.description = '';
-				$scope.getAllProjects();
+				getAllProjects();
 			}, function(err) {
 				Utilities.throwApiException('on createProject()', err);
 			});
 		};
-		
+
+		/**
+		 * Open project in new tab
+		 * @memberof projectlistCtrl
+		 * @function openProject
+		 * @param prj {string} project ID
+		 */
 		$scope.openProject = function (prj) {
 			var url = $state.href('project.home', { project: prj, subproject: 'master'});
 			$window.open(url, '_blank');
 		};
-		
+
+		/**
+		 * Initiate project deletion by confirming user interaction and calling API
+		 * @memberof projectlistCtrl
+		 * @function deleteProject
+		 * @param p {Object} project details (id, name, etc.)
+		 */
 		$scope.deleteProject = function(p) {
 			
 			console.log('delete ', p);
@@ -63,26 +92,30 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 			}).then(function () {
 				Project.delete(p.proj).then(function(response) {
 					console.log(response);
-					$scope.getAllProjects();
+					getAllProjects();
 				}, function(err) {
 					Utilities.throwApiException('on deleteProject()', err);
 				});
 			});
 		};
 		
-		$scope.updateProjectDescription = function(data,id) {
+		/*$scope.updateProjectDescription = function(data,id) {
 			mysqlRequest.updateProjectDescription(data,id)
 				.then(function(response){
 					if(response.data != 'SUCCESS') {
 						console.error(response.data);
 						return;
 					}
-					$scope.getAllProjects();
+					getAllProjects();
 				});
-		};
+		};*/
 		
 		// oninit Funktionsaufrufe
-		$scope.getAllProjects();
-		
+		getAllProjects();
+
+		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
+			if(fromState.name === 'projectlist.project.new' || fromState.name === 'projectlist.project.edit')
+				getAllProjects();
+		});
 		
 	}]);

@@ -46,7 +46,8 @@
     "angular-truncate": "*",
     "textAngular": "^1.5.1",
     "angular-ui-router-css": "*",
-    "angular-file-upload": "^2.3.4"
+    "angular-file-upload": "^2.3.4",
+    "angular-acl": "^0.1.7"
   },
   "overrides": {
     "bootstrap": {

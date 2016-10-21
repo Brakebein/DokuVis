@@ -1,6 +1,6 @@
 angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', 'debounce',
 	/**
-	 * Directive implementing the 3D viewport and all 3D functionalities using {@link http://threejs.org/|threes.js}
+	 * Directive implementing the 3D viewport and all 3D functionalities using {@link http://threejs.org/ threes.js}
 	 * @memberof dokuvisApp
 	 * @ngdoc directive
 	 * @name webglView

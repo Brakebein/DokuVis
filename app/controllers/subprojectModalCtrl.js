@@ -1,7 +1,22 @@
-angular.module('dokuvisApp').controller('subprojectCtrl', ['$scope', '$state', '$stateParams', 'Utilities', '$timeout', 'Subproject',
-	function($scope, $state, $stateParams, Utilities, $timeout, Subproject) {
+angular.module('dokuvisApp').controller('subprojectModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'Utilities', 'Subproject',
+	/**
+	 * Modal controller for creating or editing subprojects
+	 * @memberof dokuvisApp
+	 * @ngdoc controller
+	 * @name subprojectModalCtrl
+	 * @author Brakebein
+	 * @param $scope {$scope} controller scope
+	 * @param $state {$state} ui.router state
+	 * @param $stateParams {$stateParams} ui.router stateParams
+	 * @param $timeout {$timeout} Angular timeout
+	 * @param Utilities {Utilities} Utilities
+	 * @param Subproject {Subproject} Subproject http
+	 */
+	function($scope, $state, $stateParams, $timeout, Utilities, Subproject) {
 
-		console.log($state);
+		//console.log($state);
+		if($state.includes('project.home.subproject.edit')) $scope.title = 'Unterprojekt editieren';
+		else $scope.title = 'Neues Unterprojekt';
 		$scope.name = $stateParams.name || '';
 		$scope.desc = $stateParams.desc || '';
 		
@@ -12,7 +27,7 @@ angular.module('dokuvisApp').controller('subprojectCtrl', ['$scope', '$state', '
 			}
 
 			if($stateParams.subId) {
-				Subproject.change($stateParams.subId, $scope.name, $scope.desc).then(function () {
+				Subproject.update($stateParams.subId, $scope.name, $scope.desc).then(function () {
 					//console.log('subproject changed');
 					$scope.close();
 				}, function (err) {

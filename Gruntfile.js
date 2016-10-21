@@ -41,7 +41,7 @@ module.exports = function (grunt) {
 				options: {
 					destination: 'docs',
 					configure: 'node_modules/angular-jsdoc/common/conf.json',
-					template: 'node_modules/angular-jsdoc/angular-template',
+					template: 'docs/angular-template-custom',
 					tutorials: 'docs/tutorials',
 					readme: 'docs/README.md',
 					private: true

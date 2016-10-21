@@ -1,23 +1,31 @@
-angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams', 'APIRequest', 'neo4jRequest', 'Utilities', 'Project', 'Subproject',
-	function($scope, $stateParams, APIRequest, neo4jRequest, Utilities, Project, Subproject) {
+angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams', 'neo4jRequest', 'Utilities', 'Project', 'Subproject',
+	/**
+	 * Controller of the Project Home view, organizing subprojects and project/subproject information
+	 * @memberof dokuvisApp
+	 * @ngdoc controller
+	 * @name projHomeCtrl
+	 * @author Brakebein
+	 * @param $scope {$scope} controller scope
+	 * @param $stateParams {$stateParams} ui.router stateParams
+	 * @param neo4jRequest {neo4jRequest} neo4jRequest DEPRECATED
+	 * @param Utilities {Utilities} Utilities
+	 * @param Project {Project} Project http
+	 * @param Subproject {Subproject} Subproject http
+	 */
+	function($scope, $stateParams, neo4jRequest, Utilities, Project, Subproject) {
 
 		$scope.isMaster = $stateParams.subproject === 'master';
 
 		$scope.projInfo = {};
 
-		$scope.editor = {};
-		$scope.editor.input = '';
-		$scope.editor.show = false;
-		$scope.editor.edit = false;
-		$scope.editor.editId = '';
+		$scope.editor = {
+			input: '',
+			show: false,
+			edit: false,
+			editId: ''
+		};
 
 		$scope.subprojects = [];
-
-		$scope.newSubproj = {};
-		$scope.newSubproj.title = '';
-		$scope.newSubproj.desc = '';
-		$scope.newSubproj.show = false;
-
 
 		function getProjectInfoFromTable() {
 			Project.get($stateParams.project).then(function (response) {
@@ -101,26 +109,8 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 			$scope.editor.edit = false;
 			$scope.editor.editId = '';
 		};
-
-		$scope.closeNewSubproj = function() {
-			$scope.newSubproj.title = '';
-			$scope.newSubproj.desc = '';
-			$scope.newSubproj.show = false;
-		};
-
 		$scope.outputInput = function() {
 			console.log($scope.editor.input);
-		};
-
-		// subprojects
-		$scope.createSubproject = function() {
-			if($scope.newSubproj.title.length === 0) return;
-			neo4jRequest.createSubproject($stateParams.project, $scope.newSubproj.title, $scope.newSubproj.desc).then(function(response){
-				if(response.data.exception) { console.error('neo4jRequest Exception on createSubproject()', response.data); return; }
-				console.log(response.data);
-				$scope.closeNewSubproj();
-				getAllSubprojects();
-			});
 		};
 
 		// init

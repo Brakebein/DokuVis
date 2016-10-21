@@ -1,4 +1,36 @@
 angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q',
+	/**
+	 * Service providing a dialog with two buttons to confirm or abort an action
+	 * ```
+	 * // default values
+	 * alertDefaults = {
+	 *     backdrop: 'static',
+	 *     templateUrl: 'partials/alerts/confirmAlert.html',
+	 *     show: true
+	 * };
+	 * alertOptions = {
+	 *     abortButtonText: 'Abbrechen',
+	 *     actionButtonText: 'OK',
+	 *     headerText: 'Fortfahren?',
+	 *     bodyText: 'Sind Sie sicher?',
+	 *     type: 'warning'
+	 * };
+	 * ```
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name ConfirmService
+	 * @param $alert {$alert} ngStrap alert dialog service
+	 * @param $q {$q} Angular promise service
+	 * @example
+	 * ConfirmService.showAlert({
+	 *     headerText: 'Projekt löschen',
+	 *     bodyText: 'Soll das Projekt wirklich gelöscht werden?'
+	 * }).then(function () {
+	 *     // do something, if confirm button has been pressed
+	 * }, function () {
+	 *     // do something, if abort button has been pressed
+	 * });
+	 */
 	function ($alert, $q) {
 
 		var alertDefaults = {
@@ -15,12 +47,20 @@ angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q',
 			type: 'warning'
 		};
 
-		this.showAlert = function(customAlertOptions, customAlertDefaults) {
+		/**
+		 * Triggers the alert/dialog to show
+		 * @memberof ConfirmService
+		 * @function showAlert
+		 * @param customAlertOptions {Object} custom text and captions
+		 * @param [customAlertDefaults] {Object} Optional: custom templateUrl etc.
+		 * @returns {Promise} Resolves, if action has been confirmed, rejects, if aborted
+		 */
+		this.showAlert = function (customAlertOptions, customAlertDefaults) {
 			if(!customAlertDefaults) customAlertDefaults = {};
-			return this.show(customAlertOptions, customAlertDefaults);
+			return show(customAlertOptions, customAlertDefaults);
 		};
 
-		this.show = function (customAlertOptions, customAlertDefaults) {
+		function show(customAlertOptions, customAlertDefaults) {
 			var tempAlertDefaults = {};
 			var tempAlertOptions = {};
 
@@ -45,6 +85,6 @@ angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q',
 			$alert(tempAlertDefaults);
 
 			return deferred.promise;
-		};
+		}
 
 	}]);
