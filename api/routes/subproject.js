@@ -79,7 +79,7 @@ module.exports = {
 		});
 	},
 
-	change: function (req, res) {
+	update: function (req, res) {
 		var prj = req.params.id;
 
 		var q = 'MATCH (sub:E7:'+prj+' {content: {subId}})-[:P2]->(:E55 {content: "subproject"}), \

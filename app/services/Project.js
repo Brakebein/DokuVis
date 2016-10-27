@@ -1,86 +1,29 @@
-angular.module('dokuvisApp').factory('Project', ['$http', 'API', '$stateParams', 'AuthenticationFactory', 'Utilities',
+angular.module('dokuvisApp').factory('Project', ['$resource', 'API', 'Utilities',
 	/**
-	 * $http methods for project related tasks
+	 * $resource for project related tasks
 	 * @memberof dokuvisApp
 	 * @ngdoc service
 	 * @name Project
 	 * @author Brakebein
-	 * @param $http {$http} Angular HTTP request service
+	 * @param $resource {service} ngResource
 	 * @param API {API} API url constant
-	 * @param AuthenticationFactory {AuthenticationFactory} AuthenticationFactory
 	 * @param Utilities {Utilities} Utilities
-	 * @returns {Object} collection of methods
+	 * @returns {Object} Project resource
 	 */
-	function ($http, API, AuthenticationFactory, Utilities) {
+	function ($resource, API, Utilities) {
+
+		function extendWithId(data) {
+			return angular.toJson(angular.extend(data, { proj: 'Proj_' + Utilities.getUniqueId() }));
+		}
 		
-		return {
-
-			/**
-			 * Create a new project
-			 * @memberof Project
-			 * @function create
-			 * @param name {string} project name
-			 * @param desc {string} description (can also be empty)
-			 * @returns {Promise} $http promise
-			 */
-			create: function (name, desc) {
-				return $http.post(API + 'auth/project', {
-					proj: 'Proj_' + Utilities.getUniqueId(),
-					name: name,
-					description: desc,
-					email: AuthenticationFactory.user,
-					username: AuthenticationFactory.userName
-				});
+		return $resource(API + 'auth/project/:id', {
+			id: '@proj'
+		}, {
+			save: {
+				method: 'POST',
+				transformRequest: extendWithId
 			},
-
-			/**
-			 * Get data of project with given ID
-			 * @memberof Project
-			 * @function get
-			 * @param prj {string} project ID
-			 * @returns {Promise} $http promise
-			 */
-			get: function (prj) {
-				return $http.get(API + 'auth/project/' + prj, { cache: true });
-			},
-
-			/**
-			 * Delete Project
-			 * @memberof Project
-			 * @function delete
-			 * @param prj {string} project ID
-			 * @returns {Promise} $http promise
-			 */
-			delete: function (prj) {
-				return $http.delete(API + 'auth/project/' + prj);
-			},
-
-			/**
-			 * Update name and description of the project
-			 * @memberof Project
-			 * @function update
-			 * @param prj {string} project ID
-			 * @param name {string} new project name
-			 * @param desc {string} new project description
-			 * @returns {Promise} $http promise
-			 */
-			update: function (prj, name, desc) {
-				return $http.put(API + 'auth/project/' + prj, {
-					name: name,
-					description: desc
-				});
-			},
-
-			/**
-			 * Get all available projects
-			 * @memberof Project
-			 * @function getAll
-			 * @returns {Promise} $http promise
-			 */
-			getAll: function () {
-				return $http.get(API + 'auth/projects');
-			}
-			
-		};
+			update: { method: 'PUT' }
+		});
 		
 	}]);

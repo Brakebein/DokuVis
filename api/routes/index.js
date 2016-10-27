@@ -44,17 +44,25 @@ router.post('/auth/cypher', project.cypher);
 // routes that can be only accessed by authenticated & authorized users
 
 // project management
-router.get('/auth/projects', project.getAll);
-router.get('/auth/project/:id', project.getOne);
+router.get('/auth/project', project.query);
+router.get('/auth/project/:id', project.get);
 router.post('/auth/project', project.create);
-// router.put('/auth/project/:id', project.update);
+router.put('/auth/project/:id', project.update);
 router.delete('/auth/project/:id', project.delete);
 
 // subproject
 router.post('/auth/project/:id/subproject', subproject.create);
 router.get('/auth/project/:id/subprojects', subproject.getAll);
 router.get('/auth/project/:id/subproject/:subId', subproject.get);
-router.put('/auth/project/:id/subproject/:subId', subproject.change);
+router.put('/auth/project/:id/subproject/:subId', subproject.update);
+
+// project infos
+var projinfo = require('./projinfo');
+router.get('/auth/project/:id/:subprj/projinfo', projinfo.query);
+router.post('/auth/project/:id/:subprj/projinfo', projinfo.create);
+router.put('/auth/project/:id/:subprj/projinfo/:piId', projinfo.update);
+router.delete('/auth/project/:id/:subprj/projinfo/:piId', projinfo.delete);
+router.put('/auth/project/:id/:subprj/projinfo', projinfo.swap);
 
 // models
 router.get('/auth/project/:id/:subprj/models', models.getTree);

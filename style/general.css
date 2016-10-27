@@ -131,4 +131,7 @@ input[type=range].dvSlider {
   input[type=range].dvSlider:focus::-ms-fill-upper {
     background: #626262; }
 
+.ta-toolbar {
+  margin-bottom: 5px; }
+
 /*# sourceMappingURL=general.css.map */

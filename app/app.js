@@ -10,6 +10,7 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'ui.router.css',
 	'ct.ui.router.extras.sticky',
 	'ct.ui.router.extras.previous',
+	'ngResource',
 	'ngAnimate',
 	'ngSanitize',
 	'debounce',
@@ -64,7 +65,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		$httpProvider.interceptors.push('TokenInterceptor');
 		
 		$urlRouterProvider.otherwise('/home');
-		
+
+		// states
 		$stateProvider
 			.state('home', {
 				url: '/home',
@@ -77,7 +79,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				controller: 'registerCtrl'
 			})
 			.state('projectlist', {
-				url: '/projects',
+				url: '/list',
 				templateUrl: 'partials/projects.html',
 				controller: 'projectlistCtrl',
 				resolve: {
@@ -102,9 +104,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 			.state('projectlist.project.edit', {
 				url: '/edit',
 				params: {
-					name: '',
-					desc: '',
-					pId: ''
+					prj: null
 				}
 			})
 			.state('project', {
@@ -146,6 +146,20 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					name: '',
 					desc: '',
 					subId: ''
+				}
+			})
+			.state('project.home.infoedit', {
+				url: '/infoedit',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalLargeTpl.html',
+						contentTemplate: 'partials/modals/infoeditModal.html',
+						controller: 'infoeditModalCtrl',
+						show: true
+					});
+				}],
+				params: {
+					note: null
 				}
 			})
 			.state('project.explorer', {
@@ -310,18 +324,18 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		 */
 		function checkProject($q, $state, $stateParams, $rootScope, Project) {
 
-			return Project.get($stateParams.project).then(function(response){
+			return Project.get({ id: $stateParams.project }).$promise.then(function(result){
 
-				console.log(response, $stateParams);
+				console.log(result, $stateParams);
 
-				if(response.data === 'NO ENTRY') {
+				if(result.status === 'NO ENTRY') {
 
 					$state.go('projectlist');
 					return $q.reject();
 
 				}
 
-				$rootScope.userRole = response.data.role;
+				$rootScope.userRole = result.role;
 
 			}, function (err) {
 				console.error('API Exception on Project.get()', err);

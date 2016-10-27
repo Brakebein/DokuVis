@@ -14,12 +14,15 @@ angular.module('dokuvisApp').controller('subprojectModalCtrl', ['$scope', '$stat
 	 */
 	function($scope, $state, $stateParams, $timeout, Utilities, Subproject) {
 
-		//console.log($state);
-		if($state.includes('project.home.subproject.edit')) $scope.title = 'Unterprojekt editieren';
-		else $scope.title = 'Neues Unterprojekt';
+		$scope.title = $state.includes('project.home.subproject.edit') ? 'Unterprojekt editieren' : 'Neues Unterprojekt';
 		$scope.name = $stateParams.name || '';
 		$scope.desc = $stateParams.desc || '';
-		
+
+		/**
+		 * Saves the input data by either creating new subproject or updating nodes
+		 * @memberof subprojectModalCtrl
+		 * @function save
+		 */
 		$scope.save = function () {
 			if(!$scope.name.length) {
 				Utilities.dangerAlert('Keinen Namen angegeben!');
@@ -44,16 +47,18 @@ angular.module('dokuvisApp').controller('subprojectModalCtrl', ['$scope', '$stat
 			}
 		};
 		
-		$scope.$on('$stateChangeSuccess', function (event, toState, toParams) {
-			//console.log('source state changed', toParams);
+		$scope.$on('$stateChangeSuccess', function () {
 			$timeout(function () {
-				//$scope.close();
 				$scope.$hide();
 				$scope.$destroy();
 			});
 		});
 
-		// closing
+		/**
+		 * Closes the modal and destroys the scope
+		 * @memberof subprojectModalCtrl
+		 * @function close
+		 */
 		$scope.close = function () {
 			this.$hide();
 			this.$destroy();

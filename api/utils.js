@@ -46,6 +46,18 @@ module.exports = {
 			});
 		}
 	},
+
+	abort: {
+		missingData: function (res, add) {
+			var message = 'Missing essential data';
+			if(add) message += ' | ' + add;
+			console.warn(message);
+			res.status(510);
+			res.json({
+				message: message
+			});
+		}
+	},
 	
 	log: {
 		fileupload: function (files) {

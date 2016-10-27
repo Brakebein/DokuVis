@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams', 'neo4jRequest', 'Utilities', 'Project', 'Subproject',
+angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams', 'neo4jRequest', 'Utilities', 'Project', 'Subproject', 'ProjInfo', 'ConfirmService',
 	/**
 	 * Controller of the Project Home view, organizing subprojects and project/subproject information
 	 * @memberof dokuvisApp
@@ -11,36 +11,42 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 	 * @param Utilities {Utilities} Utilities
 	 * @param Project {Project} Project http
 	 * @param Subproject {Subproject} Subproject http
+	 * @param ProjInfo {ProjInfo} ProjInfo $resource
+	 * @param ConfirmService {ConfirmService} confirm dialog
 	 */
-	function($scope, $stateParams, neo4jRequest, Utilities, Project, Subproject) {
+	function($scope, $stateParams, neo4jRequest, Utilities, Project, Subproject, ProjInfo, ConfirmService) {
 
 		$scope.isMaster = $stateParams.subproject === 'master';
 
+		/**
+		 * Object containing project infos
+		 * @var {Object} projInfo
+		 * @memberof projHomeCtrl
+		 */
 		$scope.projInfo = {};
-
-		$scope.editor = {
-			input: '',
-			show: false,
-			edit: false,
-			editId: ''
-		};
-
+		
+		/**
+		 * Array of available subprojects
+		 * @var {Array} subprojects
+		 * @memberof projHomeCtrl
+		 */
 		$scope.subprojects = [];
 
 		function getProjectInfoFromTable() {
-			Project.get($stateParams.project).then(function (response) {
-				$scope.projInfo.name = response.data.name;
-				$scope.projInfo.description = response.data.description;
+			Project.get({ id: $stateParams.project }).$promise.then(function (result) {
+				$scope.projInfo.name = result.name;
+				$scope.projInfo.description = result.description;
 			}, function (err) {
 				Utilities.throwApiException('on Project.get()', err);
 			});
 		}
 
 		function getProjectInfoFromNodes() {
-			neo4jRequest.getProjInfos($stateParams.project, $stateParams.subproject).then(function(response) {
-				if(response.data.exception) { console.error('neo4jRequest Exception on getProjInfos()', response.data); return; }
-				if(response.data) $scope.projInfo.notes = Utilities.cleanNeo4jData(response.data);
+			ProjInfo.query().$promise.then(function (result) {
+				$scope.projInfo.notes = result;
 				console.log($scope.projInfo);
+			}, function (err) {
+				Utilities.throwApiException('on ProjInfo.query()', err);
 			});
 		}
 
@@ -63,54 +69,30 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 			});
 		}
 
-		$scope.addProjInfo = function() {
-			if($scope.editor.input.length === 0) return;
-			neo4jRequest.addProjInfo($stateParams.project, $stateParams.subproject, $scope.editor.input).then(function(response){
-				if(response.data.exception) { console.error('neo4jRequest Exception on addProjInfo()', response.data); return; }
-				console.log(response.data);
-				$scope.closeEditor();
-				getProjectInfoFromNodes();
-			});
-		};
-		$scope.editProjInfo = function() {
-			neo4jRequest.editProjInfo($stateParams.project, $stateParams.subproject, $scope.editor.editId, $scope.editor.input).then(function(response){
-				if(response.data.exception) { console.error('neo4jRequest Exception on editProjInfo()', response.data); return; }
-				console.log(response.data);
-				$scope.closeEditor();
-				getProjectInfoFromNodes();
-			});
-		};
-		$scope.removeProjInfo = function(id) {
-			neo4jRequest.removeProjInfo($stateParams.project, $stateParams.subproject, id).then(function(response){
-				if(response.data.exception) { console.error('neo4jRequest Exception on removeProjInfo()', response.data); return; }
-				getProjectInfoFromNodes();
+		$scope.removeProjInfo = function(note) {
+			ConfirmService.showAlert({
+				headerText: 'Info löschen',
+				bodyText: 'Soll die Info gelöscht werden?'
+			}).then(function () {
+				note.$delete().then(function (result) {
+					console.log(result);
+					getProjectInfoFromNodes();
+				}, function (err) {
+					Utilities.throwApiException('on ProjInfo.delete()', err);
+				});
 			});
 		};
 
 		$scope.swapInfoOrder = function(oldIndex, newIndex) {
-			neo4jRequest.swapProjInfoOrder($stateParams.project, $stateParams.subproject, $scope.filteredInfos[oldIndex].id, $scope.filteredInfos[newIndex].id).then(function(response){
-				if(response.data.exception) { console.error('neo4jRequest Exception on swapProjInfoOrder()', response.data); return; }
+			ProjInfo.swap({
+				from: $scope.filteredInfos[oldIndex].id,
+				to: $scope.filteredInfos[newIndex].id
+			}).$promise.then(function (result) {
+				console.log(result);
 				getProjectInfoFromNodes();
+			}, function (err) {
+				Utilities.throwApiException('on ProjInfo.swap()', err);
 			});
-		};
-
-		$scope.openEditor = function(editId, html) {
-			if(editId) {
-				$scope.editor.editId = editId;
-				$scope.editor.edit = true;
-				$scope.editor.input = html;
-			}
-			$scope.editor.show = true;
-		};
-
-		$scope.closeEditor = function() {
-			$scope.editor.input = '';
-			$scope.editor.show = false;
-			$scope.editor.edit = false;
-			$scope.editor.editId = '';
-		};
-		$scope.outputInput = function() {
-			console.log($scope.editor.input);
 		};
 
 		// init
@@ -125,6 +107,8 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
 			if(fromState.name === 'project.home.subproject.new' || fromState.name === 'project.home.subproject.edit')
 				getAllSubprojects();
+			else if(fromState.name === 'project.home.infoedit')
+				getProjectInfoFromNodes();
 		});
 
 	}]);

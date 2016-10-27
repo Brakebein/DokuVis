@@ -1,4 +1,13 @@
 angular.module('dokuvisApp').factory('Utilities',
+	/**
+	 * This factory provides some helpful functions.
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name Utilities
+	 * @author Brakebein
+	 * @param $alert {$alert} ngStrap alert service
+	 * @returns {Object} functions
+	 */
 	function($alert) {
 		
 		var f = {};
@@ -39,17 +48,23 @@ angular.module('dokuvisApp').factory('Utilities',
 
 			this.characterSet = arrayOfChars;
 		};
-				
+
 		/**
-		  * generate unique id from timestamp
-		*/
+		 * Generate unique short id (using timestamp)
+		 * @memberof Utilities
+		 * @function getUniqueId
+		 * @returns {string} short id
+		 */
 		f.getUniqueId = function() {
 			return new f.Base62().encode(new Date().getTime());
 		};
-		
+
 		/**
-		  * sleep function - application on hold
-		*/
+		 * Sleep function - application on hold
+		 * @memberof Utilities
+		 * @function sleep
+		 * @param milliseconds {number} milliseconds
+		 */
 		f.sleep = function(milliseconds) {
 			var start = new Date().getTime();
 			for (var i = 0; i < 1e7; i++) {
@@ -58,19 +73,20 @@ angular.module('dokuvisApp').factory('Utilities',
 				}
 			}
 		};
-		
+
 		/**
-		  * @desc wait until condition is met
-		  * @param
-		  *	  test - function that returns a value
-		  *	  expectedValue - value of the test function we are waiting for
-		  *	  msec - delay between the calls to test
-		  *	  callback - function to execute wehen the condition is met
-		  * @return nothing
-		*/
+		 * Wait until condition is met
+		 * @memberof Utilities
+		 * @function waitfor
+		 * @param test {function} function that returns a value
+		 * @param expectedValue {string|number|boolean} value of the test function we are waiting for
+		 * @param msec {number} delay between the calls to test
+		 * @param params {Object} parameters to be passed to the callback function
+		 * @param callback {function} function to execute when the condition is met
+		 */
 		 f.waitfor = function(test, expectedValue, msec, params, callback) {
 			// check if condition met. if not, re-check later
-			while(test() !== expectedValue) {
+			if (test() !== expectedValue) {
 				setTimeout(function() {
 					waitfor(test, expectedValue, msec, params, callback);
 				}, msec);
@@ -78,7 +94,7 @@ angular.module('dokuvisApp').factory('Utilities',
 			}
 			// condition finally met. callback() can be executed
 			callback(params);
-		}
+		};
 		
 		/**
 		  * extracts data from neo4j response object
@@ -196,12 +212,12 @@ angular.module('dokuvisApp').factory('Utilities',
 			}
 			return undefined;
 		}
-		
+
+		// Alerts
 		/**
-		  * Alerts
-		*/
-		/**
-		 * shows a danger alert for 5 seconds
+		 * Shows a danger alert for 5 seconds
+		 * @memberof Utilities
+		 * @function dangerAlert
 		 * @param {string} message
 		 */
 		f.dangerAlert = function(message) {
@@ -211,10 +227,16 @@ angular.module('dokuvisApp').factory('Utilities',
 				duration: 5
 			});
 		};
-		
+
+		// Exceptions
 		/**
-		  * Exceptions
-		*/
+		 * Shows a danger alert
+		 * @memberof Utilities
+		 * @function throwException
+		 * @param title {string} title of the alert
+		 * @param message {string} message to show
+		 * @param data {*} addtional data to be shown within the console
+		 */
 		f.throwException = function(title, message, data) {
 			$alert({
 				title: title+':',
@@ -224,6 +246,13 @@ angular.module('dokuvisApp').factory('Utilities',
 			});
 			console.error(title+': '+message, data, "\n"+(new Error).stack.split("\n")[2]);
 		};
+		/**
+		 * Shows a danger alert titled with `Neo4jException`
+		 * @memberof Utilities
+		 * @function throwNeo4jException
+		 * @param message {string} message to show
+		 * @param data {*} addtional data to be shown within the console
+		 */
 		f.throwNeo4jException = function(message, data) {
 			$alert({
 				title: 'Neo4jException:',
@@ -233,6 +262,13 @@ angular.module('dokuvisApp').factory('Utilities',
 			});
 			console.error('Neo4jException: '+message, data);
 		};
+		/**
+		 * Shows a danger alert titled with `API Exception`
+		 * @memberof Utilities
+		 * @function throwApiException
+		 * @param message {string} message to show
+		 * @param data {*} addtional data to be shown within the console
+		 */
 		f.throwApiException = function(message, data) {
 			$alert({
 				title: 'API Exception:',

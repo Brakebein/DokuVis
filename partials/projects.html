@@ -4,8 +4,6 @@
 	<div class="page-header">
 		<h2>Projekte</h2>
 	</div>
-	
-	<!--<div class="col-md-10">-->
 
 	<div class="panel panel-default">
 		<div class="panel-heading">
@@ -27,11 +25,11 @@
 			<tbody>
 				<tr ng-repeat="p in projects | orderBy: 'name'">
 					<td ui-sref="project.home({ project: p.proj, subproject: 'master' })" target="_blank">{{p.name}}</td>
-					<td> <a href="#" editable-text ="p.description" onaftersave = "updateProjectDescription($data,p.pid)">{{p.description}}</a></td> <!--ng-click="editProject(p.description,$event)"-->
+					<td>{{p.description}}</td>
 					<td>{{p.role}}</td>
 					<td>
 						<button class="btn btn-primary btn-xs" ng-click="openProject(p.proj)"><i class="fa fa-folder-open"></i> Öffnen</button>
-						<button class="btn btn-default btn-xs" ng-show="p.role === 'superadmin'" ui-sref="projectlist.project.edit({ pId: p.proj, name: p.name, desc: p.description })"><i class="fa fa-pencil"></i> Bearbeiten</button>
+						<button class="btn btn-default btn-xs" ng-show="p.role === 'superadmin'" ui-sref="projectlist.project.edit({ prj: p })"><i class="fa fa-pencil"></i> Bearbeiten</button>
 						<button class="btn btn-danger btn-xs" ng-show="p.role === 'superadmin'" ng-click="deleteProject(p)"><i class="fa fa-trash"></i> Löschen</button>
 					</td>
 					
@@ -44,28 +42,5 @@
 	</div>
 
 	<button class="btn btn-primary" ui-sref="projectlist.project.new"><i class="fa fa-plus"></i> Neues Projekt</button>
-
-	<!--</div>-->
-	
-	<!--<div class="col-md-6">
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<h3 class="panel-title">Neues Projekt</h3>
-		</div>
-		<div class="panel-body">
-			<form ng-submit="createNewProject()">
-				<div class="form-group" ng-class="newProject.nameError?'has-error':''">
-					<label for="projName" class="control-label">Projektname</label>
-					<input type="text" class="form-control" id="projName" ng-model="newProject.name"/>
-				</div>
-				<div class="form-group">
-					<label for="projDescription">Beschreibung (optional)</label>
-					<textarea class="form-control" rows="3" id="projDescription" ng-model="newProject.description"></textarea>
-				</div>
-				<button type="submit" class="btn btn-default">Projekt erstellen</button>
-			</form>
-		</div>
-	</div>
-	</div>-->
 
 </div>

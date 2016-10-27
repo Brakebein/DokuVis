@@ -1,52 +1,39 @@
 .leftHalf {
-	position: absolute;
-	left: 0;
-	width: 66%;
-	height: 100%;
-	padding: 0px 50px;
-	overflow-y: auto;
-}
+  position: absolute;
+  left: 0;
+  width: 66%;
+  height: 100%;
+  padding: 0px 50px;
+  overflow-y: auto; }
+
 .rightHalf {
-	position: absolute;
-	left: 66%;
-	right: 0;
-	height: 100%;
-	padding: 0px 50px;
-}
+  position: absolute;
+  left: 66%;
+  right: 0;
+  height: 100%;
+  padding: 0px 50px; }
 
 .projInfos {
-	display: flex;
-}
-.projInfos>.infoText {
-	flex: 1 0 200px;
-}
-.projInfos>.infoCtrls {
-	flex: 0 0 30px;
-	padding: 5px;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-}
-.projInfos>.infoCtrls>i {
-	flex: 0 0 18px;
-	font-size: 18px;
-	color: #c3c3c3;
-	margin-bottom: 3px;
-	text-align: center;
-	cursor: pointer;
-	transition: color 0.2s;
-}
-.projInfos>.infoCtrls>i:hover {
-	color: #888;
-}
+  display: flex; }
+  .projInfos > .infoText {
+    flex: 1 0 200px; }
+  .projInfos > .infoCtrls {
+    flex: 0 0 30px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; }
+    .projInfos > .infoCtrls > i {
+      flex: 0 0 18px;
+      font-size: 18px;
+      color: #eee;
+      margin-bottom: 3px;
+      text-align: center;
+      cursor: pointer;
+      transition: color 0.2s; }
+  .projInfos:hover > .infoCtrls > i {
+    color: #c3c3c3; }
+    .projInfos:hover > .infoCtrls > i:hover {
+      color: #888; }
 
-.ta-toolbar>.btn-group {
-	margin-bottom: 5px;
-}
-
-.subproject {
-	cursor: pointer;
-}
-.subproject:hover {
-	background-color: #fafafa;
-}
+/*# sourceMappingURL=projHome.css.map */

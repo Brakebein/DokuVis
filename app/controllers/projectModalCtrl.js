@@ -14,26 +14,35 @@ angular.module('dokuvisApp').controller('projectModalCtrl', ['$scope', '$state',
 	 */
 	function ($scope, $state, $stateParams, $timeout, Utilities, Project) {
 
-		if($state.includes('project.home.subproject.edit')) $scope.title = 'Projekt editieren';
-		else $scope.title = 'Neues Projekt';
-		$scope.name = $stateParams.name || '';
-		$scope.desc = $stateParams.desc || '';
+		var prj = $stateParams.prj;
 
+		$scope.title = prj ? 'Projekt editieren' : 'Neues Projekt';
+		$scope.name = prj ? prj.name : '';
+		$scope.desc = prj ? prj.description : '';
+
+		/**
+		 * Saves input data by either creating a new project or updating database entries
+		 * @memberof projectModalCtrl
+		 * @function save
+		 */
 		$scope.save = function () {
 			if(!$scope.name.length) {
 				Utilities.dangerAlert('Geben sie dem Projekt einen Namen!');
 				return;
 			}
 			
-			if($stateParams.pId) {
-				Project.update($stateParams.pId, $scope.name, $scope.desc).then(function () {
+			if(prj) {
+				prj.name = $scope.name;
+				prj.description = $scope.desc;
+				prj.$update().then(function () {
 					$scope.close();
 				}, function (err) {
 					Utilities.throwApiException('on Project.update()', err);
 				});
 			}
 			else {
-				Project.create($scope.name, $scope.desc).then(function() {
+				Project.save({ name: $scope.name, description: $scope.desc }).$promise.then(function(result) {
+					console.log(result);
 					$scope.close();
 				}, function(err) {
 					Utilities.throwApiException('on Project.create()', err);
@@ -48,7 +57,11 @@ angular.module('dokuvisApp').controller('projectModalCtrl', ['$scope', '$state',
 			});
 		});
 
-		// closing
+		/**
+		 * Closes the modal and destroys the scope
+		 * @memberof projectModalCtrl
+		 * @function close
+		 */
 		$scope.close = function () {
 			this.$hide();
 			this.$destroy();

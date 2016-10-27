@@ -4,6 +4,7 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 	 * @memberof dokuvisApp
 	 * @ngdoc controller
 	 * @name projectlistCtrl
+	 * @author Brakebein
 	 * @param $scope {$scope} controller scope
 	 * @param $state {$state} ui.router state
 	 * @param $window {$window} Angular window service
@@ -15,55 +16,33 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 	function($scope, $state, $window, Utilities, AuthenticationFactory, Project, ConfirmService) {
 		
 		// Initialisierung von Variablen
+		/**
+		 * Array of all available projects
+		 * @var {Array} projects
+		 * @memberof projectlistCtrl
+		 */
 		$scope.projects = [];
-				
-		$scope.newProject = {
-			name: '',
-			nameError: false,
-			description: ''
-		};
 		
 		function getAllProjects() {
-			Project.getAll().then(function(response){
-				console.log(response);
-				if(response.data instanceof Array)
-					$scope.projects = response.data;
+			// Project.getAll().then(function(response){
+			// 	console.log(response);
+			// 	if(response.data instanceof Array)
+			// 		$scope.projects = response.data;
+			// 	else
+			// 		$scope.projects = [];
+			// }, function(err) {
+			// 	Utilities.throwApiException('on getAllProjects()', err);
+			// });
+			Project.query().$promise.then(function (result) {
+				console.log(result);
+				if(result instanceof Array)
+					$scope.projects = result;
 				else
 					$scope.projects = [];
-			}, function(err) {
-				Utilities.throwApiException('on getAllProjects()', err);
-			});
+			}, function (err) {
+				Utilities.throwApiException('on Project.query()', err);
+			})
 		}
-
-		/**
-		 * Initiate project creation by checking input and calling API
-		 * @memberof projectlistCtrl
-		 * @function createNewProject
-		 */
-		$scope.createNewProject = function() {
-			// Eingabe überprüfen
-			if($scope.newProject.name.length < 1) {
-				$scope.newProject.nameError = true;
-				Utilities.dangerAlert('Geben sie dem Projekt einen Namen!');
-				return;
-			}
-			else
-				$scope.newProject.nameError = false;
-				
-			var tid = Utilities.getUniqueId();
-			var prj = 'Proj_' + tid;
-			
-			console.log('create '+prj);
-			
-			Project.create(prj, $scope.newProject.name, $scope.newProject.description, AuthenticationFactory.user, AuthenticationFactory.userName).then(function(response) {
-				console.log(response);
-				$scope.newProject.name = '';
-				$scope.newProject.description = '';
-				getAllProjects();
-			}, function(err) {
-				Utilities.throwApiException('on createProject()', err);
-			});
-		};
 
 		/**
 		 * Open project in new tab
@@ -90,25 +69,14 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 				headerText: 'Projekt löschen',
 				bodyText: 'Soll das Projekt <strong>' + p.name + '</strong> wirklich gelöscht werden? Sämtliche Daten gehen dabei verloren!'
 			}).then(function () {
-				Project.delete(p.proj).then(function(response) {
+				p.$delete().then(function(response) {
 					console.log(response);
 					getAllProjects();
 				}, function(err) {
-					Utilities.throwApiException('on deleteProject()', err);
+					Utilities.throwApiException('on Project.delete()', err);
 				});
 			});
 		};
-		
-		/*$scope.updateProjectDescription = function(data,id) {
-			mysqlRequest.updateProjectDescription(data,id)
-				.then(function(response){
-					if(response.data != 'SUCCESS') {
-						console.error(response.data);
-						return;
-					}
-					getAllProjects();
-				});
-		};*/
 		
 		// oninit Funktionsaufrufe
 		getAllProjects();

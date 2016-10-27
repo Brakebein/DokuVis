@@ -20,7 +20,7 @@ mysql.createConnection({
 
 var projects = {
 	
-	getAll: function(req, res) {
+	query: function (req, res) {
 		var email = (req.body && req.body.x_key) || (req.query && req.query.x_key) || req.headers['x-key'];
 		var sql = '\
 			SELECT p.pid, p.proj_tstamp AS proj, p.name, p.description, role FROM projects p \
@@ -29,14 +29,14 @@ var projects = {
 			INNER JOIN users ON users.id = user_id \
 			AND email = ?';
 		
-		connection.query(sql, [email]).then(function(rows, fields) {
+		connection.query(sql, [email]).then(function(rows) {
 			res.json(rows);
 		}).catch(function(err) {
-			if(err) utils.error.mysql(res, err, '#projects.getAll');
+			utils.error.mysql(res, err, '#projects.getAll');
 		});
 	},
 	
-	getOne: function(req, res) {
+	get: function (req, res) {
 		var email = (req.body && req.body.x_key) || (req.query && req.query.x_key) || req.headers['x-key'];
 		var sql = '\
 			SELECT p.pid, p.proj_tstamp AS proj, p.name, p.description, role FROM projects p \
@@ -46,21 +46,25 @@ var projects = {
 			AND email = ? \
 			AND proj_tstamp = ?';
 		
-		connection.query(sql, [email, req.params.id]).then(function(rows, fields) {
+		connection.query(sql, [email, req.params.id]).then(function(rows) {
 			if(rows.length > 0)
 				res.json(rows[0]);
 			else
-				res.send('NO ENTRY');
+				res.json({ status: 'NO ENTRY' });
 		}).catch(function(err) {
-			if(err) utils.error.mysql(res, err, '#projects.getOne');
+			utils.error.mysql(res, err, '#projects.getOne');
 		});
 	},
 	
-	create: function(req, res) {
-		
+	create: function (req, res) {
+		if(!req.body.proj) { utils.abort.missingData(res, 'body.proj'); return; }
+		if(!req.body.name) { utils.abort.missingData(res, 'body.name'); return; }
+
+		var user = req.headers['x-key'];
+		var userName = '';
 		var prj = req.body.proj;
 		var pProj = config.path.data + '/' + prj;
-		
+
 		// Ordner anlegen
 		fs.mkdirsSync(pProj);
 		fs.mkdirsSync(pProj + '/models/maps');
@@ -69,9 +73,21 @@ var projects = {
 		fs.mkdirsSync(pProj + '/screenshots/_thumbs');
 		fs.mkdirsSync(pProj + '/plans/_thumbs');
 		fs.mkdirsSync(pProj + '/plans/models/maps');
-		
-		// swish.config kopieren und editieren
-		fs.copyAsync(config.path.data + '/default_swish.config', pProj + '/swish.config').then(function() {
+
+		// get userName
+		connection.query('SELECT name FROM users WHERE email = ?', [user]).then(function (rows) {
+			if(rows.length === 1) {
+				userName = rows[0].name;
+				return Promise.resolve();
+			}
+			else
+				return Promise.reject('no user found');
+		}).catch(function (err) {
+			utils.error.server(res, err, '#user not found');
+		}).then(function () {
+			// swish.config kopieren und editieren
+			return fs.copyAsync(config.path.data + '/default_swish.config', pProj + '/swish.config');
+		}).then(function() {
 			var addLines = "\nIgnoreWords File: " + pProj + "/blacklist.txt";
 			addLines += "\nBuzzwords File: " + pProj + "/whitelist.txt";
 			return fs.appendFileAsync(pProj + '/swish.config', addLines.replace(/\//g,"\\"));
@@ -165,8 +181,8 @@ var projects = {
 			
 			var params = {
 				master: prj,
-				userEmail: req.body.email,
-				userName: req.body.username
+				userEmail: user,
+				userName: userName
 			};
 		
 			return neo4j.cypher(query, params);
@@ -186,17 +202,17 @@ var projects = {
 			return connection.beginTransaction();
 		}).then(function() {
 			return connection.query('SELECT id INTO @roleid FROM roles WHERE role = "superadmin"');
-		}).then(function(result) {
-			return connection.query('SELECT id INTO @userid FROM users WHERE email = ?', [req.body.email]);
-		}).then(function(result) {
+		}).then(function() {
+			return connection.query('SELECT id INTO @userid FROM users WHERE email = ?', [user]);
+		}).then(function() {
 			return connection.query('INSERT INTO projects(proj_tstamp, name, description) VALUES(?,?,?)', [prj, req.body.name, req.body.description]);
 		}).then(function(result) {
 			return connection.query('INSERT INTO user_project_role(user_id, project_id, role_id) VALUES(@userid, ?, @roleid)', [result.insertId]);
-		}).then(function(result) {
+		}).then(function() {
 			return connection.commit();
 		}).then(function() {
 			console.log(prj+': mysql insert');
-			res.send('SUCCESS');
+			res.json({ message: 'Project ' + prj + ' created', status: 'SUCCESS' });
 		}).catch(function(err) {
 			if(err) {
 				connection.rollback();
@@ -205,15 +221,28 @@ var projects = {
 		});
 		
 	},
+
+	update: function (req, res) {
+		if(!req.body.name) { utils.abort.missingData(res, 'body.name'); return; }
+		
+		var sql = 'UPDATE projects SET name = ?, description = ? WHERE proj_tstamp = ?';
+		var params = [req.body.name, req.body.description, req.params.id];
+		
+		connection.query(sql, params).then(function (result) {
+			res.json({ affectedRows: result.affectedRows, status: 'SUCCESS' });
+		}).catch(function (err) {
+			if(err) utils.error.mysql(res, err, '#projects.update');
+		});
+	},
 	
-	delete: function(req, res) {
+	delete: function (req, res) {
 		
 		var prj = req.params.id;
 		
 		// delete from mysql database
 		connection.beginTransaction().then(function() {
 			return connection.query('DELETE FROM projects WHERE proj_tstamp = ?', [prj]);
-		}).then(function(result) {
+		}).then(function() {
 			return connection.commit();
 		}).then(function() {
 			console.log(prj+': mysql delete');
@@ -250,7 +279,7 @@ var projects = {
 			return fs.removeAsync(config.path.data + '/' + prj);
 		}).then(function() {
 			console.log(prj+': folders deleted');
-			res.send('SUCCESS');
+			res.json({ message: 'Project ' + prj + ' deleted', status: 'SUCCESS' });
 		}).catch(function(err) {
 			if(err) utils.error.server(res, err, '#file system delete');
 		});

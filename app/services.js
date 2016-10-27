@@ -4,32 +4,6 @@ angular.module('dokuvisApp').factory('APIRequest',
 		var requests = {};
 		
 		/**
-		  * Projekte
-		 */
-		// neues Projekt anlegen
-		requests.createProject = function(proj, name, desc, email, username) {
-			return $http.post(API + 'auth/project', {
-				proj: proj,
-				name: name,
-				description: desc,
-				email: email,
-				username: username
-			});
-		};
-		// Projekt Info
-		requests.getProjectEntry = function(proj) {
-			return $http.get(API + 'auth/project/' + proj);
-		};
-		// Projekt löschen
-		requests.deleteProject = function(prj) {
-			return $http.delete(API + 'auth/project/' + prj);
-		};
-		// alle Projekte auflisten
-		requests.getAllProjects = function() {
-			return $http.get(API + 'auth/projects');
-		};
-		
-		/**
 		  * Models
 		*/
 		requests.getModels = function() {
@@ -99,78 +73,6 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		
 		var requests = {};
 		
-		/**
-		  * Projekte
-		*/
-		// alle initialen Knoten anlegen
-		requests.createInitProjectNodes = function(prj) {
-			return $http.post(phpUrl, {
-				query: 
-					// project
-				'CREATE (proj:E7:'+prj+' {content: {master}}), \
-					(root:E22:'+prj+' {content:"e22_root_master"}), \
-					(tproj:E55:'+prj+' {content:"project"}), \
-					(tsubproj:E55:'+prj+' {content:"subproject"}), \
-					(tpdesc:E55:'+prj+' {content:"projDesc"}), \
-					(tpinfo:E55:'+prj+' {content:"projInfo"}), \
-					(proj)-[:P2]->(tproj), \
-					(proj)-[:P15]->(root), \
-					(proj)-[:P2]->(tproj), '
-					// source
-				  + '(tsource:E55:'+prj+' {content:"sourceType"}), \
-					(tplan:E55:'+prj+' {content:"plan"}), \
-					(tpic:E55:'+prj+' {content:"picture"}), \
-					(ttext:E55:'+prj+' {content:"text"}), \
-					(tsource)<-[:P127]-(tplan), \
-					(tsource)<-[:P127]-(tpic), \
-					(tsource)<-[:P127]-(ttext), \
-					(tprime:E55:'+prj+' {content:"primarySource"}), \
-					(tsins:E55:'+prj+' {content:"sourceInsertion"}), \
-					(tscomment:E55:'+prj+' {content:"sourceComment"}), '
-					// screenshot
-				  + '(tscreen:E55:'+prj+' {content:"screenshot"}),\
-					(tscreencomment:E55:'+prj+' {content:"screenshotComment"}), '
-					// model
-				  + '(tmodel:E55:'+prj+' {content:"model"}), \
-					(tmodelplan:E55:'+prj+' {content:"model/plan"}), '
-					// personal
-				  + '(tpproj:E55:'+prj+'{content:"projectPerson"}), \
-					(tphist:E55:'+prj+'{content:"historicPerson"}), '
-					// task
-				  + '(ttask:E55:'+prj+'{content:"task"}), \
-					(ttdesc:E55:'+prj+'{content:"taskDesc"}), \
-					(ttprior:E55:'+prj+'{content:"taskPriority"}), \
-					(ttphigh:E55:'+prj+'{content:"priority_high", value: 2}), \
-					(ttpmedium:E55:'+prj+'{content:"priority_medium", value: 1}), \
-					(ttplow:E55:'+prj+'{content:"priority_low", value: 0}), \
-					(ttprior)<-[:P127]-(ttphigh), \
-					(ttprior)<-[:P127]-(ttpmedium), \
-					(ttprior)<-[:P127]-(ttplow), \
-					(ttstatus:E55:'+prj+'{content:"taskStatus"}), \
-					(ttsdone:E55:'+prj+'{content:"status_done", value: 1}), \
-					(ttstodo:E55:'+prj+'{content:"status_todo", value: 0}), \
-					(ttstatus)<-[:P127]-(ttsdone), \
-					(ttstatus)<-[:P127]-(ttstodo)',
-				params: {
-					master: prj
-				}
-			});
-		};
-		// constraint anlegen
-		requests.createProjectConstraint = function(prj) {
-			return $http.post(phpUrl, {
-				query: 'CREATE CONSTRAINT ON (p:'+prj+') ASSERT p.content IS UNIQUE',
-				params: {}
-			});
-		};
-		// constraint löschen
-		requests.dropProjectConstraint = function(prj) {
-			return $http.post(phpUrl, {
-				query: 'DROP CONSTRAINT ON (p:'+prj+') ASSERT p.content IS UNIQUE',
-				params: {}
-			});
-		};
-		
 		//Tasks
 		requests.addTask =  function(prj,subprj,taskId,ttitle,tdesc,teditor,tfrom,tto, tpriority, tstatus){
 
@@ -190,7 +92,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 			q += 'CREATE(e7)-[:P2]->(tstatus)';
 			q += 'CREATE (e61n:E61:'+prj+'{content: {currentDate}})<-[:P82]-(e52n:E52:'+prj+'{content: {e52id}})<-[:P4]-(e65:E65:'+prj+' {value: {createTask}})-[:P14]->(e21:E21:'+prj+'{content: {logindata}})'; 
 			q += 'CREATE (e65)-[:P94]->(e7)';
-			q += 'CREATE (sub)-[:P9]->(e7)'
+			q += 'CREATE (sub)-[:P9]->(e7)';
 								
 			console.log(prj);
 			console.log(subprj);
@@ -224,7 +126,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});	
 					
-		}
+		};
 			
 		
 		requests.editTask = function(prj,newTask){
@@ -376,7 +278,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 			return $http.post(phpUrl, {
 				query: q,
 				params: {
-					subprj: subprj,
+					subprj: subprj
 				}
 				})
 		}
@@ -386,7 +288,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		
 		q = 'match (n:E55:'+prj+' {content: "task"})<-[:P2]-(task)-[:P102]->(name) return task.content AS taskID, name.value AS taskName';
 		return $http.post(phpUrl,{
-				query: q,
+				query: q
 			});		
 		
 		}
@@ -600,150 +502,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				})
 		
 		}
-		
-		// alle Knoten und Kanten des Projekts löschen
-		requests.deleteAllProjectNodes = function(prj) {
-			return $http.post(phpUrl, {
-				query: 
-					'MATCH (n:'+prj+') \
-					OPTIONAL MATCH (:'+prj+')-[r]-() \
-					DELETE r,n',
-				params: {}
-			});
-		};
-		
-		/**
-		  * Unterprojekte
-		*/
-		// alle Unterprojekte abrufen
-		requests.getAllSubprojects = function(prj) {
-			return $http.post(phpUrl, {
-				query:
-					'MATCH (master:E7:'+prj+' {content: {master}})-[:P9]->(sub:E7)-[:P2]->(:E55 {content: "subproject"}), \
-					(sub)-[:P1]->(title:E35) \
-					OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
-					RETURN sub.content AS subId, title.content AS title, desc.value AS desc',
-				params : {
-					master: prj
-				}
-			});
-		};
-		// Unterprojektinfo abrufen
-		requests.getSubprojectInfo = function(prj, sub) {
-			return $http.post(phpUrl, {
-				query:
-					'MATCH (sub:E7:'+prj+' {content: {subproj}})-[:P2]->(:E55 {content: "subproject"}), \
-					(sub)-[:P1]->(title:E35) \
-					OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
-					RETURN title.content AS name, desc.value AS desc',
-				params : {
-					subproj: sub
-				}
-			});
-		};
-		// Unterprojekt erstellen
-		requests.createSubproject = function(prj, title, desc) {
-			var tid = new Utilities.Base62().encode(new Date().getTime());
-			
-			var q = 'MATCH (master:E7:'+prj+' {content: {master}})-[:P15]->(e22m:E22), \
-					(tsubp:E55:'+prj+' {content: "subproject"}), (tpdesc:E55:'+prj+' {content: "projDesc"}) \
-					CREATE (master)-[:P9]->(sub:E7:'+prj+' {content: {subproj}})-[:P2]->(tsubp), \
-					(sub)-[:P1]->(:E35:'+prj+' {content: {title}}), \
-					(sub)-[:P15]->(e22s:E22:'+prj+' {content: "e22_root_"+{subproj}}), \
-					(e22m)-[:P46]->(e22s)';
-			if(desc.length > 0)
-				q += ', (sub)-[:P3]->(:E62:'+prj+' {content: {descId}, value: {desc}})-[:P3_1]->(tpdesc)';
-			
-			return $http.post(phpUrl, {
-				query: q,
-				params: {
-					master: prj,
-					subproj: 'sub' + tid,
-					title: title,
-					descId: tid + '_sub' + tid,
-					desc: desc
-				}
-			});
-		};
-		
-		/**
-		  * allgemeine Infos
-		*/
-		// alle Infos abrufen
-		requests.getProjInfos = function(prj, sub) {
-			return $http.post(phpUrl, {
-				query:
-					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62)-[:P3_1]->(:E55 {content: "projInfo"}) \
-					RETURN n.value AS info, n.content AS id, r.order AS order',
-				params: {
-					subproj: sub === 'master' ? prj : sub
-				}
-			});
-		};
-		// allgemeine Info hinzufügen
-		requests.addProjInfo = function(prj, sub, info) {
-			return $http.post(phpUrl, {
-				query:
-					'MATCH (p:E7:'+prj+' {content: {subproj}}), (tpinfo:E55:'+prj+' {content: "projInfo"}) \
-					OPTIONAL MATCH (p)-[r:P3]->(:E62) \
-					WITH p, count(r) AS anz, tpinfo \
-					CREATE (p)-[:P3 {order: anz}]->(n:E62:'+prj+' {content: {content}, value: {value}})-[:P3_1]->(tpinfo) \
-					RETURN n',
-				params: {
-					subproj: sub === 'master' ? prj : sub,
-					content: new Utilities.Base62().encode(new Date().getTime()) + '_' + sub,
-					value: info
-				}
-			});
-		};
-		// allgemeine Info editieren
-		requests.editProjInfo = function(prj, sub, tid, newHtml) {
-			return $http.post(phpUrl, {
-				query:
-					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62 {content: {tid}})-[:P3_1]->(:E55 {content: "projInfo"}) \
-					SET n.value = {html} \
-					RETURN n',
-				params: {
-					subproj: sub === 'master' ? prj : sub,
-					tid: tid,
-					html: newHtml
-				}
-			});
-		};
-		// allgemeine Info löschen
-		requests.removeProjInfo = function(prj, sub, tid) {
-			return $http.post(phpUrl, {
-				query:
-					'MATCH (p:E7:'+prj+' {content: {subproj}})-[r:P3]->(n:E62 {content: {tid}})-[rt:P3_1]->(:E55 {content: "projInfo"}), \
-					(p)-[r2:P3]->(n2:E62) \
-					WHERE r2.order > r.order \
-					SET r2.order = r2.order-1 \
-					DELETE r,rt,n',
-				params: {
-					subproj: sub === 'master' ? prj : sub,
-					tid: tid
-				}
-			});
-		};
-		// Info Reihenfolge tauschen
-		requests.swapProjInfoOrder = function(prj, sub, tid1, tid2) {
-			return $http.post(phpUrl, {
-				query:
-					'MATCH (p:E7:'+prj+' {content: {subproj}}), (tpinfo:E55:'+prj+' {content: "projInfo"}), \
-					(p)-[r1:P3]->(n1:E62 {content: {tid1}})-[:P3_1]->(tpinfo), \
-					(p)-[r2:P3]->(n2:E62 {content: {tid2}})-[:P3_1]->(tpinfo) \
-					WITH p, r1, r2, n1, n2, r1.order AS o1, r2.order AS o2 \
-					SET r1.order = o2, r2.order = o1 \
-					RETURN p',
-				params: {
-					subproj: sub === 'master' ? prj : sub,
-					tid1: tid1,
-					tid2: tid2
-				}
-			});
-		};
-		
-		
+				
 		//
 		requests.insertObject = function(name) {
 			return $http.post(cypherUrl, {
@@ -1254,10 +1013,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		requests.getScreenshotsWithMarkers = function(prj) {
 			var q = '';
 			q += 'MATCH (e22:E22:'+prj+')<-[:P138]-(e36:E36:'+prj+')-[:P2]->(:E55 {content: "screenshot"})';
-			q += ',(e36)-[:P1]->(e75:E75)'
-			q += ',(e36)-[:P102]->(e35:E35)'
-			q += ',(e36)-[:P106]->(marker:E90)-[:P3]->(comment:E62)'
-			q += ',(e36)-[:P106]->(:E36)-[:P1]->(paint:E75)'
+			q += ',(e36)-[:P1]->(e75:E75)';
+			q += ',(e36)-[:P102]->(e35:E35)';
+			q += ',(e36)-[:P106]->(marker:E90)-[:P3]->(comment:E62)';
+			q += ',(e36)-[:P106]->(:E36)-[:P1]->(paint:E75)';
 			
 			//q += ' RETURN {id: e36.content, file: e75.content, path: e75.path, width: e75.width, height: e75.height, markers: collect({id: marker.content, u: marker.u, v: marker.v, comment: comment.content})} AS screenshots';
 			q += ' RETURN e36.content AS id, \
@@ -1305,18 +1064,6 @@ angular.module('dokuvisApp').factory('phpRequest',
 	function($http) {
 	
 		var requests = {};
-		
-		requests.createProjectFolders = function(prj) {
-			return $http.post('php/createProjectFolders.php', {
-				project: prj
-			});
-		};
-		
-		requests.deleteProjectFolders = function(prj) {
-			return $http.post('php/deleteProjectFolders.php', {
-				project: prj
-			});
-		};
 		
 		requests.getSvgContent = function(file) {
 			return $http.post('php/getSvgContent.php', {
@@ -1457,7 +1204,7 @@ angular.module('dokuvisApp').factory('mysqlRequest',
 		requests.updateName = function(name,id) {
 			return $http.post('php/mysql/updateName.php', {
 				name: name,
-				sid: id,
+				sid: id
 				
 			});
 			
@@ -1475,7 +1222,7 @@ angular.module('dokuvisApp').factory('mysqlRequest',
 		requests.updateMail = function(mail,id) {
 			return $http.post('php/mysql/updateMail.php', {
 				email: mail,
-				sid: id,
+				sid: id
 				
 			});
 			
@@ -1484,7 +1231,7 @@ angular.module('dokuvisApp').factory('mysqlRequest',
 		requests.updateRole = function(role,id) {
 			return $http.post('php/mysql/updateRame.php', {
 				role: role,
-				sid: id,
+				sid: id
 				
 			});
 			
@@ -1495,7 +1242,7 @@ angular.module('dokuvisApp').factory('mysqlRequest',
 			return $http.post('php/mysql/removeStaff.php', {
 				sid: staffId,
 				rid: roleId,
-				pid: pid,
+				pid: pid
 			});
 		};
 				
