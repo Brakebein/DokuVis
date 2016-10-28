@@ -11,7 +11,7 @@ var person = {
 			MATCH (e21)-[:P131]->(e82:E82) \
 			RETURN e21.content AS person, id(e21) AS personId, e82.content AS name';
 
-		neo4j.transaction([{statement: q, parameters: {}}])
+		neo4j.transaction(q)
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#archive.getAll'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));

@@ -3,7 +3,23 @@ var config = require('./config');
 
 var neo4j = {
 	
-	transaction: function(statements) {
+	transaction: function (statement, parameters) {
+		var params = parameters || {};
+		return request({
+			method: 'POST',
+			uri: config.neo4j.uriTransaction,
+			headers: {
+				'Content-type': 'application/json',
+				'Authorization': config.neo4j.auth
+			},
+			body: {
+				statements: [{ statement: statement, parameters: params }]
+			},
+			json: true
+		});
+	},
+	
+	transactionArray: function (statements) {
 		return request({
 			method: 'POST',
 			uri: config.neo4j.uriTransaction,
@@ -18,7 +34,7 @@ var neo4j = {
 		});
 	},
 	
-	cypher: function(query, params) {
+	cypher: function (query, params) {
 		return request({
 			method: 'POST',
 			uri: config.neo4j.uriCypher,
@@ -34,7 +50,7 @@ var neo4j = {
 		});
 	},
 	
-	extractTransactionData: function(data) {
+	extractTransactionData: function (data) {
 		if(!data) return [];
 		var results = [];
 		for(var i=0, l=data.data.length; i<l; i++) {
@@ -47,7 +63,7 @@ var neo4j = {
 		return results;
 	},
 
-	removeEmptyArrays: function(data, checkObj, checkKey) {
+	removeEmptyArrays: function (data, checkObj, checkKey) {
 		for(var i= 0, l=data.length; i<l; i++) {
 			if(data[i][checkObj] && data[i][checkObj] instanceof Array && data[i][checkObj][0]) {
 				if(data[i][checkObj][0][checkKey] === null)

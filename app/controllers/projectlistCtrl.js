@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'Utilities', 'AuthenticationFactory', 'Project', 'ConfirmService',
+angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'Utilities', 'Project', 'ConfirmService',
 	/**
 	 * Controller for view to list and organize all projects
 	 * @memberof dokuvisApp
@@ -9,11 +9,10 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 	 * @param $state {$state} ui.router state
 	 * @param $window {$window} Angular window service
 	 * @param Utilities {Utilities} Utilities
-	 * @param AuthenticationFactory {AuthenticationFactory} AuthenticationFactory
-	 * @param Project {Project} Project http
+	 * @param Project {Project} Project resource
 	 * @param ConfirmService {ConfirmService} confirm dialog
 	 */
-	function($scope, $state, $window, Utilities, AuthenticationFactory, Project, ConfirmService) {
+	function($scope, $state, $window, Utilities, Project, ConfirmService) {
 		
 		// Initialisierung von Variablen
 		/**
@@ -24,15 +23,6 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 		$scope.projects = [];
 		
 		function getAllProjects() {
-			// Project.getAll().then(function(response){
-			// 	console.log(response);
-			// 	if(response.data instanceof Array)
-			// 		$scope.projects = response.data;
-			// 	else
-			// 		$scope.projects = [];
-			// }, function(err) {
-			// 	Utilities.throwApiException('on getAllProjects()', err);
-			// });
 			Project.query().$promise.then(function (result) {
 				console.log(result);
 				if(result instanceof Array)

@@ -17,51 +17,6 @@ angular.module('dokuvisApp').factory('APIRequest',
 			});
 		};
 		
-		
-		/**
-		  * Kategorien
-		*/
-		// alle Kategorien
-		requests.getAllCategories = function() {
-			return $http.get(API + 'auth/project/'+$stateParams.project+'/categories');
-		};
-		// neue Kategorie
-		requests.createCategory = function(id, value) {
-			return $http.post(API + 'auth/project/'+$stateParams.project+'/category', {
-				id: id,
-				value: value
-			});
-		};
-		// update Kategorie
-		requests.updateCategory = function(id, value) {
-			return $http.put(API + 'auth/project/'+$stateParams.project+'/category/' + id, {
-				value: value
-			});
-		};
-		// lösche Kategorie
-		requests.deleteCategory = function(id) {
-			return $http.delete(API + 'auth/project/'+$stateParams.project+'/category/' + id);
-		};
-		// neues Attribut
-		requests.createCategoryAttribute = function(cid, attribute) {
-			return $http.post(API + 'auth/project/'+$stateParams.project+'/category/' + cid + '/attribute', {
-				id: attribute.id,
-				value: attribute.value,
-				color: attribute.color
-			});
-		};
-		// update Attribut
-		requests.updateCategoryAttribute = function(cid, id, value, color) {
-			return $http.put(API + 'auth/project/'+$stateParams.project+'/category/' + cid + '/attribute/' + id, {
-				value: value,
-				color: color
-			});
-		};
-		// lösche Attribut
-		requests.deleteCategoryAttribute = function(cid, id) {
-			return $http.delete(API + 'auth/project/'+$stateParams.project+'/category/' + cid + '/attribute/' + id);
-		};
-		
 		return requests;
 	});
 
@@ -502,7 +457,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				})
 		
 		}
-				
+
 		//
 		requests.insertObject = function(name) {
 			return $http.post(cypherUrl, {

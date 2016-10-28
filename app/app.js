@@ -210,6 +210,17 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					attachTo: null
 				}
 			})
+			.state('project.explorer.categoryedit', {
+				url: '/categoryedit',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/categoryEditModal.html',
+						controller: 'categoryEditModalCtrl',
+						show: true
+					})
+				}]
+			})
 			.state('project.tasks', {
 				url: '/tasks',
 				templateUrl: 'partials/tasks.html',

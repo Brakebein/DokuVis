@@ -10,7 +10,7 @@ var archive = {
 			(e78)-[:P52]->(:E40)-[:P131]->(e82:E82) \
 			RETURN e78.content AS collection, e41.content AS collectionName, e82.content AS institutionName, e82.abbr AS institutionAbbr, id(e78) AS collectionId';
 
-		neo4j.transaction([{statement: q, parameters: {}}])
+		neo4j.transaction(q)
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#archive.getAll'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));

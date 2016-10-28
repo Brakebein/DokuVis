@@ -1,5 +1,5 @@
-angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'phpRequest', 'mysqlRequest', 'FileUploader', 'Uploader', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model', 'Comment',
-	function($scope, $state, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, phpRequest, mysqlRequest, FileUploader, Uploader, Utilities, webglInterface, $modal, Source, Model, Comment) {
+angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'FileUploader', 'Uploader', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model', 'Comment', 'Category',
+	function($scope, $state, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, FileUploader, Uploader, Utilities, webglInterface, $modal, Source, Model, Comment, Category) {
 
 		// Initialisierung von Variablen
 		$scope.project = $stateParams.project;
@@ -146,37 +146,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				console.log('files', Uploader);
 				$scope.sourcesUploader.clearQueue();
 			},500);
-
-
-			/*$scope.modalParams = {
-				modalType: 'large',
-				type: type,
-				attachTo: attach || undefined,
-				queue: $scope.sourcesUploader.queue
-			};
-			$modal({
-				title: title,
-				templateUrl: 'partials/modals/_modalTpl.html',
-				contentTemplate: 'partials/modals/insertSourceModal.html',
-				controller: 'insertSourceCtrl',
-				scope: $scope,
-				show: true
-			});*/
 		};
-		/*$scope.openSourceDetail = function(index) {
-			$scope.modalParams = {
-				modalType: 'large',
-				index: index
-			};
-			$modal({
-				//title: 'Source Detail',
-				templateUrl: 'partials/modals/_modalTpl.html',
-				contentTemplate: 'partials/modals/sourceDetailModal.html',
-				controller: 'sourceDetailCtrl',
-				scope: $scope,
-				show: true
-			});
-		};*/
 		$scope.openScreenshotDetail = function(data) {
 			$scope.modalParams = {
 				modalType: 'xlarge',
@@ -204,17 +174,17 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				show: true
 			});
 		};
-		$scope.openCategoryEdit = function() {
-			$scope.modalParams = {};
-			$modal({
-				title: 'Kategorien verwalten',
-				templateUrl: 'partials/modals/_modalTpl.html',
-				contentTemplate: 'partials/modals/categoryEditModal.html',
-				controller: 'categoryEditCtrl',
-				scope: $scope,
-				show: true 
-			});
-		};
+		// $scope.openCategoryEdit = function() {
+		// 	$scope.modalParams = {};
+		// 	$modal({
+		// 		title: 'Kategorien verwalten',
+		// 		templateUrl: 'partials/modals/_modalTpl.html',
+		// 		contentTemplate: 'partials/modals/categoryEditModal.html',
+		// 		controller: 'categoryEditCtrl',
+		// 		scope: $scope,
+		// 		show: true 
+		// 	});
+		// };
 				
 		// close modal
 		$scope.closeModal = function(update) {
@@ -459,7 +429,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		$scope.callDirFunc = {};
 		
-		//ein- und ausklappen des unteren Containers
+		//ein- und ausklappen des unteren Containers // DEPRECATED ?
 		$scope.expandPanelContainerHorizontal = function(e) {
 			var btn = $(e.delegateTarget);
 			//console.log(btn.parent().css('right'));
@@ -619,8 +589,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		// Kategorien
 		function getAllCategories() {
-			APIRequest.getAllCategories().then(function(response) {
-				var cats = Utilities.cleanNeo4jData(response.data);
+			//APIRequest.getAllCategories().then(function(response) {
+			//	var cats = Utilities.cleanNeo4jData(response.data);
+			Category.query().$promise.then(function (result) {
+				var cats = result;
 				for(var i=0; i<cats.length; i++) {
 					cats[i].attributes.push({id: 0, value: '<Nicht zugewiesen>'});
 					cats[i].attributes.push({id: -1, value: '<Beibehalten>'});
@@ -708,13 +680,15 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 
 		// nach Upload aktualisieren
 		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
-			console.log('stateChange', fromState, fromParams);
+			//console.log('stateChange', fromState, fromParams);
 			if(fromState.name === 'project.explorer.upload.type' && fromParams.uploadType === 'source')
 				$scope.getAllDocuments();
+			else if(fromState.name === 'project.explorer.categoryedit')
+				getAllCategories();
 		});
 		
 		// wenn Controller zerstört wird
-		$scope.$on('$destroy', function(event) {
+		$scope.$on('$destroy', function() {
 			//webglInterface.clearLists();
 			webglInterface.callFunc.removePins();
 			console.log('destroy explorerCtrl');

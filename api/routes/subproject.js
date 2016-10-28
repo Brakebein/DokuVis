@@ -28,7 +28,7 @@ module.exports = {
 			}
 		};
 		
-		neo4j.transaction([{ statement: q, parameters: params }])
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.errors.length) { utils.error.neo4j(res, response, '#subproject.create'); return; }
 				res.json(response);
@@ -49,7 +49,7 @@ module.exports = {
 			master: prj
 		};
 
-		neo4j.transaction([{ statement: q, parameters: params }])
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.errors.length) { utils.error.neo4j(res, response, '#subproject.getAll'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
@@ -70,7 +70,7 @@ module.exports = {
 			subId: req.params.subId
 		};
 
-		neo4j.transaction([{ statement: q, parameters: params }])
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.errors.length) { utils.error.neo4j(res, response, '#subproject.get'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
@@ -96,7 +96,7 @@ module.exports = {
 			desc: req.body.desc
 		};
 
-		neo4j.transaction([{ statement: q, parameters: params }])
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.errors.length) { utils.error.neo4j(res, response, '#subproject.get'); return; }
 				res.json(response);
@@ -104,5 +104,7 @@ module.exports = {
 			utils.error.neo4j(res, err, '#cypher');
 		});
 	}
+	
+	// TODO: subproject delete
 
 };

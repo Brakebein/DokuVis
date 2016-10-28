@@ -72,7 +72,7 @@ router.get('/auth/project/:id/:subprj/model/:modelId/connect', models.getConnect
 router.post('/auth/project/:id/:suprj/model/upload', mUpload.any(), upload.model);
 
 // categories
-router.get('/auth/project/:id/categories', category.getAll);
+router.get('/auth/project/:id/category', category.query);
 router.post('/auth/project/:id/category', category.create);
 router.put('/auth/project/:id/category/:cid', category.update);
 router.delete('/auth/project/:id/category/:cid', category.delete);

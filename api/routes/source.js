@@ -42,7 +42,7 @@ var source = {
 		};
 		
 		//neo4j.cypher(q, params)
-		neo4j.transaction([{statement: q, parameters: params}])
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#source.getAll'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
@@ -91,7 +91,7 @@ var source = {
 		};
 
 		//neo4j.cypher(q, params)
-		neo4j.transaction([{statement: q, parameters: params}])
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#source.get'); return; }
 				var results = neo4j.extractTransactionData(response.results[0]);
@@ -116,7 +116,7 @@ var source = {
 			targets: req.body.targets
 		};
 
-		neo4j.transaction([{statement: q, parameters: params}])
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#source.createConnections'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0])[0]);
@@ -134,7 +134,7 @@ var source = {
 			sourceId: req.params.sourceId
 		};
 
-		neo4j.transaction([{statement: q, parameters: params}])
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#source.getConnections'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));

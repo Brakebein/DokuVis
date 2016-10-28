@@ -83,7 +83,7 @@ var comment = {
 				MATCH (obj)<-[:P106]-(:E36)-[:P138]->(target:E22) \
 				RETURN target.content AS target';
 
-			p = neo4j.transaction([{ statement: statement, parameters: { objIds: objIds } }])
+			p = neo4j.transaction(statement, { objIds: objIds })
 				.then(function (response) {
 					var res = neo4j.extractTransactionData(response.results[0]);
 					req.body.targets = [];
@@ -160,7 +160,7 @@ var comment = {
 			};
 		
 			//res.json({statement: q, parameters: params, body: req.body});
-			return neo4j.transaction([{statement: q, parameters: params}]);
+			return neo4j.transaction(q, params);
 		}).then(function(response) {
 			if(response.errors.length) { utils.error.neo4j(res, response, '#comment.create'); return; }
 			res.json(neo4j.extractTransactionData(response.results[0]));
@@ -187,7 +187,7 @@ var comment = {
 			id: req.params.targetId
 		};
 
-		neo4j.transaction([{statement: q, parameters: params}])
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#comment.get'); return; }
 				var results = neo4j.extractTransactionData(response.results[0]);
@@ -222,7 +222,7 @@ var comment = {
 			OPTIONAL MATCH (screen)-[:P106]->(pin:E73) \
 			RETURN e33.content AS eid, text.value AS text, title.value AS title, author, date, type.content AS type, targets AS targets, refs AS refs, screenshots, collect(DISTINCT pin) AS pins, answerLength';
 
-		neo4j.transaction( [{ statement: q, parameters: {} }] )
+		neo4j.transaction(q)
 			.then(function(response) {
 				if(response.errors.length) { utils.error.neo4j(res, response, '#comment.getAll'); return; }
 				var results = neo4j.extractTransactionData(response.results[0]);

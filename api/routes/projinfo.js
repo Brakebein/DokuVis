@@ -15,7 +15,7 @@ module.exports = {
 			subproj: sub === 'master' ? prj : sub
 		};
 		
-		neo4j.transaction([{ statement: q, parameters: params }])
+		neo4j.transaction(q, params)
 			.then(function (response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#projinfo.query'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
@@ -44,7 +44,7 @@ module.exports = {
 			value: req.body.info
 		};
 		
-		neo4j.transaction([{ statement: q, parameters: params }])
+		neo4j.transaction(q, params)
 			.then(function (response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#projinfo.create'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0])[0]);
@@ -70,7 +70,7 @@ module.exports = {
 				html: req.body.info
 		};
 		
-		neo4j.transaction([{ statement: q, parameters: params }])
+		neo4j.transaction(q, params)
 			.then(function (response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#projinfo.update'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0])[0]);
@@ -95,7 +95,7 @@ module.exports = {
 			tid: req.params.piId
 		};
 		
-		neo4j.transaction([{ statement: q, parameters: params }])
+		neo4j.transaction(q, params)
 			.then(function (response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#projinfo.delete'); return; }
 				res.json({ message: 'ProjInfo deleted' });
@@ -124,7 +124,7 @@ module.exports = {
 			tidTo: req.body.to
 		};
 
-		neo4j.transaction([{ statement: q, parameters: params }])
+		neo4j.transaction(q, params)
 			.then(function (response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#projinfo.delete'); return; }
 				res.json({ message: 'ProjInfo order swapped' });

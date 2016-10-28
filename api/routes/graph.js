@@ -14,7 +14,7 @@ var graph = {
 			resultDataContents: ['row', 'graph']
 		}];
 		
-		neo4j.transaction(statements)
+		neo4j.transactionArray(statements)
 			.then(function(response) {
 				res.json(response);
 			}).catch(function(err) {
@@ -34,7 +34,7 @@ var graph = {
 			resultDataContents: ['row', 'graph']
 		}];
 
-		neo4j.transaction(statements)
+		neo4j.transactionArray(statements)
 			.then(function(response) {
 				if(response.results[0] && response.results[0].data[0])
 					res.json(response.results[0].data[0].row[0]);
@@ -57,7 +57,7 @@ var graph = {
 			resultDataContents: ['row', 'graph']
 		}];
 
-		neo4j.transaction(statements)
+		neo4j.transactionArray(statements)
 			.then(function(response) {
 				if(response.results[0] && response.results[0].data[0])
 					res.json(response.results[0].data[0].row[0]);
@@ -79,7 +79,7 @@ var graph = {
 			resultDataContents: ['row', 'graph']
 		}];
 
-		neo4j.transaction(statements)
+		neo4j.transactionArray(statements)
 			.then(function(response) {
 				if(response.results[0] && response.results[0].data[0])
 					res.json(response.results[0].data[0].row[0]);

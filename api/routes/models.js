@@ -102,7 +102,7 @@ var models = {
 			statements.push({ statement: q, parameters: params });
 		}
 
-		neo4j.transaction(statements).then(function (response) {
+		neo4j.transactionArray(statements).then(function (response) {
 			if(response.exception) { utils.error.neo4j(res, response, '#models.insert'); return; }
 			res.json(response);
 		}).catch(function(err) {
@@ -141,7 +141,7 @@ var models = {
 			modelId: req.params.modelId
 		};
 
-		neo4j.transaction([{statement: q, parameters: params}])
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#source.getConnectionsInverse'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
