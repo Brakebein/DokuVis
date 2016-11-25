@@ -40,7 +40,8 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'gantt.groups',
 	'gantt.overlap',
 	'gantt.resizeSensor',
-	'ang-drag-drop'
+	'ang-drag-drop',
+	'mm.acl'
 ]);
 
 dokuvisApp.constant('API', 'api/');
@@ -83,7 +84,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				templateUrl: 'partials/projects.html',
 				controller: 'projectlistCtrl',
 				resolve: {
-					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate]
+					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', 'AclService', authenticate]
 				}
 			})
 			.state('projectlist.project', {
@@ -113,8 +114,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				controller: 'projectCtrl',
 				css: 'style/project.css',
 				resolve: {
-					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate],
-					checkProject: ['$q', '$state', '$stateParams', '$rootScope', 'Project', checkProject],
+					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', 'AclService', authenticate],
+					checkProject: ['$q', '$state', '$stateParams', '$rootScope', 'Project', 'AclService', checkProject],
 					checkSubproject: ['$q', '$state', '$stateParams', 'Subproject', checkSubproject]
 				},
 				abstract: true
@@ -261,6 +262,17 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				templateUrl: 'partials/config.html',
 				controller: 'configCtrl',
 				css: 'style/config.css'
+			})
+			.state('project.config.staffedit', {
+				url: '/staffedit',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/staffeditModal.html',
+						controller: 'staffeditModalCtrl',
+						show: true
+					});
+				}]
 			});
 		
 		// defaults
@@ -287,9 +299,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		 * @param $timeout {timeout} Angular timeout
 		 * @param AuthenticationFactory {AuthenticationFactory} [AuthenticationFactory]{@link dokuvisApp.AuthenticationFactory.html}
 		 * @param UserAuthFactory {UserAuthFactory} [UserAuthFactory]{@link dokuvisApp.UserAuthFactory.html}
+		 * @param AclService {service} Access Control List service
 		 * @returns {Promise} Resolves, if user has been authenticated
 		 */
-		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory) {
+		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory, AclService) {
 
 			if(AuthenticationFactory.isLogged) {
 
@@ -299,6 +312,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;
 					if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;
 					//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
+
+					AclService.flushRoles();
+					AclService.attachRole('member');
+
 					return $q.when();
 				}, function(reason) {
 					console.log(reason);
@@ -331,9 +348,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		 * @param $stateParams {$stateParams} ui.router state parameter
 		 * @param $rootScope {$rootScope} Angular rootScope
 		 * @param Project {Project} Project http
+		 * @param AclService {service} Access Control List service
 		 * @returns {Promise} Resolves, if project exists
 		 */
-		function checkProject($q, $state, $stateParams, $rootScope, Project) {
+		function checkProject($q, $state, $stateParams, $rootScope, Project, AclService) {
 
 			return Project.get({ id: $stateParams.project }).$promise.then(function(result){
 
@@ -348,6 +366,21 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 
 				$rootScope.userRole = result.role;
 
+				AclService.attachRole('visitor');
+				if (result.role === 'superadmin') {
+					AclService.attachRole('superadmin');
+					AclService.attachRole('admin');
+					AclService.attachRole('historian');
+					AclService.attachRole('modeler');
+				}
+				else if(result.role === 'admin')
+					AclService.attachRole('admin');
+				else if(result.role === 'historian')
+					AclService.attachRole('historian');
+				else if(result.role === 'modeler')
+					AclService.attachRole('modeler');
+
+				console.log(AclService.getRoles());
 			}, function (err) {
 				console.error('API Exception on Project.get()', err);
 				return $q.reject();
@@ -391,9 +424,24 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 	
-dokuvisApp.run(function($rootScope, $state, $previousState, AuthenticationFactory, amMoment, editableOptions) {
+dokuvisApp.run(function($rootScope, $state, $previousState, AuthenticationFactory, AclService, amMoment, editableOptions) {
 	// when the page refreshes, check if the user is already logged in
 	AuthenticationFactory.check();
+
+	// ACL data
+	var aclData = {
+		guest: ['login', 'register'],
+		member: ['logout', 'create_project'],
+		visitor: [],
+		historian: ['upload_source'],
+		modeler: ['upload_model'],
+		admin: ['manage_content', 'edit_subproject', 'edit_staff'],
+		superadmin: ['edit_project']
+	};
+	AclService.setAbilities(aclData);
+	AclService.attachRole('guest');
+	
+	$rootScope.can = AclService.can;
 	
 	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
 		$rootScope.isLogged = AuthenticationFactory.isLogged;

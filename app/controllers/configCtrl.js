@@ -1,5 +1,5 @@
-angular.module('dokuvisApp').controller('configCtrl', ['$scope', '$stateParams', 'mysqlRequest', 'Utilities', 'neo4jRequest',
-    function($scope, $stateParams, mysqlRequest, Utilities, neo4jRequest) {
+angular.module('dokuvisApp').controller('configCtrl', ['$scope', '$stateParams', 'Staff', 'mysqlRequest', 'Utilities', 'neo4jRequest',
+    function($scope, $stateParams, Staff, mysqlRequest, Utilities, neo4jRequest) {
 
         /*Mitarbeiter*/
         $scope.staffInGantt = [];
@@ -24,14 +24,21 @@ angular.module('dokuvisApp').controller('configCtrl', ['$scope', '$stateParams',
             });
         }
 
-        $scope.getAllStaff = function(pid) {
+        function queryStaff() {
 
-            mysqlRequest.getAllStaff(pid).then(function(response){
-                if(!response.data) { console.error('mysqlRequest failed on getAllStaff()', response); return; }
-                $scope.staff = response.data;
-                console.log($scope.staff);
+            Staff.query().$promise.then(function (result) {
+                $scope.staff = result;
+                console.log(result);
+            }, function (err) {
+                Utilities.throwApiException('on Staff.query()', err); 
             });
-        };
+            
+            // mysqlRequest.getAllStaff(pid).then(function(response){
+            //     if(!response.data) { console.error('mysqlRequest failed on getAllStaff()', response); return; }
+            //     $scope.staff = response.data;
+            //     console.log($scope.staff);
+            // });
+        }
 
         $scope.removeStaff = function(staffId,roleId) {
             mysqlRequest.removeStaff(staffId,roleId,$scope.pid).then(function(response){
@@ -98,9 +105,16 @@ angular.module('dokuvisApp').controller('configCtrl', ['$scope', '$stateParams',
                 console.log($scope.roles);
             });
         }
+        
+        // init
+        queryStaff();
+        //$scope.getPid();
+        //$scope.getAllRoles();
+        //console.log($scope.staff);
 
-        $scope.getPid();
-        $scope.getAllRoles();
-        console.log($scope.staff);
+        $scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
+            if(fromState.name === 'project.config.staffedit')
+                queryStaff();
+        });
 
     }]);

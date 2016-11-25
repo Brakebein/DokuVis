@@ -18,20 +18,23 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 			/**
 			 * Check, if token and user are set in localstorage
 			 * @memberof AuthenticationFactory
+			 * @returns {boolean} true, if logged in
 			 */
 			check: function() {
 				if($window.localStorage.token && $window.localStorage.user) {
 					this.isLogged = true;
+					return true;
 				}
 				else {
 					this.isLogged = false;
 					delete this.user;
+					return false;
 				}
 			}
 		};
 	}])
 
-.factory('UserAuthFactory', ['$window', '$state', '$http', 'AuthenticationFactory', 'API',
+.factory('UserAuthFactory', ['$window', '$state', '$http', 'AuthenticationFactory', 'API', 'AclService',
 	/**
 	 * Service responsible for contacting the login endpoint and validating the user (and logging out the user)
 	 * @memberof dokuvisApp
@@ -42,8 +45,9 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 	 * @param $http {$http} Angular http request service
 	 * @param AuthenticationFactory {AuthenticationFactory} [AuthenticationFactory]{@link dokuvisApp.AuthenticationFactory.html}
 	 * @param API {API} API url constant
+	 * @param AclService {service} Access Control List service
 	 */
-	function($window, $state, $http, AuthenticationFactory, API) {
+	function($window, $state, $http, AuthenticationFactory, API, AclService) {
 		return {
 			login: function(email, password) {
 				return $http.post(API + 'login', {
@@ -62,6 +66,9 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 					delete $window.localStorage.user;
 					delete $window.localStorage.userName;
 					//delete $window.localStorage.userRole;
+					
+					AclService.flushRoles();
+					AclService.attachRole('guest');
 					
 					$state.go('home');
 				}

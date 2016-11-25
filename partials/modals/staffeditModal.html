@@ -1,0 +1,29 @@
+<div class="modal-content">
+
+	<div class="modal-header">
+		<h4 class="modal-title">{{ title }}</h4>
+	</div>
+
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label class="control-label col-sm-3" for="userInput">Email</label>
+				<div class="col-sm-6">
+					<input id="userInput" class="form-control" ng-model="user"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-3" for="roleSelect">Rolle</label>
+				<div class="col-sm-3">
+					<select id="roleSelect" class="form-control" ng-model="role" ng-options="r for r in roles"></select>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="save()">Speichern</button>
+		<button class="btn btn-default" ng-click="close()">Abbrechen</button>
+	</div>
+
+</div>

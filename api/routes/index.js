@@ -103,4 +103,10 @@ router.get('/auth/project/:id/persons', person.getAll);
 // archives
 router.get('/auth/project/:id/archives', archive.getAll);
 
+// staff
+var staff = require('./staff');
+router.get('/auth/project/:id/staff', staff.query);
+router.post('/auth/project/:id/staff', staff.create);
+router.get('/roles', staff.queryRoles);
+
 module.exports = router;

@@ -50,8 +50,8 @@
 						<td>{{sp.desc}}</td>
 						<td>
 							<button class="btn btn-primary btn-xs" ui-sref="project.home({ subproject: sp.subId })"><i class="fa fa-folder-open"></i> Öffnen</button>
-							<button class="btn btn-default btn-xs" ui-sref="project.home.subproject.edit({ subId: sp.subId, name: sp.title, desc: sp.desc })"><i class="fa fa-pencil"></i> Bearbeiten</button>
-							<button class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> Löschen</button>
+							<button class="btn btn-default btn-xs" ng-show="can('edit_subproject')" ui-sref="project.home.subproject.edit({ subId: sp.subId, name: sp.title, desc: sp.desc })"><i class="fa fa-pencil"></i> Bearbeiten</button>
+							<button class="btn btn-danger btn-xs" ng-show="can('edit_subproject')"><i class="fa fa-trash"></i> Löschen</button>
 						</td>
 					</tr>
 				</tbody>
@@ -59,7 +59,7 @@
 		</div>
 	</div>
 
-	<button class="btn btn-primary" ui-sref="project.home.subproject.new"><i class="fa fa-plus"></i> Neues Unterprojekt</button>
+	<button class="btn btn-primary" ng-show="can('edit_subproject')" ui-sref="project.home.subproject.new"><i class="fa fa-plus"></i> Neues Unterprojekt</button>
 
 </div>
 

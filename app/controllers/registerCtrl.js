@@ -31,6 +31,9 @@ angular.module('dokuvisApp').controller('registerCtrl', ['$scope', '$state', '$w
                     $window.localStorage.userName = data.user.name;
                     //$window.localStorage.userRole = data.user.role;
 
+                    AclService.flushRoles();
+                    AclService.attachRole('member');
+
                     $state.go('projectlist');
                 })
                 .error(function(status) {
