@@ -376,30 +376,29 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			}, 1000);
 		};
 
-		$scope.getArchives = function() {
-			Archive.getAll().then(function(response){
-				$scope.archives = response.data;
+		function queryArchives() {
+			Archive.query().$promise.then(function(response){
+				$scope.archives = response;
 				console.log('Archives:', $scope.archives);
 			}, function (err) {
-				Utilities.throwApiException('on Archive.getAll()', err);
+				Utilities.throwApiException('on Archive.query()', err);
 			});
-		};
-		$scope.getArchives();
+		}
 
-		$scope.addArchive = function() {
-			var newscope = $scope.$new(false);
-			newscope.modalParams = {
-				modalType: 'small'
-			};
-			$modal({
-				title: 'Archiv hinzufügen',
-				templateUrl: 'partials/modals/_modalTpl.html',
-				contentTemplate: 'partials/modals/addArchiveModal.html',
-				controller: 'addArchiveCtrl',
-				scope: newscope,
-				show: true
-			});
-		};
+		// $scope.addArchive = function() {
+		// 	var newscope = $scope.$new(false);
+		// 	newscope.modalParams = {
+		// 		modalType: 'small'
+		// 	};
+		// 	$modal({
+		// 		title: 'Archiv hinzufügen',
+		// 		templateUrl: 'partials/modals/_modalTpl.html',
+		// 		contentTemplate: 'partials/modals/addArchiveModal.html',
+		// 		controller: 'addArchiveModalCtrl',
+		// 		scope: newscope,
+		// 		show: true
+		// 	});
+		// };
 
 		// typeahead input callbacks
 		$scope.setTypeaheadArray = function(label, prop) {
@@ -486,11 +485,8 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			});
 		};
 
-		$scope.$on('$stateChangeStart', function (event, toState, toParams) {
-            $timeout(function () {
-                $scope.close();
-            });
-		});
+		// init
+		queryArchives();
 
 		/**
 		 * Closes the modal and destroys the controller instance
@@ -508,5 +504,18 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			else
 				$state.go('project.explorer');
 		};
+
+		$scope.$on('$stateChangeStart', function (event, toState, toParams, fromState) {
+			if(toState.name !== 'project.explorer.upload.type.archive' && fromState.name !== 'project.explorer.upload.type.archive') {
+				$timeout(function () {
+					$scope.close();
+				});
+			}
+		});
+
+		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
+			if(fromState.name === 'project.explorer.upload.type.archive')
+				queryArchives();
+		});
 
 	}]);

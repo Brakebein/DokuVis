@@ -67,6 +67,8 @@
             </h2>
             <ul ng-hide="dokuvis_ppcontroller">
               <li>
+                <a href="dokuvisApp.newArchiveModalCtrl.html">newArchiveModalCtrl</a>
+              </li><li>
                 <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
               </li><li>
                 <a href="dokuvisApp.projectModalCtrl.html">projectModalCtrl</a>
@@ -159,19 +161,19 @@
       </tr><tr>
         <td class="name" nowrap="">isLogged</td>
         <td class="type"><span class="param-type">
+        </span></td>
+        <td class="description last"></td>
+      </tr><tr>
+        <td class="name" nowrap="">isLogged</td>
+        <td class="type"><span class="param-type">
+        </span></td>
+        <td class="description last"></td>
+      </tr><tr>
+        <td class="name" nowrap="">isLogged</td>
+        <td class="type"><span class="param-type">
           boolean
         </span></td>
         <td class="description last"><p>A variable stating, if user is logged in or not</p></td>
-      </tr><tr>
-        <td class="name" nowrap="">isLogged</td>
-        <td class="type"><span class="param-type">
-        </span></td>
-        <td class="description last"></td>
-      </tr><tr>
-        <td class="name" nowrap="">isLogged</td>
-        <td class="type"><span class="param-type">
-        </span></td>
-        <td class="description last"></td>
       </tr><tr>
         <td class="name" nowrap="">user</td>
         <td class="type"><span class="param-type">
@@ -212,9 +214,12 @@
   <h3 class="subsection-title">Methods</h3>
   <dl>
     <dt>
-      <a href="source/dokuvisApp.AuthenticationFactory.html#line22" class="name-link" id="check">
+      <a href="source/dokuvisApp.AuthenticationFactory.html#line23" class="name-link" id="check">
         <h4 class="name">
           check
+          <span class="type-signature">
+            -&gt; boolean
+          </span>
         </h4>
       </a>
     </dt>
@@ -224,6 +229,29 @@
           <!--<p>Check, if token and user are set in localstorage</p>-->
           <p>Check, if token and user are set in localstorage</p>
         </span>
+      </div>
+      <div>
+        <h4>Returns</h4>
+        <table class="params">
+          <thead>
+            <tr><th>Type</th><th class="last">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="type">
+                <span class="param-type">
+                  boolean
+                </span>
+              </td>
+              <td class="description last">
+                <span>
+                  <!--<p>true, if logged in</p>-->
+                  <p>true, if logged in</p>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </dd>
   </dl>

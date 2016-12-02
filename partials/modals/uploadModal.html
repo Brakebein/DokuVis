@@ -114,27 +114,27 @@
 								<div class="form-group" ng-show="item.formExtend">
 									<label for="docCreationPlace" class="control-label col-sm-3">Erstellungsort</label>
 									<div class="col-sm-8">
-										<input type="text" class="form-control" ng-model="item.creationPlace" ng-focus="setTypeaheadArray('E48','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. Jerusalem" bs-tooltip="{title: 'Wo wurde die Quelle erstellt?'}"/>
+										<input id="docCreationPlace" type="text" class="form-control" ng-model="item.creationPlace" ng-focus="setTypeaheadArray('E48','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. Jerusalem" bs-tooltip="{title: 'Wo wurde die Quelle erstellt?'}"/>
 									</div>
 								</div>
 								
 								<div class="form-group" ng-show="item.formExtend">
 									<label for="docCollect" class="control-label col-sm-3">Archiv</label>
 									<div class="col-sm-6">
-										<select class="form-control input-sm" ng-model="item.archive" bs-tooltip="{title: 'Archiv, Sammlung oder Kollektion'}">
+										<select id="docCollect" class="form-control input-sm" ng-model="item.archive" bs-tooltip="{title: 'Archiv, Sammlung oder Kollektion'}">
 											<option value="">Keine Angabe</option>
 											<option ng-repeat="a in archives" value="{{a.collection}}">{{a.institutionAbbr || a.institutionName}} {{a.collectionName}}</option>
 										</select>
 									</div>
 									<div class="col-sm-3">
-										<button class="btn btn-default btn-sm" ng-click="addArchive()">Hinzufügen</button>
+										<button class="btn btn-default btn-sm" ui-sref="project.explorer.upload.type.archive"><i class="fa fa-plus"></i> Hinzufügen</button>
 									</div>
 								</div>
 								
 								<div class="form-group" ng-show="item.formExtend">
 									<label for="docArchiveNr" class="control-label col-sm-3">Archivkennung</label>
 									<div class="col-sm-8">
-										<input type="text" class="form-control" ng-model="item.archiveNr" ng-focus="setTypeaheadArray('E42','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. P.E.F. Schick|202|3" bs-tooltip="{title: 'Archiv- oder Regalnummer'}"/>
+										<input id="docArchiveNr" type="text" class="form-control" ng-model="item.archiveNr" ng-focus="setTypeaheadArray('E42','content')" ng-blur="validateInput2(item)" bs-typeahead bs-options="ta.content as ta.content for ta in suggestions" placeholder="z.B. P.E.F. Schick|202|3" bs-tooltip="{title: 'Archiv- oder Regalnummer'}"/>
 									</div>
 								</div>
 								

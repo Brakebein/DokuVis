@@ -1,9 +1,9 @@
-var config = require('../config');
-var express = require('express');
-var router = express.Router();
+const config = require('../config');
+const express = require('express');
+const router = express.Router();
 
 // multer
-var multer = require('multer');
+const multer = require('multer');
 var storage = multer.diskStorage({
 	destination: function (req, file, cb) {
 		cb(null, config.path.tmp);
@@ -28,7 +28,6 @@ var source = require('./source');
 var comment = require('./comment');
 var graph = require('./graph');
 var person = require('./person');
-var archive = require('./archive');
 var upload = require('./upload');
 
 // routes that can be accessed by any one
@@ -101,12 +100,17 @@ router.get('/auth/project/:id/graph/:nodeId/e22', graph.getE22Name);
 router.get('/auth/project/:id/persons', person.getAll);
 
 // archives
-router.get('/auth/project/:id/archives', archive.getAll);
+var archive = require('./archive');
+router.get('/auth/project/:id/archive', archive.query);
+router.post('/auth/project/:id/archive', archive.create);
 
 // staff
 var staff = require('./staff');
 router.get('/auth/project/:id/staff', staff.query);
 router.post('/auth/project/:id/staff', staff.create);
 router.get('/roles', staff.queryRoles);
+
+var typeahead = require('./typeahead');
+router.get('/auth/project/:id/typeahead/:label/:prop/:from', typeahead.query);
 
 module.exports = router;

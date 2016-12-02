@@ -1,7 +1,7 @@
 <div class="config">
 
 	<div>
-		<h2>Konfiguration</h2>
+		<h2>{{'config_title' | translate}}</h2>
 		<hr/>
 	</div>
 
@@ -9,18 +9,18 @@
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h4 class="panel-title">Allgemeine Einstellungen</h4>
+				<h4 class="panel-title">{{'config_general_title' | translate}}</h4>
 			</div>
 
 			<div class="panel-body">
-				Projekt der Öffentlichkeit zugänglich machen on/off
+				{{'config_general_public' | translate}} on/off
 			</div>
 		</div>
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					Mitarbeiter/Beobachter verwalten
+					{{'config_staff_title' | translate}}
 				</h4>
 			</div>
 
@@ -28,9 +28,9 @@
 				<table class="table table-striped">
 					<thead>
 						<tr>
-							<th width="30%">Name</th>
-							<th width="30%">Email</th>
-							<th width="20%">Rolle</th>
+							<th width="30%">{{'name' | translate}}</th>
+							<th width="30%">{{'email' | translate}}</th>
+							<th width="20%">{{'role' | translate}}</th>
 							<th width="20%"></th>
 						</tr>
 					</thead>
@@ -49,7 +49,7 @@
 				</table>
 
 				<p>
-					<button class="btn btn-primary" title="Entfernen" ng-show="can('edit_staff')" ui-sref="project.config.staffedit"><i class="fa fa-plus"></i> Mitarbeiter/Beobachter hinzufügen</button>
+					<button class="btn btn-primary" title="Entfernen" ng-show="can('edit_staff')" ui-sref="project.config.staffedit"><i class="fa fa-plus"></i> {{'config_staff_button_add' | translate}}</button>
 				</p>
 
 

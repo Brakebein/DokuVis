@@ -579,38 +579,6 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		// alle Institutionen mit Archiven
-		// DEPRECATED
-		requests.getArchives = function(prj) {
-			return $http.post(phpUrl, {
-				query: 
-					'MATCH (e78:E78:'+prj+')-[:P1]-(e41:E41), \
-					(e78)-[:P52]->(:E40)-[:P131]->(e82:E82) \
-					RETURN e78.content AS collection, e41.content AS collectionName, e82.content AS institutionName, e82.abbr AS institutionAbbr',
-				params: {}
-			});
-		};
-		
-		// Institution mit Archiv hinzufügen
-		requests.addArchive = function(prj, coll, name, abbr) {
-			var tid = new Utilities.Base62().encode(new Date().getTime());
-			return $http.post(phpUrl, {
-				query:
-					'MERGE (e40:E40:'+prj+')-[:P131]->(e82:E82:'+prj+' {content: {e82name}}) \
-					ON CREATE SET e82.abbr = {e82abbr}, e40.content = {e40cont} \
-					MERGE (e41:E41:'+prj+' {content: {e41name}}) \
-					CREATE (e78:E78:'+prj+' {content: {e78cont}})-[:P1]->(e41), \
-					(e78)-[:P52]->(e40)',
-				params: {
-					e82name: name,
-					e82abbr: abbr,
-					e40cont: 'e40_'+tid+'_'+name.replace(/ /g, "_"),
-					e78cont: 'e78_'+tid+'_'+coll.replace(/ /g, "_"),
-					e41name: coll
-				}
-			});
-		};
-		
 		// alte Suchanfrage für autocomplete
 		requests.searchForExistingNodes = function(prj, label, input) {
 			return $http.post(phpUrl, {
@@ -800,43 +768,6 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 						original: formData.newFileName,
 						geometryId: objData.geometryUrl
 					}
-				}
-			});
-		};
-		
-		// DEPRECATED
-		requests.getAllModels = function(prj) {
-			var q = 'MATCH (e22:E22:'+prj+')<-[:P138]-(:E36)-[:P106]->(e73:E73)-[:P1]->(e75:E75)';
-			q += ' RETURN e73 AS object, e75 AS file';
-			
-			return $http.post(phpUrl, {
-				query: q,
-				params: {}
-			});
-		};
-		
-		// DEPRECATED
-		requests.getModelsWithChildren = function(prj, subprj) {
-			
-			var q = 'MATCH (root:E22:'+prj+' {content:{esub}}), (tsp:E55:'+prj+' {content:"subproject"}),';
-			q += ' path = (root)-[:P46*]->(c:E22)';
-			if(subprj === 'master')
-				q += ' WHERE all(n in nodes(path) WHERE NOT (n)<-[:P15]-(:E7)-[:P2]->(tsp))';
-			else		
-				q += ' WHERE all(n in nodes(path) WHERE not n.content = "e22_root_master")';
-			q += ' AND any(n in nodes(path) WHERE n.content = {esub})';
-			
-			q += ' WITH c';
-			q += ' MATCH (p:E22:'+prj+')-[:P46]->(c)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)';
-			
-			q += ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile}) AS children';
-			
-			return $http.post(phpUrl, {
-				query: q,
-					/*'MATCH (maxp:E22:'+prj+' {content: {esub}}), (maxp)-[:P46*]->(p:E22)-[:P46]->(c:E22)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)'
-					+ ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile}) AS children',*/
-				params: {
-					esub: 'e22_root_'+subprj
 				}
 			});
 		};
@@ -1100,37 +1031,10 @@ angular.module('dokuvisApp').factory('mysqlRequest',
 		/**
 		  * Projekte
 		 */
-		// neues Projekt anlegen
-		requests.newProjectEntry = function(proj, name, desc, email, username) {
-			return $http.post(API + 'auth/projects', {
-				proj: proj,
-				name: name,
-				description: desc,
-				email: email,
-				username: username
-			});
-		};
 		// Projekt Info
 		requests.getProjectEntry = function(proj) {
 			return $http.post('php/mysql/getProjectEntry.php', {
 				proj: proj
-			});
-		};
-		// Projekt löschen
-		requests.removeProjectEntry = function(proj) {
-			return $http.post('php/mysql/removeProjectEntry.php', {
-				proj: proj
-			});
-		};
-		// alle Projekte auflisten
-		requests.getAllProjects = function() {
-			return $http.get(API + 'auth/projects');
-		};
-		// Projekt editieren
-		requests.updateProjectDescription = function(desc,id) {
-			return $http.post('php/mysql/updateProjectDescription.php', {
-				pid: id,
-				description: desc
 			});
 		};
 		

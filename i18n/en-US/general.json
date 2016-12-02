@@ -1,0 +1,20 @@
+{
+  "project": "Project",
+  "description": "Description",
+  "name": "Name",
+  "email": "Email",
+  "role": "Role",
+  "open": "Open",
+  "edit": "Edit",
+  "delete": "Delete",
+  "remove": "Remove",
+  "register": "Register",
+  "login": "Login",
+  "logout": "Logout",
+  "rights": "Rights",
+  "overview": "Overview",
+  "save": "Save",
+  "abort": "Abort",
+  "close": "Close",
+  "eg": "e.g."
+}

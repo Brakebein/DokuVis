@@ -68,6 +68,10 @@ var utils = {
 				console.log('File Upload:', f.originalname, f.path, f.size);
 			});
 		}
+	},
+	
+	replace: function (string) {
+		return string.replace(/[^a-zA-Z0-9_]/g, '_');
 	}
 
 };
@@ -76,11 +80,13 @@ utils.checkPermission = function (req, res, role) {
 	var user = req.headers['x-key'] || '';
 	var prj = req.params.id;
 
+	if(!(role instanceof Array)) role = [role];
+	
 	var roles = ['superadmin'];
-	if(role === 'admin') roles.push('admin');
-	else if(role === 'historian') roles.push('historian');
-	else if(role === 'modeler') roles.push('modeler');
-	else if(role === 'visitor') roles.push('admin', 'historian', 'modeler', 'visitor');
+	if(role.indexOf('admin') !== -1) roles.push('admin');
+	if(role.indexOf('historian') !== -1) roles.push('historian');
+	if(role.indexOf('modeler') !== -1) roles.push('modeler');
+	if(role.indexOf('visitor') !== -1) roles.push('admin', 'historian', 'modeler', 'visitor');
 
 	var sql = '\
 		SELECT p.proj_tstamp, u.email, r.role FROM users u \

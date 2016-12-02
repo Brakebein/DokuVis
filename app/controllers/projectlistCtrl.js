@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'Utilities', 'Project', 'ConfirmService',
+angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'Utilities', 'Project', 'ConfirmService', '$translatePartialLoader',
 	/**
 	 * Controller for view to list and organize all projects
 	 * @memberof dokuvisApp
@@ -11,9 +11,12 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 	 * @param Utilities {Utilities} Utilities
 	 * @param Project {Project} Project resource
 	 * @param ConfirmService {ConfirmService} confirm dialog
+	 * @param $translatePartialLoader {$translatePartialLoader} $translate addPart
 	 */
-	function($scope, $state, $window, Utilities, Project, ConfirmService) {
-		
+	function($scope, $state, $window, Utilities, Project, ConfirmService, $translatePartialLoader) {
+
+		$translatePartialLoader.addPart('projects');
+
 		// Initialisierung von Variablen
 		/**
 		 * Array of all available projects
@@ -22,7 +25,7 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 		 */
 		$scope.projects = [];
 		
-		function getAllProjects() {
+		function queryProjects() {
 			Project.query().$promise.then(function (result) {
 				console.log(result);
 				if(result instanceof Array)
@@ -61,7 +64,7 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 			}).then(function () {
 				p.$delete().then(function(response) {
 					console.log(response);
-					getAllProjects();
+					queryProjects();
 				}, function(err) {
 					Utilities.throwApiException('on Project.delete()', err);
 				});
@@ -69,11 +72,11 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 		};
 		
 		// oninit Funktionsaufrufe
-		getAllProjects();
+		queryProjects();
 
 		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
 			if(fromState.name === 'projectlist.project.new' || fromState.name === 'projectlist.project.edit')
-				getAllProjects();
+				queryProjects();
 		});
 		
 	}]);

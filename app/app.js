@@ -41,12 +41,13 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'gantt.overlap',
 	'gantt.resizeSensor',
 	'ang-drag-drop',
-	'mm.acl'
+	'mm.acl',
+	'pascalprecht.translate'
 ]);
 
 dokuvisApp.constant('API', 'api/');
 
-dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
+dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
 	/**
 	 * Configures ui.router states, state resolve functions, and some defaults
 	 * @memberof dokuvisApp
@@ -56,11 +57,13 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 	 * @param $stateProvider {$stateProvider} provider to configure states
 	 * @param $urlRouterProvider {$urlRouterProvider} Watches $location and provides interface to default state
 	 * @param $httpProvider {$httpProvider} Used to push new interceptors
+	 * @param $translateProvider {$translateProvider} provider to configure translate settings
+	 * @param $translatePartialLoaderProvider {$translatePartialLoaderProvider} provider to configure translatePartialLoader settings
 	 * @param $modalProvider {$modalProvider} provider to configure defaults
 	 * @param $alertProvider {$alertProvider} provider to configure defaults
 	 * @param $tooltipProvider {$tooltipProvider} provider to configure defaults
 	 */
-	function($stateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
+	function($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
 		// add interceptors
 		$httpProvider.interceptors.push('TokenInterceptor');
@@ -211,6 +214,17 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					attachTo: null
 				}
 			})
+			.state('project.explorer.upload.type.archive', {
+				url: '/archive',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/newArchiveModal.html',
+						controller: 'newArchiveModalCtrl',
+						show: true
+					});
+				}]
+			})
 			.state('project.explorer.categoryedit', {
 				url: '/categoryedit',
 				onEnter: ['$modal', function ($modal) {
@@ -274,6 +288,14 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					});
 				}]
 			});
+
+		// translate
+		$translateProvider.useLoader('$translatePartialLoader', {
+			urlTemplate: '/i18n/{lang}/{part}.json'
+		});
+		//$translateProvider.preferredLanguage('de-DE');
+		$translateProvider.preferredLanguage('en-US');
+		$translatePartialLoaderProvider.addPart('general');
 		
 		// defaults
 		angular.extend($modalProvider.defaults, {
@@ -424,39 +446,52 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 	
-dokuvisApp.run(function($rootScope, $state, $previousState, AuthenticationFactory, AclService, amMoment, editableOptions) {
-	// when the page refreshes, check if the user is already logged in
-	AuthenticationFactory.check();
+dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory', 'AclService', '$translate', 'amMoment', 'editableOptions', 'TypeaheadRequest',
+	function($rootScope, $state, $previousState, AuthenticationFactory, AclService, $translate, amMoment, editableOptions, TypeaheadRequest) {
+		// when the page refreshes, check if the user is already logged in
+		AuthenticationFactory.check();
 
-	// ACL data
-	var aclData = {
-		guest: ['login', 'register'],
-		member: ['logout', 'create_project'],
-		visitor: [],
-		historian: ['upload_source'],
-		modeler: ['upload_model'],
-		admin: ['manage_content', 'edit_subproject', 'edit_staff'],
-		superadmin: ['edit_project']
-	};
-	AclService.setAbilities(aclData);
-	AclService.attachRole('guest');
-	
-	$rootScope.can = AclService.can;
-	
-	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
-		$rootScope.isLogged = AuthenticationFactory.isLogged;
-		$rootScope.userName = AuthenticationFactory.userName;
-		//$rootScope.role = AuthenticationFactory.userRole;
-		// if the user is already logged in, take him to the home page
-		if(AuthenticationFactory.isLogged && $state.is('login')) {
-			console.log('change2');
-			$state.go('home');
-		}
-	});
-	
-	amMoment.changeLocale('de');
-	editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
-});
+		// ACL data
+		var aclData = {
+			guest: ['login', 'register'],
+			member: ['logout', 'create_project'],
+			visitor: [],
+			historian: ['upload_source'],
+			modeler: ['upload_model'],
+			admin: ['manage_content', 'edit_subproject', 'edit_staff'],
+			superadmin: ['edit_project']
+		};
+		AclService.setAbilities(aclData);
+		AclService.attachRole('guest');
+
+		$rootScope.can = AclService.can;
+
+		$rootScope.$on('$translatePartialLoaderStructureChanged', function () {
+			$translate.refresh();
+		});
+
+		$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+			$rootScope.isLogged = AuthenticationFactory.isLogged;
+			$rootScope.userName = AuthenticationFactory.userName;
+			//$rootScope.role = AuthenticationFactory.userRole;
+			// if the user is already logged in, take him to the home page
+			if(AuthenticationFactory.isLogged && $state.is('register')) {
+				$state.go('home');
+			}
+		});
+
+		amMoment.changeLocale('de');
+		editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
+
+		$rootScope.setTypeahead = function (label, from, prop) {
+			TypeaheadRequest.query(label, from, prop).then(function (response) {
+				$rootScope.typeaheads = response.data;
+				console.log('typeahead', $rootScope.typeaheads);
+			}, function (err) {
+				
+			});
+		};
+	}]);
 	
 dokuvisApp.filter('filterEditor', function(){
 	return function(items, search) {

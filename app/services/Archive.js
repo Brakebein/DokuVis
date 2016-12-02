@@ -1,16 +1,19 @@
-angular.module('dokuvisApp').factory('Archive', ['$http', 'API', '$stateParams',
-	function($http, API, $stateParams) {
+angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$stateParams',
+	function($resource, API, $stateParams) {
+
+		function extendWithId(data) {
+			return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() }));
+		}
 		
-		return {
-		  
-			getAll: function () {
-				return $http.get(API + 'auth/project/'+$stateParams.project+'/archives');
-			},
-			
-			create: function () {
-				
+		return $resource(API + 'auth/project/:project/archive', {
+			project: function () {
+				return $stateParams.project;
 			}
-			
-		};
+		}, {
+			save: {
+				method: 'POST',
+				transformRequest: extendWithId
+			}
+		});
 		
 	}]);

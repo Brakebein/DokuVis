@@ -90,8 +90,6 @@ module.exports = {
 				utils.error.mysql(res, err, err);
 			}
 		});
-
-		// TODO: Knoten in Neo4j einfügen
 	},
 
 	queryRoles: function (req, res) {

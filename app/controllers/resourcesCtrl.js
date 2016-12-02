@@ -1,5 +1,5 @@
-angular.module('dokuvisApp').controller('resourcesCtrl', ['$scope', '$stateParams', 'Person', 'Archive',
-	function($scope, $stateParams, Person, Archive) {
+angular.module('dokuvisApp').controller('resourcesCtrl', ['$scope', '$stateParams', 'Person', 'Archive', 'Utilities',
+	function($scope, $stateParams, Person, Archive, Utilities) {
 
 		$scope.persons = [];
 		$scope.archives = [];
@@ -11,15 +11,17 @@ angular.module('dokuvisApp').controller('resourcesCtrl', ['$scope', '$stateParam
 			});
 		}
 
-		function getArchives() {
-			Archive.getAll().then(function (response) {
-				console.log(response.data);
-				$scope.archives = response.data;
+		function queryArchives() {
+			Archive.query().$promise.then(function (response) {
+				console.log(response);
+				$scope.archives = response;
+			}, function (err) {
+				Utilities.throwApiException('on Archive.query()', err);
 			});
 		}
 
 		// init
 		getPersons();
-		getArchives();
+		queryArchives();
 
 	}]);

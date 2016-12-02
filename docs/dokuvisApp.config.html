@@ -67,6 +67,8 @@
             </h2>
             <ul ng-hide="dokuvis_ppcontroller">
               <li>
+                <a href="dokuvisApp.newArchiveModalCtrl.html">newArchiveModalCtrl</a>
+              </li><li>
                 <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
               </li><li>
                 <a href="dokuvisApp.projectModalCtrl.html">projectModalCtrl</a>
@@ -101,7 +103,7 @@
       </h3>
       <h1 class="title">
         config
-        <a class="name-link signature-attributes" href="source/dokuvisApp.config.html#line48">source</a>
+        <a class="name-link signature-attributes" href="source/dokuvisApp.config.html#line51">source</a>
       </h1>
       <div id="main" class="big-container">
         <!-- source code html -->
@@ -165,6 +167,34 @@
             <span>
               <!--<p>Used to push new interceptors</p>-->
               <p>Used to push new interceptors</p>
+            </span>
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="$translateProvider"></a>
+            $translateProvider
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="$translateProvider.html">$translateProvider</a>
+          </span></td>
+          <td class="description last">
+            <span>
+              <!--<p>provider to configure translate settings</p>-->
+              <p>provider to configure translate settings</p>
+            </span>
+          </td>
+        </tr><tr>
+          <td class="name" nowrap="">
+            <a id="$translatePartialLoaderProvider"></a>
+            $translatePartialLoaderProvider
+          </td>
+          <td class="type"><span class="param-type">
+            <a href="$translatePartialLoaderProvider.html">$translatePartialLoaderProvider</a>
+          </span></td>
+          <td class="description last">
+            <span>
+              <!--<p>provider to configure translatePartialLoader settings</p>-->
+              <p>provider to configure translatePartialLoader settings</p>
             </span>
           </td>
         </tr><tr>
@@ -240,10 +270,10 @@
   <h3 class="subsection-title">Methods</h3>
   <dl>
     <dt>
-      <a href="source/dokuvisApp.config.html#line267" class="name-link" id="authenticate">
+      <a href="source/dokuvisApp.config.html#line327" class="name-link" id="authenticate">
         <h4 class="name">
           authenticate
-          <span class="signature">($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory)</span>
+          <span class="signature">($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory, AclService)</span>
           <span class="type-signature">
             -&gt; Promise
           </span>
@@ -330,6 +360,17 @@
                   <p> <a href="dokuvisApp.UserAuthFactory.html">UserAuthFactory</a></p>
                 </span>
               </td>
+            </tr><tr>
+              <td class="name">AclService</td>
+              <td class="type"><span class="param-type">
+                <a href="service.html">service</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>Access Control List service</p>-->
+                  <p>Access Control List service</p>
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -360,10 +401,10 @@
     </dd>
   </dl><dl>
     <dt>
-      <a href="source/dokuvisApp.config.html#line311" class="name-link" id="checkProject">
+      <a href="source/dokuvisApp.config.html#line376" class="name-link" id="checkProject">
         <h4 class="name">
           checkProject
-          <span class="signature">($q, $state, $stateParams, $rootScope, Project)</span>
+          <span class="signature">($q, $state, $stateParams, $rootScope, Project, AclService)</span>
           <span class="type-signature">
             -&gt; Promise
           </span>
@@ -439,6 +480,17 @@
                   <p>Project http</p>
                 </span>
               </td>
+            </tr><tr>
+              <td class="name">AclService</td>
+              <td class="type"><span class="param-type">
+                <a href="service.html">service</a>
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>Access Control List service</p>-->
+                  <p>Access Control List service</p>
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -469,7 +521,7 @@
     </dd>
   </dl><dl>
     <dt>
-      <a href="source/dokuvisApp.config.html#line343" class="name-link" id="checkSubproject">
+      <a href="source/dokuvisApp.config.html#line423" class="name-link" id="checkSubproject">
         <h4 class="name">
           checkSubproject
           <span class="signature">($q, $state, $stateParams, Subproject)</span>

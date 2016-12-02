@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>JSDoc: Subproject</title>
+    <title>JSDoc: Utilities</title>
     <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">
     <link href="css/site.css" type="text/css" rel="stylesheet">
   </head>
@@ -102,8 +102,8 @@
         Angular service
       </h3>
       <h1 class="title">
-        Subproject
-        <a class="name-link signature-attributes" href="source/dokuvisApp.Subproject.html#line2">source</a>
+        Utilities
+        <a class="name-link signature-attributes" href="source/dokuvisApp.Utilities.html#line2">source</a>
       </h1>
       <div id="main" class="big-container">
         <!-- source code html -->
@@ -116,8 +116,8 @@
   <div class="clearfix"></div>
   <div class="description">
     <h4>Description</h4>
-    <!--<p>$http methods for subproject related tasks</p>-->
-    <p>$http methods for subproject related tasks</p>
+    <!--<p>This factory provides some helpful functions.</p>-->
+    <p>This factory provides some helpful functions.</p>
   </div>
   <div class="details"></div>
   <div>
@@ -129,58 +129,16 @@
       <tbody>
         <tr>
           <td class="name" nowrap="">
-            <a id="$http"></a>
-            $http
+            <a id="$alert"></a>
+            $alert
           </td>
           <td class="type"><span class="param-type">
-            <a href="$http.html">$http</a>
+            <a href="$alert.html">$alert</a>
           </span></td>
           <td class="description last">
             <span>
-              <!--<p>Angular HTTP request service</p>-->
-              <p>Angular HTTP request service</p>
-            </span>
-          </td>
-        </tr><tr>
-          <td class="name" nowrap="">
-            <a id="API"></a>
-            API
-          </td>
-          <td class="type"><span class="param-type">
-            <a href="API.html">API</a>
-          </span></td>
-          <td class="description last">
-            <span>
-              <!--<p>API url constant</p>-->
-              <p>API url constant</p>
-            </span>
-          </td>
-        </tr><tr>
-          <td class="name" nowrap="">
-            <a id="$stateParams"></a>
-            $stateParams
-          </td>
-          <td class="type"><span class="param-type">
-            <a href="$stateParams.html">$stateParams</a>
-          </span></td>
-          <td class="description last">
-            <span>
-              <!--<p>ui.router stateParams</p>-->
-              <p>ui.router stateParams</p>
-            </span>
-          </td>
-        </tr><tr>
-          <td class="name" nowrap="">
-            <a id="Utilities"></a>
-            Utilities
-          </td>
-          <td class="type"><span class="param-type">
-            <a href="Utilities.html">Utilities</a>
-          </span></td>
-          <td class="description last">
-            <span>
-              <!--<p>Utilities</p>-->
-              <p>Utilities</p>
+              <!--<p>ngStrap alert service</p>-->
+              <p>ngStrap alert service</p>
             </span>
           </td>
         </tr>
@@ -196,21 +154,18 @@
   <h3 class="subsection-title">Methods</h3>
   <dl>
     <dt>
-      <a href="source/dokuvisApp.Subproject.html#line77" class="name-link" id="check">
+      <a href="source/dokuvisApp.Utilities.html#line217" class="name-link" id="dangerAlert">
         <h4 class="name">
-          check
-          <span class="signature">(prjId, subId)</span>
-          <span class="type-signature">
-            -&gt; Promise
-          </span>
+          dangerAlert
+          <span class="signature">(message)</span>
         </h4>
       </a>
     </dt>
     <dd>
       <div class="description">
         <span>
-          <!--<p>Check, if subproject exists</p>-->
-          <p>Check, if subproject exists</p>
+          <!--<p>Shows a danger alert for 5 seconds</p>-->
+          <p>Shows a danger alert for 5 seconds</p>
         </span>
       </div>
       <div>
@@ -221,49 +176,11 @@
           </thead>
           <tbody>
             <tr>
-              <td class="name">prjId</td>
+              <td class="name">message</td>
               <td class="type"><span class="param-type">
                 string
               </span></td>
               <td class="description last">
-                <span>
-                  <!--<p>project ID</p>-->
-                  <p>project ID</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">subId</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>subproject ID</p>-->
-                  <p>subproject ID</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div>
-        <h4>Returns</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="type">
-                <span class="param-type">
-                  <a href="Promise.html">Promise</a>
-                </span>
-              </td>
-              <td class="description last">
-                <span>
-                  <!--<p>$http Promise</p>-->
-                  <p>$http Promise</p>
-                </span>
               </td>
             </tr>
           </tbody>
@@ -272,12 +189,11 @@
     </dd>
   </dl><dl>
     <dt>
-      <a href="source/dokuvisApp.Subproject.html#line18" class="name-link" id="create">
+      <a href="source/dokuvisApp.Utilities.html#line52" class="name-link" id="getUniqueId">
         <h4 class="name">
-          create
-          <span class="signature">(name, desc)</span>
+          getUniqueId
           <span class="type-signature">
-            -&gt; Promise
+            -&gt; string
           </span>
         </h4>
       </a>
@@ -285,48 +201,11 @@
     <dd>
       <div class="description">
         <span>
-          <!--<p>Create a new subproject</p>-->
-          <p>Create a new subproject</p>
+          <!--<p>Generate unique short id (using timestamp)</p>-->
+          <p>Generate unique short id (using timestamp)</p>
         </span>
       </div>
       <div>
-        <h4>Example</h4>
-        <pre class="prettyprint"><code><span class="str">Subproject.create($scope.name, $scope.desc).then(function () {    console.log('subproject created');}, function (err) {    console.error('subproject not created');});</span></code></pre>
-      </div>
-      <div>
-        <h4>Parameters</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="name">name</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>name of subproject</p>-->
-                  <p>name of subproject</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">desc</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>description</p>-->
-                  <p>description</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div>
         <h4>Returns</h4>
         <table class="params">
           <thead>
@@ -336,13 +215,13 @@
             <tr>
               <td class="type">
                 <span class="param-type">
-                  <a href="Promise.html">Promise</a>
+                  string
                 </span>
               </td>
               <td class="description last">
                 <span>
-                  <!--<p>$http Promise</p>-->
-                  <p>$http Promise</p>
+                  <!--<p>short id</p>-->
+                  <p>short id</p>
                 </span>
               </td>
             </tr>
@@ -352,21 +231,18 @@
     </dd>
   </dl><dl>
     <dt>
-      <a href="source/dokuvisApp.Subproject.html#line50" class="name-link" id="get">
+      <a href="source/dokuvisApp.Utilities.html#line62" class="name-link" id="sleep">
         <h4 class="name">
-          get
-          <span class="signature">(id)</span>
-          <span class="type-signature">
-            -&gt; Promise
-          </span>
+          sleep
+          <span class="signature">(milliseconds)</span>
         </h4>
       </a>
     </dt>
     <dd>
       <div class="description">
         <span>
-          <!--<p>Get id, name, and description of subproject</p>-->
-          <p>Get id, name, and description of subproject</p>
+          <!--<p>Sleep function - application on hold</p>-->
+          <p>Sleep function - application on hold</p>
         </span>
       </div>
       <div>
@@ -377,37 +253,14 @@
           </thead>
           <tbody>
             <tr>
-              <td class="name">id</td>
+              <td class="name">milliseconds</td>
               <td class="type"><span class="param-type">
-                string
+                number
               </span></td>
               <td class="description last">
                 <span>
-                  <!--<p>subproject ID</p>-->
-                  <p>subproject ID</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div>
-        <h4>Returns</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="type">
-                <span class="param-type">
-                  <a href="Promise.html">Promise</a>
-                </span>
-              </td>
-              <td class="description last">
-                <span>
-                  <!--<p>$http Promise</p>-->
-                  <p>$http Promise</p>
+                  <!--<p>milliseconds</p>-->
+                  <p>milliseconds</p>
                 </span>
               </td>
             </tr>
@@ -417,63 +270,18 @@
     </dd>
   </dl><dl>
     <dt>
-      <a href="source/dokuvisApp.Subproject.html#line40" class="name-link" id="getAll">
+      <a href="source/dokuvisApp.Utilities.html#line265" class="name-link" id="throwApiException">
         <h4 class="name">
-          getAll
-          <span class="type-signature">
-            -&gt; Promise
-          </span>
+          throwApiException
+          <span class="signature">(message, data)</span>
         </h4>
       </a>
     </dt>
     <dd>
       <div class="description">
         <span>
-          <!--<p>Get all subprojects</p>-->
-          <p>Get all subprojects</p>
-        </span>
-      </div>
-      <div>
-        <h4>Returns</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="type">
-                <span class="param-type">
-                  <a href="Promise.html">Promise</a>
-                </span>
-              </td>
-              <td class="description last">
-                <span>
-                  <!--<p>$http Promise</p>-->
-                  <p>$http Promise</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </dd>
-  </dl><dl>
-    <dt>
-      <a href="source/dokuvisApp.Subproject.html#line61" class="name-link" id="update">
-        <h4 class="name">
-          update
-          <span class="signature">(id, name, desc)</span>
-          <span class="type-signature">
-            -&gt; Promise
-          </span>
-        </h4>
-      </a>
-    </dt>
-    <dd>
-      <div class="description">
-        <span>
-          <!--<p>Update name and description of the subproject</p>-->
-          <p>Update name and description of the subproject</p>
+          <!--<p>Shows a danger alert titled with <code>API Exception</code></p>-->
+          <p>Shows a danger alert titled with <code>API Exception</code></p>
         </span>
       </div>
       <div>
@@ -484,59 +292,219 @@
           </thead>
           <tbody>
             <tr>
-              <td class="name">id</td>
+              <td class="name">message</td>
               <td class="type"><span class="param-type">
                 string
               </span></td>
               <td class="description last">
                 <span>
-                  <!--<p>subproject ID</p>-->
-                  <p>subproject ID</p>
+                  <!--<p>message to show</p>-->
+                  <p>message to show</p>
                 </span>
               </td>
             </tr><tr>
-              <td class="name">name</td>
+              <td class="name">data</td>
               <td class="type"><span class="param-type">
-                string
+                *
               </span></td>
               <td class="description last">
                 <span>
-                  <!--<p>new name</p>-->
-                  <p>new name</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">desc</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>new description</p>-->
-                  <p>new description</p>
+                  <!--<p>addtional data to be shown within the console</p>-->
+                  <p>addtional data to be shown within the console</p>
                 </span>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.Utilities.html#line232" class="name-link" id="throwException">
+        <h4 class="name">
+          throwException
+          <span class="signature">(title, message, data)</span>
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Shows a danger alert</p>-->
+          <p>Shows a danger alert</p>
+        </span>
+      </div>
       <div>
-        <h4>Returns</h4>
+        <h4>Parameters</h4>
         <table class="params">
           <thead>
-            <tr><th>Type</th><th class="last">Description</th></tr>
+            <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
           </thead>
           <tbody>
             <tr>
-              <td class="type">
-                <span class="param-type">
-                  <a href="Promise.html">Promise</a>
-                </span>
-              </td>
+              <td class="name">title</td>
+              <td class="type"><span class="param-type">
+                string
+              </span></td>
               <td class="description last">
                 <span>
-                  <!--<p>$http Promise</p>-->
-                  <p>$http Promise</p>
+                  <!--<p>title of the alert</p>-->
+                  <p>title of the alert</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">message</td>
+              <td class="type"><span class="param-type">
+                string
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>message to show</p>-->
+                  <p>message to show</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">data</td>
+              <td class="type"><span class="param-type">
+                *
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>addtional data to be shown within the console</p>-->
+                  <p>addtional data to be shown within the console</p>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.Utilities.html#line249" class="name-link" id="throwNeo4jException">
+        <h4 class="name">
+          throwNeo4jException
+          <span class="signature">(message, data)</span>
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Shows a danger alert titled with <code>Neo4jException</code></p>-->
+          <p>Shows a danger alert titled with <code>Neo4jException</code></p>
+        </span>
+      </div>
+      <div>
+        <h4>Parameters</h4>
+        <table class="params">
+          <thead>
+            <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="name">message</td>
+              <td class="type"><span class="param-type">
+                string
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>message to show</p>-->
+                  <p>message to show</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">data</td>
+              <td class="type"><span class="param-type">
+                *
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>addtional data to be shown within the console</p>-->
+                  <p>addtional data to be shown within the console</p>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.Utilities.html#line77" class="name-link" id="waitfor">
+        <h4 class="name">
+          waitfor
+          <span class="signature">(test, expectedValue, msec, params, callback)</span>
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Wait until condition is met</p>-->
+          <p>Wait until condition is met</p>
+        </span>
+      </div>
+      <div>
+        <h4>Parameters</h4>
+        <table class="params">
+          <thead>
+            <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="name">test</td>
+              <td class="type"><span class="param-type">
+                function
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>function that returns a value</p>-->
+                  <p>function that returns a value</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">expectedValue</td>
+              <td class="type"><span class="param-type">
+                string|number|boolean
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>value of the test function we are waiting for</p>-->
+                  <p>value of the test function we are waiting for</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">msec</td>
+              <td class="type"><span class="param-type">
+                number
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>delay between the calls to test</p>-->
+                  <p>delay between the calls to test</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">params</td>
+              <td class="type"><span class="param-type">
+                Object
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>parameters to be passed to the callback function</p>-->
+                  <p>parameters to be passed to the callback function</p>
+                </span>
+              </td>
+            </tr><tr>
+              <td class="name">callback</td>
+              <td class="type"><span class="param-type">
+                function
+              </span></td>
+              <td class="description last">
+                <span>
+                  <!--<p>function to execute when the condition is met</p>-->
+                  <p>function to execute when the condition is met</p>
                 </span>
               </td>
             </tr>
