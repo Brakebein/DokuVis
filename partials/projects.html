@@ -29,7 +29,7 @@
 					<td>{{p.role}}</td>
 					<td>
 						<button class="btn btn-primary btn-xs" ng-click="openProject(p.proj)"><i class="fa fa-folder-open"></i> {{'open' | translate}}</button>
-						<button class="btn btn-default btn-xs" ng-show="p.role === 'superadmin'" ui-sref="projectlist.project.edit({ prj: p })"><i class="fa fa-pencil"></i> {{'edit' | translate}}</button>
+						<button class="btn btn-default btn-xs" ng-show="p.role === 'superadmin'" ui-sref="projectlist.project({ prj: p })"><i class="fa fa-pencil"></i> {{'edit' | translate}}</button>
 						<button class="btn btn-danger btn-xs" ng-show="p.role === 'superadmin'" ng-click="deleteProject(p)"><i class="fa fa-trash"></i> {{'delete' | translate}}</button>
 					</td>
 					
@@ -41,6 +41,6 @@
 		</div>
 	</div>
 
-	<button class="btn btn-primary" ui-sref="projectlist.project.new"><i class="fa fa-plus"></i> {{'projects_button_new' | translate}}</button>
+	<button class="btn btn-primary" ui-sref="projectlist.project"><i class="fa fa-plus"></i> {{'project_new' | translate}}</button>
 
 </div>

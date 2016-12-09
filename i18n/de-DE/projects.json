@@ -1,4 +1,7 @@
 {
   "projects_title": "Projekte",
-  "projects_button_new": "Neues Projekt"
+  "project_new": "Neues Projekt",
+  "project_edit": "Projekt editieren",
+  "project_delete": "Projekt löschen",
+  "project_delete_question": "Soll das Projekt <strong>{{ proj_name }}</strong> wirklich gelöscht werden? Sämtliche Daten gehen dabei verloren!"
 }

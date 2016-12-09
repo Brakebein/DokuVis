@@ -356,7 +356,7 @@
 					<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>
 					
 					<div class="btnBar">
-						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid })"><span class="glyphicon glyphicon-zoom-in"></span></a>
+						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid, selection: filteredSourceResults })"><span class="glyphicon glyphicon-zoom-in"></span></a>
 						<!--<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>-->
 						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
 						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>

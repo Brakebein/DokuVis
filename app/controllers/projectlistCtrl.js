@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'Utilities', 'Project', 'ConfirmService', '$translatePartialLoader',
+angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'Utilities', 'Project', 'ConfirmService', '$translate', '$translatePartialLoader',
 	/**
 	 * Controller for view to list and organize all projects
 	 * @memberof dokuvisApp
@@ -11,9 +11,10 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 	 * @param Utilities {Utilities} Utilities
 	 * @param Project {Project} Project resource
 	 * @param ConfirmService {ConfirmService} confirm dialog
+	 * @param $translate {$translate} $translate service
 	 * @param $translatePartialLoader {$translatePartialLoader} $translate addPart
 	 */
-	function($scope, $state, $window, Utilities, Project, ConfirmService, $translatePartialLoader) {
+	function($scope, $state, $window, Utilities, Project, ConfirmService, $translate, $translatePartialLoader) {
 
 		$translatePartialLoader.addPart('projects');
 
@@ -59,8 +60,10 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 			console.log('delete ', p);
 
 			ConfirmService.showAlert({
+				// headerText: $translate('project_delete'),
+				// bodyText: $translate('project_delete_question', { proj_name: p.name })
 				headerText: 'Projekt löschen',
-				bodyText: 'Soll das Projekt <strong>' + p.name + '</strong> wirklich gelöscht werden? Sämtliche Daten gehen dabei verloren!'
+				bodyText: 'Soll Projekt ' + p.name + ' wirklich gelöscht werden?'
 			}).then(function () {
 				p.$delete().then(function(response) {
 					console.log(response);
@@ -75,7 +78,7 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 		queryProjects();
 
 		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
-			if(fromState.name === 'projectlist.project.new' || fromState.name === 'projectlist.project.edit')
+			if(fromState.name === 'projectlist.project')
 				queryProjects();
 		});
 		

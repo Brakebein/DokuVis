@@ -1,4 +1,7 @@
 {
   "projects_title": "Projects",
-  "projects_button_new": "New Project"
+  "project_new": "New Project",
+  "project_edit": "Edit Project",
+  "project_delete": "Delete Project",
+  "project_delete_question": "Do you really want to delete project <strong>{{ proj_name }}</strong>? All data is going to be lost!"
 }

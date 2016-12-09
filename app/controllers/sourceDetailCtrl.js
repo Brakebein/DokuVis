@@ -7,12 +7,14 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 
 		$scope.horizontalImage = false;
 		$scope.pageNr = 0; // für Textdokumente
-		
+
+		console.log('selection', $stateParams.selection);
+
 		function loadSource(id) {
-			Source.get(id).then(function (response) {
-				console.log(response.data);
-				if(response.data) {
-					$scope.item = response.data;
+			Source.get({ id: id }).$promise.then(function (data) {
+				console.log(data);
+				if(data) {
+					$scope.item = data;
 					prepareItem();
 				}
 				else
@@ -51,13 +53,16 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		}
 
 		$scope.nextItem = function(incr) {
-			var length = Source.results.filtered.length;
+			//var length = Source.results.filtered.length;
+			var length = $stateParams.selection.length;
 			var oldIndex = 0;
-			while(Source.results.filtered[oldIndex].eid !== $scope.item.eid) {
+			//while(Source.results.filtered[oldIndex].eid !== $scope.item.eid) {
+			while($stateParams.selection[oldIndex].eid !== $scope.item.eid) {
 				oldIndex++;
 			}
 			var newIndex = ((oldIndex + incr) % length + length) % length;
-			$state.go('project.explorer.source.id', { sourceId: Source.results.filtered[newIndex].eid });
+			//$state.go('project.explorer.source.id', { sourceId: Source.results.filtered[newIndex].eid });
+			$state.go('project.explorer.source.id', { sourceId: $stateParams.selection[newIndex].eid });
 		};
 		
 		$scope.nextPage = function(incr) {

@@ -89,5 +89,6 @@ angular.module('dokuvisApp').factory('Subproject', ['$http', 'API', '$stateParam
 		};
 
 		// TODO: subproject löschen
-		
+		// TODO: $resource
+
 	}]);

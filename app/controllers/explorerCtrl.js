@@ -189,7 +189,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		// close modal
 		$scope.closeModal = function(update) {
 			if(update === 'source')
-				$scope.getAllDocuments();
+				$scope.queryDocuments();
 			if(update === 'screenshot')
 				$scope.getScreenshots();
 			if(update === 'category')
@@ -201,7 +201,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 		$scope.updateList = function(type) {
 			if(type == 'source')
-				$scope.getAllDocuments();
+				$scope.queryDocuments();
 			if(type == 'screenshot')
 				$scope.getScreenshots();
 		};
@@ -209,23 +209,24 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		/**
 		 * get all sources/documents
 		 */
-		$scope.getAllDocuments = function() {
-			return Source.getAll().then(function(response){
-				$scope.sourceResults = response.data;
+		$scope.queryDocuments = function() {
+			return Source.query().$promise.then(function (data) {
+				$scope.sourceResults = data;
 				for(var i=0; i<$scope.sourceResults.length; i++) {
 					$scope.sourceResults[i].selected = false;
 				}
-				Source.results.all = $scope.sourceResults;
-				//Source.results.filtered = $scope.filteredSourceResults;
-				console.log('Dokumente:', $scope.sourceResults);
-			}, function(err) {
-				Utilities.throwApiException('on Source.getAll()', err);
-			});
+				console.log('Dokuments:', $scope.sourceResults);
+			}, function (err) {
+				Utilities.throwApiException('on Source.query()', err);
+			})
 		};
 
 		$scope.$watch('filteredSourceResults', function (newVal) {
 			console.log('filteredSourceResults', newVal);
-			Source.results.filtered = newVal;
+			if($state.includes('project.explorer.source')) {
+				$state.go('.', { selection: newVal });
+			}
+
 		});
 		
 		// lädt alle Screenshots in Liste
@@ -335,6 +336,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			});
 		};
 		
+		// DEPRECATED
 		$scope.getPlansForObj = function() {
 			neo4jRequest.getPlansFromObject($scope.selected.eid).success(function(data, status){
 				
@@ -670,7 +672,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		// oninit Funktionsaufrufe
 		$timeout(function() {
-			$scope.getAllDocuments().then(function () {
+			$scope.queryDocuments().then(function () {
 				$scope.getAllComments();
 			});
 			$scope.getScreenshots();
@@ -682,7 +684,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
 			//console.log('stateChange', fromState, fromParams);
 			if(fromState.name === 'project.explorer.upload.type' && fromParams.uploadType === 'source')
-				$scope.getAllDocuments();
+				$scope.queryDocuments();
 			else if(fromState.name === 'project.explorer.categoryedit')
 				getAllCategories();
 		});

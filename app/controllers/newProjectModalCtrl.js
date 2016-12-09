@@ -1,9 +1,9 @@
-angular.module('dokuvisApp').controller('projectModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'Utilities', 'Project',
+angular.module('dokuvisApp').controller('newProjectModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'Utilities', 'Project',
 	/**
 	 * Modal controller for creating or editing projects
 	 * @memberof dokuvisApp
 	 * @ngdoc controller
-	 * @name projectModalCtrl
+	 * @name newProjectModalCtrl
 	 * @author Brakebein
 	 * @param $scope {$scope} controller scope
 	 * @param $state {$state} ui.router state
@@ -16,13 +16,13 @@ angular.module('dokuvisApp').controller('projectModalCtrl', ['$scope', '$state',
 
 		var prj = $stateParams.prj;
 
-		$scope.title = prj ? 'Projekt editieren' : 'Neues Projekt';
+		$scope.title = prj ? 'project_edit' : 'project_new';
 		$scope.name = prj ? prj.name : '';
 		$scope.desc = prj ? prj.description : '';
 
 		/**
 		 * Saves input data by either creating a new project or updating database entries
-		 * @memberof projectModalCtrl
+		 * @memberof newProjectModalCtrl
 		 * @function save
 		 */
 		$scope.save = function () {
@@ -59,13 +59,13 @@ angular.module('dokuvisApp').controller('projectModalCtrl', ['$scope', '$state',
 
 		/**
 		 * Closes the modal and destroys the scope
-		 * @memberof projectModalCtrl
+		 * @memberof newProjectModalCtrl
 		 * @function close
 		 */
 		$scope.close = function () {
 			this.$hide();
 			this.$destroy();
-			$state.go('^.^');
+			$state.go('^');
 		};
 		
 	}]);

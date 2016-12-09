@@ -95,18 +95,11 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/projectModal.html',
-						controller: 'projectModalCtrl',
+						contentTemplate: 'partials/modals/newProjectModal.html',
+						controller: 'newProjectModalCtrl',
 						show: true
 					})
 				}],
-				abstract: true
-			})
-			.state('projectlist.project.new', {
-				url: '/new'
-			})
-			.state('projectlist.project.edit', {
-				url: '/edit',
 				params: {
 					prj: null
 				}
@@ -134,7 +127,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/projectModal.html',
+						contentTemplate: 'partials/modals/newProjectModal.html',
 						controller: 'subprojectModalCtrl',
 						show: true
 					});
@@ -190,10 +183,14 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					});
 				}],
 				css: 'style/modals/sourceDetail.min.css',
-				abstract: true
+				abstract: true,
+				reloadOnSearch: false
 			})
 			.state('project.explorer.source.id', {
-				url: '/:sourceId'
+				url: '/:sourceId',
+				params: {
+					selection: []
+				}
 			})
 			.state('project.explorer.upload', {
 				url: '/upload',
@@ -295,6 +292,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 		});
 		//$translateProvider.preferredLanguage('de-DE');
 		$translateProvider.preferredLanguage('en-US');
+		$translateProvider.fallbackLanguage('de-DE');
 		$translatePartialLoaderProvider.addPart('general');
 		
 		// defaults
@@ -483,6 +481,7 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 		amMoment.changeLocale('de');
 		editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
 
+		// typeahead
 		$rootScope.setTypeahead = function (label, from, prop) {
 			TypeaheadRequest.query(label, from, prop).then(function (response) {
 				$rootScope.typeaheads = response.data;

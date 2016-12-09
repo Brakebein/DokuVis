@@ -1,6 +1,7 @@
 {
   "project": "Projekt",
   "description": "Beschreibung",
+  "description_opt": "Beschreibung (optional)",
   "name": "Name",
   "email": "Email",
   "role": "Rolle",
@@ -16,5 +17,8 @@
   "save": "Speichern",
   "abort": "Abbrechen",
   "close": "Schließen",
-  "eg": "z.B."
+  "eg": "z.B.",
+  "next": "Nächstes",
+  "prev": "Voriges",
+  "search": "Suche"
 }

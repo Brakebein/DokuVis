@@ -458,92 +458,52 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		
 		}
 
-		//
-		requests.insertObject = function(name) {
-			return $http.post(cypherUrl, {
-				query: 'MERGE (e22:E22 {content:"e22_'+name+'"})'
-					+' MERGE (e36:E36 {content:"e36_'+name+'"})'
-					+' MERGE (e73:E73 {content:"e73_'+name+'"})'
-					+' MERGE (e75:E75 {content:"'+name+'.obj", type:"obj"})'
-					+' MERGE (e22)<-[:P138]-(e36)'
-					+' MERGE (e36)-[:P106]->(e73)'
-					+' MERGE (e73)-[:P1]->(e75)',
-				params: {}
-			});
-		};
-		
-		requests.insertPlan = function(name, title) {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (e21:E21 {content:"e21_conrad_schick"})'
-					+' MERGE (e31:E31 {content:"e31_'+name+'"})'
-					+' MERGE (e36:E36 {content:"e36_'+name+'"})'
-					+' MERGE (e73:E73 {content:"e73_'+name+'"})'
-					+' MERGE (e75:E75 {content:"'+name+'.obj", type:"obj"})'
-					+' MERGE (jpg:E75 {content:"'+name+'.jpg", type:"jpg"})'
-					+' MERGE (e35:E35 {content:"'+title+'"})'
-					+' MERGE (e65:E65 {content:"e65_e31_'+name+'"})'
-					+' MERGE (e31)<-[:P138]-(e36)'
-					+' MERGE (e36)-[:P106]->(e73)'
-					+' MERGE (e73)-[:P1]->(e75)'
-					+' MERGE (e31)-[:P1]->(jpg)'
-					+' MERGE (e31)-[:P102]->(e35)'
-					+' MERGE (e31)<-[:P94]-(e65)'
-					+' MERGE (e65)-[:P14]->(e21)',
-				params: {}
-			});
-		};
-		
-		requests.getAllObj = function() {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (e22:E22)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(e75:E75)'
-					+' RETURN e22.content AS eid, e75.content AS file',
-				params: {}
-			});
-		};
-		
-		requests.getAllPlanObj = function() {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (e31:E31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(e75:E75)'
-					+' RETURN e31.content AS eid, e75.content AS file',
-				params: {}
-			});
-		};
-		
-		requests.getPlansFromObject = function(obj) {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (:E22 {content:"'+obj+'"})<-[:P70]-(e31:E31)-[:P1]->(jpg:E75),'
-					+' (e31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(obj:E75),'
-					+' (e31)-[:P102]->(title:E35),'
-					+' (e31)<-[:P94]-(:E65)-[:P14]->(e21)-[:P131]->(author:E82)'
-					+' RETURN e31.content AS eid, jpg.content AS jpg, obj.content AS obj, title.content AS title, author.content AS author',
-				params: {}
-			});
-		};
-		
-		requests.getAllPlanData = function(prj) {
-			/*return $http.post(phpUrl, {
-				query: 'MATCH (e31:E31)-[:P1]->(jpg:E75),'
-					+' (e31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(obj:E75),'
-					+' (e31)-[:P102]->(title:E35),'
-					+' (e31)<-[:P94]-(:E65)-[:P14]->(e21)-[:P131]->(author:E82)'
-					+' RETURN e31.content AS eid, jpg.content AS jpg, obj.content AS obj, title.content AS title, author.content AS author',
-				params: {}
-			});*/
-			return $http.post(phpUrl, {
-				query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55 {content: "plan"}),'
-					+' (e31)-[:P102]->(title:E35),'
-					+' (e31)-[:P1]->(file:E75),'
-					+' (e31)<-[:P94]-(e65:E65)'
-					+' OPTIONAL MATCH (e65)-[:P14]->(author:E21)-[:P131]->(aname:E82)'
-					+' OPTIONAL MATCH (e65)-[:P7]->(place:E53)-[:P87]->(pname:E48)'
-					+' OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61)'
-					+' OPTIONAL MATCH (e31)-[:P48]->(archive:E42)'
-					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path} AS file',
-				params: {}
-			});
-		};
-		
-		requests.getAllDocuments = function(prj, subprj) {
+
+		// DEPRECATED
+		// requests.getAllPlanObj = function() {
+		// 	return $http.post(cypherUrl, {
+		// 		query: 'MATCH (e31:E31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(e75:E75)'
+		// 			+' RETURN e31.content AS eid, e75.content AS file',
+		// 		params: {}
+		// 	});
+		// };
+
+		// DEPRECATED
+		// requests.getPlansFromObject = function(obj) {
+		// 	return $http.post(cypherUrl, {
+		// 		query: 'MATCH (:E22 {content:"'+obj+'"})<-[:P70]-(e31:E31)-[:P1]->(jpg:E75),'
+		// 			+' (e31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(obj:E75),'
+		// 			+' (e31)-[:P102]->(title:E35),'
+		// 			+' (e31)<-[:P94]-(:E65)-[:P14]->(e21)-[:P131]->(author:E82)'
+		// 			+' RETURN e31.content AS eid, jpg.content AS jpg, obj.content AS obj, title.content AS title, author.content AS author',
+		// 		params: {}
+		// 	});
+		// };
+		// DEPRECATED
+		// requests.getAllPlanData = function(prj) {
+		// 	/*return $http.post(phpUrl, {
+		// 		query: 'MATCH (e31:E31)-[:P1]->(jpg:E75),'
+		// 			+' (e31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(obj:E75),'
+		// 			+' (e31)-[:P102]->(title:E35),'
+		// 			+' (e31)<-[:P94]-(:E65)-[:P14]->(e21)-[:P131]->(author:E82)'
+		// 			+' RETURN e31.content AS eid, jpg.content AS jpg, obj.content AS obj, title.content AS title, author.content AS author',
+		// 		params: {}
+		// 	});*/
+		// 	return $http.post(phpUrl, {
+		// 		query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55 {content: "plan"}),'
+		// 			+' (e31)-[:P102]->(title:E35),'
+		// 			+' (e31)-[:P1]->(file:E75),'
+		// 			+' (e31)<-[:P94]-(e65:E65)'
+		// 			+' OPTIONAL MATCH (e65)-[:P14]->(author:E21)-[:P131]->(aname:E82)'
+		// 			+' OPTIONAL MATCH (e65)-[:P7]->(place:E53)-[:P87]->(pname:E48)'
+		// 			+' OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61)'
+		// 			+' OPTIONAL MATCH (e31)-[:P48]->(archive:E42)'
+		// 			+' RETURN e31.content AS eid, type.content AS type, title.content AS title, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path} AS file',
+		// 		params: {}
+		// 	});
+		// };
+		// DEPRECATED
+		/*requests.getAllDocuments = function(prj, subprj) {
 			console.log('service getAllDocuments', prj);
 			return $http.post(phpUrl, {
 				query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}),'
@@ -566,7 +526,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 					subprj: subprj === 'master' ? prj : subprj
 				}
 			});
-		};
+		};*/
 		
 		requests.getAttached3DPlan = function(prj, e31content, e36content) {
 			return $http.post(phpUrl, {

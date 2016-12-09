@@ -1,6 +1,7 @@
 {
   "project": "Project",
   "description": "Description",
+  "description_opt": "Description (optional)",
   "name": "Name",
   "email": "Email",
   "role": "Role",
@@ -16,5 +17,8 @@
   "save": "Save",
   "abort": "Abort",
   "close": "Close",
-  "eg": "e.g."
+  "eg": "e.g.",
+  "next": "Next",
+  "prev": "Previous",
+  "search": "Search"
 }

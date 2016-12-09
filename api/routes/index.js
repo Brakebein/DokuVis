@@ -24,7 +24,6 @@ var project = require('./project');
 var subproject = require('./subproject');
 var models = require('./models');
 var category = require('./category');
-var source = require('./source');
 var comment = require('./comment');
 var graph = require('./graph');
 var person = require('./person');
@@ -80,9 +79,11 @@ router.put('/auth/project/:id/category/:cid/attribute/:aid', category.updateAttr
 router.delete('/auth/project/:id/category/:cid/attribute/:aid', category.deleteAttr);
 
 // sources
-router.get('/auth/project/:id/:subprj/sources', source.getAll);
+var source = require('./source');
+router.get('/auth/project/:id/:subprj/source', source.query);
 router.get('/auth/project/:id/:subprj/source/:sourceId', source.get);
-router.post('/auth/project/:id/:subprj/source/:sourceId/connect', source.createConnections);
+router.post('/auth/project/:id/:subprj/source', source.create);
+router.put('/auth/project/:id/:subprj/source/:sourceId/connect', source.createConnections);
 router.get('/auth/project/:id/:subprj/source/:sourceId/connect', source.getConnections);
 
 // comments

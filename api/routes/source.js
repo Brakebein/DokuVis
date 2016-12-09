@@ -3,7 +3,7 @@ var neo4j = require('../neo4j-request');
 
 var source = {
 	
-	getAll: function (req, res) {
+	query: function (req, res) {
 		var prj = req.params.id;
 		var subprj = req.params.subprj;
 		var q = 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}), \
@@ -102,6 +102,11 @@ var source = {
 			}).catch(function(err) {
 			utils.error.neo4j(res, err, '#cypher');
 		});
+	},
+	
+	// TODO: create/insert source
+	create: function (req, res) {
+		
 	},
 
 	createConnections: function (req, res) {

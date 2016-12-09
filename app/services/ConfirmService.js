@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q',
+angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q', '$translate',
 	/**
 	 * Service providing a dialog with two buttons to confirm or abort an action
 	 * ```
@@ -21,6 +21,7 @@ angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q',
 	 * @name ConfirmService
 	 * @param $alert {$alert} ngStrap alert dialog service
 	 * @param $q {$q} Angular promise service
+	 * @param $translate {$translate} $translate service
 	 * @example
 	 * ConfirmService.showAlert({
 	 *     headerText: 'Projekt löschen',
@@ -31,7 +32,7 @@ angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q',
 	 *     // do something, if abort button has been pressed
 	 * });
 	 */
-	function ($alert, $q) {
+	function ($alert, $q, $translate) {
 
 		var alertDefaults = {
 			backdrop: 'static',
@@ -46,6 +47,10 @@ angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q',
 			bodyText: 'Sind Sie sicher?',
 			type: 'warning'
 		};
+
+		$translate('abort').then(function (abort) {
+			alertOptions.abortButtonText = abort;
+		});
 
 		/**
 		 * Triggers the alert/dialog to show
