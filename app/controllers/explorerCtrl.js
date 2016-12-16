@@ -239,9 +239,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 
 		// lädt alle Kommentare
-		$scope.getAllComments = function () {
-			Comment.getAll().then(function (response) {
-				var data = response.data;
+		$scope.queryComments = function () {
+			Comment.query().$promise.then(function (data) {
 				// target reference
 				for(var i=0; i<data.length; i++) {
 					if(data[i].type !== 'commentSource') continue;
@@ -257,12 +256,12 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				$scope.comments = data;
 				console.log('Comments:', $scope.comments);
 			}, function (err) {
-				Utilities.throwApiException('on Comment.getAll()', err);
+				Utilities.throwApiException('on Comment.query()', err);
 			});
 		};
 		
 		webglInterface.callFunc.updateComments = function () {
-			$scope.getAllComments();
+			$scope.queryComments();
 		};
 		
 		$scope.receiveScreenshot = function(data) {
@@ -335,8 +334,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				console.log(plan);
 			});
 		};
-		
-		// DEPRECATED
+
+		/**
+		 * @deprecated
+		 */
 		$scope.getPlansForObj = function() {
 			neo4jRequest.getPlansFromObject($scope.selected.eid).success(function(data, status){
 				
@@ -350,15 +351,16 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 
 		/**
-		 * highlight all objects connected to plan
+		 * highlight all objects linked to the plan
 		 * @param plan
          */
 		$scope.highlightObj = function(plan) {
-			Source.getConnections(plan.eid).then(function (response) {
-				console.log(response);
-				webglInterface.callFunc.highlightObjects(response.data);
+			console.log(plan);
+			plan.$getLinks().then(function (objIds) {
+				console.log(plan, objIds);
+				webglInterface.callFunc.highlightObjects(objIds);
 			}, function (err) {
-				Utilities.throwApiException('on Source.getConnections()', err);
+				Utilities.throwApiException('on Source.getLinks()', err);
 			});
 		};
 
@@ -369,11 +371,12 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		$scope.connectPlanToObj = function(plan) {
 			var res = webglInterface.callFunc.getObjForPlans(plan.plan3d.meshId);
 			console.log(res);
-			Source.createConnections(plan.eid, res.objs).then(function (response) {
+			plan.$link({ targets: res.objs }).then (function (response) {
 				console.log('plan connected', response);
 			}, function (err) {
-				Utilities.throwApiException('on Source.createConnections()', err);
+				Utilities.throwApiException('on Source.links()', err);
 			});
+			// TODO: #Source $getLinks() value.push is not a function
 		};
 		
 		webglInterface.callFunc.highlightSources = function (obj) {
@@ -528,7 +531,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}*/
 		//});
 		
-		// DEPRECATED
+		/**
+		 * @deprecated
+		 * @param btn
+		 */
 		$scope.ctrlBtnClick = function(btn) {
 			switch(btn) {
 				case 'slice_toggle':
@@ -591,8 +597,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		// Kategorien
 		function getAllCategories() {
-			//APIRequest.getAllCategories().then(function(response) {
-			//	var cats = Utilities.cleanNeo4jData(response.data);
 			Category.query().$promise.then(function (result) {
 				var cats = result;
 				for(var i=0; i<cats.length; i++) {
@@ -673,7 +677,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		// oninit Funktionsaufrufe
 		$timeout(function() {
 			$scope.queryDocuments().then(function () {
-				$scope.getAllComments();
+				$scope.queryComments();
 			});
 			$scope.getScreenshots();
 			getAllCategories();

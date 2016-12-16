@@ -6,16 +6,16 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 	 * @name webglView
 	 * @param $stateParams {service}
 	 * @param $timeout {service}
-	 * @param webglContext {service}
-	 * @param webglInterface {service}
+	 * @param webglContext {webglContext}
+	 * @param webglInterface {webglInterface}
 	 * @param $rootScope {service}
 	 * @param phpRequest {service}
 	 * @param neo4jRequest {service}
 	 * @param $http {service}
 	 * @param $q {service}
-	 * @param Utilities {service}
-	 * @param Comment {service}
-	 * @param ConfirmService {service}
+	 * @param Utilities {Utilities}
+	 * @param Comment {Comment}
+	 * @param ConfirmService {ConfirmService}
 	 */
 	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService) {
 		
@@ -1653,10 +1653,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				if(edges) edges.material.opacity = value;
 			}
 			
-			
-			
-			// transformiere Mousekoordinaten zu Viewportkoordinaten
-			// DEPRECATED
+			/**
+			 * transformiere Mousekoordinaten zu Viewportkoordinaten
+			 * @deprecated
+			 * @param event
+			 * @returns {THREE.Vector2}
+			 */
 			function mouseInputToViewport(event) {
 				var elementOffset = new THREE.Vector2();
 				elementOffset.x = element.offset().left - $(window).scrollLeft();
@@ -1668,6 +1670,13 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				return mouse;
 			}
+
+			/**
+			 * transform mouse coordinates to viewport coordinates
+			 * @param ox {Number} x coordinate
+			 * @param oy {Number} y coordinate
+			 * @returns {THREE.Vector2} viewport coordinates
+			 */
 			function mouseOffsetToViewport(ox, oy) {
 				var mouse = new THREE.Vector2();
 				mouse.x = (ox / SCREEN_WIDTH) * 2 - 1;
@@ -2154,8 +2163,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 
 				scope.snapshot.screenshots[scope.snapshot.sIndex].pData = element.find('#pwCanvasMain')[0].toDataURL("image/png");
 				
-				Comment.create('model', scope.snapshot.text, scope.snapshot.title, scope.snapshot.refObj, scope.snapshot.refSrc, scope.snapshot.screenshots).then(function (response) {
-					console.log(response);
+				Comment.save({
+					type: 'model',
+					text: scope.snapshot.text,
+					title: scope.snapshot.title,
+					targets: scope.snapshot.refObj,
+					refs: scope.snapshot.refSrc,
+					screenshots: scope.snapshot.screenshots
+				}).$promise.then(function () {
 					scope.snapshot.active = false;
 					scope.snapshot.text = '';
 					scope.snapshot.title = '';
@@ -2165,8 +2180,21 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					scope.setNavigationMode('select');
 					webglInterface.callFunc.updateComments();
 				}, function (err) {
-					console.log(err);
+					Utilities.throwApiException('on Comment.save()', err);
 				});
+				// Comment.create('model', scope.snapshot.text, scope.snapshot.title, scope.snapshot.refObj, scope.snapshot.refSrc, scope.snapshot.screenshots).then(function (response) {
+				// 	console.log(response);
+				// 	scope.snapshot.active = false;
+				// 	scope.snapshot.text = '';
+				// 	scope.snapshot.title = '';
+				// 	scope.snapshot.refObj = [];
+				// 	scope.snapshot.refSrc = [];
+				// 	scope.snapshot.screenshots = [];
+				// 	scope.setNavigationMode('select');
+				// 	webglInterface.callFunc.updateComments();
+				// }, function (err) {
+				// 	console.log(err);
+				// });
 			};
 
 			webglInterface.callFunc.makeScreenshot = function () {
@@ -2749,7 +2777,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			// 	}
 			// }
 			
-			// DEPRECATED
+			/**
+			 * @deprecated
+			 * @param coords
+			 */
 			scope.internalCallFunc.setCoordsFromInput = function(coords) {
 				if(gizmo instanceof THREE.GizmoMove)
 					gizmo.object.position.set(parseFloat(coords.x), parseFloat(coords.y), parseFloat(coords.z));

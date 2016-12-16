@@ -1,14 +1,10 @@
 angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParams',
 	/**
-	 *
+	 * $resource for sources/documents.
 	 * @memberof dokuvisApp
 	 * @ngdoc service
 	 * @name Source
 	 * @author Brakebein
-	 * @param $resource {$resource} Angular $resource service
-	 * @param API {API} API url constant
-	 * @param $stateParams {$stateParams} ui.router state parameter
-	 * @returns {*}
 	 */
 	function($resource, API, $stateParams) {
 		
@@ -19,42 +15,54 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 			subproject: function () {
 				return $stateParams.subproject;
 			},
-			id: '@id'
+			id: '@eid'
 		}, {
-			connect: {
-				method: 'PUT',
+			/**
+			 * Link this source to specific items.
+			 * ```
+			 * source.$link({ targets: <id>|<Array> }).then(...);
+			 * ```
+			 * @memberof Source
+			 * @method link
+			 */
+			link: {
+				method: 'POST',
 				url: API + 'auth/project/:project/:subproject/source/:id/connect'
 			},
-			queryConnections: {
+			/**
+			 * Get all items this source is connected to.
+			 * ```
+			 * source.$getLinks().then(...);
+			 * ```
+			 * @memberof Source
+			 * @method getLinks
+			 */
+			getLinks: {
 				method: 'GET',
 				url: API + 'auth/project/:project/:subproject/source/:id/connect',
 				isArray: true
 			}
 		});
-		
-		// return {
-		//	
-		// 	// results: {
-		// 	// 	all: [],
-		// 	// 	filtered: []
-		// 	// },
-		//	
-		// 	getAll: function() {
-		// 		return $http.get(API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/source');
-		// 	},
-		//
-		// 	get: function(id) {
-		// 		return $http.get(API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/source/' + id);
-		// 	},
-		//
-		// 	createConnections: function(id, targets) {
-		// 		return $http.post(API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/source/' + id +'/connect', { targets: targets });
-		// 	},
-		//
-		// 	getConnections: function(id) {
-		// 		return $http.get(API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/source/' + id +'/connect');
-		// 	}
-		//	
-		// };
-		//
+
+		/**
+		 * Get all sources/documents of this project/subproject.
+		 * ```
+		 * Source.query().$promise.then(...);
+		 * ```
+		 * @memberof Source
+		 * @method query
+		 */
+
+		/**
+		 * Get a specific source by id.
+		 * ```
+		 * Source.get({ id: <id> }).$promise.then(...);
+		 * ```
+		 * @memberof Source
+		 * @method get
+		 */
+
+		// TODO: #Source update
+		// TODO: #Source save
+
 	}]);

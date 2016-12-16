@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').controller('infoeditModalCtrl', ['$scope', '$state', '$stateParams', 'Utilities', 'ProjInfo',
+angular.module('dokuvisApp').controller('newProjInfoModalCtrl', ['$scope', '$state', '$stateParams', 'Utilities', 'ProjInfo',
 	function ($scope, $state, $stateParams, Utilities, ProjInfo) {
 
 		var note = $stateParams.note;
@@ -8,7 +8,7 @@ angular.module('dokuvisApp').controller('infoeditModalCtrl', ['$scope', '$state'
 
 		/**
 		 * Saves the input data by either creating new or updating nodes
-		 * @memberof infoeditModalCtrl
+		 * @memberof newProjInfoModalCtrl
 		 * @function save
 		 */
 		$scope.save = function () {
@@ -36,7 +36,7 @@ angular.module('dokuvisApp').controller('infoeditModalCtrl', ['$scope', '$state'
 
 		/**
 		 * Closes the modal and destroys the scope
-		 * @memberof infoeditModalCtrl
+		 * @memberof newProjInfoModalCtrl
 		 * @function close
 		 */
 		$scope.close = function () {

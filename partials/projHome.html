@@ -7,14 +7,14 @@
 		<div class="infoText" ng-bind-html="info.info"></div>
 		<div class="infoCtrls">
 			<i class="fa fa-sort-asc" ng-hide="$first" ng-click="swapInfoOrder($index, $index-1)"></i>
-			<i class="fa fa-pencil" ui-sref="project.home.infoedit({ note: info })"></i>
+			<i class="fa fa-pencil" ui-sref="project.home.projinfo({ note: info })"></i>
 			<i class="fa fa-trash" ng-click="removeProjInfo(info)"></i>
 			<i class="fa fa-sort-desc" ng-hide="$last" ng-click="swapInfoOrder($index, $index+1)"></i>
 		</div>
 	</div>
 
 	<p>
-		<button class="btn btn-primary" ui-sref="project.home.infoedit"><i class="fa fa-plus"></i> Info hinzufügen</button>
+		<button class="btn btn-primary" ui-sref="project.home.projinfo"><i class="fa fa-plus"></i> Info hinzufügen</button>
 	</p>
 
 </div>
@@ -27,7 +27,7 @@
 
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<h3 class="panel-title">Unterprojekte</h3>
+			<h3 class="panel-title">{{'subprojects_title' | translate}}</h3>
 		</div>
 		<div class="panel-body">
 
@@ -39,19 +39,19 @@
 			<table class="table table-striped" ng-show="subprojects.length">
 				<thead>
 					<tr>
-						<th width="300">Name</th>
-						<th>Beschreibung</th>
+						<th width="300">{{'name' | translate}}</th>
+						<th>{{'description' | translate}}</th>
 						<th width="300"></th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat="sp in subprojects | orderBy: 'title'">
-						<td>{{sp.title}}</td>
+					<tr ng-repeat="sp in subprojects | orderBy: 'name'">
+						<td>{{sp.name}}</td>
 						<td>{{sp.desc}}</td>
 						<td>
-							<button class="btn btn-primary btn-xs" ui-sref="project.home({ subproject: sp.subId })"><i class="fa fa-folder-open"></i> Öffnen</button>
-							<button class="btn btn-default btn-xs" ng-show="can('edit_subproject')" ui-sref="project.home.subproject.edit({ subId: sp.subId, name: sp.title, desc: sp.desc })"><i class="fa fa-pencil"></i> Bearbeiten</button>
-							<button class="btn btn-danger btn-xs" ng-show="can('edit_subproject')"><i class="fa fa-trash"></i> Löschen</button>
+							<button class="btn btn-primary btn-xs" ui-sref="project.home({ subproject: sp.id })"><i class="fa fa-folder-open"></i> {{'open' | translate}}</button>
+							<button class="btn btn-default btn-xs" ng-show="can('edit_subproject')" ui-sref="project.home.subproject({ sub: sp })"><i class="fa fa-pencil"></i> {{'edit' | translate}}</button>
+							<button class="btn btn-danger btn-xs" ng-show="can('edit_subproject')"><i class="fa fa-trash"></i> {{'delete' | translate}}</button>
 						</td>
 					</tr>
 				</tbody>
@@ -59,7 +59,7 @@
 		</div>
 	</div>
 
-	<button class="btn btn-primary" ng-show="can('edit_subproject')" ui-sref="project.home.subproject.new"><i class="fa fa-plus"></i> Neues Unterprojekt</button>
+	<button class="btn btn-primary" ng-show="can('edit_subproject')" ui-sref="project.home.subproject"><i class="fa fa-plus"></i> {{'subproject_new' | translate}}</button>
 
 </div>
 

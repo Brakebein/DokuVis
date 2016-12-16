@@ -31,9 +31,15 @@
               <li>
                 <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
               </li><li>
+                <a href="dokuvisApp.Comment.html">Comment</a>
+              </li><li>
                 <a href="dokuvisApp.ConfirmService.html">ConfirmService</a>
               </li><li>
                 <a href="dokuvisApp.Project.html">Project</a>
+              </li><li>
+                <a href="dokuvisApp.ProjInfo.html">ProjInfo</a>
+              </li><li>
+                <a href="dokuvisApp.Source.html">Source</a>
               </li><li>
                 <a href="dokuvisApp.Subproject.html">Subproject</a>
               </li><li>
@@ -69,13 +75,13 @@
               <li>
                 <a href="dokuvisApp.newArchiveModalCtrl.html">newArchiveModalCtrl</a>
               </li><li>
+                <a href="dokuvisApp.newProjectModalCtrl.html">newProjectModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newSubprojectModalCtrl.html">newSubprojectModalCtrl</a>
+              </li><li>
                 <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
               </li><li>
-                <a href="dokuvisApp.projectModalCtrl.html">projectModalCtrl</a>
-              </li><li>
                 <a href="dokuvisApp.projHomeCtrl.html">projHomeCtrl</a>
-              </li><li>
-                <a href="dokuvisApp.subprojectModalCtrl.html">subprojectModalCtrl</a>
               </li><li>
                 <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
               </li>
@@ -116,67 +122,100 @@
   <div class="clearfix"></div>
   <div class="description">
     <h4>Description</h4>
-    <!--<p>$resource for project related tasks</p>-->
-    <p>$resource for project related tasks</p>
+    <!--<p>$resource for project related tasks.</p>-->
+    <p>$resource for project related tasks.</p>
   </div>
   <div class="details"></div>
-  <div>
-    <h4>Parameters</h4>
-    <table class="params">
-      <thead>
-        <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="name" nowrap="">
-            <a id="$resource"></a>
-            $resource
-          </td>
-          <td class="type"><span class="param-type">
-            <a href="service.html">service</a>
-          </span></td>
-          <td class="description last">
-            <span>
-              <!--<p>ngResource</p>-->
-              <p>ngResource</p>
-            </span>
-          </td>
-        </tr><tr>
-          <td class="name" nowrap="">
-            <a id="API"></a>
-            API
-          </td>
-          <td class="type"><span class="param-type">
-            <a href="API.html">API</a>
-          </span></td>
-          <td class="description last">
-            <span>
-              <!--<p>API url constant</p>-->
-              <p>API url constant</p>
-            </span>
-          </td>
-        </tr><tr>
-          <td class="name" nowrap="">
-            <a id="Utilities"></a>
-            Utilities
-          </td>
-          <td class="type"><span class="param-type">
-            <a href="Utilities.html">Utilities</a>
-          </span></td>
-          <td class="description last">
-            <span>
-              <!--<p>Utilities</p>-->
-              <p>Utilities</p>
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
   <div>
     <h4>Authors</h4>
     Brakebein
   </(.*)></div>
+</div>
+<div class="functions">
+  <h3 class="subsection-title">Methods</h3>
+  <dl>
+    <dt>
+      <a href="source/dokuvisApp.Project.html#line54" class="name-link" id="get">
+        <h4 class="name">
+          get
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Get project by id.</p>
+<pre class="prettyprint source"><code>Project.get({ id: &lt;id> }).$promise.then(...);</code></pre>-->
+          <p>Get project by id.</p>
+<pre class="prettyprint source"><code>Project.get({ id: &lt;id> }).$promise.then(...);</code></pre>
+        </span>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.Project.html#line45" class="name-link" id="query">
+        <h4 class="name">
+          query
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Get all projects the current user is involved to.</p>
+<pre class="prettyprint source"><code>Project.query().$promise.then(...);</code></pre>-->
+          <p>Get all projects the current user is involved to.</p>
+<pre class="prettyprint source"><code>Project.query().$promise.then(...);</code></pre>
+        </span>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.Project.html#line14" class="name-link" id="save">
+        <h4 class="name">
+          save
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Creates a new project.</p>
+<pre class="prettyprint source"><code>Project.save({
+  name: &lt;string>,
+  description: &lt;string>  // (optional)
+}).$promise.then(...);</code></pre>-->
+          <p>Creates a new project.</p>
+<pre class="prettyprint source"><code>Project.save({
+  name: &lt;string>,
+  description: &lt;string>  // (optional)
+}).$promise.then(...);</code></pre>
+        </span>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.Project.html#line31" class="name-link" id="update">
+        <h4 class="name">
+          update
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Saves any changes to name or description.</p>
+<pre class="prettyprint source"><code>project.$update().then(...);</code></pre>-->
+          <p>Saves any changes to name or description.</p>
+<pre class="prettyprint source"><code>project.$update().then(...);</code></pre>
+        </span>
+      </div>
+      <div>
+        <h4>Example</h4>
+        <pre class="prettyprint"><code><span class="str">project.name = 'new name';project.$update();</span></code></pre>
+      </div>
+    </dd>
+  </dl>
 </div></div>
         </div>
       </div>

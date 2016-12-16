@@ -1,9 +1,9 @@
-angular.module('dokuvisApp').controller('subprojectModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'Utilities', 'Subproject',
+angular.module('dokuvisApp').controller('newSubprojectModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'Utilities', 'Subproject',
 	/**
 	 * Modal controller for creating or editing subprojects
 	 * @memberof dokuvisApp
 	 * @ngdoc controller
-	 * @name subprojectModalCtrl
+	 * @name newSubprojectModalCtrl
 	 * @author Brakebein
 	 * @param $scope {$scope} controller scope
 	 * @param $state {$state} ui.router state
@@ -14,13 +14,15 @@ angular.module('dokuvisApp').controller('subprojectModalCtrl', ['$scope', '$stat
 	 */
 	function($scope, $state, $stateParams, $timeout, Utilities, Subproject) {
 
-		$scope.title = $state.includes('project.home.subproject.edit') ? 'Unterprojekt editieren' : 'Neues Unterprojekt';
-		$scope.name = $stateParams.name || '';
-		$scope.desc = $stateParams.desc || '';
+		var sub = $stateParams.sub;
+		
+		$scope.title = sub ? 'subproject_edit' : 'subproject_new';
+		$scope.name = sub ? sub.name : '';
+		$scope.desc = sub ? sub.desc : '';
 
 		/**
 		 * Saves the input data by either creating new subproject or updating nodes
-		 * @memberof subprojectModalCtrl
+		 * @memberof newSubprojectModalCtrl
 		 * @function save
 		 */
 		$scope.save = function () {
@@ -29,16 +31,18 @@ angular.module('dokuvisApp').controller('subprojectModalCtrl', ['$scope', '$stat
 				return;
 			}
 
-			if($stateParams.subId) {
-				Subproject.update($stateParams.subId, $scope.name, $scope.desc).then(function () {
+			if(sub) {
+				sub.name = $scope.name;
+				sub.desc = $scope.desc;
+				sub.$update().then(function () {
 					//console.log('subproject changed');
 					$scope.close();
 				}, function (err) {
-					Utilities.throwApiException('on Subproject.change()', err);
+					Utilities.throwApiException('on Subproject.update()', err);
 				});
 			}
 			else {
-				Subproject.create($scope.name, $scope.desc).then(function () {
+				Subproject.save({ name: $scope.name, desc: $scope.desc }).$promise.then(function () {
 					//console.log('subproject created');
 					$scope.close();
 				}, function (err) {
@@ -56,13 +60,13 @@ angular.module('dokuvisApp').controller('subprojectModalCtrl', ['$scope', '$stat
 
 		/**
 		 * Closes the modal and destroys the scope
-		 * @memberof subprojectModalCtrl
+		 * @memberof newSubprojectModalCtrl
 		 * @function close
 		 */
 		$scope.close = function () {
 			this.$hide();
 			this.$destroy();
-			$state.go('^.^');
+			$state.go('^');
 		};
 		
 	}]);

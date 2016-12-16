@@ -128,30 +128,21 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
 						contentTemplate: 'partials/modals/newProjectModal.html',
-						controller: 'subprojectModalCtrl',
+						controller: 'newSubprojectModalCtrl',
 						show: true
 					});
 				}],
-				abstract: true
-			})
-			.state('project.home.subproject.new', {
-				url: '/new'
-			})
-			.state('project.home.subproject.edit', {
-				url: '/edit',
 				params: {
-					name: '',
-					desc: '',
-					subId: ''
+					sub: null
 				}
 			})
-			.state('project.home.infoedit', {
-				url: '/infoedit',
+			.state('project.home.projinfo', {
+				url: '/projinfo',
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalLargeTpl.html',
-						contentTemplate: 'partials/modals/infoeditModal.html',
-						controller: 'infoeditModalCtrl',
+						contentTemplate: 'partials/modals/newProjInfoModal.html',
+						controller: 'newProjInfoModalCtrl',
 						show: true
 					});
 				}],
@@ -287,12 +278,19 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			});
 
 		// translate
-		$translateProvider.useLoader('$translatePartialLoader', {
-			urlTemplate: '/i18n/{lang}/{part}.json'
-		});
-		//$translateProvider.preferredLanguage('de-DE');
-		$translateProvider.preferredLanguage('en-US');
-		$translateProvider.fallbackLanguage('de-DE');
+		$translateProvider
+			.useSanitizeValueStrategy('sanitize')
+			.useLoader('$translatePartialLoader', {
+				urlTemplate: '/i18n/{lang}/{part}.json'
+			})
+			// .preferredLanguage('de-DE')
+			.preferredLanguage('en-US')
+			.fallbackLanguage('de-DE')
+			.registerAvailableLanguageKeys(['en-US', 'de-DE'], {
+				'en_*': 'en-US',
+				'de_*': 'de-DE'
+			});
+			//.determinePreferredLanguage();
 		$translatePartialLoaderProvider.addPart('general');
 		
 		// defaults
@@ -424,10 +422,12 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				return $q.resolve();
 			else {
 				//console.log('before', $stateParams);
-				return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
+				//return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
+				return Subproject.get({ id: $stateParams.subproject }).$promise.then(function (result) {
 
 					//console.log('after', response);
-					if(!response.data.length) {
+					// if(!response.data.length) {
+					if(!result) {
 						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });
 						return $q.reject();
 					}

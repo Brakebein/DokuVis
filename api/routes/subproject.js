@@ -3,7 +3,53 @@ var neo4j = require('../neo4j-request');
 
 module.exports = {
 
+	query: function (req, res) {
+		var prj = req.params.id;
+
+		var q = 'MATCH (master:E7:'+prj+' {content: {master}})-[:P9]->(sub:E7)-[:P2]->(:E55 {content: "subproject"}), \
+			(sub)-[:P102]->(title:E35) \
+			OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
+			RETURN sub.content AS id, CASE WHEN exists(title.value) THEN title.value ELSE title.content END AS name, desc.value AS desc';
+
+		var params = {
+			master: prj
+		};
+
+		neo4j.transaction(q, params)
+			.then(function(response) {
+				if(response.errors.length) { utils.error.neo4j(res, response, '#subproject.query'); return; }
+				res.json(neo4j.extractTransactionData(response.results[0]));
+			})
+			.catch(function(err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
+	},
+
+	get: function (req, res) {
+		var prj = req.params.id;
+
+		var q = 'MATCH (sub:E7:'+prj+' {content: {subId}})-[:P2]->(:E55 {content: "subproject"}), \
+			(sub)-[:P102]->(title:E35) \
+			OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
+			RETURN sub.content AS id, CASE WHEN exists(title.value) THEN title.value ELSE title.content END AS name, desc.value AS desc';
+
+		var params = {
+			subId: req.params.subId
+		};
+
+		neo4j.transaction(q, params)
+			.then(function(response) {
+				if(response.errors.length) { utils.error.neo4j(res, response, '#subproject.get'); return; }
+				res.json(neo4j.extractTransactionData(response.results[0])[0]);
+			})
+			.catch(function(err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
+	},
+
 	create: function (req, res) {
+		if(!req.body.tid) { utils.abort.missingData(res, 'body.tid'); return; }
+
 		var prj = req.params.id;
 
 		var q = 'MATCH (master:E7:'+prj+' {content: {master}})-[:P15]->(e22m:E22), \
@@ -17,13 +63,13 @@ module.exports = {
 
 		var params = {
 			master: prj,
-			subproj: 'sub' + req.body.id,
+			subproj: 'sub' + req.body.tid,
 			title: {
-				content: 'e35_sub' + req.body.id,
+				content: 'e35_sub' + req.body.tid,
 				value: req.body.name
 			},
 			desc: {
-				content: 'e62_sub' + req.body.id,
+				content: 'e62_sub' + req.body.tid,
 				value: req.body.desc
 			}
 		};
@@ -37,47 +83,7 @@ module.exports = {
 			});
 	},
 
-	getAll: function (req, res) {
-		var prj = req.params.id;
-
-		var q = 'MATCH (master:E7:'+prj+' {content: {master}})-[:P9]->(sub:E7)-[:P2]->(:E55 {content: "subproject"}), \
-			(sub)-[:P102]->(title:E35) \
-			OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
-			RETURN sub.content AS subId, CASE WHEN exists(title.value) THEN title.value ELSE title.content END AS title, desc.value AS desc';
-
-		var params = {
-			master: prj
-		};
-
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#subproject.getAll'); return; }
-				res.json(neo4j.extractTransactionData(response.results[0]));
-			}).catch(function(err) {
-			utils.error.neo4j(res, err, '#cypher');
-		});
-	},
-
-	get: function (req, res) {
-		var prj = req.params.id;
-
-		var q = 'MATCH (sub:E7:'+prj+' {content: {subId}})-[:P2]->(:E55 {content: "subproject"}), \
-			(sub)-[:P102]->(title:E35) \
-			OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
-			RETURN CASE WHEN exists(title.value) THEN title.value ELSE title.content END AS name, desc.value AS desc';
-
-		var params = {
-			subId: req.params.subId
-		};
-
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#subproject.get'); return; }
-				res.json(neo4j.extractTransactionData(response.results[0]));
-			}).catch(function(err) {
-			utils.error.neo4j(res, err, '#cypher');
-		});
-	},
+	
 
 	update: function (req, res) {
 		var prj = req.params.id;

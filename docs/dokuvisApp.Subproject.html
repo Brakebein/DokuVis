@@ -31,9 +31,15 @@
               <li>
                 <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
               </li><li>
+                <a href="dokuvisApp.Comment.html">Comment</a>
+              </li><li>
                 <a href="dokuvisApp.ConfirmService.html">ConfirmService</a>
               </li><li>
                 <a href="dokuvisApp.Project.html">Project</a>
+              </li><li>
+                <a href="dokuvisApp.ProjInfo.html">ProjInfo</a>
+              </li><li>
+                <a href="dokuvisApp.Source.html">Source</a>
               </li><li>
                 <a href="dokuvisApp.Subproject.html">Subproject</a>
               </li><li>
@@ -69,13 +75,13 @@
               <li>
                 <a href="dokuvisApp.newArchiveModalCtrl.html">newArchiveModalCtrl</a>
               </li><li>
+                <a href="dokuvisApp.newProjectModalCtrl.html">newProjectModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newSubprojectModalCtrl.html">newSubprojectModalCtrl</a>
+              </li><li>
                 <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
               </li><li>
-                <a href="dokuvisApp.projectModalCtrl.html">projectModalCtrl</a>
-              </li><li>
                 <a href="dokuvisApp.projHomeCtrl.html">projHomeCtrl</a>
-              </li><li>
-                <a href="dokuvisApp.subprojectModalCtrl.html">subprojectModalCtrl</a>
               </li><li>
                 <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
               </li>
@@ -121,73 +127,6 @@
   </div>
   <div class="details"></div>
   <div>
-    <h4>Parameters</h4>
-    <table class="params">
-      <thead>
-        <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="name" nowrap="">
-            <a id="$http"></a>
-            $http
-          </td>
-          <td class="type"><span class="param-type">
-            <a href="$http.html">$http</a>
-          </span></td>
-          <td class="description last">
-            <span>
-              <!--<p>Angular HTTP request service</p>-->
-              <p>Angular HTTP request service</p>
-            </span>
-          </td>
-        </tr><tr>
-          <td class="name" nowrap="">
-            <a id="API"></a>
-            API
-          </td>
-          <td class="type"><span class="param-type">
-            <a href="API.html">API</a>
-          </span></td>
-          <td class="description last">
-            <span>
-              <!--<p>API url constant</p>-->
-              <p>API url constant</p>
-            </span>
-          </td>
-        </tr><tr>
-          <td class="name" nowrap="">
-            <a id="$stateParams"></a>
-            $stateParams
-          </td>
-          <td class="type"><span class="param-type">
-            <a href="$stateParams.html">$stateParams</a>
-          </span></td>
-          <td class="description last">
-            <span>
-              <!--<p>ui.router stateParams</p>-->
-              <p>ui.router stateParams</p>
-            </span>
-          </td>
-        </tr><tr>
-          <td class="name" nowrap="">
-            <a id="Utilities"></a>
-            Utilities
-          </td>
-          <td class="type"><span class="param-type">
-            <a href="Utilities.html">Utilities</a>
-          </span></td>
-          <td class="description last">
-            <span>
-              <!--<p>Utilities</p>-->
-              <p>Utilities</p>
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div>
     <h4>Authors</h4>
     Brakebein
   </(.*)></div>
@@ -196,352 +135,80 @@
   <h3 class="subsection-title">Methods</h3>
   <dl>
     <dt>
-      <a href="source/dokuvisApp.Subproject.html#line77" class="name-link" id="check">
-        <h4 class="name">
-          check
-          <span class="signature">(prjId, subId)</span>
-          <span class="type-signature">
-            -&gt; Promise
-          </span>
-        </h4>
-      </a>
-    </dt>
-    <dd>
-      <div class="description">
-        <span>
-          <!--<p>Check, if subproject exists</p>-->
-          <p>Check, if subproject exists</p>
-        </span>
-      </div>
-      <div>
-        <h4>Parameters</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="name">prjId</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>project ID</p>-->
-                  <p>project ID</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">subId</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>subproject ID</p>-->
-                  <p>subproject ID</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div>
-        <h4>Returns</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="type">
-                <span class="param-type">
-                  <a href="Promise.html">Promise</a>
-                </span>
-              </td>
-              <td class="description last">
-                <span>
-                  <!--<p>$http Promise</p>-->
-                  <p>$http Promise</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </dd>
-  </dl><dl>
-    <dt>
-      <a href="source/dokuvisApp.Subproject.html#line18" class="name-link" id="create">
-        <h4 class="name">
-          create
-          <span class="signature">(name, desc)</span>
-          <span class="type-signature">
-            -&gt; Promise
-          </span>
-        </h4>
-      </a>
-    </dt>
-    <dd>
-      <div class="description">
-        <span>
-          <!--<p>Create a new subproject</p>-->
-          <p>Create a new subproject</p>
-        </span>
-      </div>
-      <div>
-        <h4>Example</h4>
-        <pre class="prettyprint"><code><span class="str">Subproject.create($scope.name, $scope.desc).then(function () {    console.log('subproject created');}, function (err) {    console.error('subproject not created');});</span></code></pre>
-      </div>
-      <div>
-        <h4>Parameters</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="name">name</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>name of subproject</p>-->
-                  <p>name of subproject</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">desc</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>description</p>-->
-                  <p>description</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div>
-        <h4>Returns</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="type">
-                <span class="param-type">
-                  <a href="Promise.html">Promise</a>
-                </span>
-              </td>
-              <td class="description last">
-                <span>
-                  <!--<p>$http Promise</p>-->
-                  <p>$http Promise</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </dd>
-  </dl><dl>
-    <dt>
-      <a href="source/dokuvisApp.Subproject.html#line50" class="name-link" id="get">
+      <a href="source/dokuvisApp.Subproject.html#line17" class="name-link" id="get">
         <h4 class="name">
           get
-          <span class="signature">(id)</span>
-          <span class="type-signature">
-            -&gt; Promise
-          </span>
         </h4>
       </a>
     </dt>
     <dd>
       <div class="description">
         <span>
-          <!--<p>Get id, name, and description of subproject</p>-->
-          <p>Get id, name, and description of subproject</p>
+          <!--<p>Get subproject by id.</p>
+<pre class="prettyprint source"><code>Subproject.save({ id: &lt;id> }).$promise.then(...);</code></pre>-->
+          <p>Get subproject by id.</p>
+<pre class="prettyprint source"><code>Subproject.save({ id: &lt;id> }).$promise.then(...);</code></pre>
         </span>
-      </div>
-      <div>
-        <h4>Parameters</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="name">id</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>subproject ID</p>-->
-                  <p>subproject ID</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div>
-        <h4>Returns</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="type">
-                <span class="param-type">
-                  <a href="Promise.html">Promise</a>
-                </span>
-              </td>
-              <td class="description last">
-                <span>
-                  <!--<p>$http Promise</p>-->
-                  <p>$http Promise</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </dd>
   </dl><dl>
     <dt>
-      <a href="source/dokuvisApp.Subproject.html#line40" class="name-link" id="getAll">
+      <a href="source/dokuvisApp.Subproject.html#line57" class="name-link" id="query">
         <h4 class="name">
-          getAll
-          <span class="type-signature">
-            -&gt; Promise
-          </span>
+          query
         </h4>
       </a>
     </dt>
     <dd>
       <div class="description">
         <span>
-          <!--<p>Get all subprojects</p>-->
-          <p>Get all subprojects</p>
+          <!--<p>Get all subprojects.</p>
+<pre class="prettyprint source"><code>Subproject.query().$promise.then(...);</code></pre>-->
+          <p>Get all subprojects.</p>
+<pre class="prettyprint source"><code>Subproject.query().$promise.then(...);</code></pre>
         </span>
-      </div>
-      <div>
-        <h4>Returns</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="type">
-                <span class="param-type">
-                  <a href="Promise.html">Promise</a>
-                </span>
-              </td>
-              <td class="description last">
-                <span>
-                  <!--<p>$http Promise</p>-->
-                  <p>$http Promise</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </dd>
   </dl><dl>
     <dt>
-      <a href="source/dokuvisApp.Subproject.html#line61" class="name-link" id="update">
+      <a href="source/dokuvisApp.Subproject.html#line29" class="name-link" id="save">
+        <h4 class="name">
+          save
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Save a new subroject.</p>
+<pre class="prettyprint source"><code>Subproject.save({
+  name: &lt;string>,
+  description: &lt;string>  // (optional)
+}).$promise.then(...);</code></pre>-->
+          <p>Save a new subroject.</p>
+<pre class="prettyprint source"><code>Subproject.save({
+  name: &lt;string>,
+  description: &lt;string>  // (optional)
+}).$promise.then(...);</code></pre>
+        </span>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.Subproject.html#line46" class="name-link" id="update">
         <h4 class="name">
           update
-          <span class="signature">(id, name, desc)</span>
-          <span class="type-signature">
-            -&gt; Promise
-          </span>
         </h4>
       </a>
     </dt>
     <dd>
       <div class="description">
         <span>
-          <!--<p>Update name and description of the subproject</p>-->
-          <p>Update name and description of the subproject</p>
+          <!--<p>Saves any changes to name or description.</p>
+<pre class="prettyprint source"><code>subproject.$update().then(...);</code></pre>-->
+          <p>Saves any changes to name or description.</p>
+<pre class="prettyprint source"><code>subproject.$update().then(...);</code></pre>
         </span>
-      </div>
-      <div>
-        <h4>Parameters</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Name</th><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="name">id</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>subproject ID</p>-->
-                  <p>subproject ID</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">name</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>new name</p>-->
-                  <p>new name</p>
-                </span>
-              </td>
-            </tr><tr>
-              <td class="name">desc</td>
-              <td class="type"><span class="param-type">
-                string
-              </span></td>
-              <td class="description last">
-                <span>
-                  <!--<p>new description</p>-->
-                  <p>new description</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div>
-        <h4>Returns</h4>
-        <table class="params">
-          <thead>
-            <tr><th>Type</th><th class="last">Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="type">
-                <span class="param-type">
-                  <a href="Promise.html">Promise</a>
-                </span>
-              </td>
-              <td class="description last">
-                <span>
-                  <!--<p>$http Promise</p>-->
-                  <p>$http Promise</p>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </dd>
   </dl>

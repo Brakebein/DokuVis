@@ -26,7 +26,7 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		loadSource($stateParams.sourceId);
 
 		function prepareItem() {
-			if($scope.item.type =='picture' || $scope.item.type =='plan') {
+			if($scope.item.type == 'picture' || $scope.item.type == 'plan') {
 				var img = new Image();
 				img.onload = function() {
 					$scope.horizontalImage = this.width/this.height > 2;
@@ -44,12 +44,18 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		}
 
 		function loadComments() {
-			Comment.get($scope.item.eid).then(function(response) {
-				console.log(response);
-				$scope.comments = response.data;
+			Comment.queryTarget({ targetId: $scope.item.eid }).$promise.then(function (result) {
+				console.log(result);
+				$scope.comments = result;
 			}, function(err) {
 				Utilities.throwApiException('on Comment.get()', err);
 			});
+			// Comment.get($scope.item.eid).then(function(response) {
+			// 	console.log(response);
+			// 	$scope.comments = response.data;
+			// }, function(err) {
+			// 	Utilities.throwApiException('on Comment.get()', err);
+			// });
 		}
 
 		$scope.nextItem = function(incr) {
@@ -129,29 +135,55 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		// Kommentare
 		$scope.postComment = function() {
 			if($scope.newCommentInput.length < 1) return;
-			Comment.create($scope.newCommentInput, $scope.item.eid, 'source').then(function(response) {
-				console.log(response);
+			Comment.save({
+				type: 'source',
+				text: $scope.newCommentInput,
+				targets: $scope.item.eid
+			}).$promise.then(function (newComment) {
+				console.log('newComment', newComment);
 				$scope.newCommentInput = '';
-				var newComment = response.data[0];
 				if(newComment) {
 					newComment.answers = [];
 					$scope.comments.push(newComment);
 				}
-			}, function(err) {
-				Utilities.throwApiException('on Comment.create()', err);
+			}, function (err) {
+				Utilities.throwApiException('on Comment.save()', err);
 			});
+			// Comment.create($scope.newCommentInput, $scope.item.eid, 'source').then(function(response) {
+			// 	console.log(response);
+			// 	$scope.newCommentInput = '';
+			// 	var newComment = response.data[0];
+			// 	if(newComment) {
+			// 		newComment.answers = [];
+			// 		$scope.comments.push(newComment);
+			// 	}
+			// }, function(err) {
+			// 	Utilities.throwApiException('on Comment.create()', err);
+			// });
 		};
 
 		$scope.postAnswer = function(comment) {
 			if(comment.newAnswerInput.length < 1) return;
-			Comment.create(comment.newAnswerInput, comment.id, 'answer').then(function(response) {
+			Comment.save({
+				type: 'answer',
+				text: comment.newAnswerInput,
+				targets: comment.id
+			}).$promise.then(function (newAnswer) {
 				comment.newAnswerInput = '';
 				comment.answering = false;
-				if(response.data[0])
-					comment.answers.push(response.data[0]);
-			}, function(err) {
-				Utilities.throwApiException('on Comment.create()', err);
-			})
+				if(newAnswer)
+					comment.answers.push(newAnswer);
+			}, function (err) {
+				Utilities.throwApiException('on Comment.save()', err);
+			});
+			// Comment.create(comment.newAnswerInput, comment.id, 'answer').then(function(response) {
+			// 	comment.newAnswerInput = '';
+			// 	comment.answering = false;
+			// 	if(response.data[0])
+			// 		comment.answers.push(response.data[0]);
+			// }, function(err) {
+			// 	Utilities.throwApiException('on Comment.create()', err);
+			// })
 		};
 
 		// TODO: Kommentare/Antworten editieren und löschen

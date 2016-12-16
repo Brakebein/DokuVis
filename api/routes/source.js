@@ -11,6 +11,8 @@ var source = {
 			(e31)-[:P102]->(title:E35), \
 			(e31)-[:P1]->(file:E75), \
 			(e31)<-[:P94]-(e65:E65) \
+			OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG) \
+			WITH e31, type, title, file, e65, collect(tag.content) AS tags \
 			OPTIONAL MATCH (e31)-[:P2]->(primary:E55 {content:"primarySource"}) \
 			OPTIONAL MATCH (e65)-[:P14]->(author:E21)-[:P131]->(aname:E82) \
 			OPTIONAL MATCH (e65)-[:P7]->(place:E53)-[:P87]->(pname:E48) \
@@ -21,7 +23,6 @@ var source = {
 			OPTIONAL MATCH (e31)-[:P3]->(repros:E62)-[:P3_1]->({content: "sourceRepros"}) \
 			OPTIONAL MATCH (e31)<-[:P128]-(:E84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41), \
 				(e78)-[:P52]->(:E40)-[:P131]->(inst:E82) \
-			OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG) \
 			OPTIONAL MATCH (e31)<-[:P129]-(ce33:E33)-[:P2]->(:E55 {content: "commentSource"}) \
 			RETURN e31.content AS eid, \
 				type.content AS type, \
@@ -35,7 +36,7 @@ var source = {
 				plan3d.content AS plan3d, \
 				note.value AS note, \
 				repros.value AS repros, \
-				collect(tag.content) as tags, \
+				tags, \
 				count(ce33) AS commentLength';
 		var params = {
 			subprj: subprj === 'master' ? prj : subprj
@@ -58,6 +59,8 @@ var source = {
 			(e31)-[:P102]->(title:E35), \
 			(e31)-[:P1]->(file:E75), \
 			(e31)<-[:P94]-(e65:E65) \
+			OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG) \
+			WITH e31, type, title, file, e65, collect(tag.content) AS tags \
 			OPTIONAL MATCH (e31)-[:P2]->(primary:E55 {content:"primarySource"}) \
 			OPTIONAL MATCH (e65)-[:P14]->(author:E21)-[:P131]->(aname:E82) \
 			OPTIONAL MATCH (e65)-[:P7]->(place:E53)-[:P87]->(pname:E48) \
@@ -68,7 +71,6 @@ var source = {
 			OPTIONAL MATCH (e31)-[:P3]->(repros:E62)-[:P3_1]->({content: "sourceRepros"}) \
 			OPTIONAL MATCH (e31)<-[:P128]-(:E84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41), \
 				(e78)-[:P52]->(:E40)-[:P131]->(inst:E82) \
-			OPTIONAL MATCH (e31)-[:has_tag]->(tag:TAG) \
 			OPTIONAL MATCH (e31)<-[:P129]-(ce33:E33)-[:P2]->(:E55 {content: "commentSource"}) \
 			RETURN e31.content AS eid, \
 				id(e31) AS nId, \
@@ -83,7 +85,7 @@ var source = {
 				plan3d.content AS plan3d, \
 				note.value AS note, \
 				repros.value AS repros, \
-				collect(tag.content) as tags, \
+				tags, \
 				count(ce33) AS commentLength';
 		var params = {
 			subprj: subprj === 'master' ? prj : subprj,
@@ -104,13 +106,18 @@ var source = {
 		});
 	},
 	
-	// TODO: create/insert source
+	// TODO: #source create/insert
 	create: function (req, res) {
 		
 	},
 
-	createConnections: function (req, res) {
+	link: function (req, res) {
 		var prj = req.params.id;
+
+		var targets = req.body.targets || [];
+		if(!Array.isArray(targets)) targets = [targets];
+		if(!targets.length) { utils.abort.missingData(res, 'body.targets'); return; }
+		
 		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36), \
 			(e73:E73:'+prj+')<-[:P106]-(:E36)-[:P138]->(e22:E22) \
 			WHERE e73.content IN {targets} \
@@ -118,7 +125,7 @@ var source = {
 			RETURN count(r) AS count';
 		var params = {
 			sourceId: req.params.sourceId,
-			targets: req.body.targets
+			targets: targets
 		};
 
 		neo4j.transaction(q, params)
@@ -130,7 +137,7 @@ var source = {
 		});
 	},
 
-	getConnections: function (req, res) {
+	getLinks: function (req, res) {
 		var prj = req.params.id;
 		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(:E36)-[:P138]->(:E22)<-[:P138]-(e36:E36)-[:P2]->(:E55 {content: "model"}), \
 			(e36)-[:P106]->(e73:E73) \
@@ -141,7 +148,7 @@ var source = {
 
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#source.getConnections'); return; }
+				if(response.exception) { utils.error.neo4j(res, response, '#source.getLinks'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
 			}).catch(function(err) {
 			utils.error.neo4j(res, err, '#cypher');
