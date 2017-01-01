@@ -88,3 +88,6 @@ OPTIONAL MATCH (e33)-[:P67]->(screen:E36)-[:P2]->(tSs),
 WITH e33, text, title, type, author, date, targets, refs, CASE WHEN count(screen) = 0 THEN [] ELSE collect({screenId: screen.content, cameraCenter: screen.cameraCenter, cameraFOV: screen.cameraFOV, cameraMatrix: screen.cameraMatrix, file: screenFile.content, path: screenFile.path, width: screenFile.width, height: screenFile.height, paint: {id: paint.content, file: paintFile.content, path: paintFile.path, width: paintFile.width, height: paintFile.height}}) END AS screenshots, screen, answerLength
 OPTIONAL MATCH (screen)-[:P106]->(pin:E73)
 RETURN e33.content AS eid, text.value AS text, title.value AS title, author, date, type.content AS type, targets AS targets, refs AS refs, screenshots, collect(DISTINCT pin) AS pins, answerLength
+
+// OPTIONAL MATCH n
+// collect(DISTINCT n) --> NullPointerException

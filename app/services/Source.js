@@ -17,6 +17,15 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 			},
 			id: '@eid'
 		}, {
+			save: {
+				method: 'POST',
+				transformRequest: function (data) {
+					return angular.toJson(angular.extend(data, {
+						tid: Utilities.getUniqueId(),
+						date: moment().format()
+					}));
+				}
+			},
 			/**
 			 * Link this source to specific items.
 			 * ```

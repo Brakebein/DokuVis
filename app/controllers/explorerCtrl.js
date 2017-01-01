@@ -356,7 +356,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
          */
 		$scope.highlightObj = function(plan) {
 			console.log(plan);
-			plan.$getLinks().then(function (objIds) {
+			//plan.$getLinks().then(function (objIds) {
+			Source.getLinks({ id: plan.eid }).$promise.then(function (objIds) {
 				console.log(plan, objIds);
 				webglInterface.callFunc.highlightObjects(objIds);
 			}, function (err) {

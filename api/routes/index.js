@@ -1,4 +1,5 @@
 const config = require('../config');
+const utils = require('../utils');
 const express = require('express');
 const router = express.Router();
 
@@ -9,10 +10,12 @@ var storage = multer.diskStorage({
 		cb(null, config.path.tmp);
 	},
 	filename: function (req, file, cb) {
-		if(req.body.newFileName)
+		if(req.body.tid)
+			cb(null, req.body.tid + '_' + utils.replace(file.originalname));
+		else if(req.body.newFileName)
 			cb(null, req.body.newFileName);
 		else
-			cb(null, 'file-' + Date.now());
+			cb(null, file.fieldname + '-' + Date.now());
 	}
 });
 var mUpload = multer({ storage: storage });
@@ -81,7 +84,7 @@ router.delete('/auth/project/:id/category/:cid/attribute/:aid', category.deleteA
 var source = require('./source');
 router.get('/auth/project/:id/:subprj/source', source.query);
 router.get('/auth/project/:id/:subprj/source/:sourceId', source.get);
-router.post('/auth/project/:id/:subprj/source', source.create);
+router.post('/auth/project/:id/:subprj/source', mUpload.single('uploadFile'), source.create);
 router.post('/auth/project/:id/:subprj/source/:sourceId/connect', source.link);
 router.get('/auth/project/:id/:subprj/source/:sourceId/connect', source.getLinks);
 

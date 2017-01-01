@@ -7,6 +7,9 @@ angular.module('dokuvisApp').factory('Uploader', ['FileUploader', '$window',
 			headers['X-Key'] = $window.localStorage.user;
 		}
 
-		return new FileUploader({ headers: headers });
+		return new FileUploader({
+			headers: headers,
+			alias: 'uploadFile'
+		});
 		
 	}]);

@@ -2170,7 +2170,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					targets: scope.snapshot.refObj,
 					refs: scope.snapshot.refSrc,
 					screenshots: scope.snapshot.screenshots
-				}).$promise.then(function () {
+				}).$promise.then(function (response) {
+					console.log('Comment.save', response);
 					scope.snapshot.active = false;
 					scope.snapshot.text = '';
 					scope.snapshot.title = '';
@@ -2703,7 +2704,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						else {
 							// wenn noch keine geometry für edges da, berechne und speichere edges
 							edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
-							edges.matrix = mesh.matrixWorld;
+							edges.matrix = obj.matrixWorld;
 							edges.matrixAutoUpdate = false;
 							scene.add(edges);
 							geometries[file.content].edgesGeo = edges.geometry;

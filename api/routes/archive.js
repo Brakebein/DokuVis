@@ -52,7 +52,7 @@ var archive = {
 		});
 	}
 	
-	// TODO: edit, delete
+	// TODO: #archive: edit, delete
 
 };
 

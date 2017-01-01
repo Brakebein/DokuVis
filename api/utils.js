@@ -71,7 +71,7 @@ var utils = {
 	},
 	
 	replace: function (string) {
-		return string.replace(/[^a-zA-Z0-9_]/g, '_');
+		return string.replace(/[^a-zA-Z0-9_\-\.]/g, '_');
 	}
 
 };

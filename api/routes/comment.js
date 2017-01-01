@@ -26,7 +26,7 @@ module.exports = {
 			OPTIONAL MATCH (e33)-[:P102]->(title:E35) \
 			OPTIONAL MATCH (e33)-[:P67]->(refs) WHERE NOT (refs)-[:P2]->(tSs) \
 			OPTIONAL MATCH (e33)<-[:P129]-(answer:E33)-[:P2]->(:E55 {content: "commentAnswer"}) \
-			WITH e33, text, title, type, {id: user.content, name: userName.value } AS author, date.value AS date, collect(DISTINCT targets.content) AS targets, collect(DISTINCT refs.content) AS refs, count(answer) AS answerLength, tSs, tUd \
+			WITH e33, text, title, type, {id: user.content, name: userName.value } AS author, date.value AS date, collect(targets.content) AS targets, collect(refs.content) AS refs, count(answer) AS answerLength, tSs, tUd \
 			OPTIONAL MATCH (e33)-[:P67]->(screen:E36)-[:P2]->(tSs), \
 				(screen)-[:P1]->(screenFile:E75), \
 				(screen)-[:P106]->(paint:E36)-[:P2]->(tUd), \
@@ -79,7 +79,8 @@ module.exports = {
 	
 	create: function (req, res) {
 		var prj = req.params.id;
-		
+
+		// set type
 		var cType = '';
 		switch(req.body.type) {
 			case 'source': cType = 'commentSource'; break;
@@ -93,13 +94,15 @@ module.exports = {
 		var promises = [], p;
 		var path = config.path.data + '/' + prj + '/screenshots/';
 
+		// check, if there is at least one target
 		var targets = req.body.targets || [];
 		if(!Array.isArray(targets)) targets = [targets];
 		if(!targets.length) { utils.abort.missingData(res, 'body.targets'); return; }
 
-		var refs = req.body.refs || [];
-		var screenshots = req.body.screenshots || [];
+		//var refs = req.body.refs || [];
+		//var screenshots = req.body.screenshots || [];
 
+		// prepare screenshots and process image data
 		for(var i=0; i<req.body.screenshots.length; i++) {
 			(function (screen) {
 				var sFilename = req.body.tid + '_screenshot_' + i + '.jpg';
@@ -137,13 +140,13 @@ module.exports = {
 
 				if(cType === 'commentModel') {
 					var pins = [];
-					for (var j = 0; j < req.body.targets.length; j++) {
-						objIds.push(req.body.targets[j].eid);
+					for (var j = 0; j < targets.length; j++) {
+						objIds.push(targets[j].eid);
 						pins.push({
 							id: 'e73_' + screenMap.screen36content + '_pin_' + j,
-							targetId: req.body.targets[j].eid,
+							targetId: targets[j].eid,
 							screenIndex: i,
-							pinMatrix: req.body.targets[j].pinMatrix
+							pinMatrix: targets[j].pinMatrix
 						});
 					}
 					screenMap.pins = pins;
@@ -163,9 +166,10 @@ module.exports = {
 			p = neo4j.transaction(statement, { objIds: objIds })
 				.then(function (response) {
 					var res = neo4j.extractTransactionData(response.results[0]);
-					req.body.targets = [];
+					targets = [];
 					for(var i=0; i<res.length; i++) {
-						req.body.targets.push(res[i].target);
+						console.debug(res[i].target);
+						targets.push(res[i].target);
 					}
 				}).catch(function(err) {
 					return Promise.reject(err);
@@ -219,7 +223,7 @@ module.exports = {
 			q += 'RETURN e33.content AS id, e62.value AS value, e61.value AS date, userName.value AS author, type.content AS type';
 
 			var params = {
-				targets: req.body.targets || [],
+				targets: targets,
 				user: 'e21_' + req.headers['x-key'],
 				type: cType,
 				e33id: 'e33_' + req.body.tid + '_comment',
@@ -235,6 +239,8 @@ module.exports = {
 				refs: req.body.refs || [],
 				screenshots: screens || []
 			};
+			
+			console.debug(q, params);
 		
 			//res.json({statement: q, parameters: params, body: req.body});
 			return neo4j.transaction(q, params);

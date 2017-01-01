@@ -2,8 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <base href="../">
-    <title>JSDoc: source : projHomeCtrl.js</title>
+    <title>JSDoc: Comment</title>
     <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">
     <link href="css/site.css" type="text/css" rel="stylesheet">
   </head>
@@ -111,16 +110,124 @@
       </div>
     </nav>
     <div id="content" class="page-wrap">
+      <h3 style="float:right; color:#ccc">
+        Angular service
+      </h3>
       <h1 class="title">
-        source : projHomeCtrl.js
+        Comment
+        <a class="name-link signature-attributes" href="source/dokuvisApp.Comment.html#line2">source</a>
       </h1>
       <div id="main" class="big-container">
         <!-- source code html -->
-        <article>
-          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams', 'neo4jRequest', 'Utilities', 'Project', 'Subproject', 'ProjInfo', 'ConfirmService', '$translatePartialLoader',	/**	 * Controller of the Project Home view, organizing subprojects and project/subproject information	 * @memberof dokuvisApp	 * @ngdoc controller	 * @name projHomeCtrl	 * @author Brakebein	 * @param $scope {$scope} controller scope	 * @param $stateParams {$stateParams} ui.router stateParams	 * @param neo4jRequest {neo4jRequest} neo4jRequest DEPRECATED	 * @param Utilities {Utilities} Utilities	 * @param Project {Project} Project http	 * @param Subproject {Subproject} Subproject http	 * @param ProjInfo {ProjInfo} ProjInfo $resource	 * @param ConfirmService {ConfirmService} confirm dialog	 * @param $translatePartialLoader {$translatePartialLoader} $translate addPart	 */	function($scope, $stateParams, neo4jRequest, Utilities, Project, Subproject, ProjInfo, ConfirmService, $translatePartialLoader) {		$translatePartialLoader.addPart('projects');		$scope.isMaster = $stateParams.subproject === 'master';		/**		 * Object containing project infos		 * @var {Object} projInfo		 * @memberof projHomeCtrl		 */		$scope.projInfo = {};		/**		 * Array of available subprojects		 * @var {Array} subprojects		 * @memberof projHomeCtrl		 */		$scope.subprojects = [];		function getProjectInfoFromTable() {			Project.get({ id: $stateParams.project }).$promise.then(function (result) {				$scope.projInfo.name = result.name;				$scope.projInfo.description = result.description;			}, function (err) {				Utilities.throwApiException('on Project.get()', err);			});		}		function getProjectInfoFromNodes() {			ProjInfo.query().$promise.then(function (result) {				$scope.projInfo.notes = result;				console.log($scope.projInfo);			}, function (err) {				Utilities.throwApiException('on ProjInfo.query()', err);			});		}		function getSubprojectInfo() {			Subproject.get({ id: $stateParams.subproject }).$promise.then(function (result) {				$scope.projInfo.name = result.name; 				$scope.projInfo.description = result.desc; 			}, function (err) {				Utilities.throwApiException('on Subproject.get()', err);			});			// Subproject.get($stateParams.subproject).then(function (response) {			// 	$scope.projInfo.name = response.data[0].name;			// 	$scope.projInfo.description = response.data[0].desc;			// 	console.log(response);			// }, function (err) {			// 	Utilities.throwApiException('on Subproject.get()', err);			// });		}		function querySubprojects() {			Subproject.query().$promise.then(function (result) {				$scope.subprojects = result;				console.log($scope.subprojects);			}, function (err) {				Utilities.throwApiException('on Subproject.query()', err);			});			// Subproject.getAll().then(function (response) {			// 	$scope.subprojects = response.data;			// 	console.log($scope.subprojects);			// }, function (err) {			// 	Utilities.throwApiException('on Subproject.getAll()', err);			// });		}		$scope.removeProjInfo = function(note) {			ConfirmService.showAlert({				headerText: 'Info löschen',				bodyText: 'Soll die Info gelöscht werden?'			}).then(function () {				note.$delete().then(function (result) {					console.log(result);					getProjectInfoFromNodes();				}, function (err) {					Utilities.throwApiException('on ProjInfo.delete()', err);				});			});		};		$scope.swapInfoOrder = function(oldIndex, newIndex) {			ProjInfo.swap({				from: $scope.filteredInfos[oldIndex].id,				to: $scope.filteredInfos[newIndex].id			}).$promise.then(function (result) {				console.log(result);				getProjectInfoFromNodes();			}, function (err) {				Utilities.throwApiException('on ProjInfo.swap()', err);			});		};		// init		if($stateParams.subproject === 'master') {			getProjectInfoFromTable();			querySubprojects();		}		else			getSubprojectInfo();		getProjectInfoFromNodes();		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {			if(fromState.name === 'project.home.subproject')				querySubprojects();			else if(fromState.name === 'project.home.infoedit')				getProjectInfoFromNodes();		});	}]);</code></pre>
-        </article>
         <!-- index.html -->
         <!-- class files -->
+        <div>
+          <div><div class="container-overview">
+  <ul class="chips">
+  </ul>
+  <div class="clearfix"></div>
+  <div class="description">
+    <h4>Description</h4>
+    <!--<p>$resource for comments.</p>-->
+    <p>$resource for comments.</p>
+  </div>
+  <div class="details"></div>
+  <div>
+    <h4>Authors</h4>
+    Brakebein
+  </(.*)></div>
+</div>
+<div class="functions">
+  <h3 class="subsection-title">Methods</h3>
+  <dl>
+    <dt>
+      <a href="source/dokuvisApp.Comment.html#line68" class="name-link" id="get">
+        <h4 class="name">
+          get
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Get a specific comment by id.</p>
+<pre class="prettyprint source"><code>Comment.get({ id: &lt;id> }).$promise.then(...);</code></pre>-->
+          <p>Get a specific comment by id.</p>
+<pre class="prettyprint source"><code>Comment.get({ id: &lt;id> }).$promise.then(...);</code></pre>
+        </span>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.Comment.html#line59" class="name-link" id="query">
+        <h4 class="name">
+          query
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Get all comments within the current project/subproject.</p>
+<pre class="prettyprint source"><code>Comment.query().$promise.then(function (comments) {...});</code></pre>-->
+          <p>Get all comments within the current project/subproject.</p>
+<pre class="prettyprint source"><code>Comment.query().$promise.then(function (comments) {...});</code></pre>
+        </span>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.Comment.html#line44" class="name-link" id="queryTarget">
+        <h4 class="name">
+          queryTarget
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Get all comments of an element specified by its id.</p>
+<pre class="prettyprint source"><code>Comment.queryTarget({ targetId: &lt;id> }).$promise.then(...);</code></pre>-->
+          <p>Get all comments of an element specified by its id.</p>
+<pre class="prettyprint source"><code>Comment.queryTarget({ targetId: &lt;id> }).$promise.then(...);</code></pre>
+        </span>
+      </div>
+    </dd>
+  </dl><dl>
+    <dt>
+      <a href="source/dokuvisApp.Comment.html#line20" class="name-link" id="save">
+        <h4 class="name">
+          save
+        </h4>
+      </a>
+    </dt>
+    <dd>
+      <div class="description">
+        <span>
+          <!--<p>Save a new comment with following post parameters.</p>
+<pre class="prettyprint source"><code>Comment.save({
+  type: 'model'|'source'|'answer'|'task',
+  text: &lt;string>,
+  title: &lt;string>,               // (optional)
+  targets: &lt;id>|&lt;Array>,         // ids of the items the comment is attached to
+  refs: &lt;id>|&lt;Array>,            // ids of any references (optional)
+  screenshots: &lt;Object>|&lt;Array>  // screenshots and user drawings (optional)
+}).$promise.then(...);</code></pre>-->
+          <p>Save a new comment with following post parameters.</p>
+<pre class="prettyprint source"><code>Comment.save({
+  type: 'model'|'source'|'answer'|'task',
+  text: &lt;string>,
+  title: &lt;string>,               // (optional)
+  targets: &lt;id>|&lt;Array>,         // ids of the items the comment is attached to
+  refs: &lt;id>|&lt;Array>,            // ids of any references (optional)
+  screenshots: &lt;Object>|&lt;Array>  // screenshots and user drawings (optional)
+}).$promise.then(...);</code></pre>
+        </span>
+      </div>
+    </dd>
+  </dl>
+</div></div>
+        </div>
       </div>
       <footer style="clear:both">
         Documentation generated by

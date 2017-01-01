@@ -776,7 +776,17 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param prj
+		 * @param subprj
+		 * @param objData
+		 * @param markers
+		 * @param title
+		 * @param paintFile
+		 * @returns {*}
+		 */
 		requests.insertScreenshot = function(prj, subprj, objData, markers, title, paintFile) {
 			
 			var q = '';
@@ -835,7 +845,14 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param prj
+		 * @param params
+		 * @param markers
+		 * @returns {*}
+		 */
 		requests.insertScreenshotMarkers = function(prj, params, markers) {
 			
 			var q = '';
@@ -855,7 +872,12 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param prj
+		 * @returns {*}
+		 */
 		requests.getScreenshotsWithMarkers = function(prj) {
 			var q = '';
 			q += 'MATCH (e22:E22:'+prj+')<-[:P138]-(e36:E36:'+prj+')-[:P2]->(:E55 {content: "screenshot"})';
@@ -910,13 +932,26 @@ angular.module('dokuvisApp').factory('phpRequest',
 	function($http) {
 	
 		var requests = {};
-		
+
+		/**
+		 * @deprecated
+		 * @param file
+		 * @returns {*}
+		 */
 		requests.getSvgContent = function(file) {
 			return $http.post('php/getSvgContent.php', {
 				file: file
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param path
+		 * @param filename
+		 * @param base64
+		 * @param thumb
+		 * @returns {*}
+		 */
 		requests.saveBase64Image = function(path, filename, base64, thumb) {
 			return $http.post('php/saveBase64Image.php', {
 				path: path,

@@ -124,7 +124,8 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				var type = item.file.type.slice(item.file.type.lastIndexOf('/') + 1);
 				if(imageTypes.indexOf(type) !== -1) {
 					item.sourceType = 'plan';
-					item.url = 'php/uploadImage.php';
+					//item.url = 'php/uploadImage.php';
+					item.url = API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/source';
 				}
 				else if(textTypes.indexOf(type) !== -1) {
 					item.sourceType = 'text';
@@ -248,7 +249,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			else if($scope.uploadType == 'model') {
 
 				console.log('done', response);
-				return;
+				//return;
 
 				/*function neo4jinsertNode(formData, params) {
 				 neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, formData, params.obj).then(function(response){
