@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$stateParams',
+angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$stateParams', 'Utilities',
 	/**
 	 * $resource for archives.
 	 * @memberof dokuvisApp
@@ -6,7 +6,7 @@ angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$statePara
 	 * @name Archive
 	 * @author Brakebein
 	 */
-	function($resource, API, $stateParams) {
+	function($resource, API, $stateParams, Utilities) {
 		
 		return $resource(API + 'auth/project/:project/archive', {
 			project: function () {

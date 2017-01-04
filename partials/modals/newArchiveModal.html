@@ -13,7 +13,7 @@
 					<input id="docInstitution"
 						   class="form-control" ng-model="archive.institution"
 						   placeholder="{{'eg'|translate}} Landesamt für Denkmalpflege Sachsen"
-						   ng-focus="setTypeahead('E82', 'E40', 'content')"
+						   ng-focus="setTypeahead('E82', 'E40', 'value')"
 						   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"
 						   bs-tooltip="'archive_tt_institution' | translate"/>
 				</div>
@@ -25,7 +25,7 @@
 						   class="form-control"
 						   placeholder="{{'eg'|translate}} LfDS"
 						   ng-model="archive.institutionAbbr"
-						   ng-focus="setTypeahead('E82','E40', 'abbr')"
+						   ng-focus="setTypeahead('E82', 'E40', 'abbr')"
 						   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"
 						   bs-tooltip="'archive_tt_preferred' | translate"/>
 				</div>
@@ -37,7 +37,7 @@
 						   class="form-control"
 						   placeholder="{{'eg'|translate}} Plansammlung"
 						   ng-model="archive.collection"
-						   ng-focus="setTypeahead('E41','E78', 'content')"
+						   ng-focus="setTypeahead('E41', 'E78', 'value')"
 						   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"
 						   bs-tooltip="'archive_tt_collection' | translate"/>
 				</div>

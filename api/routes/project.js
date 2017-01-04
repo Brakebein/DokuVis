@@ -123,7 +123,7 @@ module.exports = {
 				(tsource)<-[:P127]-(tpic), \
 				(tsource)<-[:P127]-(ttext), \
 				(tprime:E55:'+prj+' {content:"primarySource"}), \
-				(tsins:E55:'+prj+' {content:"sourceInsertion"}), \
+				(tsupl:E55:'+prj+' {content:"sourceUpload"}), \
 				(tsrepros:E55:'+prj+' {content:"sourceRepros"}), \
 				(tscomment:E55:'+prj+' {content:"sourceComment"}), '
 				// screenshot

@@ -9,6 +9,7 @@
   "edit": "Bearbeiten",
   "delete": "Löschen",
   "remove": "Entfernen",
+  "add": "Hinzufügen",
   "register": "Registrieren",
   "login": "Anmelden",
   "logout": "Abmelden",
@@ -20,5 +21,8 @@
   "eg": "z.B.",
   "next": "Nächstes",
   "prev": "Voriges",
-  "search": "Suche"
+  "search": "Suche",
+  "not_specified": "Keine Angabe",
+  "status": "Status",
+  "upload": "Hochladen"
 }

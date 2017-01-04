@@ -1,3 +1,5 @@
+@import '../variables'
+
 .uploadForm
 	position: relative
 	padding: 25px 40px
@@ -36,11 +38,6 @@
 		svg
 			width: 40px
 
-	.globalinputs
-		width: 50%
-		float: right
-		margin: 17px 0 7px
-
 	.queueHeader
 		margin-top: 10px
 
@@ -78,18 +75,17 @@
 		font-size: 12px
 		max-height: 30px
 		margin-bottom: 5px
-		transition: all 0.5s
+		//overflow: visible
 
 		&.large
 			max-height: 300px
-		&.ng-hide
-			max-height: 0
-			margin-bottom: 0
-			opacity: 0
 		&>label
 			padding-top: 5px
+		& > div
+			//overflow: visible !important
 		& > div > input[type="text"]
 			height: 22px
+			//overflow: visible
 		input[type="checkbox"]
 			margin-top: 4px
 			height: 13px
@@ -108,6 +104,29 @@
 		& > span:hover
 			color: #888
 
+	.form-extend
+		overflow: hidden
+		max-height: 150px
+		opacity: 1
+		transition: all 0.5s
+
+		&.ng-hide
+			max-height: 0
+			opacity: 0
+
+	.form-extend-btn
+		cursor: pointer
+		font-size: 12px
+		display: flex
+		align-items: center
+
+		& > span:first-child
+			flex: 0 0 auto
+		& > span:last-child
+			flex: 1 1 auto
+			margin: 0 5px
+			border-bottom: 1px solid #ccc
+
 	a
 		color: #c3c3c3
 		padding: 4px 0 0
@@ -115,9 +134,8 @@
 	a:hover
 		color: #888
 
-	&.container.nv-file-over
-		box-shadow: 0 0 50px #5cb85c inset
+	.progress
+		margin: 0
 
-	.form-extend-btn
-		cursor: pointer
-		font-size: 12px
+	&.container.nv-file-over
+		box-shadow: 0 0 50px $dvGreenColor inset

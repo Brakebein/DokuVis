@@ -101,7 +101,7 @@ router.get('/auth/project/:id/graph/:nodeId/:label', graph.getAbstractNodes);
 router.get('/auth/project/:id/graph/:nodeId/e22', graph.getE22Name);
 
 // persons
-router.get('/auth/project/:id/persons', person.getAll);
+router.get('/auth/project/:id/persons', person.query);
 
 // archives
 var archive = require('./archive');

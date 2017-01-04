@@ -9,7 +9,7 @@ module.exports = {
 		var q = 'MATCH (master:E7:'+prj+' {content: {master}})-[:P9]->(sub:E7)-[:P2]->(:E55 {content: "subproject"}), \
 			(sub)-[:P102]->(title:E35) \
 			OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
-			RETURN sub.content AS id, CASE WHEN exists(title.value) THEN title.value ELSE title.content END AS name, desc.value AS desc';
+			RETURN sub.content AS id, title.value AS name, desc.value AS desc';
 
 		var params = {
 			master: prj
@@ -31,7 +31,7 @@ module.exports = {
 		var q = 'MATCH (sub:E7:'+prj+' {content: {subId}})-[:P2]->(:E55 {content: "subproject"}), \
 			(sub)-[:P102]->(title:E35) \
 			OPTIONAL MATCH (sub)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "projDesc"}) \
-			RETURN sub.content AS id, CASE WHEN exists(title.value) THEN title.value ELSE title.content END AS name, desc.value AS desc';
+			RETURN sub.content AS id, title.value AS name, desc.value AS desc';
 
 		var params = {
 			subId: req.params.subId

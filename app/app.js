@@ -193,7 +193,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 						show: true
 					});
 				}],
-				css: 'style/modals/upload.min.css',
+				css: 'style/modals/upload.css',
 				abstract: true
 			})
 			.state('project.explorer.upload.type', {

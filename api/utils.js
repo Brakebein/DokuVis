@@ -63,10 +63,14 @@ var utils = {
 
 	log: {
 		fileupload: function (files) {
-			files.forEach(function (f) {
-				//console.log(dateFormat(new Date(), 'isoDateTime'), 'File Upload:', f.originalname, f.path, f.size);
-				console.log('File Upload:', f.originalname, f.path, f.size);
-			});
+			if(files instanceof Array) {
+				files.forEach(function (f) {
+					console.log('File Upload:', f.originalname, f.path, f.size);
+				});
+			}
+			else if(files instanceof Object) {
+				console.log('File Upload:', files.originalname, files.path, files.size);
+			}
 		}
 	},
 	

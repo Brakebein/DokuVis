@@ -527,7 +527,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};*/
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.getAttached3DPlan = function(prj, e31content, e36content) {
 			return $http.post(phpUrl, {
 				query: 'MATCH (:E31:'+prj+' {content: {e31id}})<-[:P138]-(:E36:'+prj+' {content: {e36id}})-[:P106]->(e73:E73)-[:P1]->(e75:E75)'
@@ -540,6 +543,9 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		// alte Suchanfrage für autocomplete
+		/**
+		 * @deprecated
+		 */
 		requests.searchForExistingNodes = function(prj, label, input) {
 			return $http.post(phpUrl, {
 				query: 'MATCH (n:'+label+':'+prj+')'
@@ -550,6 +556,9 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		// neue Suchanfrage für typeahead
+		/**
+		 * @deprecated
+		 */
 		requests.getAllLabelProps = function(prj, label, prop) {
 			return $http.post(phpUrl, {
 				query:
@@ -558,7 +567,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				params: {}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.findNodeWithSpecificContent = function(prj, label, input) {
 			return $http.post(phpUrl, {
 				query: 'MATCH (n:'+label+':'+prj+')'
@@ -567,7 +579,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				params: {}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.testInputsForExistingNodes = function(values) {
 			var q = '', r = 'RETURN ';
 			for(var i=0; i<values.length; i++) {
@@ -584,6 +599,9 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		// Einfügen der Quelle
+		/**
+		 * @deprecated
+		 */
 		requests.insertDocument = function(prj, subprj, formData) {
 			var ts = Utilities.getUniqueId();
 			console.log(formData);
@@ -663,7 +681,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				params: formData
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.insertModel = function(prj, subprj, formData, objData) {
 			var q = '';
 			/*if(objData.parentid)
@@ -731,7 +752,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.addEdgesFile = function(prj, file, edges) {
 			return $http.post(phpUrl, {
 				query:
@@ -743,7 +767,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.attach3DPlan = function(prj, formData, objData, parent) {
 			//console.log(prj, formData, objData, parent);
 			var q = '';
@@ -906,6 +933,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		
 		/**
 		  * tags
+		 * @deprecated
 		*/
 		requests.getAllTags = function(prj) {
 			return $http.post(phpUrl, {
@@ -913,7 +941,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				params: {}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.searchTags = function(prj, query) {
 			return $http.post(phpUrl, {
 				query:
