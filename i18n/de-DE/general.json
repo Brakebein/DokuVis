@@ -24,5 +24,8 @@
   "search": "Suche",
   "not_specified": "Keine Angabe",
   "status": "Status",
-  "upload": "Hochladen"
+  "upload": "Hochladen",
+  "uploaded_by": "Hochgeladen von",
+  "edited_by": "Geändert von",
+  "comments": "Kommentare"
 }

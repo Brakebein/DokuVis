@@ -1,23 +1,24 @@
 angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 	/**
-	 * Service responsible for checking the user status
+	 * Service responsible for checking the user status.<br/>
+	 * From tutorial: {@link http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543}
 	 * @memberof dokuvisApp
 	 * @ngdoc service
 	 * @name AuthenticationFactory
-	 * @param $window {$window} Angular window service
 	 */
 	function($window) {
 		return {
-			/**
-			 * A variable stating, if user is logged in or not
-			 * @type {boolean}
-			 * @memberof AuthenticationFactory
-			 */
+			// /**
+			//  * A variable stating, if user is logged in or not.
+			//  * @memberof AuthenticationFactory
+			//  * @property {boolean} isLogged
+			//  */
 			isLogged: false,
 
 			/**
-			 * Check, if token and user are set in localstorage
+			 * Check, if token and user are set in localstorage.
 			 * @memberof AuthenticationFactory
+			 * @function check
 			 * @returns {boolean} true, if logged in
 			 */
 			check: function() {
@@ -36,25 +37,33 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 
 .factory('UserAuthFactory', ['$window', '$state', '$http', 'AuthenticationFactory', 'API', 'AclService',
 	/**
-	 * Service responsible for contacting the login endpoint and validating the user (and logging out the user)
+	 * Service responsible for contacting the login endpoint and validating the user (and logging out the user).<br/>
+	 * From tutorial: {@link http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543}
 	 * @memberof dokuvisApp
 	 * @ngdoc service
 	 * @name UserAuthFactory
-	 * @param $window {$window} Angular $window service
-	 * @param $state {$state} ui.router $state
-	 * @param $http {$http} Angular http request service
-	 * @param AuthenticationFactory {AuthenticationFactory} [AuthenticationFactory]{@link dokuvisApp.AuthenticationFactory.html}
-	 * @param API {API} API url constant
-	 * @param AclService {service} Access Control List service
 	 */
 	function($window, $state, $http, AuthenticationFactory, API, AclService) {
 		return {
+			/**
+			 * API HTTP POST request to login user.
+			 * @memberof UserAuthFactory
+			 * @function login
+			 * @param email {string} email
+			 * @param password {string} password 
+			 * @returns {Promise} Returns a valid token, if login was successful.
+			 */
 			login: function(email, password) {
 				return $http.post(API + 'login', {
 					email: email,
 					password: password
 				});
 			},
+			/**
+			 * Flush all relevant data to logout user.
+			 * @memberof UserAuthFactory
+			 * @function logout
+			 */
 			logout: function() {
 				if(AuthenticationFactory.isLogged) {
 					AuthenticationFactory.isLogged = false;
@@ -73,6 +82,15 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 					$state.go('home');
 				}
 			},
+			/**
+			 * API HTTP POST request to register new user.
+			 * @memberof UserAuthFactory
+			 * @function register
+			 * @param email {string} email
+			 * @param username {string} username
+			 * @param password {string} password
+			 * @returns {Promise} $http promise
+			 */
 			register: function(email, username, password) {
 				return $http.post(API + 'register', {
 					email: email,
@@ -80,6 +98,12 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 					password: password
 				});
 			},
+			/**
+			 * Check, if JWT (JavaScript Web Token) is valid.
+			 * @memberof UserAuthFactory
+			 * @function checkJWT
+			 * @returns {Promise} $http promise
+			 */
 			checkJWT: function() {
 				return $http.get(API + 'auth/checkJWT');
 			}
@@ -88,13 +112,11 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 
 .factory('TokenInterceptor', ['$q', '$window',
 	/**
-	 * Service responsible for sending in the access token and the key along with each request to the server<br/>
-	 * from tutorial: {@link http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543}
+	 * Service responsible for sending in the access token and the key along with each request to the server.<br/>
+	 * From tutorial: {@link http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543}
 	 * @memberof dokuvisApp
 	 * @ngdoc service
 	 * @name TokenInterceptor
-	 * @param $q {$q} Angular promise service
-	 * @param $window {$window} Angular $window service
 	 */
 	function($q, $window) {
 		return {

@@ -63,6 +63,13 @@ set n.preview = n.contentDisplay
 remove n.contentDisplay
 return n
 
+// E75 file add "_thumbs/"
+match (n:E75)
+where exists(n.thumb)
+and n.thumb starts with "t_"
+set n.thumb = "_thumbs/" + n.thumb
+return n
+
 // E55 Type sourceUpload
 match (n {content:"sourceInsertion"})
 set n.content = "sourceUpload"

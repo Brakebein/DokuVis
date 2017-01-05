@@ -13,7 +13,7 @@ var person = {
 
 		neo4j.transaction(q)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#archive.query'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#archive.query'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
 			}).catch(function(err) {
 			utils.error.neo4j(res, err, '#cypher');

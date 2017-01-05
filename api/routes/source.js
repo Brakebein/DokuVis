@@ -54,7 +54,7 @@ var source = {
 		//neo4j.cypher(q, params)
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#source.getAll'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#source.getAll'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
@@ -109,7 +109,7 @@ var source = {
 		//neo4j.cypher(q, params)
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#source.get'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#source.get'); return; }
 				var rows = neo4j.extractTransactionData(response.results[0]);
 				if(rows.length)
 					res.json(rows[0]);
@@ -167,7 +167,7 @@ var source = {
 
 				var q = 'MATCH (e55:E55:'+prj+' {content: {sourceType}}), \
 						(esub:E7:'+prj+' {content: {subprj}}), \
-						(user:E21'+prj+' {content: {user}}), \
+						(user:E21:'+prj+' {content: {user}}), \
 						(su:E55:'+prj+' {content: "sourceUpload"}), \
 						(sc:E55:'+prj+' {content: "sourceComment"}), \
 						(sr:E55:'+prj+' {content: "sourceRepros"}), \
@@ -199,7 +199,7 @@ var source = {
 						CREATE (e65)-[:P14]->(e21)';
 				}
 				if(req.body.creationPlace.length) {
-					q += ' MERGE (e48:E48:' + prj + ' {value: {creationPlace}})<-[:P87]-(e53:E53:' + prj + ') \
+					q += ' MERGE (e48:E48:' + prj + ' {value: {place}})<-[:P87]-(e53:E53:' + prj + ') \
 						ON CREATE SET e53.content = {e53id}, e48.content = {e48id} \
 						CREATE (e65)-[:P7]->(e53)';
 				}
@@ -223,13 +223,13 @@ var source = {
 				}
 
 				// user/timestamp
-				// q += ' CREATE (e31)<-[:P15]-(si7:E7:'+prj+' {content: {upload7}})-[:P2]->(su), \
-				// 		(si7)-[:P14]->(user), \
-				// 		(si7)-[:P4]->(:E52:'+prj+' {content: {upload52}})-[:P82]->(:E61:'+prj+' {value: {date}})';
+				q += ' CREATE (e31)<-[:P15]-(si7:E7:'+prj+' {content: {upload7}})-[:P2]->(su), \
+						(si7)-[:P14]->(user), \
+						(si7)-[:P4]->(:E52:'+prj+' {content: {upload52}})-[:P82]->(:E61:'+prj+' {value: {date}})';
 				// tags
-				// q += ' FOREACH (tag in {tags} | \
-				// 			MERGE (t:TAG:'+prj+' {content: tag.text}) \
-				// 			MERGE (e31)-[:has_tag]->(t) )';
+				q += ' FOREACH (tag in {tags} | \
+							MERGE (t:TAG:'+prj+' {content: tag}) \
+							MERGE (e31)-[:has_tag]->(t) )';
 
 				q += ' RETURN e31';
 
@@ -277,20 +277,16 @@ var source = {
 					date: req.body.date,
 					upload7: 'e7_upload_' + filename,
 					upload52: 'e52_e7_upload_' + filename,
-					tags: req.body.tags || []
+					tags: req.body.tags ? req.body.tags.split(',') : []
 				};
-
-				console.log(q);
-				console.log(params);
 				
 				return neo4j.transaction(q, params);
 			})
 			.then(function (response) {
 				if(response.errors.length) {
-					utils.error.neo4j(res, response, '#source.get');
+					utils.error.neo4j(res, response, '#source.create');
 					return Promise.reject();
 				}
-				console.log(response.results);
 				var rows = neo4j.extractTransactionData(response.results[0]);
 				if(rows.length)
 					res.json(rows[0]);
@@ -346,7 +342,7 @@ var source = {
 
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#source.getLinks'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#source.getLinks'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
 			}).catch(function(err) {
 			utils.error.neo4j(res, err, '#cypher');

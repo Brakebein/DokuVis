@@ -69,7 +69,7 @@ module.exports = {
 
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#comment.get'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#comment.get'); return; }
 				var results = neo4j.extractTransactionData(response.results[0]);
 				res.json(neo4j.removeEmptyArrays(results, 'answers', 'id'));
 			}).catch(function(err) {
@@ -99,8 +99,8 @@ module.exports = {
 		if(!Array.isArray(targets)) targets = [targets];
 		if(!targets.length) { utils.abort.missingData(res, 'body.targets'); return; }
 
-		//var refs = req.body.refs || [];
-		//var screenshots = req.body.screenshots || [];
+		req.body.refs = req.body.refs || [];
+		req.body.screenshots = req.body.screenshots || [];
 
 		// prepare screenshots and process image data
 		for(var i=0; i<req.body.screenshots.length; i++) {
@@ -240,7 +240,7 @@ module.exports = {
 				screenshots: screens || []
 			};
 			
-			console.debug(q, params);
+			//console.debug(q, params);
 		
 			//res.json({statement: q, parameters: params, body: req.body});
 			return neo4j.transaction(q, params);

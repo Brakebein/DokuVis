@@ -173,7 +173,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 						show: true
 					});
 				}],
-				css: 'style/modals/sourceDetail.min.css',
+				css: 'style/modals/sourceDetail.css',
 				abstract: true,
 				reloadOnSearch: false
 			})
@@ -479,6 +479,7 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 		});
 
 		amMoment.changeLocale('de');
+		// amMoment.changeLocale('en');
 		editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
 
 		// typeahead

@@ -39,11 +39,11 @@ module.exports = function (grunt) {
 			dist: {
 				src: ['app/*', 'app/directives/webglView/webglView.js'],
 				options: {
-					destination: 'docs',
+					destination: 'docs/docs',
 					configure: 'node_modules/angular-jsdoc/common/conf.json',
-					template: 'docs/angular-template-custom',
-					tutorials: 'docs/tutorials',
-					readme: 'docs/README.md',
+					template: 'docs/docs/angular-template-custom',
+					tutorials: 'docs/docs/tutorials',
+					readme: 'docs/docs/README.md',
 					private: true
 				}
 			}

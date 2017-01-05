@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$window', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'API', 'Source', 'Model', 'Archive', '$translatePartialLoader',
+angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', 'API', 'Source', 'Model', 'Archive', '$translatePartialLoader',
 
 	/**
 	 * Controller of the Upload modal.
@@ -7,7 +7,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 	 * @name uploadCtrl
 	 * @author Brakebein
 	 */
-	function($scope, $state, $stateParams, $previousState, $window, Uploader, neo4jRequest, Utilities, $timeout, $modal, API, Source, Model, Archive, $translatePartialLoader) {
+	function($scope, $state, $stateParams, $previousState, Uploader, neo4jRequest, Utilities, $timeout, API, Source, Model, Archive, $translatePartialLoader) {
 
         $previousState.memo('modalInvoker');
 		$translatePartialLoader.addPart('source');
@@ -126,6 +126,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			uploader.url = item.url;
 			
 			// push data to request form data
+			item.formData = [];
 			item.formData.push({
 				sourceType: item.sourceType,
 				tid: item.tid,
@@ -141,7 +142,9 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				archive: item.archive,
 				archiveNr: item.archiveNr,
 				primary: item.primary,
-				tags: item.tags,
+				tags: item.tags.map(function (t) {
+					return t.text;
+				}),
 
 				language: item.language,
 				ocr: item.ocr,
@@ -165,6 +168,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				console.error(response);
 				fileItem.isSuccess = false;
 				fileItem.isError = true;
+				fileItem.isUploaded = false;
 				return;
 			}
 
@@ -290,6 +294,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		uploader.onErrorItem = function(fileItem, response, status, headers) {
 			console.info('onErrorItem', fileItem, response, status, headers);
 			fileItem.isProcessing = false;
+			fileItem.isUploaded = false;
 			Utilities.throwApiException('on source.create', response);
 		};
 		uploader.onCancelItem = function(fileItem, response, status, headers) {
@@ -306,34 +311,32 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		console.info('uploader', uploader);
         $scope.uploader = uploader;
 
-		// vor dem Hochladen Pflichtfelder überprüfen
+		/**
+		 * Check, if all relevant input fields are set, and upload each item.
+		 * @memberof uploadCtrl
+		 * @function checkAndUploadAll
+		 */
 		$scope.checkAndUploadAll = function() {
 			// wait for responses and validate inputs
 			$timeout(function() {
 				if($scope.uploadType == 'source') {
 					for(var i=0, l=uploader.queue.length; i<l; i++) {
-						if(!uploader.queue[i].title.length) {
-							uploader.queue[i].errorInput = true;
+						var item = uploader.queue[i];
+						if(!item.title.length) {
+							item.errorInput = true;
 							Utilities.dangerAlert('Geben Sie mindestens einen Titel ein!');
 						}
 						else {
-							uploader.queue[i].errorInput = false;
-							uploader.queue[i].upload();
+							item.errorInput = false;
+							if(!item.isSuccess)
+								item.upload();
 						}
 					}
 				}
-				// uploader.uploadAll();
+				else
+					uploader.uploadAll();
 			}, 1000);
 		};
-
-		function queryArchives() {
-			Archive.query().$promise.then(function(response){
-				$scope.archives = response;
-				console.log('Archives:', $scope.archives);
-			}, function (err) {
-				Utilities.throwApiException('on Archive.query()', err);
-			});
-		}
 
 		/**
 		 * Triggers click event on hidden files input field.
@@ -367,16 +370,25 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		$scope.getTags = function(query) {
 			return neo4jRequest.searchTags($stateParams.project, query).then(function(response) {
 				if(response.data.exception) { console.error('neo4j failed on getAllTags()', response.data); return; }
-				console.log(Utilities.extractArrayFromNeo4jData(response.data));
+				//console.log(Utilities.extractArrayFromNeo4jData(response.data));
 				return Utilities.extractArrayFromNeo4jData(response.data);
 			});
 		};
+
+		function queryArchives() {
+			Archive.query().$promise.then(function(response){
+				$scope.archives = response;
+				console.log('Archives:', $scope.archives);
+			}, function (err) {
+				Utilities.throwApiException('on Archive.query()', err);
+			});
+		}
 
 		// init
 		queryArchives();
 
 		/**
-		 * Closes the modal and destroys the controller instance
+		 * Closes the modal and destroys the controller instance.
 		 * @memberof uploadCtrl
 		 * @function close
 		 */

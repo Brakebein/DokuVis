@@ -9,7 +9,7 @@ module.exports = {
 		
 		neo4j.transaction(q)
 			.then(function (response) {
-				if(response.exception) { utils.error.neo4j(res, response.exception, '#typeahead.query'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response.exception, '#typeahead.query'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
 			})
 			.catch(function (err) {
