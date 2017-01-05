@@ -178,7 +178,7 @@
 					<div ng-class="c.type" title="Quellenkommentar"></div>
 
 					<div class="media-left pull-left">
-						<img class="media-object" ng-src="{{'data/' + c.targets[0].file.path + '_thumbs/' + c.targets[0].file.thumb}}"/>
+						<img class="media-object" ng-src="{{'data/' + c.targets[0].file.path + c.targets[0].file.thumb}}"/>
 					</div>
 
 					<div class="media-body">
@@ -346,7 +346,7 @@
 		<div class="sources" horizontal-scroll>
 			<div class="resultItem" ng-repeat="p in sourceResults | filter: {type: sourcesSettings.activeTab} | filter: sourcesSettings.filterBy | filter: filterSelected | orderBy: [sourcesSettings.orderBy,'title']:sourcesSettings.reverse as filteredSourceResults" ng-click="selectResultItem($event, p)">
 				<div class="thumbnail" ng-class="(p.selected) ? 'selected' : ''" title="{{p.title}}" ng-dblclick="openSourceDetail($index)">
-					<img ng-src="data/{{p.file.path}}_thumbs/{{p.file.thumb}}"/>
+					<img ng-src="data/{{p.file.path+p.file.thumb}}"/>
 					<div class="caption">
 						<span>{{ p.title | characters:23:true }}</span>
 						<p>{{p.author || 'unbekannt'}} &ensp; {{p.date}}</p>
@@ -356,7 +356,7 @@
 					<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>
 					
 					<div class="btnBar">
-						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid })"><span class="glyphicon glyphicon-zoom-in"></span></a>
+						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid, selection: filteredSourceResults })"><span class="glyphicon glyphicon-zoom-in"></span></a>
 						<!--<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>-->
 						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
 						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>

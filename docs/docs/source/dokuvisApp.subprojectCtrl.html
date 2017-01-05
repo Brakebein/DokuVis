@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <base href="../">
+    <title>JSDoc: source : newSubprojectModalCtrl.js</title>
+    <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">
+    <link href="css/site.css" type="text/css" rel="stylesheet">
+  </head>
+  <body ng-app="">
+    <nav id="toc">
+      <input placeholder="Filter" id="filter-input" class="col12 block field" type="text">
+      <div class="nav-wrapper">
+      <h2><a href="index.html">Index</a></h2>
+      <ul class="module">
+        <!-- dokuvis_pp -->
+        <h2 class="module">
+          <a chref="" ng-click="moduledokuvis_pp = !moduledokuvis_pp">
+            module: dokuvisApp
+          </a>
+          <i ng-cloak="" ng-show="moduledokuvis_pp">+</i>
+        </h2>
+        <li id="dokuvisApp" ng-hide="moduledokuvis_pp">
+          <ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppservice = !dokuvis_ppservice">
+                service
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppservice">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppservice">
+              <li>
+                <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
+              </li><li>
+                <a href="dokuvisApp.ConfirmService.html">ConfirmService</a>
+              </li><li>
+                <a href="dokuvisApp.Project.html">Project</a>
+              </li><li>
+                <a href="dokuvisApp.Subproject.html">Subproject</a>
+              </li><li>
+                <a href="dokuvisApp.TokenInterceptor.html">TokenInterceptor</a>
+              </li><li>
+                <a href="dokuvisApp.UserAuthFactory.html">UserAuthFactory</a>
+              </li><li>
+                <a href="dokuvisApp.weblgContext.html">weblgContext</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppconfig = !dokuvis_ppconfig">
+                config
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppconfig">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppconfig">
+              <li>
+                <a href="dokuvisApp.config.html">config</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppcontroller = !dokuvis_ppcontroller">
+                controller
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppcontroller">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppcontroller">
+              <li>
+                <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projHomeCtrl.html">projHomeCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.subprojectCtrl.html">subprojectCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppdirective = !dokuvis_ppdirective">
+                directive
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppdirective">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppdirective">
+              <li>
+                <a href="dokuvisApp.webglView.html">webglView</a>
+              </li>
+            </ul>
+          </ul>
+        </li>
+      </ul>
+      </div>
+    </nav>
+    <div id="content" class="page-wrap">
+      <h1 class="title">
+        source : newSubprojectModalCtrl.js
+      </h1>
+      <div id="main" class="big-container">
+        <!-- source code html -->
+        <article>
+          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').controller('subprojectCtrl', ['$scope', '$state', '$stateParams', 'Utilities', '$timeout', 'Subproject',
+	/**
+	 * Modal controller for creating or editing subprojects
+	 * @memberof dokuvisApp
+	 * @ngdoc controller
+	 * @name subprojectCtrl
+	 * @author Brakebein
+	 * @param $scope {$scope} controller scope
+	 * @param $state {$state} ui.router state
+	 * @param $stateParams {$stateParams} ui.router stateParams
+	 * @param Utilities {Utilities} Utilities
+	 * @param $timeout {$timeout} Angular timeout
+	 * @param Subproject {Subproject} Subproject http
+	 */
+	function($scope, $state, $stateParams, Utilities, $timeout, Subproject) {
+		console.log($state);
+		$scope.name = $stateParams.name || '';
+		$scope.desc = $stateParams.desc || '';
+		$scope.save = function () {
+			if(!$scope.name.length) {
+				Utilities.dangerAlert('Keinen Namen angegeben!');
+				return;
+			}
+			if($stateParams.subId) {
+				Subproject.update($stateParams.subId, $scope.name, $scope.desc).then(function () {
+					//console.log('subproject changed');
+					$scope.close();
+				}, function (err) {
+					Utilities.throwApiException('on Subproject.change()', err);
+				});
+			}
+			else {
+				Subproject.create($scope.name, $scope.desc).then(function () {
+					//console.log('subproject created');
+					$scope.close();
+				}, function (err) {
+					Utilities.throwApiException('on Subproject.create()', err);
+				});
+			}
+		};
+		$scope.$on('$stateChangeSuccess', function (event, toState, toParams) {
+			//console.log('source state changed', toParams);
+			$timeout(function () {
+				//$scope.close();
+				$scope.$hide();
+				$scope.$destroy();
+			});
+		});
+		// closing
+		$scope.close = function () {
+			this.$hide();
+			this.$destroy();
+			$state.go('^.^');
+		};
+	}]);
+</code></pre>
+        </article>
+        <!-- index.html -->
+        <!-- class files -->
+      </div>
+      <footer style="clear:both">
+        Documentation generated by
+        <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a>
+        using
+        <a href="https://github.com/allenhwkim/angular-jsdoc">Angular-JSDoc template</a>
+      </footer>
+    </div>
+    <script src="js/prettify.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/site.js"></script>
+    <!--%= prettyJson %-->
+    <script>
+      prettyPrint();
+      var lineNo = window.location.hash.match(/#line([0-9]+)$/);
+      lineNo && document.querySelector("ol li:nth-child("+(lineNo[1])+")").scrollIntoView();
+    </script>
+  </body>
+</html>

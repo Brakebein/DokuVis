@@ -1,18 +1,28 @@
-angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$http', 'Utilities', 'Source', 'Comment', '$timeout',
-	function($scope, $state, $stateParams, $previousState, $http, Utilities, Source, Comment, $timeout) {
+angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$http', 'Utilities', 'Source', 'Comment', '$timeout', '$translatePartialLoader',
+	/**
+	 * Controller for the modal to display detailed information about sources.
+	 * @memberof dokuvisApp
+	 * @ngdoc controller
+	 * @name sourceDetailCtrl
+	 * @author Brakebein
+	 */
+	function($scope, $state, $stateParams, $previousState, $http, Utilities, Source, Comment, $timeout, $translatePartialLoader) {
 		
 		console.log('sourceDetailCtrl init');
+		$translatePartialLoader.addPart('source');
 		$previousState.memo('modalInvoker');
 		$scope.switchable = $state.includes('project.explorer');
 
 		$scope.horizontalImage = false;
 		$scope.pageNr = 0; // für Textdokumente
-		
+
+		console.log('selection', $stateParams.selection);
+
 		function loadSource(id) {
-			Source.get(id).then(function (response) {
-				console.log(response.data);
-				if(response.data) {
-					$scope.item = response.data;
+			Source.get({ id: id }).$promise.then(function (data) {
+				console.log(data);
+				if(data) {
+					$scope.item = data;
 					prepareItem();
 				}
 				else
@@ -24,7 +34,7 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		loadSource($stateParams.sourceId);
 
 		function prepareItem() {
-			if($scope.item.type =='picture' || $scope.item.type =='plan') {
+			if($scope.item.type == 'picture' || $scope.item.type == 'plan') {
 				var img = new Image();
 				img.onload = function() {
 					$scope.horizontalImage = this.width/this.height > 2;
@@ -42,22 +52,32 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		}
 
 		function loadComments() {
-			Comment.get($scope.item.eid).then(function(response) {
-				console.log(response);
-				$scope.comments = response.data;
+			Comment.queryTarget({ targetId: $scope.item.eid }).$promise.then(function (result) {
+				console.log(result);
+				$scope.comments = result;
 			}, function(err) {
 				Utilities.throwApiException('on Comment.get()', err);
 			});
 		}
 
+		/**
+		 * Load next (or previous, if negative) item. `incr` is relative to the current item.
+		 * So `2` will load the next but one, `-1` will load the previous one.
+		 * @memberof sourceDetailCtrl
+		 * @function nextItem
+		 * @param incr {Number} number of steps to move (usually `1`)
+		 */
 		$scope.nextItem = function(incr) {
-			var length = Source.results.filtered.length;
+			var length = $stateParams.selection.length;
 			var oldIndex = 0;
-			while(Source.results.filtered[oldIndex].eid !== $scope.item.eid) {
+
+			while($stateParams.selection[oldIndex].eid !== $scope.item.eid) {
 				oldIndex++;
 			}
+
 			var newIndex = ((oldIndex + incr) % length + length) % length;
-			$state.go('project.explorer.source.id', { sourceId: Source.results.filtered[newIndex].eid });
+
+			$state.go('project.explorer.source.id', { sourceId: $stateParams.selection[newIndex].eid });
 		};
 		
 		$scope.nextPage = function(incr) {
@@ -120,38 +140,61 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		$scope.saveText = function() {
 			console.log($scope.editorInput);
 		};
-		
-		// Kommentare
+
+		/**
+		 * Save a new comment about the current item.
+		 * @memberof sourceDetailCtrl
+		 * @function postComment
+		 */
 		$scope.postComment = function() {
 			if($scope.newCommentInput.length < 1) return;
-			Comment.create($scope.newCommentInput, $scope.item.eid, 'source').then(function(response) {
-				console.log(response);
+			Comment.save({
+				type: 'source',
+				text: $scope.newCommentInput,
+				targets: $scope.item.eid
+			}).$promise.then(function (newComment) {
+				console.log('newComment', newComment);
 				$scope.newCommentInput = '';
-				var newComment = response.data[0];
 				if(newComment) {
 					newComment.answers = [];
 					$scope.comments.push(newComment);
 				}
-			}, function(err) {
-				Utilities.throwApiException('on Comment.create()', err);
+			}, function (err) {
+				Utilities.throwApiException('on Comment.save()', err);
 			});
 		};
 
+		/**
+		 * Save a new comment of type `answer`.
+		 * @memberof sourceDetailCtrl
+		 * @function postAnswer
+		 * @param comment {Object} parent comment
+		 */
 		$scope.postAnswer = function(comment) {
 			if(comment.newAnswerInput.length < 1) return;
-			Comment.create(comment.newAnswerInput, comment.id, 'answer').then(function(response) {
+			Comment.save({
+				type: 'answer',
+				text: comment.newAnswerInput,
+				targets: comment.id
+			}).$promise.then(function (newAnswer) {
 				comment.newAnswerInput = '';
 				comment.answering = false;
-				if(response.data[0])
-					comment.answers.push(response.data[0]);
-			}, function(err) {
-				Utilities.throwApiException('on Comment.create()', err);
-			})
+				if(newAnswer)
+					comment.answers.push(newAnswer);
+			}, function (err) {
+				Utilities.throwApiException('on Comment.save()', err);
+			});
 		};
 
 		// TODO: Kommentare/Antworten editieren und löschen
 
 
+		/**
+		 * Closes and destroys this modal and change to GraphSearch state.
+		 * @memberof sourceDetailCtrl
+		 * @function enterGraph
+		 * @param id {Number} GraphSearch start Id
+		 */
 		$scope.enterGraph = function (id) {
 			this.$hide();
 			this.$destroy();
@@ -168,7 +211,11 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 				});
 		});
 
-		// closing
+		/**
+		 * Closes the modal and destroys the controller instance.
+		 * @memberof sourceDetailCtrl
+		 * @function close
+		 */
 		$scope.close = function () {
 			this.$hide();
 			this.$destroy();
@@ -179,7 +226,4 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 				$state.go('^.^');
 		};
 
-		$scope.$on('$destroy', function (event) {
-			console.log('destroy sourceDetail');
-		});
 	}]);

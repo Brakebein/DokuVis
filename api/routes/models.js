@@ -29,6 +29,7 @@ var models = {
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#models.getTree'); return; }
 				// null objekte rausfiltern und assoziatives Array für Kategorien
+				//console.log(response.data);
 				for(var i=0; i<response.data.length; i++) {
 					for(var j=0; j<response.data[i][1].length; j++) {
 						var catObj = {};
@@ -103,7 +104,7 @@ var models = {
 		}
 
 		neo4j.transactionArray(statements).then(function (response) {
-			if(response.exception) { utils.error.neo4j(res, response, '#models.insert'); return; }
+			if(response.errors.length) { utils.error.neo4j(res, response, '#models.insert'); return; }
 			res.json(response);
 		}).catch(function(err) {
 			utils.error.neo4j(res, err, '#cypher');
@@ -126,7 +127,7 @@ var models = {
 		
 		neo4j.cypher(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#models.assignCategory'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#models.assignCategory'); return; }
 				res.json(response);
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
@@ -143,7 +144,7 @@ var models = {
 
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#source.getConnectionsInverse'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#source.getConnectionsInverse'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
 			}).catch(function(err) {
 			utils.error.neo4j(res, err, '#cypher');

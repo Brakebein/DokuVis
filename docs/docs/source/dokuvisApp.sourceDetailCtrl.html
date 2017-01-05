@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <base href="../">
+    <title>JSDoc: source : sourceDetailCtrl.js</title>
+    <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">
+    <link href="css/site.css" type="text/css" rel="stylesheet">
+  </head>
+  <body ng-app="">
+    <nav id="toc">
+      <input placeholder="Filter" id="filter-input" class="col12 block field" type="text">
+      <div class="nav-wrapper">
+      <h2><a href="index.html">Index</a></h2>
+      <ul class="module">
+        <!-- dokuvis_pp -->
+        <h2 class="module">
+          <a chref="" ng-click="moduledokuvis_pp = !moduledokuvis_pp">
+            module: dokuvisApp
+          </a>
+          <i ng-cloak="" ng-show="moduledokuvis_pp">+</i>
+        </h2>
+        <li id="dokuvisApp" ng-hide="moduledokuvis_pp">
+          <ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppservice = !dokuvis_ppservice">
+                service
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppservice">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppservice">
+              <li>
+                <a href="dokuvisApp.Archive.html">Archive</a>
+              </li><li>
+                <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
+              </li><li>
+                <a href="dokuvisApp.Category.html">Category</a>
+              </li><li>
+                <a href="dokuvisApp.CategoryAttribute.html">CategoryAttribute</a>
+              </li><li>
+                <a href="dokuvisApp.Comment.html">Comment</a>
+              </li><li>
+                <a href="dokuvisApp.ConfirmService.html">ConfirmService</a>
+              </li><li>
+                <a href="dokuvisApp.Project.html">Project</a>
+              </li><li>
+                <a href="dokuvisApp.ProjInfo.html">ProjInfo</a>
+              </li><li>
+                <a href="dokuvisApp.Source.html">Source</a>
+              </li><li>
+                <a href="dokuvisApp.Subproject.html">Subproject</a>
+              </li><li>
+                <a href="dokuvisApp.TokenInterceptor.html">TokenInterceptor</a>
+              </li><li>
+                <a href="dokuvisApp.UserAuthFactory.html">UserAuthFactory</a>
+              </li><li>
+                <a href="dokuvisApp.Utilities.html">Utilities</a>
+              </li><li>
+                <a href="dokuvisApp.weblgContext.html">weblgContext</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppconfig = !dokuvis_ppconfig">
+                config
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppconfig">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppconfig">
+              <li>
+                <a href="dokuvisApp.config.html">config</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppcontroller = !dokuvis_ppcontroller">
+                controller
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppcontroller">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppcontroller">
+              <li>
+                <a href="dokuvisApp.navCtrl.html">navCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newArchiveModalCtrl.html">newArchiveModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newProjectModalCtrl.html">newProjectModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newSubprojectModalCtrl.html">newSubprojectModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projHomeCtrl.html">projHomeCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.registerCtrl.html">registerCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.sourceDetailCtrl.html">sourceDetailCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppdirective = !dokuvis_ppdirective">
+                directive
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppdirective">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppdirective">
+              <li>
+                <a href="dokuvisApp.webglView.html">webglView</a>
+              </li>
+            </ul>
+          </ul>
+        </li>
+      </ul>
+      </div>
+    </nav>
+    <div id="content" class="page-wrap">
+      <h1 class="title">
+        source : sourceDetailCtrl.js
+      </h1>
+      <div id="main" class="big-container">
+        <!-- source code html -->
+        <article>
+          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$http', 'Utilities', 'Source', 'Comment', '$timeout', '$translatePartialLoader',	/**	 * Controller for the modal to display detailed information about sources.	 * @memberof dokuvisApp	 * @ngdoc controller	 * @name sourceDetailCtrl	 * @author Brakebein	 */	function($scope, $state, $stateParams, $previousState, $http, Utilities, Source, Comment, $timeout, $translatePartialLoader) {		console.log('sourceDetailCtrl init');		$translatePartialLoader.addPart('source');		$previousState.memo('modalInvoker');		$scope.switchable = $state.includes('project.explorer');		$scope.horizontalImage = false;		$scope.pageNr = 0; // für Textdokumente		console.log('selection', $stateParams.selection);		function loadSource(id) {			Source.get({ id: id }).$promise.then(function (data) {				console.log(data);				if(data) {					$scope.item = data;					prepareItem();				}				else					$scope.close();			}, function(err) {				Utilities.throwApiException('on Source.get()', err);			});		}		loadSource($stateParams.sourceId);		function prepareItem() {			if($scope.item.type == 'picture' || $scope.item.type == 'plan') {				var img = new Image();				img.onload = function() {					$scope.horizontalImage = this.width/this.height > 2;					$scope.$apply();				};				img.src = 'data/'+$scope.item.file.path+ ($scope.item.file.display || $scope.item.file.name);			}			else {				$scope.horizontalImage = false;				$scope.pageNr = 0;			}			$scope.comments = [];			loadComments();		}		function loadComments() {			Comment.queryTarget({ targetId: $scope.item.eid }).$promise.then(function (result) {				console.log(result);				$scope.comments = result;			}, function(err) {				Utilities.throwApiException('on Comment.get()', err);			});		}		/**		 * Load next (or previous, if negative) item. `incr` is relative to the current item.		 * So `2` will load the next but one, `-1` will load the previous one.		 * @memberof sourceDetailCtrl		 * @function nextItem		 * @param incr {Number} number of steps to move (usually `1`)		 */		$scope.nextItem = function(incr) {			var length = $stateParams.selection.length;			var oldIndex = 0;			while($stateParams.selection[oldIndex].eid !== $scope.item.eid) {				oldIndex++;			}			var newIndex = ((oldIndex + incr) % length + length) % length;			$state.go('project.explorer.source.id', { sourceId: $stateParams.selection[newIndex].eid });		};		$scope.nextPage = function(incr) {			$scope.pageNr = (($scope.pageNr + incr) % $scope.item.file.display.length + $scope.item.file.display.length) % $scope.item.file.display.length;		};		$scope.highlight = function(event) {			if(event.target.className !== 'ocrx_word') return;			var values = $('.displayText').find('.ocr_page')[0].attributes.title.value.match(/bbox (\d+) (\d+) (\d+) (\d+);/);			var global = [values[1], values[2], values[3], values[4]];			values = event.target.attributes.title.value.match(/^bbox (\d+) (\d+) (\d+) (\d+); x_wconf (\d+)$/);			var bbox = [values[1], values[2], values[3], values[4]];			var img = $('.displayText').find('img');			var left = Math.floor( bbox[0] * img.width() / global[2] );			var width = Math.ceil( bbox[2] * img.width() / global[2] ) - left + 1;			var top = Math.floor( bbox[1] * img.height() / global[3] );			var height = Math.ceil( bbox[3] * img.height() / global[3] ) - top + 1;			//console.log(left, width, top, height);			$('#wordRect').css({				left: left+'px',				top: top+'px',				width: width+'px',				height: height+'px'			});		};		$scope.toggleConfidence = function() {			$scope.showConfidence = !$scope.showConfidence;			var words = $('.displayText').find('.ocrx_word');			for(var i=0, l=words.length; i&lt;l; i++) {				if($scope.showConfidence) {					var values = words[i].attributes.title.value.match(/^bbox (\d+) (\d+) (\d+) (\d+); x_wconf (\d+)$/);					var wconf = values[5];					var hue = Math.floor((wconf-50)/50 * 120);					$(words[i]).css('background', 'hsl('+hue+',100%,85%)');				}				else					$(words[i]).css('background', 'none');			}		};		$scope.editText = function() {			//$scope.textEdit = !$scope.textEdit;			$http.get('data/' + $scope.item.file.path + $scope.item.file.display[$scope.pageNr]).then(function(response) {				console.log(response);				$scope.editorInput = response.data;				$scope.textEdit = true;			});		};		$scope.saveText = function() {			console.log($scope.editorInput);		};		/**		 * Save a new comment about the current item.		 * @memberof sourceDetailCtrl		 * @function postComment		 */		$scope.postComment = function() {			if($scope.newCommentInput.length &lt; 1) return;			Comment.save({				type: 'source',				text: $scope.newCommentInput,				targets: $scope.item.eid			}).$promise.then(function (newComment) {				console.log('newComment', newComment);				$scope.newCommentInput = '';				if(newComment) {					newComment.answers = [];					$scope.comments.push(newComment);				}			}, function (err) {				Utilities.throwApiException('on Comment.save()', err);			});		};		/**		 * Save a new comment of type `answer`.		 * @memberof sourceDetailCtrl		 * @function postAnswer		 * @param comment {Object} parent comment		 */		$scope.postAnswer = function(comment) {			if(comment.newAnswerInput.length &lt; 1) return;			Comment.save({				type: 'answer',				text: comment.newAnswerInput,				targets: comment.id			}).$promise.then(function (newAnswer) {				comment.newAnswerInput = '';				comment.answering = false;				if(newAnswer)					comment.answers.push(newAnswer);			}, function (err) {				Utilities.throwApiException('on Comment.save()', err);			});		};		// TODO: Kommentare/Antworten editieren und löschen		/**		 * Closes and destroys this modal and change to GraphSearch state.		 * @memberof sourceDetailCtrl		 * @function enterGraph		 * @param id {Number} GraphSearch start Id		 */		$scope.enterGraph = function (id) {			this.$hide();			this.$destroy();			$state.go('project.graph.node', { startNode: id })		};		$scope.$on('$stateChangeSuccess', function (event, toState, toParams) {			console.log('source state changed', toParams);			if(toParams.sourceId)				loadSource(toParams.sourceId);			else				$timeout(function () {					$scope.close();				});		});		/**		 * Closes the modal and destroys the controller instance.		 * @memberof sourceDetailCtrl		 * @function close		 */		$scope.close = function () {			this.$hide();			this.$destroy();			if($previousState.get('modalInvoker').state && !$state.includes('project.explorer.source'))				$previousState.go('modalInvoker');			else				$state.go('^.^');		};	}]);</code></pre>
+        </article>
+        <!-- index.html -->
+        <!-- class files -->
+      </div>
+      <footer style="clear:both">
+        Documentation generated by
+        <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a>
+        using
+        <a href="https://github.com/allenhwkim/angular-jsdoc">Angular-JSDoc template</a>
+      </footer>
+    </div>
+    <script src="js/prettify.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/site.js"></script>
+    <!--%= prettyJson %-->
+    <script>
+      prettyPrint();
+      var lineNo = window.location.hash.match(/#line([0-9]+)$/);
+      lineNo && document.querySelector("ol li:nth-child("+(lineNo[1])+")").scrollIntoView();
+    </script>
+  </body>
+</html>

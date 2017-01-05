@@ -1,24 +1,11 @@
-var fs = require('fs-extra-promise');
-var Promise = require('bluebird');
-var config = require('../config');
-var utils = require('../utils');
-var mysql = require('promise-mysql');
-var neo4j = require('../neo4j-request');
+const fs = require('fs-extra-promise');
+const Promise = require('bluebird');
+const config = require('../config');
+const utils = require('../utils');
+const mysql = require('../mysql-request');
+const neo4j = require('../neo4j-request');
 
-var connection;
-mysql.createConnection({
-	host: config.database.host,
-	user: config.database.user,
-	password: config.database.password,
-	database: config.database.database
-}).then(function(conn) {
-	connection = conn;
-}).catch(function (err) {
-	console.error(err);
-	process.exit();
-});
-
-var projects = {
+module.exports = {
 	
 	query: function (req, res) {
 		var email = (req.body && req.body.x_key) || (req.query && req.query.x_key) || req.headers['x-key'];
@@ -29,10 +16,10 @@ var projects = {
 			INNER JOIN users ON users.id = user_id \
 			AND email = ?';
 		
-		connection.query(sql, [email]).then(function(rows) {
+		mysql.query(sql, [email]).then(function(rows) {
 			res.json(rows);
 		}).catch(function(err) {
-			utils.error.mysql(res, err, '#projects.getAll');
+			utils.error.mysql(res, err, '#projects.query');
 		});
 	},
 	
@@ -46,13 +33,13 @@ var projects = {
 			AND email = ? \
 			AND proj_tstamp = ?';
 		
-		connection.query(sql, [email, req.params.id]).then(function(rows) {
+		mysql.query(sql, [email, req.params.id]).then(function(rows) {
 			if(rows.length > 0)
 				res.json(rows[0]);
 			else
 				res.json({ status: 'NO ENTRY' });
 		}).catch(function(err) {
-			utils.error.mysql(res, err, '#projects.getOne');
+			utils.error.mysql(res, err, '#projects.get');
 		});
 	},
 	
@@ -65,6 +52,8 @@ var projects = {
 		var prj = req.body.proj;
 		var pProj = config.path.data + '/' + prj;
 
+		var connection;
+		
 		// Ordner anlegen
 		fs.mkdirsSync(pProj);
 		fs.mkdirsSync(pProj + '/models/maps');
@@ -75,7 +64,7 @@ var projects = {
 		fs.mkdirsSync(pProj + '/plans/models/maps');
 
 		// get userName
-		connection.query('SELECT name FROM users WHERE email = ?', [user]).then(function (rows) {
+		mysql.query('SELECT name FROM users WHERE email = ?', [user]).then(function (rows) {
 			if(rows.length === 1) {
 				userName = rows[0].name;
 				return Promise.resolve();
@@ -134,7 +123,7 @@ var projects = {
 				(tsource)<-[:P127]-(tpic), \
 				(tsource)<-[:P127]-(ttext), \
 				(tprime:E55:'+prj+' {content:"primarySource"}), \
-				(tsins:E55:'+prj+' {content:"sourceInsertion"}), \
+				(tsupl:E55:'+prj+' {content:"sourceUpload"}), \
 				(tsrepros:E55:'+prj+' {content:"sourceRepros"}), \
 				(tscomment:E55:'+prj+' {content:"sourceComment"}), '
 				// screenshot
@@ -199,6 +188,9 @@ var projects = {
 			
 		}).then(function() {
 			// insert into mysql database
+			return mysql.getConnection();
+		}).then(function(conn) {
+			connection = conn;
 			return connection.beginTransaction();
 		}).then(function() {
 			return connection.query('SELECT id INTO @roleid FROM roles WHERE role = "superadmin"');
@@ -211,11 +203,13 @@ var projects = {
 		}).then(function() {
 			return connection.commit();
 		}).then(function() {
+			mysql.releaseConnection(connection);
 			console.log(prj+': mysql insert');
 			res.json({ message: 'Project ' + prj + ' created', status: 'SUCCESS' });
 		}).catch(function(err) {
 			if(err) {
 				connection.rollback();
+				mysql.releaseConnection(connection);
 				utils.error.mysql(res, err, '#projects.create');
 			}
 		});
@@ -223,12 +217,14 @@ var projects = {
 	},
 
 	update: function (req, res) {
+		// TODO: check, if user is superadmin
+		
 		if(!req.body.name) { utils.abort.missingData(res, 'body.name'); return; }
 		
 		var sql = 'UPDATE projects SET name = ?, description = ? WHERE proj_tstamp = ?';
 		var params = [req.body.name, req.body.description, req.params.id];
 		
-		connection.query(sql, params).then(function (result) {
+		mysql.query(sql, params).then(function (result) {
 			res.json({ affectedRows: result.affectedRows, status: 'SUCCESS' });
 		}).catch(function (err) {
 			if(err) utils.error.mysql(res, err, '#projects.update');
@@ -236,24 +232,31 @@ var projects = {
 	},
 	
 	delete: function (req, res) {
+		// TODO: check, if user is superadmin
 		
 		var prj = req.params.id;
+		var connection;
 		
 		// delete from mysql database
-		connection.beginTransaction().then(function() {
+		mysql.getConnection().then(function (conn) {
+			connection = conn;
+			return connection.beginTransaction();
+		}).then(function() {
 			return connection.query('DELETE FROM projects WHERE proj_tstamp = ?', [prj]);
 		}).then(function() {
 			return connection.commit();
 		}).then(function() {
+			mysql.releaseConnection(connection);
 			console.log(prj+': mysql delete');
 			return Promise.resolve();
 		}).catch(function(err) {
 			if(err) {
 				connection.rollback();
+				mysql.releaseConnection(connection);
 				utils.error.mysql(res, err, '#projects.delete');
 			}
-			
 		}).then(function() {
+			
 			// delete nodes in neo4j database
 			return neo4j.cypher('MATCH (n:'+prj+') DETACH DELETE n');
 		}).then(function(response) {
@@ -275,6 +278,7 @@ var projects = {
 			return Promise.reject();
 			
 		}).then(function() {
+			
 			// Ordner löschen
 			return fs.removeAsync(config.path.data + '/' + prj);
 		}).then(function() {
@@ -296,5 +300,3 @@ var projects = {
 	}
 	
 };
-
-module.exports = projects;

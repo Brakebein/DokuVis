@@ -40,12 +40,14 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'gantt.groups',
 	'gantt.overlap',
 	'gantt.resizeSensor',
-	'ang-drag-drop'
+	'ang-drag-drop',
+	'mm.acl',
+	'pascalprecht.translate'
 ]);
 
 dokuvisApp.constant('API', 'api/');
 
-dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
+dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
 	/**
 	 * Configures ui.router states, state resolve functions, and some defaults
 	 * @memberof dokuvisApp
@@ -55,11 +57,13 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 	 * @param $stateProvider {$stateProvider} provider to configure states
 	 * @param $urlRouterProvider {$urlRouterProvider} Watches $location and provides interface to default state
 	 * @param $httpProvider {$httpProvider} Used to push new interceptors
+	 * @param $translateProvider {$translateProvider} provider to configure translate settings
+	 * @param $translatePartialLoaderProvider {$translatePartialLoaderProvider} provider to configure translatePartialLoader settings
 	 * @param $modalProvider {$modalProvider} provider to configure defaults
 	 * @param $alertProvider {$alertProvider} provider to configure defaults
 	 * @param $tooltipProvider {$tooltipProvider} provider to configure defaults
 	 */
-	function($stateProvider, $urlRouterProvider, $httpProvider, $modalProvider, $alertProvider, $tooltipProvider) {
+	function($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
 		// add interceptors
 		$httpProvider.interceptors.push('TokenInterceptor');
@@ -83,7 +87,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				templateUrl: 'partials/projects.html',
 				controller: 'projectlistCtrl',
 				resolve: {
-					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate]
+					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', 'AclService', authenticate]
 				}
 			})
 			.state('projectlist.project', {
@@ -91,18 +95,11 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/projectModal.html',
-						controller: 'projectModalCtrl',
+						contentTemplate: 'partials/modals/newProjectModal.html',
+						controller: 'newProjectModalCtrl',
 						show: true
 					})
 				}],
-				abstract: true
-			})
-			.state('projectlist.project.new', {
-				url: '/new'
-			})
-			.state('projectlist.project.edit', {
-				url: '/edit',
 				params: {
 					prj: null
 				}
@@ -113,8 +110,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				controller: 'projectCtrl',
 				css: 'style/project.css',
 				resolve: {
-					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', authenticate],
-					checkProject: ['$q', '$state', '$stateParams', '$rootScope', 'Project', checkProject],
+					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', 'AclService', authenticate],
+					checkProject: ['$q', '$state', '$stateParams', '$rootScope', 'Project', 'AclService', checkProject],
 					checkSubproject: ['$q', '$state', '$stateParams', 'Subproject', checkSubproject]
 				},
 				abstract: true
@@ -130,31 +127,22 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/projectModal.html',
-						controller: 'subprojectModalCtrl',
+						contentTemplate: 'partials/modals/newProjectModal.html',
+						controller: 'newSubprojectModalCtrl',
 						show: true
 					});
 				}],
-				abstract: true
-			})
-			.state('project.home.subproject.new', {
-				url: '/new'
-			})
-			.state('project.home.subproject.edit', {
-				url: '/edit',
 				params: {
-					name: '',
-					desc: '',
-					subId: ''
+					sub: null
 				}
 			})
-			.state('project.home.infoedit', {
-				url: '/infoedit',
+			.state('project.home.projinfo', {
+				url: '/projinfo',
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalLargeTpl.html',
-						contentTemplate: 'partials/modals/infoeditModal.html',
-						controller: 'infoeditModalCtrl',
+						contentTemplate: 'partials/modals/newProjInfoModal.html',
+						controller: 'newProjInfoModalCtrl',
 						show: true
 					});
 				}],
@@ -185,11 +173,15 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 						show: true
 					});
 				}],
-				css: 'style/modals/sourceDetail.min.css',
-				abstract: true
+				css: 'style/modals/sourceDetail.css',
+				abstract: true,
+				reloadOnSearch: false
 			})
 			.state('project.explorer.source.id', {
-				url: '/:sourceId'
+				url: '/:sourceId',
+				params: {
+					selection: []
+				}
 			})
 			.state('project.explorer.upload', {
 				url: '/upload',
@@ -201,7 +193,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 						show: true
 					});
 				}],
-				css: 'style/modals/upload.min.css',
+				css: 'style/modals/upload.css',
 				abstract: true
 			})
 			.state('project.explorer.upload.type', {
@@ -209,6 +201,17 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				params: {
 					attachTo: null
 				}
+			})
+			.state('project.explorer.upload.type.archive', {
+				url: '/archive',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/newArchiveModal.html',
+						controller: 'newArchiveModalCtrl',
+						show: true
+					});
+				}]
 			})
 			.state('project.explorer.categoryedit', {
 				url: '/categoryedit',
@@ -261,7 +264,34 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				templateUrl: 'partials/config.html',
 				controller: 'configCtrl',
 				css: 'style/config.css'
+			})
+			.state('project.config.staffedit', {
+				url: '/staffedit',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/staffeditModal.html',
+						controller: 'staffeditModalCtrl',
+						show: true
+					});
+				}]
 			});
+
+		// translate
+		$translateProvider
+			.useSanitizeValueStrategy('sanitize')
+			.useLoader('$translatePartialLoader', {
+				urlTemplate: '/i18n/{lang}/{part}.json'
+			})
+			// .preferredLanguage('de-DE')
+			.preferredLanguage('en-US')
+			.fallbackLanguage('de-DE')
+			.registerAvailableLanguageKeys(['en-US', 'de-DE'], {
+				'en_*': 'en-US',
+				'de_*': 'de-DE'
+			});
+			//.determinePreferredLanguage();
+		$translatePartialLoaderProvider.addPart('general');
 		
 		// defaults
 		angular.extend($modalProvider.defaults, {
@@ -287,9 +317,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		 * @param $timeout {timeout} Angular timeout
 		 * @param AuthenticationFactory {AuthenticationFactory} [AuthenticationFactory]{@link dokuvisApp.AuthenticationFactory.html}
 		 * @param UserAuthFactory {UserAuthFactory} [UserAuthFactory]{@link dokuvisApp.UserAuthFactory.html}
+		 * @param AclService {service} Access Control List service
 		 * @returns {Promise} Resolves, if user has been authenticated
 		 */
-		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory) {
+		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory, AclService) {
 
 			if(AuthenticationFactory.isLogged) {
 
@@ -299,6 +330,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 					if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;
 					if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;
 					//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
+
+					AclService.flushRoles();
+					AclService.attachRole('member');
+
 					return $q.when();
 				}, function(reason) {
 					console.log(reason);
@@ -331,9 +366,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		 * @param $stateParams {$stateParams} ui.router state parameter
 		 * @param $rootScope {$rootScope} Angular rootScope
 		 * @param Project {Project} Project http
+		 * @param AclService {service} Access Control List service
 		 * @returns {Promise} Resolves, if project exists
 		 */
-		function checkProject($q, $state, $stateParams, $rootScope, Project) {
+		function checkProject($q, $state, $stateParams, $rootScope, Project, AclService) {
 
 			return Project.get({ id: $stateParams.project }).$promise.then(function(result){
 
@@ -348,6 +384,21 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 
 				$rootScope.userRole = result.role;
 
+				AclService.attachRole('visitor');
+				if (result.role === 'superadmin') {
+					AclService.attachRole('superadmin');
+					AclService.attachRole('admin');
+					AclService.attachRole('historian');
+					AclService.attachRole('modeler');
+				}
+				else if(result.role === 'admin')
+					AclService.attachRole('admin');
+				else if(result.role === 'historian')
+					AclService.attachRole('historian');
+				else if(result.role === 'modeler')
+					AclService.attachRole('modeler');
+
+				console.log(AclService.getRoles());
 			}, function (err) {
 				console.error('API Exception on Project.get()', err);
 				return $q.reject();
@@ -371,10 +422,12 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 				return $q.resolve();
 			else {
 				//console.log('before', $stateParams);
-				return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
+				//return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
+				return Subproject.get({ id: $stateParams.subproject }).$promise.then(function (result) {
 
 					//console.log('after', response);
-					if(!response.data.length) {
+					// if(!response.data.length) {
+					if(!result) {
 						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });
 						return $q.reject();
 					}
@@ -391,24 +444,54 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$mo
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 	
-dokuvisApp.run(function($rootScope, $state, $previousState, AuthenticationFactory, amMoment, editableOptions) {
-	// when the page refreshes, check if the user is already logged in
-	AuthenticationFactory.check();
-	
-	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
-		$rootScope.isLogged = AuthenticationFactory.isLogged;
-		$rootScope.userName = AuthenticationFactory.userName;
-		//$rootScope.role = AuthenticationFactory.userRole;
-		// if the user is already logged in, take him to the home page
-		if(AuthenticationFactory.isLogged && $state.is('login')) {
-			console.log('change2');
-			$state.go('home');
-		}
-	});
-	
-	amMoment.changeLocale('de');
-	editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
-});
+dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory', 'AclService', '$translate', 'amMoment', 'editableOptions', 'TypeaheadRequest',
+	function($rootScope, $state, $previousState, AuthenticationFactory, AclService, $translate, amMoment, editableOptions, TypeaheadRequest) {
+		// when the page refreshes, check if the user is already logged in
+		AuthenticationFactory.check();
+
+		// ACL data
+		var aclData = {
+			guest: ['login', 'register'],
+			member: ['logout', 'create_project'],
+			visitor: [],
+			historian: ['upload_source'],
+			modeler: ['upload_model'],
+			admin: ['manage_content', 'edit_subproject', 'edit_staff'],
+			superadmin: ['edit_project']
+		};
+		AclService.setAbilities(aclData);
+		AclService.attachRole('guest');
+
+		$rootScope.can = AclService.can;
+
+		$rootScope.$on('$translatePartialLoaderStructureChanged', function () {
+			$translate.refresh();
+		});
+
+		$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+			$rootScope.isLogged = AuthenticationFactory.isLogged;
+			$rootScope.userName = AuthenticationFactory.userName;
+			//$rootScope.role = AuthenticationFactory.userRole;
+			// if the user is already logged in, take him to the home page
+			if(AuthenticationFactory.isLogged && $state.is('register')) {
+				$state.go('home');
+			}
+		});
+
+		amMoment.changeLocale('de');
+		// amMoment.changeLocale('en');
+		editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
+
+		// typeahead
+		$rootScope.setTypeahead = function (label, from, prop) {
+			TypeaheadRequest.query(label, from, prop).then(function (response) {
+				$rootScope.typeaheads = response.data;
+				console.log('typeahead', $rootScope.typeaheads);
+			}, function (err) {
+				
+			});
+		};
+	}]);
 	
 dokuvisApp.filter('filterEditor', function(){
 	return function(items, search) {

@@ -14,7 +14,7 @@ module.exports = {
 			
 		neo4j.transaction(q)
 			.then(function (response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#category.query'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#category.query'); return; }
 				var results = neo4j.extractTransactionData(response.results[0]);
 				res.json(neo4j.removeEmptyArrays(results, 'attributes', 'id'));
 			})
@@ -53,7 +53,7 @@ module.exports = {
 		
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#category.create'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#category.create'); return; }
 				var data = neo4j.extractTransactionData(response.results[0])[0].c;
 				data.attributes = [];
 				res.json(data);
@@ -78,7 +78,7 @@ module.exports = {
 		
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#category.update'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#category.update'); return; }
 				var results = neo4j.extractTransactionData(response.results[0]);
 				res.json(neo4j.removeEmptyArrays(results, 'attributes', 'id')[0]);
 			}).catch(function(err) {
@@ -98,7 +98,7 @@ module.exports = {
 		
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#category.delete'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#category.delete'); return; }
 				res.json({ message: 'Category deleted' });
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
@@ -124,7 +124,7 @@ module.exports = {
 		};
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#category.createAttr'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#category.createAttr'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0])[0].a);
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
@@ -151,7 +151,7 @@ module.exports = {
 		
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#category.updateAttr'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#category.updateAttr'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0])[0]);
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
@@ -169,7 +169,7 @@ module.exports = {
 		};
 		neo4j.transaction(q, params)
 			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#category.deleteAttr'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#category.deleteAttr'); return; }
 				res.json({ message: 'CategoryAttribute deleted' });
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');

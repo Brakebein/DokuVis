@@ -18,12 +18,12 @@
 				<!--<li><a href="#/explorer">Explorer</a></li>-->
 			</ul>
 			
-			<button ng-show="isLogged" class="btn btn-default btn-sm navbar-btn navbar-right" ng-click="logout()"><i class="glyphicon glyphicon-log-out"></i> Abmelden</button>
+			<button ng-show="isLogged" class="btn btn-default btn-sm navbar-btn navbar-right" ng-click="logout()"><i class="glyphicon glyphicon-log-out"></i> {{'logout' | translate}}</button>
 			<p ng-show="isLogged" class="navbar-text navbar-right"></p>
 			<p ng-show="isLogged" class="navbar-text navbar-right">{{userName}}</p>
 			
 			<!-- login form -->
-			<button ng-hide="isLogged" class="btn btn-default btn-sm navbar-btn navbar-right" ui-sref="register">Registrieren</button>
+			<button ng-hide="isLogged" class="btn btn-default btn-sm navbar-btn navbar-right" ui-sref="register">{{'register' | translate}}</button>
 			<form ng-hide="isLogged" class="navbar-form navbar-right navFormMargin" ng-submit="login()">
 				<div class="form-group">
 					<input type="email" class="form-control input-sm" name="email" placeholder="Email" ng-model="user.email"/>
@@ -31,7 +31,7 @@
 				<div class="form-group">
 					<input type="password" class="form-control input-sm" name="password" placeholder="Password" ng-model="user.password"/>
 				</div>
-				<button type="submit" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-log-in"></i> Anmelden</button>
+				<button type="submit" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-log-in"></i> {{'login' | translate}}</button>
 			</form>
 			
 			

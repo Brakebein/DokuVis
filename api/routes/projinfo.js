@@ -17,7 +17,7 @@ module.exports = {
 		
 		neo4j.transaction(q, params)
 			.then(function (response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#projinfo.query'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#projinfo.query'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
 			})
 			.catch(function (err) {
@@ -46,7 +46,7 @@ module.exports = {
 		
 		neo4j.transaction(q, params)
 			.then(function (response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#projinfo.create'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#projinfo.create'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0])[0]);
 			})
 			.catch(function (err) {
@@ -72,7 +72,7 @@ module.exports = {
 		
 		neo4j.transaction(q, params)
 			.then(function (response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#projinfo.update'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#projinfo.update'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0])[0]);
 			})
 			.catch(function (err) {
@@ -97,7 +97,7 @@ module.exports = {
 		
 		neo4j.transaction(q, params)
 			.then(function (response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#projinfo.delete'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#projinfo.delete'); return; }
 				res.json({ message: 'ProjInfo deleted' });
 			})
 			.catch(function (err) {
@@ -126,7 +126,7 @@ module.exports = {
 
 		neo4j.transaction(q, params)
 			.then(function (response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#projinfo.delete'); return; }
+				if(response.errors.length) { utils.error.neo4j(res, response, '#projinfo.delete'); return; }
 				res.json({ message: 'ProjInfo order swapped' });
 			})
 			.catch(function (err) {

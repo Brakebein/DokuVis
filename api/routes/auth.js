@@ -2,20 +2,7 @@ var jwt = require('jwt-simple');
 var Promise = require('bluebird');
 var bcrypt = require('bcryptjs');
 var config = require('../config');
-var mysql = require('promise-mysql');
-
-var connection;
-mysql.createConnection({
-	host: config.database.host,
-	user: config.database.user,
-	password: config.database.password,
-	database: config.database.database
-}).then(function(conn) {
-	connection = conn;
-}).catch(function (err) {
-	console.error(err);
-	process.exit();
-});
+var mysql = require('../mysql-request');
 
 var auth = {
 	
@@ -40,13 +27,12 @@ var auth = {
 				// and dispatch it to the client
 				if(dbUserObj)
 					res.json(genToken(dbUserObj));
-			}, function(reason) {
+			}, function() {
 				res.status(401);
 				res.json({
 					"status": 401,
 					"message": 'Invalid credentials #7'
 				});
-				return;
 			});
 	},
 	
@@ -70,7 +56,7 @@ var auth = {
 		var salt = bcrypt.genSaltSync(10);
 		var hash = bcrypt.hashSync(password, salt);
 		
-		connection.query('INSERT INTO users(email, name, password) VALUES(?,?,?)', [email, username, hash])
+		mysql.query('INSERT INTO users(email, name, password) VALUES(?,?,?)', [email, username, hash])
 			.then(function(result) {
 				console.log('id: ' + result.insertId);
 				
@@ -82,13 +68,12 @@ var auth = {
 				// and dispatch it to the client
 				if(dbUserObj)
 					res.json(genToken(dbUserObj));
-			}, function(reason) {
+			}, function() {
 				res.status(401);
 				res.json({
 					"status": 401,
 					"message": 'Invalid credentials #7'
 				});
-				return;
 			})
 			.catch(function(err) {
 				if(err) throw err;
@@ -96,7 +81,7 @@ var auth = {
 	},
 	
 	validate: function(email, password) {
-		return connection.query('SELECT email, name, password FROM users WHERE email = ?', [email])
+		return mysql.query('SELECT email, name, password FROM users WHERE email = ?', [email])
 			.then(function(rows) {
 				if(rows.length === 0) return Promise.reject();
 				else {
@@ -109,7 +94,7 @@ var auth = {
 	},
 	
 	validateUser: function(email) {
-		return connection.query('SELECT email, name, password FROM users WHERE email = ?', [email])
+		return mysql.query('SELECT email, name, password FROM users WHERE email = ?', [email])
 			.then(function(rows) {
 				if(rows.length === 0) return Promise.reject();
 				else return rows[0];
@@ -119,7 +104,6 @@ var auth = {
 	checkJWT: function(req, res) {
 		res.status(200);
 		res.send();
-		return;
 	}
 	
 };

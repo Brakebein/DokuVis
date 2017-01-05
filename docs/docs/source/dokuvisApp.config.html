@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <base href="../">
+    <title>JSDoc: source : app.js</title>
+    <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">
+    <link href="css/site.css" type="text/css" rel="stylesheet">
+  </head>
+  <body ng-app="">
+    <nav id="toc">
+      <input placeholder="Filter" id="filter-input" class="col12 block field" type="text">
+      <div class="nav-wrapper">
+      <h2><a href="index.html">Index</a></h2>
+      <ul class="module">
+        <!-- dokuvis_pp -->
+        <h2 class="module">
+          <a chref="" ng-click="moduledokuvis_pp = !moduledokuvis_pp">
+            module: dokuvisApp
+          </a>
+          <i ng-cloak="" ng-show="moduledokuvis_pp">+</i>
+        </h2>
+        <li id="dokuvisApp" ng-hide="moduledokuvis_pp">
+          <ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppservice = !dokuvis_ppservice">
+                service
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppservice">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppservice">
+              <li>
+                <a href="dokuvisApp.Archive.html">Archive</a>
+              </li><li>
+                <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
+              </li><li>
+                <a href="dokuvisApp.Category.html">Category</a>
+              </li><li>
+                <a href="dokuvisApp.CategoryAttribute.html">CategoryAttribute</a>
+              </li><li>
+                <a href="dokuvisApp.Comment.html">Comment</a>
+              </li><li>
+                <a href="dokuvisApp.ConfirmService.html">ConfirmService</a>
+              </li><li>
+                <a href="dokuvisApp.Project.html">Project</a>
+              </li><li>
+                <a href="dokuvisApp.ProjInfo.html">ProjInfo</a>
+              </li><li>
+                <a href="dokuvisApp.Source.html">Source</a>
+              </li><li>
+                <a href="dokuvisApp.Subproject.html">Subproject</a>
+              </li><li>
+                <a href="dokuvisApp.TokenInterceptor.html">TokenInterceptor</a>
+              </li><li>
+                <a href="dokuvisApp.UserAuthFactory.html">UserAuthFactory</a>
+              </li><li>
+                <a href="dokuvisApp.Utilities.html">Utilities</a>
+              </li><li>
+                <a href="dokuvisApp.weblgContext.html">weblgContext</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppconfig = !dokuvis_ppconfig">
+                config
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppconfig">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppconfig">
+              <li>
+                <a href="dokuvisApp.config.html">config</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppcontroller = !dokuvis_ppcontroller">
+                controller
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppcontroller">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppcontroller">
+              <li>
+                <a href="dokuvisApp.navCtrl.html">navCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newArchiveModalCtrl.html">newArchiveModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newProjectModalCtrl.html">newProjectModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newSubprojectModalCtrl.html">newSubprojectModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projHomeCtrl.html">projHomeCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.registerCtrl.html">registerCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.sourceDetailCtrl.html">sourceDetailCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppdirective = !dokuvis_ppdirective">
+                directive
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppdirective">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppdirective">
+              <li>
+                <a href="dokuvisApp.webglView.html">webglView</a>
+              </li>
+            </ul>
+          </ul>
+        </li>
+      </ul>
+      </div>
+    </nav>
+    <div id="content" class="page-wrap">
+      <h1 class="title">
+        source : app.js
+      </h1>
+      <div id="main" class="big-container">
+        <!-- source code html -->
+        <article>
+          <pre class="prettyprint source linenums"><code>(function () {	'use strict';/** * @namespace dokuvisApp */var dokuvisApp = angular.module('dokuvisApp', [	'ui.router',	'ui.router.css',	'ct.ui.router.extras.sticky',	'ct.ui.router.extras.previous',	'ngResource',	'ngAnimate',	'ngSanitize',	'debounce',	'truncate',	'xeditable',	'mgcrea.ngStrap',	'angularMoment',	'ngScrollbars',	'ngDragDrop',	'textAngular',	'ngTagsInput',	'minicolors',	'urish',	'uiSlider',	'angularFileUpload',	'pw.canvas-painter',	'gantt',	'gantt.table',	'gantt.movable',	'gantt.tooltips',	'gantt.labels',	'gantt.sortable',	'gantt.drawtask',	'gantt.bounds',	'gantt.progress',	'gantt.tree',	'gantt.groups',	'gantt.overlap',	'gantt.resizeSensor',	'ang-drag-drop',	'mm.acl',	'pascalprecht.translate']);dokuvisApp.constant('API', 'api/');dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',	/**	 * Configures ui.router states, state resolve functions, and some defaults	 * @memberof dokuvisApp	 * @ngdoc config	 * @name config	 * @author Brakebein	 * @param $stateProvider {$stateProvider} provider to configure states	 * @param $urlRouterProvider {$urlRouterProvider} Watches $location and provides interface to default state	 * @param $httpProvider {$httpProvider} Used to push new interceptors	 * @param $translateProvider {$translateProvider} provider to configure translate settings	 * @param $translatePartialLoaderProvider {$translatePartialLoaderProvider} provider to configure translatePartialLoader settings	 * @param $modalProvider {$modalProvider} provider to configure defaults	 * @param $alertProvider {$alertProvider} provider to configure defaults	 * @param $tooltipProvider {$tooltipProvider} provider to configure defaults	 */	function($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider, $modalProvider, $alertProvider, $tooltipProvider) {		// add interceptors		$httpProvider.interceptors.push('TokenInterceptor');		$urlRouterProvider.otherwise('/home');		// states		$stateProvider			.state('home', {				url: '/home',				templateUrl: 'partials/home.html',				controller: 'homeCtrl'			})			.state('register', {				url: '/register',				templateUrl: 'partials/register.html',				controller: 'registerCtrl'			})			.state('projectlist', {				url: '/list',				templateUrl: 'partials/projects.html',				controller: 'projectlistCtrl',				resolve: {					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', 'AclService', authenticate]				}			})			.state('projectlist.project', {				url: '/project',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalTpl.html',						contentTemplate: 'partials/modals/newProjectModal.html',						controller: 'newProjectModalCtrl',						show: true					})				}],				params: {					prj: null				}			})			.state('project', {				url: '/:project/:subproject',				templateUrl: 'partials/project.html',				controller: 'projectCtrl',				css: 'style/project.css',				resolve: {					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', 'AclService', authenticate],					checkProject: ['$q', '$state', '$stateParams', '$rootScope', 'Project', 'AclService', checkProject],					checkSubproject: ['$q', '$state', '$stateParams', 'Subproject', checkSubproject]				},				abstract: true			})			.state('project.home', {				url: '/home',				templateUrl: 'partials/projHome.html',				controller: 'projHomeCtrl',				css: 'style/projHome.css'			})			.state('project.home.subproject', {				url: '/subproject',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalTpl.html',						contentTemplate: 'partials/modals/newProjectModal.html',						controller: 'newSubprojectModalCtrl',						show: true					});				}],				params: {					sub: null				}			})			.state('project.home.projinfo', {				url: '/projinfo',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalLargeTpl.html',						contentTemplate: 'partials/modals/newProjInfoModal.html',						controller: 'newProjInfoModalCtrl',						show: true					});				}],				params: {					note: null				}			})			.state('project.explorer', {				url: '/explorer',				templateUrl: 'partials/explorer.html',				controller: 'explorerCtrl',				css: [					'style/explorer.css',					'style/panelContainer.css',					'style/snapshot.css',					'style/modals/screenshotDetail.min.css',					'style/modals/indexEdit.min.css',					'style/modals/categoryEdit.css'				]			})			.state('project.explorer.source', {				url: '/source',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalLargeTpl.html',						contentTemplate: 'partials/modals/sourceDetailModal.html',						controller: 'sourceDetailCtrl',						show: true					});				}],				css: 'style/modals/sourceDetail.css',				abstract: true,				reloadOnSearch: false			})			.state('project.explorer.source.id', {				url: '/:sourceId',				params: {					selection: []				}			})			.state('project.explorer.upload', {				url: '/upload',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalLargeTpl.html',						contentTemplate: 'partials/modals/uploadModal.html',						controller: 'uploadCtrl',						show: true					});				}],				css: 'style/modals/upload.css',				abstract: true			})			.state('project.explorer.upload.type', {				url: '/:uploadType',				params: {					attachTo: null				}			})			.state('project.explorer.upload.type.archive', {				url: '/archive',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalTpl.html',						contentTemplate: 'partials/modals/newArchiveModal.html',						controller: 'newArchiveModalCtrl',						show: true					});				}]			})			.state('project.explorer.categoryedit', {				url: '/categoryedit',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalTpl.html',						contentTemplate: 'partials/modals/categoryEditModal.html',						controller: 'categoryEditModalCtrl',						show: true					})				}]			})			.state('project.tasks', {				url: '/tasks',				templateUrl: 'partials/tasks.html',				controller: 'tasksCtrl',				css: 'style/tasks.css'			})			.state('project.graph', {				url: '/graph',				templateUrl: 'partials/graph.html'			})			.state('project.graph.node', {				url: '/:startNode'			})			.state('project.graph.source', {				url: '/source',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalLargeTpl.html',						contentTemplate: 'partials/modals/sourceDetailModal.html',						controller: 'sourceDetailCtrl',						show: true					});				}],				css: 'style/modals/sourceDetail.min.css',				abstract: true			})			.state('project.graph.source.id', {				url: '/:sourceId'			})			.state('project.resources', {				url: '/resources',				templateUrl: 'partials/resources.html',				controller: 'resourcesCtrl',				css: 'style/resources.css'			})			.state('project.config', {				url: '/config',				templateUrl: 'partials/config.html',				controller: 'configCtrl',				css: 'style/config.css'			})			.state('project.config.staffedit', {				url: '/staffedit',				onEnter: ['$modal', function ($modal) {					$modal({						templateUrl: 'partials/modals/_modalTpl.html',						contentTemplate: 'partials/modals/staffeditModal.html',						controller: 'staffeditModalCtrl',						show: true					});				}]			});		// translate		$translateProvider			.useSanitizeValueStrategy('sanitize')			.useLoader('$translatePartialLoader', {				urlTemplate: '/i18n/{lang}/{part}.json'			})			// .preferredLanguage('de-DE')			.preferredLanguage('en-US')			.fallbackLanguage('de-DE')			.registerAvailableLanguageKeys(['en-US', 'de-DE'], {				'en_*': 'en-US',				'de_*': 'de-DE'			});			//.determinePreferredLanguage();		$translatePartialLoaderProvider.addPart('general');		// defaults		angular.extend($modalProvider.defaults, {			backdrop: 'static',			keyboard: false		});		angular.extend($alertProvider.defaults, {			keyboard: false		});		angular.extend($tooltipProvider.defaults, {			placement: 'right',			delay: {show: 500, hide: 100}		});		// resolver functions		/**		 * Resolve function to authenticate user / check, if user is logged in		 * @memberof config		 * @private		 * @param $q {$q} Angular promise service		 * @param $state {$state} ui.router state service		 * @param $window {$window} Angular window service		 * @param $timeout {timeout} Angular timeout		 * @param AuthenticationFactory {AuthenticationFactory} [AuthenticationFactory]{@link dokuvisApp.AuthenticationFactory.html}		 * @param UserAuthFactory {UserAuthFactory} [UserAuthFactory]{@link dokuvisApp.UserAuthFactory.html}		 * @param AclService {service} Access Control List service		 * @returns {Promise} Resolves, if user has been authenticated		 */		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory, AclService) {			if(AuthenticationFactory.isLogged) {				return UserAuthFactory.checkJWT().then(function(response) {					console.log(response);					// check if user object exists else fetch it. this is incase of a page refresh					if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;					if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;					//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;					AclService.flushRoles();					AclService.attachRole('member');					return $q.when();				}, function(reason) {					console.log(reason);					if(reason.status === 400) {						UserAuthFactory.logout();						$timeout(function() {							$state.go('home');						});						return $q.reject();					}				});			}			else {				$timeout(function() {					$state.go('home');				});				return $q.reject();			}		}		/**		 * Resolve function to check, if project exists		 * @memberof config		 * @private		 * @param $q {$q} Angular promise service		 * @param $state {$state} ui.router state service		 * @param $stateParams {$stateParams} ui.router state parameter		 * @param $rootScope {$rootScope} Angular rootScope		 * @param Project {Project} Project http		 * @param AclService {service} Access Control List service		 * @returns {Promise} Resolves, if project exists		 */		function checkProject($q, $state, $stateParams, $rootScope, Project, AclService) {			return Project.get({ id: $stateParams.project }).$promise.then(function(result){				console.log(result, $stateParams);				if(result.status === 'NO ENTRY') {					$state.go('projectlist');					return $q.reject();				}				$rootScope.userRole = result.role;				AclService.attachRole('visitor');				if (result.role === 'superadmin') {					AclService.attachRole('superadmin');					AclService.attachRole('admin');					AclService.attachRole('historian');					AclService.attachRole('modeler');				}				else if(result.role === 'admin')					AclService.attachRole('admin');				else if(result.role === 'historian')					AclService.attachRole('historian');				else if(result.role === 'modeler')					AclService.attachRole('modeler');				console.log(AclService.getRoles());			}, function (err) {				console.error('API Exception on Project.get()', err);				return $q.reject();			});		}		/**		 * Resolve function to check, if the subproject exists		 * @memberof config		 * @private		 * @param $q {$q} Angular promise service		 * @param $state {$state} ui.router state service		 * @param $stateParams {$stateParams} ui.router state parameter		 * @param Subproject {Subproject} Subproject http		 * @returns {Promise} A promise that will either be resolved or rejected, if the subproject couldn't be found (or an error occured)		 */		function checkSubproject($q, $state, $stateParams, Subproject) {			if($stateParams.subproject === 'master')				return $q.resolve();			else {				//console.log('before', $stateParams);				//return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {				return Subproject.get({ id: $stateParams.subproject }).$promise.then(function (result) {					//console.log('after', response);					// if(!response.data.length) {					if(!result) {						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });						return $q.reject();					}				}, function (err) {					console.error('API Exception on Subproject.check()', err);					//Utilities.throwApiException('on Subproject.check()', err);					return $q.reject();				});			}		}		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});	}]);dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory', 'AclService', '$translate', 'amMoment', 'editableOptions', 'TypeaheadRequest',	function($rootScope, $state, $previousState, AuthenticationFactory, AclService, $translate, amMoment, editableOptions, TypeaheadRequest) {		// when the page refreshes, check if the user is already logged in		AuthenticationFactory.check();		// ACL data		var aclData = {			guest: ['login', 'register'],			member: ['logout', 'create_project'],			visitor: [],			historian: ['upload_source'],			modeler: ['upload_model'],			admin: ['manage_content', 'edit_subproject', 'edit_staff'],			superadmin: ['edit_project']		};		AclService.setAbilities(aclData);		AclService.attachRole('guest');		$rootScope.can = AclService.can;		$rootScope.$on('$translatePartialLoaderStructureChanged', function () {			$translate.refresh();		});		$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {			$rootScope.isLogged = AuthenticationFactory.isLogged;			$rootScope.userName = AuthenticationFactory.userName;			//$rootScope.role = AuthenticationFactory.userRole;			// if the user is already logged in, take him to the home page			if(AuthenticationFactory.isLogged && $state.is('register')) {				$state.go('home');			}		});		amMoment.changeLocale('de');		// amMoment.changeLocale('en');		editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'		// typeahead		$rootScope.setTypeahead = function (label, from, prop) {			TypeaheadRequest.query(label, from, prop).then(function (response) {				$rootScope.typeaheads = response.data;				console.log('typeahead', $rootScope.typeaheads);			}, function (err) {			});		};	}]);dokuvisApp.filter('filterEditor', function(){	return function(items, search) {		if(!search) return items;		return items.filter(function(element, index, array) {			return element.editors.indexOf(search) !== -1;		});	}});})();</code></pre>
+        </article>
+        <!-- index.html -->
+        <!-- class files -->
+      </div>
+      <footer style="clear:both">
+        Documentation generated by
+        <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a>
+        using
+        <a href="https://github.com/allenhwkim/angular-jsdoc">Angular-JSDoc template</a>
+      </footer>
+    </div>
+    <script src="js/prettify.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/site.js"></script>
+    <!--%= prettyJson %-->
+    <script>
+      prettyPrint();
+      var lineNo = window.location.hash.match(/#line([0-9]+)$/);
+      lineNo && document.querySelector("ol li:nth-child("+(lineNo[1])+")").scrollIntoView();
+    </script>
+  </body>
+</html>

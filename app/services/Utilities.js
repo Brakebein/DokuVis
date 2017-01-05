@@ -16,8 +16,7 @@ angular.module('dokuvisApp').factory('Utilities',
 		  * Base62 encoder/decoder
 		*/
 		f.Base62 = function() {
-			var DEFAULT_CHARACTER_SET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			this.characterSet = DEFAULT_CHARACTER_SET;
+			this.characterSet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		};
 		f.Base62.prototype.encode = function(integer) {
 			if(integer === 0) return '0';

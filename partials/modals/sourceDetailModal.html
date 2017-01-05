@@ -11,7 +11,7 @@
 	
 		<div ng-if="!horizontalImage" class="imageVDiv">
 			<div>
-			<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="data/{{item.file.path + (item.file.display || item.file.img1024 || item.file.name)}}"/>
+			<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="data/{{item.file.path + (item.file.display || item.file.name)}}"/>
 			<div ng-if="item.type == 'text' && !textEdit" class="displayText" sync-scroll="vertical-scroll">
 				<div class="vertical-scroll text"
 					 ng-mouseover="highlight($event)">
@@ -27,14 +27,14 @@
 			</div>
 		</div>
 		<div ng-if="horizontalImage" class="imageHDiv">
-			<img ng-src="data/{{item.file.path + (item.file.display || item.file.img1024 || item.file.name)}}"/>
+			<img ng-src="data/{{item.file.path + (item.file.display || item.file.name)}}"/>
 		</div>
 
 		<div ng-class="horizontalImage ? 'infoHDiv' : 'infoVDiv'">
 
 			<div class="title-section">
 				<div class="primaryIdenticator" title="Primärquelle" ng-show="item.primary"><div></div></div>
-				<img ng-show="item.type == 'text'" ng-src="data/{{item.file.path}}_thumbs/{{item.file.thumb}}"/>
+				<img ng-show="item.type == 'text'" ng-src="data/{{item.file.path + item.file.thumb}}"/>
 				<h3>{{item.title}}</h3>
 				<hr/>
 			</div>
@@ -42,32 +42,32 @@
 			<div class="details">
 			<div class="info-section">
 				<div>
-					<strong>Autor</strong>
+					<strong>{{'source_author' | translate}}</strong>
 					<p>{{item.author || 'unbekannt'}}</p>
 				</div>
 				<div ng-show="item.archive && (item.archive.institution || item.archive.identifier)">
-					<strong>Archiv</strong>
+					<strong>{{'source_archive' | translate}}</strong>
 					<p>{{item.archive.institutionAbbr}} {{item.archive.collection}}<br/>
 					{{item.archive.identifier}}</p>
 				</div>
 				<div ng-show="item.date">
-					<strong>Datierung</strong>
+					<strong>{{'source_date' | translate}}</strong>
 					<p>{{item.date}}</p>
 				</div>
 				<div ng-show="item.place">
-					<strong>Erstellungsort</strong>
+					<strong>{{'source_place' | translate}}</strong>
 					<p>{{item.place}}</p>
 				</div>
 				<div ng-show="item.repros">
-					<strong>Lit./publ. Repros</strong>
+					<strong>{{'source_repros' | translate}}</strong>
 					<p>{{item.repros}}</p>
 				</div>
 				<div ng-show="item.note" class="large">
-					<strong>Sonsitges</strong>
+					<strong>{{'source_misc' | translate}}</strong>
 					<p>{{item.note}}</p>
 				</div>
 				<div ng-show="item.tags.length">
-					<strong>Tags</strong>
+					<strong>{{'source_tags' | translate}}</strong>
 					<p>
 						<span ng-repeat="tag in item.tags | orderBy: tag">{{tag}} </span>
 					</p>
@@ -93,7 +93,7 @@
 			</div>
 
 			<div class="comment-section">
-				<strong>Kommentare</strong>
+				<strong>{{'comments' | translate}}</strong>
 				<textarea class="form-control" ng-model="newCommentInput"></textarea>
 				<button class="btn btn-default btn-sm" ng-click="postComment()"><i class="fa fa-paper-plane"></i>Posten</button>
 
@@ -123,9 +123,12 @@
 	</div>
 	
 	<div class="modal-footer">
-		<button ng-show="switchable" class="btn btn-default" ng-click="nextItem(-1)"><span class="glyphicon glyphicon-chevron-left"></span> Voriges</button>
-		<button ng-show="switchable" class="btn btn-default" ng-click="nextItem(1)">Nächstes<span class="glyphicon glyphicon-chevron-right"></span></button>
-		<button type="button" class="btn btn-default" ng-click="close()">Schließen</button>
+		<div class="modal-metadata">
+			<span ng-show="item.user.name">{{'uploaded_by' | translate}} {{item.user.name}} - {{item.user.date | amCalendar}}</span>
+		</div>
+		<button ng-show="switchable" class="btn btn-default" ng-click="nextItem(-1)"><span class="glyphicon glyphicon-chevron-left"></span> {{'prev' | translate}}</button>
+		<button ng-show="switchable" class="btn btn-default" ng-click="nextItem(1)">{{'next' | translate}} <span class="glyphicon glyphicon-chevron-right"></span></button>
+		<button type="button" class="btn btn-default" ng-click="close()">{{'close' | translate}}</button>
 	</div>
 	
 </div>

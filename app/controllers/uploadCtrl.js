@@ -1,28 +1,16 @@
-angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$window', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', '$modal', 'API', 'Source', 'Model', 'Archive',
+angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', 'API', 'Source', 'Model', 'Archive', '$translatePartialLoader',
 
 	/**
-	 * Controller of the Upload modal
+	 * Controller of the Upload modal.
 	 * @memberof dokuvisApp
 	 * @ngdoc controller
 	 * @name uploadCtrl
-	 * @param $scope {service} controller scope
-	 * @param $state {service} ui.router state
-	 * @param $stateParams {service} ui.router stateParams
-	 * @param $previousState {service} ui.router previousState
-	 * @param $window {service} Angular $window service
-	 * @param Uploader {service} instance of nervgh/angular-file-upload uploader
-	 * @param neo4jRequest {service} neo4jRequest [DEPRECATED]
-	 * @param Utilities {service} Utilities
-	 * @param $timeout {service} Angular $timeout
-	 * @param $modal {service} AngularStrap $modal service
-	 * @param API {service} API url constant [DEPRECATED]
-	 * @param Source {service} Source http
-	 * @param Model {service} Model http
-	 * @param Archive {service} Archive http
+	 * @author Brakebein
 	 */
-	function($scope, $state, $stateParams, $previousState, $window, Uploader, neo4jRequest, Utilities, $timeout, $modal, API, Source, Model, Archive) {
+	function($scope, $state, $stateParams, $previousState, Uploader, neo4jRequest, Utilities, $timeout, API, Source, Model, Archive, $translatePartialLoader) {
 
         $previousState.memo('modalInvoker');
+		$translatePartialLoader.addPart('source');
 
 		// init
 		var isInserting = false;
@@ -30,46 +18,20 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		var imageTypes = ['jpg','JPG','png','PNG','jpeg','bmp','gif','tiff'];
 		var textTypes = ['pdf'];
 
-		//$scope.insert = $scope.$parent.overlayParams;
-		//$scope.insert.project = $scope.$parent.project;
-		$scope.insert = {params: {type: 'text', attachTo: undefined}};
-		$scope.insert.phpurl = '';
+		$scope.uploadType = $stateParams.uploadType;
+		$scope.attachTo = $stateParams.attachTo;
 
-		$scope.uploadType = $stateParams.uploadType; //$scope.$parent.$parent.modalParams.type;
-		$scope.attachTo = $stateParams.attachTo; //$scope.$parent.$parent.modalParams.attachTo;
-
-		console.log('$stateParams', $stateParams);
-		console.log('attach', $scope.attachTo);
-
-		//$scope.insert.formTitle = '';
-		//console.log($scope.insert, $scope.$parent.project);
-
-		$scope.globals = {};
-		$scope.globals.type = $scope.insert.params.type;
-		$scope.globals.author = '';
-		$scope.globals.useAuthor = false;
-		$scope.globals.creationDate = '';
-		$scope.globals.useCreationDate = false;
-		$scope.globals.creationPlace = '';
-		$scope.globals.useCreationPlace = false;
-
-		$scope.suggestions = [];
 		$scope.archives = [];
 
 		var uploader = Uploader;
 
-		/*var uploader = $scope.uploader = new FileUploader({
-			url: $scope.insert.phpurl
-		});*/
-		//uploader.queue = $scope.insert.params.queue;
-
 		// FILTERS
 
 		if($scope.uploadType == 'source') {
-			$scope.title = 'Quelle einfügen';
+			$scope.title = 'source_upload_title';
 			uploader.filters.push({
 				name: 'sourceFilter',
-				fn: function(item, options) {
+				fn: function(item) {
 					var type = item.type.slice(item.type.lastIndexOf('/') + 1);
 					return imageTypes.concat(textTypes).indexOf(type) !== -1;
 				}
@@ -79,7 +41,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			$scope.title = 'Modell einfügen';
 			uploader.filters.push({
 				name: 'modelFilter',
-				fn: function(item, options) {
+				fn: function(item) {
 					var type = '|' + item.name.slice(item.name.lastIndexOf('.') + 1) + '|';
 					return '|dae|DAE|obj|'.indexOf(type) !== -1;
 				}
@@ -89,42 +51,30 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			$scope.title = '3D-Plan hinzufügen';
 			uploader.filters.push({
 				name: 'zipFilter',
-				fn: function(item, options) {
+				fn: function(item) {
 					var type = '|' + item.name.slice(item.name.lastIndexOf('.') + 1) + '|';
 					return '|zip|ZIP|'.indexOf(type) !== -1;
 				}
 			});
 		}
-		/*
-		 else if($scope.insert.uploadType == 'text') {
-		 uploader.filters.push({
-		 name: 'textFilter',
-		 fn: function(item, options) {
-		 var type = '|' + item.name.slice(item.name.lastIndexOf('.') + 1) + '|';
-		 return '|pdf|PDF|doc|docx|jpg|png|jpeg|'.indexOf(type) !== -1;
-		 }
-		 });
-		 }*/
 
 		// CALLBACKS
 
 		uploader.onWhenAddingFileFailed = function(item, filter, options) {
 			console.info('onWhenAddingFileFailed', item, filter, options);
 			Utilities.dangerAlert('Nicht unterstütztes Format!');
-			//$scope.$parent.alert.message = 'Nicht unterstütztes Format!';
-			//$scope.$parent.alert.showing = true;
 		};
 		uploader.onAfterAddingFile = function(item) {
 			console.info('onAfterAddingFile', item);
 
-			item.tid = new Utilities.Base62().encode(new Date().getTime());
-			item.newFileName = item.tid + '_' + item.file.name.replace(/ /g, "_");
+			item.tid = Utilities.getUniqueId();
 
 			if($scope.uploadType === 'source') {
 				var type = item.file.type.slice(item.file.type.lastIndexOf('/') + 1);
 				if(imageTypes.indexOf(type) !== -1) {
 					item.sourceType = 'plan';
-					item.url = 'php/uploadImage.php';
+					//item.url = 'php/uploadImage.php';
+					item.url = API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/source';
 				}
 				else if(textTypes.indexOf(type) !== -1) {
 					item.sourceType = 'text';
@@ -133,19 +83,20 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				}
 
 				item.title = '';
-				item.titleError = false;
 				item.author = '';
 				item.creationDate = '';
 				item.repros = '';
-				item.comment = '';
+				item.note = '';
+				
 				item.formExtend = false;
+				item.creationPlace = '';
 				item.archive = '';
 				item.archiveNr = '';
-				item.creationPlace = '';
+				item.primary = false;
+				item.tags = [];
+				
 				item.ocr = false;
 				item.resample = false;
-				item.primary = true;
-				item.tags = [];
 			}
 			else if($scope.uploadType === 'model') {
 				item.sourceType = 'model';
@@ -157,11 +108,11 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				item.url = 'php/planmodelFromZip.php';
 			}
 
-			item.isInputError = false;
+			item.errorInput = false;
 			item.isProcessing = false;
-			item.isInserting = false;
-			item.anzInserting = 0;
-			item.anzInserted = 0;
+			// item.isInserting = false;
+			// item.anzInserting = 0;
+			// item.anzInserted = 0;
 
 			Utilities.sleep(1);
 		};
@@ -171,42 +122,42 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		uploader.onBeforeUploadItem = function(item) {
 			console.info('onBeforeUploadItem', item);
 
+			// set POST request url
 			uploader.url = item.url;
-
-			var formData = {
+			
+			// push data to request form data
+			item.formData = [];
+			item.formData.push({
 				sourceType: item.sourceType,
+				tid: item.tid,
+				date: moment().format(),
 
 				title: item.title,
-				author: ($scope.globals.useAuthor) ? $scope.globals.author : item.author,
-				creationDate: ($scope.globals.useCreationDate) ? $scope.globals.creationDate : item.creationDate,
+				author: item.author,
+				creationDate: item.creationDate,
 				repros: item.repros,
-				comment: item.comment,
+				note: item.note,
 
+				creationPlace: item.creationPlace,
 				archive: item.archive,
 				archiveNr: item.archiveNr,
-				creationPlace: ($scope.globals.useCreationPlace) ? $scope.globals.creationPlace : item.creationPlace,
+				primary: item.primary,
+				tags: item.tags.map(function (t) {
+					return t.text;
+				}),
+
 				language: item.language,
 				ocr: item.ocr,
-				resample: item.resample,
-				primary: item.primary,
-				tags: item.tags,
-
-				oldFileName: item.file.name,
-				newFileName: item.newFileName,
-				fileType: item.file.name.split(".").pop(),
-				pureNewFileName: item.newFileName.slice(0, item.newFileName.lastIndexOf(".")),
-				path: $stateParams.project+'/'+item.sourceType+'s/',
-				tid: item.tid
-			};
-			item.formData.push(formData);
+				resample: item.resample
+			});
 		};
 		uploader.onProgressItem = function(fileItem, progress) {
 			//console.info('onProgressItem', fileItem, progress);
-			if(progress == 100)
+			if(progress === 100)
 				fileItem.isProcessing = true;
 		};
 		uploader.onProgressAll = function(progress) {
-			console.info('onProgressAll', progress);
+			//console.info('onProgressAll', progress);
 		};
 		uploader.onSuccessItem = function(fileItem, response, status, headers) {
 			console.info('onSuccessItem', fileItem, response, status, headers);
@@ -217,38 +168,41 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				console.error(response);
 				fileItem.isSuccess = false;
 				fileItem.isError = true;
+				fileItem.isUploaded = false;
 				return;
 			}
 
-			console.log(response);
-			if(response.data && response.data.pages) {
-				fileItem.formData[0].pages = response.data.pages;
-			}
+			//console.log(response);
+			// if(response.data && response.data.pages) {
+			// 	fileItem.formData[0].pages = response.data.pages;
+			// }
 
-			return;
-			fileItem.isInserting = true;
+			//return;
+			//fileItem.isInserting = true;
 
 			if($scope.uploadType == 'source') {
-				Utilities.waitfor(function(){return isInserting;}, false, 20, {}, function(params) {
-					isInserting = true;
-					neo4jRequest.insertDocument($stateParams.project, $stateParams.subproject, fileItem.formData[0]).then(function(response){
-						if(response.data.exception) { console.error('neo4j failed on insertDocument()', response.data); return; }
-						if(response.data.data.length > 0 ) console.log('insertDocument', response.data);
-						else {
-							console.error('no document inserted', response.data);
-							fileItem.isSuccess = false;
-							fileItem.isError = true;
-						}
-						isInserting = false;
-						fileItem.isInserting = false;
-					});
-				});
+				console.log('done', response);
+
+				// Utilities.waitfor(function(){return isInserting;}, false, 20, {}, function(params) {
+				// 	isInserting = true;
+				// 	neo4jRequest.insertDocument($stateParams.project, $stateParams.subproject, fileItem.formData[0]).then(function(response){
+				// 		if(response.data.exception) { console.error('neo4j failed on insertDocument()', response.data); return; }
+				// 		if(response.data.data.length > 0 ) console.log('insertDocument', response.data);
+				// 		else {
+				// 			console.error('no document inserted', response.data);
+				// 			fileItem.isSuccess = false;
+				// 			fileItem.isError = true;
+				// 		}
+				// 		isInserting = false;
+				// 		fileItem.isInserting = false;
+				// 	});
+				// });
 			}
 
 			else if($scope.uploadType == 'model') {
 
 				console.log('done', response);
-				return;
+				//return;
 
 				/*function neo4jinsertNode(formData, params) {
 				 neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, formData, params.obj).then(function(response){
@@ -340,6 +294,8 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		uploader.onErrorItem = function(fileItem, response, status, headers) {
 			console.info('onErrorItem', fileItem, response, status, headers);
 			fileItem.isProcessing = false;
+			fileItem.isUploaded = false;
+			Utilities.throwApiException('on source.create', response);
 		};
 		uploader.onCancelItem = function(fileItem, response, status, headers) {
 			console.info('onCancelItem', fileItem, response, status, headers);
@@ -354,146 +310,85 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 
 		console.info('uploader', uploader);
         $scope.uploader = uploader;
-		/*for(var i=0; i<Source.results.queue.length; i++) {
-			uploader.addToQueue(Source.results.queue[i]);
-		}*/
 
-		// vor dem Hochladen Pflichtfelder überprüfen
+		/**
+		 * Check, if all relevant input fields are set, and upload each item.
+		 * @memberof uploadCtrl
+		 * @function checkAndUploadAll
+		 */
 		$scope.checkAndUploadAll = function() {
 			// wait for responses and validate inputs
 			$timeout(function() {
 				if($scope.uploadType == 'source') {
 					for(var i=0, l=uploader.queue.length; i<l; i++) {
-						if(uploader.queue[i].title == '' || uploader.queue[i].titleError) {
-							uploader.queue[i].isInputError = true;
-							uploader.queue[i].titleError = true;
+						var item = uploader.queue[i];
+						if(!item.title.length) {
+							item.errorInput = true;
+							Utilities.dangerAlert('Geben Sie mindestens einen Titel ein!');
 						}
-						else
-							uploader.queue[i].isInputError = false;
+						else {
+							item.errorInput = false;
+							if(!item.isSuccess)
+								item.upload();
+						}
 					}
 				}
-				uploader.uploadAll();
+				else
+					uploader.uploadAll();
 			}, 1000);
 		};
 
-		$scope.getArchives = function() {
-			Archive.getAll().then(function(response){
-				$scope.archives = response.data;
-				console.log('Archives:', $scope.archives);
-			}, function (err) {
-				Utilities.throwApiException('on Archive.getAll()', err);
-			});
-		};
-		$scope.getArchives();
-
-		$scope.addArchive = function() {
-			var newscope = $scope.$new(false);
-			newscope.modalParams = {
-				modalType: 'small'
-			};
-			$modal({
-				title: 'Archiv hinzufügen',
-				templateUrl: 'partials/modals/_modalTpl.html',
-				contentTemplate: 'partials/modals/addArchiveModal.html',
-				controller: 'addArchiveCtrl',
-				scope: newscope,
-				show: true
-			});
-		};
-
-		// typeahead input callbacks
-		$scope.setTypeaheadArray = function(label, prop) {
-			if(!label) return;
-			neo4jRequest.getAllLabelProps($stateParams.project, label, prop).then(function(response){
-				if(response.data.exception) { console.error('neo4j failed on setTypeaheadArray()', response); return; }
-				$scope.suggestions = Utilities.cleanNeo4jData(response.data);
-				//console.log($scope.suggestions);
-			});
-		};
-		$scope.validateInput2 = function(item, params) {
-			//console.log('blur', item, params);
-			$scope.suggestions = [];
-
-			if(params) {
-				item.titleError = false;
-				for(var i=0, l=uploader.queue.length; i<l; i++) {
-					if(params.index == i) continue;
-					if(uploader.queue[i][params.prop] == item[params.prop])
-						item.titleError = true;
-				}
-				if(!item.titleError) {
-					neo4jRequest.findNodeWithSpecificContent($stateParams.project, params.label, item[params.prop]).success(function(data, status){
-						//console.log(data);
-						if(data.data.length > 0)
-							item.titleError = true;
-					});
-				}
-			}
-		};
-
-		// autocomplete input callbacks
-		$scope.getSuggestions = function(search, params) {
-			//console.log(search, params);
-			if(search < 1) return;
-
-			neo4jRequest.searchForExistingNodes($stateParams.project, params.label, search).success(function(data, status){
-				$scope.suggestions = Utilities.cleanNeo4jData(data);
-				//console.log($scope.suggestions);
-			});
-		};
-		$scope.selectSuggestion = function(search, params){
-			//console.log('select', search, params);
-		};
-		$scope.validateInput = function(search, item, params) {
-			//console.log('blur', search, params);
-			$scope.suggestions = [];
-
-			if(params.unique) {
-				item.titleError = false;
-				for(var i=0, l=uploader.queue.length; i<l; i++) {
-					if(params.index == i) continue;
-					if(uploader.queue[i][params.uniqueProp] == search)
-						item.titleError = true;
-				}
-				if(!item.titleError) {
-					neo4jRequest.findNodeWithSpecificContent($stateParams.project, params.label, search).success(function(data, status){
-						//console.log(data);
-						if(data.data.length > 0)
-							item.titleError = true;
-					});
-				}
-			}
-		};
-
-		$scope.validateInputs = function() {
-			console.log($scope.inputs);
-		};
-
+		/**
+		 * Triggers click event on hidden files input field.
+		 * @memberof uploadCtrl
+		 * @function openFileDialog
+		 * @param event {Object} click event on parent html element
+		 */
 		$scope.openFileDialog = function(event) {
 			$timeout(function() {
 				angular.element(event.delegateTarget).find('input').trigger('click');
 			});
 		};
 
-		// tag input callbacks
+		/**
+		 * Process tag after it has be added.
+		 * @memberof uploadCtrl
+		 * @function onTagAdded
+		 * @param tag {Object} reference to tag object
+		 */
 		$scope.onTagAdded = function(tag) {
 			tag.text = tag.text.toLowerCase();
 		};
+
+		/**
+		 * Query all tags that contain the search term.
+		 * @memberof uploadCtrl
+		 * @function getTags
+		 * @param query {string} search term
+		 * @returns {Array} array of tags
+		 */
 		$scope.getTags = function(query) {
 			return neo4jRequest.searchTags($stateParams.project, query).then(function(response) {
 				if(response.data.exception) { console.error('neo4j failed on getAllTags()', response.data); return; }
+				//console.log(Utilities.extractArrayFromNeo4jData(response.data));
 				return Utilities.extractArrayFromNeo4jData(response.data);
 			});
 		};
 
-		$scope.$on('$stateChangeStart', function (event, toState, toParams) {
-            $timeout(function () {
-                $scope.close();
-            });
-		});
+		function queryArchives() {
+			Archive.query().$promise.then(function(response){
+				$scope.archives = response;
+				console.log('Archives:', $scope.archives);
+			}, function (err) {
+				Utilities.throwApiException('on Archive.query()', err);
+			});
+		}
+
+		// init
+		queryArchives();
 
 		/**
-		 * Closes the modal and destroys the controller instance
+		 * Closes the modal and destroys the controller instance.
 		 * @memberof uploadCtrl
 		 * @function close
 		 */
@@ -508,5 +403,18 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			else
 				$state.go('project.explorer');
 		};
+
+		$scope.$on('$stateChangeStart', function (event, toState, toParams, fromState) {
+			if(toState.name !== 'project.explorer.upload.type.archive' && fromState.name !== 'project.explorer.upload.type.archive') {
+				$timeout(function () {
+					$scope.close();
+				});
+			}
+		});
+
+		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
+			if(fromState.name === 'project.explorer.upload.type.archive')
+				queryArchives();
+		});
 
 	}]);

@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams', 'neo4jRequest', 'Utilities', 'Project', 'Subproject', 'ProjInfo', 'ConfirmService',
+angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams', 'neo4jRequest', 'Utilities', 'Project', 'Subproject', 'ProjInfo', 'ConfirmService', '$translatePartialLoader',
 	/**
 	 * Controller of the Project Home view, organizing subprojects and project/subproject information
 	 * @memberof dokuvisApp
@@ -13,8 +13,11 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 	 * @param Subproject {Subproject} Subproject http
 	 * @param ProjInfo {ProjInfo} ProjInfo $resource
 	 * @param ConfirmService {ConfirmService} confirm dialog
+	 * @param $translatePartialLoader {$translatePartialLoader} $translate addPart
 	 */
-	function($scope, $stateParams, neo4jRequest, Utilities, Project, Subproject, ProjInfo, ConfirmService) {
+	function($scope, $stateParams, neo4jRequest, Utilities, Project, Subproject, ProjInfo, ConfirmService, $translatePartialLoader) {
+
+		$translatePartialLoader.addPart('projects');
 
 		$scope.isMaster = $stateParams.subproject === 'master';
 
@@ -51,22 +54,34 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 		}
 
 		function getSubprojectInfo() {
-			Subproject.get($stateParams.subproject).then(function (response) {
-				$scope.projInfo.name = response.data[0].name;
-				$scope.projInfo.description = response.data[0].desc;
-				console.log(response);
+			Subproject.get({ id: $stateParams.subproject }).$promise.then(function (result) {
+				$scope.projInfo.name = result.name; 
+				$scope.projInfo.description = result.desc; 
 			}, function (err) {
 				Utilities.throwApiException('on Subproject.get()', err);
 			});
+			// Subproject.get($stateParams.subproject).then(function (response) {
+			// 	$scope.projInfo.name = response.data[0].name;
+			// 	$scope.projInfo.description = response.data[0].desc;
+			// 	console.log(response);
+			// }, function (err) {
+			// 	Utilities.throwApiException('on Subproject.get()', err);
+			// });
 		}
 
-		function getAllSubprojects() {
-			Subproject.getAll().then(function (response) {
-				$scope.subprojects = response.data;
+		function querySubprojects() {
+			Subproject.query().$promise.then(function (result) {
+				$scope.subprojects = result;
 				console.log($scope.subprojects);
 			}, function (err) {
-				Utilities.throwApiException('on Subproject.getAll()', err);
+				Utilities.throwApiException('on Subproject.query()', err);
 			});
+			// Subproject.getAll().then(function (response) {
+			// 	$scope.subprojects = response.data;
+			// 	console.log($scope.subprojects);
+			// }, function (err) {
+			// 	Utilities.throwApiException('on Subproject.getAll()', err);
+			// });
 		}
 
 		$scope.removeProjInfo = function(note) {
@@ -98,15 +113,15 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 		// init
 		if($stateParams.subproject === 'master') {
 			getProjectInfoFromTable();
-			getAllSubprojects();
+			querySubprojects();
 		}
 		else
 			getSubprojectInfo();
 		getProjectInfoFromNodes();
 
 		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
-			if(fromState.name === 'project.home.subproject.new' || fromState.name === 'project.home.subproject.edit')
-				getAllSubprojects();
+			if(fromState.name === 'project.home.subproject')
+				querySubprojects();
 			else if(fromState.name === 'project.home.infoedit')
 				getProjectInfoFromNodes();
 		});

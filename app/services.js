@@ -458,92 +458,52 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		
 		}
 
-		//
-		requests.insertObject = function(name) {
-			return $http.post(cypherUrl, {
-				query: 'MERGE (e22:E22 {content:"e22_'+name+'"})'
-					+' MERGE (e36:E36 {content:"e36_'+name+'"})'
-					+' MERGE (e73:E73 {content:"e73_'+name+'"})'
-					+' MERGE (e75:E75 {content:"'+name+'.obj", type:"obj"})'
-					+' MERGE (e22)<-[:P138]-(e36)'
-					+' MERGE (e36)-[:P106]->(e73)'
-					+' MERGE (e73)-[:P1]->(e75)',
-				params: {}
-			});
-		};
-		
-		requests.insertPlan = function(name, title) {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (e21:E21 {content:"e21_conrad_schick"})'
-					+' MERGE (e31:E31 {content:"e31_'+name+'"})'
-					+' MERGE (e36:E36 {content:"e36_'+name+'"})'
-					+' MERGE (e73:E73 {content:"e73_'+name+'"})'
-					+' MERGE (e75:E75 {content:"'+name+'.obj", type:"obj"})'
-					+' MERGE (jpg:E75 {content:"'+name+'.jpg", type:"jpg"})'
-					+' MERGE (e35:E35 {content:"'+title+'"})'
-					+' MERGE (e65:E65 {content:"e65_e31_'+name+'"})'
-					+' MERGE (e31)<-[:P138]-(e36)'
-					+' MERGE (e36)-[:P106]->(e73)'
-					+' MERGE (e73)-[:P1]->(e75)'
-					+' MERGE (e31)-[:P1]->(jpg)'
-					+' MERGE (e31)-[:P102]->(e35)'
-					+' MERGE (e31)<-[:P94]-(e65)'
-					+' MERGE (e65)-[:P14]->(e21)',
-				params: {}
-			});
-		};
-		
-		requests.getAllObj = function() {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (e22:E22)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(e75:E75)'
-					+' RETURN e22.content AS eid, e75.content AS file',
-				params: {}
-			});
-		};
-		
-		requests.getAllPlanObj = function() {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (e31:E31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(e75:E75)'
-					+' RETURN e31.content AS eid, e75.content AS file',
-				params: {}
-			});
-		};
-		
-		requests.getPlansFromObject = function(obj) {
-			return $http.post(cypherUrl, {
-				query: 'MATCH (:E22 {content:"'+obj+'"})<-[:P70]-(e31:E31)-[:P1]->(jpg:E75),'
-					+' (e31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(obj:E75),'
-					+' (e31)-[:P102]->(title:E35),'
-					+' (e31)<-[:P94]-(:E65)-[:P14]->(e21)-[:P131]->(author:E82)'
-					+' RETURN e31.content AS eid, jpg.content AS jpg, obj.content AS obj, title.content AS title, author.content AS author',
-				params: {}
-			});
-		};
-		
-		requests.getAllPlanData = function(prj) {
-			/*return $http.post(phpUrl, {
-				query: 'MATCH (e31:E31)-[:P1]->(jpg:E75),'
-					+' (e31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(obj:E75),'
-					+' (e31)-[:P102]->(title:E35),'
-					+' (e31)<-[:P94]-(:E65)-[:P14]->(e21)-[:P131]->(author:E82)'
-					+' RETURN e31.content AS eid, jpg.content AS jpg, obj.content AS obj, title.content AS title, author.content AS author',
-				params: {}
-			});*/
-			return $http.post(phpUrl, {
-				query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55 {content: "plan"}),'
-					+' (e31)-[:P102]->(title:E35),'
-					+' (e31)-[:P1]->(file:E75),'
-					+' (e31)<-[:P94]-(e65:E65)'
-					+' OPTIONAL MATCH (e65)-[:P14]->(author:E21)-[:P131]->(aname:E82)'
-					+' OPTIONAL MATCH (e65)-[:P7]->(place:E53)-[:P87]->(pname:E48)'
-					+' OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61)'
-					+' OPTIONAL MATCH (e31)-[:P48]->(archive:E42)'
-					+' RETURN e31.content AS eid, type.content AS type, title.content AS title, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path} AS file',
-				params: {}
-			});
-		};
-		
-		requests.getAllDocuments = function(prj, subprj) {
+
+		// DEPRECATED
+		// requests.getAllPlanObj = function() {
+		// 	return $http.post(cypherUrl, {
+		// 		query: 'MATCH (e31:E31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(e75:E75)'
+		// 			+' RETURN e31.content AS eid, e75.content AS file',
+		// 		params: {}
+		// 	});
+		// };
+
+		// DEPRECATED
+		// requests.getPlansFromObject = function(obj) {
+		// 	return $http.post(cypherUrl, {
+		// 		query: 'MATCH (:E22 {content:"'+obj+'"})<-[:P70]-(e31:E31)-[:P1]->(jpg:E75),'
+		// 			+' (e31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(obj:E75),'
+		// 			+' (e31)-[:P102]->(title:E35),'
+		// 			+' (e31)<-[:P94]-(:E65)-[:P14]->(e21)-[:P131]->(author:E82)'
+		// 			+' RETURN e31.content AS eid, jpg.content AS jpg, obj.content AS obj, title.content AS title, author.content AS author',
+		// 		params: {}
+		// 	});
+		// };
+		// DEPRECATED
+		// requests.getAllPlanData = function(prj) {
+		// 	/*return $http.post(phpUrl, {
+		// 		query: 'MATCH (e31:E31)-[:P1]->(jpg:E75),'
+		// 			+' (e31)<-[:P138]-(:E36)-[:P106]->(:E73)-[:P1]->(obj:E75),'
+		// 			+' (e31)-[:P102]->(title:E35),'
+		// 			+' (e31)<-[:P94]-(:E65)-[:P14]->(e21)-[:P131]->(author:E82)'
+		// 			+' RETURN e31.content AS eid, jpg.content AS jpg, obj.content AS obj, title.content AS title, author.content AS author',
+		// 		params: {}
+		// 	});*/
+		// 	return $http.post(phpUrl, {
+		// 		query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55 {content: "plan"}),'
+		// 			+' (e31)-[:P102]->(title:E35),'
+		// 			+' (e31)-[:P1]->(file:E75),'
+		// 			+' (e31)<-[:P94]-(e65:E65)'
+		// 			+' OPTIONAL MATCH (e65)-[:P14]->(author:E21)-[:P131]->(aname:E82)'
+		// 			+' OPTIONAL MATCH (e65)-[:P7]->(place:E53)-[:P87]->(pname:E48)'
+		// 			+' OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61)'
+		// 			+' OPTIONAL MATCH (e31)-[:P48]->(archive:E42)'
+		// 			+' RETURN e31.content AS eid, type.content AS type, title.content AS title, aname.content AS author, pname.content AS place, date.content AS date, archive.content AS archive, {name: file.content, path: file.path} AS file',
+		// 		params: {}
+		// 	});
+		// };
+		// DEPRECATED
+		/*requests.getAllDocuments = function(prj, subprj) {
 			console.log('service getAllDocuments', prj);
 			return $http.post(phpUrl, {
 				query: 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}),'
@@ -566,8 +526,11 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 					subprj: subprj === 'master' ? prj : subprj
 				}
 			});
-		};
-		
+		};*/
+
+		/**
+		 * @deprecated
+		 */
 		requests.getAttached3DPlan = function(prj, e31content, e36content) {
 			return $http.post(phpUrl, {
 				query: 'MATCH (:E31:'+prj+' {content: {e31id}})<-[:P138]-(:E36:'+prj+' {content: {e36id}})-[:P106]->(e73:E73)-[:P1]->(e75:E75)'
@@ -579,39 +542,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 			});
 		};
 		
-		// alle Institutionen mit Archiven
-		// DEPRECATED
-		requests.getArchives = function(prj) {
-			return $http.post(phpUrl, {
-				query: 
-					'MATCH (e78:E78:'+prj+')-[:P1]-(e41:E41), \
-					(e78)-[:P52]->(:E40)-[:P131]->(e82:E82) \
-					RETURN e78.content AS collection, e41.content AS collectionName, e82.content AS institutionName, e82.abbr AS institutionAbbr',
-				params: {}
-			});
-		};
-		
-		// Institution mit Archiv hinzufügen
-		requests.addArchive = function(prj, coll, name, abbr) {
-			var tid = new Utilities.Base62().encode(new Date().getTime());
-			return $http.post(phpUrl, {
-				query:
-					'MERGE (e40:E40:'+prj+')-[:P131]->(e82:E82:'+prj+' {content: {e82name}}) \
-					ON CREATE SET e82.abbr = {e82abbr}, e40.content = {e40cont} \
-					MERGE (e41:E41:'+prj+' {content: {e41name}}) \
-					CREATE (e78:E78:'+prj+' {content: {e78cont}})-[:P1]->(e41), \
-					(e78)-[:P52]->(e40)',
-				params: {
-					e82name: name,
-					e82abbr: abbr,
-					e40cont: 'e40_'+tid+'_'+name.replace(/ /g, "_"),
-					e78cont: 'e78_'+tid+'_'+coll.replace(/ /g, "_"),
-					e41name: coll
-				}
-			});
-		};
-		
 		// alte Suchanfrage für autocomplete
+		/**
+		 * @deprecated
+		 */
 		requests.searchForExistingNodes = function(prj, label, input) {
 			return $http.post(phpUrl, {
 				query: 'MATCH (n:'+label+':'+prj+')'
@@ -622,6 +556,9 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		// neue Suchanfrage für typeahead
+		/**
+		 * @deprecated
+		 */
 		requests.getAllLabelProps = function(prj, label, prop) {
 			return $http.post(phpUrl, {
 				query:
@@ -630,7 +567,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				params: {}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.findNodeWithSpecificContent = function(prj, label, input) {
 			return $http.post(phpUrl, {
 				query: 'MATCH (n:'+label+':'+prj+')'
@@ -639,7 +579,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				params: {}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.testInputsForExistingNodes = function(values) {
 			var q = '', r = 'RETURN ';
 			for(var i=0; i<values.length; i++) {
@@ -656,6 +599,9 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		};
 		
 		// Einfügen der Quelle
+		/**
+		 * @deprecated
+		 */
 		requests.insertDocument = function(prj, subprj, formData) {
 			var ts = Utilities.getUniqueId();
 			console.log(formData);
@@ -735,7 +681,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				params: formData
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.insertModel = function(prj, subprj, formData, objData) {
 			var q = '';
 			/*if(objData.parentid)
@@ -803,44 +752,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
-		// DEPRECATED
-		requests.getAllModels = function(prj) {
-			var q = 'MATCH (e22:E22:'+prj+')<-[:P138]-(:E36)-[:P106]->(e73:E73)-[:P1]->(e75:E75)';
-			q += ' RETURN e73 AS object, e75 AS file';
-			
-			return $http.post(phpUrl, {
-				query: q,
-				params: {}
-			});
-		};
-		
-		// DEPRECATED
-		requests.getModelsWithChildren = function(prj, subprj) {
-			
-			var q = 'MATCH (root:E22:'+prj+' {content:{esub}}), (tsp:E55:'+prj+' {content:"subproject"}),';
-			q += ' path = (root)-[:P46*]->(c:E22)';
-			if(subprj === 'master')
-				q += ' WHERE all(n in nodes(path) WHERE NOT (n)<-[:P15]-(:E7)-[:P2]->(tsp))';
-			else		
-				q += ' WHERE all(n in nodes(path) WHERE not n.content = "e22_root_master")';
-			q += ' AND any(n in nodes(path) WHERE n.content = {esub})';
-			
-			q += ' WITH c';
-			q += ' MATCH (p:E22:'+prj+')-[:P46]->(c)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)';
-			
-			q += ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile}) AS children';
-			
-			return $http.post(phpUrl, {
-				query: q,
-					/*'MATCH (maxp:E22:'+prj+' {content: {esub}}), (maxp)-[:P46*]->(p:E22)-[:P46]->(c:E22)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)'
-					+ ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile}) AS children',*/
-				params: {
-					esub: 'e22_root_'+subprj
-				}
-			});
-		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.addEdgesFile = function(prj, file, edges) {
 			return $http.post(phpUrl, {
 				query:
@@ -852,7 +767,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.attach3DPlan = function(prj, formData, objData, parent) {
 			//console.log(prj, formData, objData, parent);
 			var q = '';
@@ -885,7 +803,17 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param prj
+		 * @param subprj
+		 * @param objData
+		 * @param markers
+		 * @param title
+		 * @param paintFile
+		 * @returns {*}
+		 */
 		requests.insertScreenshot = function(prj, subprj, objData, markers, title, paintFile) {
 			
 			var q = '';
@@ -944,7 +872,14 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param prj
+		 * @param params
+		 * @param markers
+		 * @returns {*}
+		 */
 		requests.insertScreenshotMarkers = function(prj, params, markers) {
 			
 			var q = '';
@@ -964,7 +899,12 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param prj
+		 * @returns {*}
+		 */
 		requests.getScreenshotsWithMarkers = function(prj) {
 			var q = '';
 			q += 'MATCH (e22:E22:'+prj+')<-[:P138]-(e36:E36:'+prj+')-[:P2]->(:E55 {content: "screenshot"})';
@@ -993,6 +933,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		
 		/**
 		  * tags
+		 * @deprecated
 		*/
 		requests.getAllTags = function(prj) {
 			return $http.post(phpUrl, {
@@ -1000,7 +941,10 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				params: {}
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		requests.searchTags = function(prj, query) {
 			return $http.post(phpUrl, {
 				query:
@@ -1019,13 +963,26 @@ angular.module('dokuvisApp').factory('phpRequest',
 	function($http) {
 	
 		var requests = {};
-		
+
+		/**
+		 * @deprecated
+		 * @param file
+		 * @returns {*}
+		 */
 		requests.getSvgContent = function(file) {
 			return $http.post('php/getSvgContent.php', {
 				file: file
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param path
+		 * @param filename
+		 * @param base64
+		 * @param thumb
+		 * @returns {*}
+		 */
 		requests.saveBase64Image = function(path, filename, base64, thumb) {
 			return $http.post('php/saveBase64Image.php', {
 				path: path,
@@ -1100,37 +1057,10 @@ angular.module('dokuvisApp').factory('mysqlRequest',
 		/**
 		  * Projekte
 		 */
-		// neues Projekt anlegen
-		requests.newProjectEntry = function(proj, name, desc, email, username) {
-			return $http.post(API + 'auth/projects', {
-				proj: proj,
-				name: name,
-				description: desc,
-				email: email,
-				username: username
-			});
-		};
 		// Projekt Info
 		requests.getProjectEntry = function(proj) {
 			return $http.post('php/mysql/getProjectEntry.php', {
 				proj: proj
-			});
-		};
-		// Projekt löschen
-		requests.removeProjectEntry = function(proj) {
-			return $http.post('php/mysql/removeProjectEntry.php', {
-				proj: proj
-			});
-		};
-		// alle Projekte auflisten
-		requests.getAllProjects = function() {
-			return $http.get(API + 'auth/projects');
-		};
-		// Projekt editieren
-		requests.updateProjectDescription = function(desc,id) {
-			return $http.post('php/mysql/updateProjectDescription.php', {
-				pid: id,
-				description: desc
 			});
 		};
 		

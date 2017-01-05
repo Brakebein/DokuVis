@@ -189,7 +189,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		// close modal
 		$scope.closeModal = function(update) {
 			if(update === 'source')
-				$scope.getAllDocuments();
+				$scope.queryDocuments();
 			if(update === 'screenshot')
 				$scope.getScreenshots();
 			if(update === 'category')
@@ -201,7 +201,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 		$scope.updateList = function(type) {
 			if(type == 'source')
-				$scope.getAllDocuments();
+				$scope.queryDocuments();
 			if(type == 'screenshot')
 				$scope.getScreenshots();
 		};
@@ -209,23 +209,24 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		/**
 		 * get all sources/documents
 		 */
-		$scope.getAllDocuments = function() {
-			return Source.getAll().then(function(response){
-				$scope.sourceResults = response.data;
+		$scope.queryDocuments = function() {
+			return Source.query().$promise.then(function (data) {
+				$scope.sourceResults = data;
 				for(var i=0; i<$scope.sourceResults.length; i++) {
 					$scope.sourceResults[i].selected = false;
 				}
-				Source.results.all = $scope.sourceResults;
-				//Source.results.filtered = $scope.filteredSourceResults;
-				console.log('Dokumente:', $scope.sourceResults);
-			}, function(err) {
-				Utilities.throwApiException('on Source.getAll()', err);
-			});
+				console.log('Dokuments:', $scope.sourceResults);
+			}, function (err) {
+				Utilities.throwApiException('on Source.query()', err);
+			})
 		};
 
 		$scope.$watch('filteredSourceResults', function (newVal) {
 			console.log('filteredSourceResults', newVal);
-			Source.results.filtered = newVal;
+			if($state.includes('project.explorer.source')) {
+				$state.go('.', { selection: newVal });
+			}
+
 		});
 		
 		// lädt alle Screenshots in Liste
@@ -238,9 +239,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 
 		// lädt alle Kommentare
-		$scope.getAllComments = function () {
-			Comment.getAll().then(function (response) {
-				var data = response.data;
+		$scope.queryComments = function () {
+			Comment.query().$promise.then(function (data) {
 				// target reference
 				for(var i=0; i<data.length; i++) {
 					if(data[i].type !== 'commentSource') continue;
@@ -256,12 +256,12 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				$scope.comments = data;
 				console.log('Comments:', $scope.comments);
 			}, function (err) {
-				Utilities.throwApiException('on Comment.getAll()', err);
+				Utilities.throwApiException('on Comment.query()', err);
 			});
 		};
 		
 		webglInterface.callFunc.updateComments = function () {
-			$scope.getAllComments();
+			$scope.queryComments();
 		};
 		
 		$scope.receiveScreenshot = function(data) {
@@ -334,7 +334,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				console.log(plan);
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		$scope.getPlansForObj = function() {
 			neo4jRequest.getPlansFromObject($scope.selected.eid).success(function(data, status){
 				
@@ -348,15 +351,17 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 
 		/**
-		 * highlight all objects connected to plan
+		 * highlight all objects linked to the plan
 		 * @param plan
          */
 		$scope.highlightObj = function(plan) {
-			Source.getConnections(plan.eid).then(function (response) {
-				console.log(response);
-				webglInterface.callFunc.highlightObjects(response.data);
+			console.log(plan);
+			//plan.$getLinks().then(function (objIds) {
+			Source.getLinks({ id: plan.eid }).$promise.then(function (objIds) {
+				console.log(plan, objIds);
+				webglInterface.callFunc.highlightObjects(objIds);
 			}, function (err) {
-				Utilities.throwApiException('on Source.getConnections()', err);
+				Utilities.throwApiException('on Source.getLinks()', err);
 			});
 		};
 
@@ -367,11 +372,12 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		$scope.connectPlanToObj = function(plan) {
 			var res = webglInterface.callFunc.getObjForPlans(plan.plan3d.meshId);
 			console.log(res);
-			Source.createConnections(plan.eid, res.objs).then(function (response) {
+			plan.$link({ targets: res.objs }).then (function (response) {
 				console.log('plan connected', response);
 			}, function (err) {
-				Utilities.throwApiException('on Source.createConnections()', err);
+				Utilities.throwApiException('on Source.links()', err);
 			});
+			// TODO: #Source $getLinks() value.push is not a function
 		};
 		
 		webglInterface.callFunc.highlightSources = function (obj) {
@@ -526,7 +532,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}*/
 		//});
 		
-		// DEPRECATED
+		/**
+		 * @deprecated
+		 * @param btn
+		 */
 		$scope.ctrlBtnClick = function(btn) {
 			switch(btn) {
 				case 'slice_toggle':
@@ -589,8 +598,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		// Kategorien
 		function getAllCategories() {
-			//APIRequest.getAllCategories().then(function(response) {
-			//	var cats = Utilities.cleanNeo4jData(response.data);
 			Category.query().$promise.then(function (result) {
 				var cats = result;
 				for(var i=0; i<cats.length; i++) {
@@ -670,8 +677,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		// oninit Funktionsaufrufe
 		$timeout(function() {
-			$scope.getAllDocuments().then(function () {
-				$scope.getAllComments();
+			$scope.queryDocuments().then(function () {
+				$scope.queryComments();
 			});
 			$scope.getScreenshots();
 			getAllCategories();
@@ -682,7 +689,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
 			//console.log('stateChange', fromState, fromParams);
 			if(fromState.name === 'project.explorer.upload.type' && fromParams.uploadType === 'source')
-				$scope.getAllDocuments();
+				$scope.queryDocuments();
 			else if(fromState.name === 'project.explorer.categoryedit')
 				getAllCategories();
 		});

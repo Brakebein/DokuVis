@@ -24,14 +24,13 @@ module.exports = function(req, res, next) {
 			// the key would be logged in user's username
 			return validateUser(key).then(function(dbUser) {
 				next();
-			}, function(reason) {
+			}, function() {
 				// no user with this name exists
 				res.status(401);
 				res.json({
 					"status": 401,
 					"message": "Invalid User #3"
 				});
-				return;
 			});
 		}
 		catch(err) {
@@ -49,7 +48,6 @@ module.exports = function(req, res, next) {
 			"status": 401,
 			"message": "Invalid Token or Key #4"
 		});
-		return;
 	}
 	
 };
