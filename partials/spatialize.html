@@ -1,0 +1,24 @@
+<div class="imageLayer" ng-style="{ 'background-image': 'url(data/' + spatialize.image + ')', opacity: spatialize.opacity / 100 }"></div>
+
+<div class="settingsContainer">
+	<div class="settings">
+		<div class="ctrlGroup">
+			<div class="sliderDiv">
+				Deckkraft
+				<input class="dvSlider" type="range" min="0" max="100" step="5" ng-model="spatialize.opacity"/>
+				{{ spatialize.opacity }}
+			</div>
+		</div>
+		<div class="ctrlGroup">
+			<div class="sliderDiv">
+				FOV
+				<input class="dvSlider" type="range" min="20" max="85" ng-model="spatialize.fov" ng-change="changeFOV()"/>
+				{{ spatialize.fov }}
+			</div>
+		</div>
+		<div class="ctrlGroup">
+			<button class="btn btn-primary btn-xs" ng-click="saveSpatializeImage()"><i class="fa fa-save"></i> Speichern</button>
+			<button class="btn btn-default btn-xs" ng-click="abortSpatializeImage()">Abbrechen</button>
+		</div>
+	</div>
+</div>

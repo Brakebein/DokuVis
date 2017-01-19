@@ -26,6 +26,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			scope.vPanel = webglInterface.vPanel;
 			scope.vizSettings = webglInterface.vizSettings;
 			scope.snapshot = webglInterface.snapshot;
+			scope.spatialize = webglInterface.spatialize;
 			scope.$applyAsync();
 
 			// Konstante maximale Sichtweite
@@ -2236,6 +2237,38 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					scope.measureDistance = distance;
 					scope.$applyAsync();
 				};
+			};
+
+			webglInterface.callFunc.openSpatializeImage = function (img) {
+				scope.spatialize.active = true;
+				scope.spatialize.source = img;
+				scope.spatialize.image = img.file.path + img.file.display;
+				scope.spatialize.fov = camera.fov;
+			};
+
+			scope.abortSpatializeImage = function () {
+				scope.spatialize.active = false;
+				scope.spatialize.source = null;
+				scope.spatialize.fov = 35;
+			};
+
+			scope.saveSpatializeImage = function () {
+				scope.spatialize.source.matrix = camera.matrixWorld.toArray(); 
+				scope.spatialize.source.fov = parseInt(camera.fov); 
+				scope.spatialize.source.$spatialize().then(function (response) {
+					console.log('source.spatialize', response);
+					scope.spatialize.active = false;
+					scope.spatialize.source = null;
+					scope.spatialize.fov = 35;
+				}, function (err) {
+					Utilities.throwApiException('on Source.spatialize()', err);
+				})
+			};
+
+			scope.changeFOV = function () {
+				camera.fov = scope.spatialize.fov;
+				camera.updateProjectionMatrix();
+				animate();
 			};
 
 			/**

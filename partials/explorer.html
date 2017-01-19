@@ -362,6 +362,8 @@
 						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
 						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><span class="fa fa-link"></span></a>
 						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><span class="fa fa-lightbulb-o"></span></a>
+						<a ng-if="p.type == 'picture' && p.spatial" title="Bild in 3D anzeigen" ng-click="loadImage(p)"><span class="glyphicon glyphicon-object-align-left"></span></a>
+						<a ng-if="p.type == 'picture' && !p.spatial" title="Bild verorten" ng-click="spatializeImage(p)"><span class="glyphicon glyphicon-camera"></span></a>
 					</div>
 				</div>
 			</div>

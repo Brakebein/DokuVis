@@ -24,6 +24,7 @@ var source = {
 			OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61) \
 			OPTIONAL MATCH (e84)-[:P48]->(archivenr:E42) \
 			OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36) \
+			OPTIONAL MATCH (e31)-[:P70]->(:E36)-[:P106]->(spatial:E73)\
 			OPTIONAL MATCH (e31)-[:P3]->(note:E62)-[:P3_1]->({content: "sourceComment"}) \
 			OPTIONAL MATCH (e31)-[:P3]->(repros:E62)-[:P3_1]->({content: "sourceRepros"}) \
 			OPTIONAL MATCH (e84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41), \
@@ -42,6 +43,7 @@ var source = {
 				{identifier: archivenr.value, collection: coll.value, institution: inst.value, institutionAbbr: inst.abbr} AS archive, \
 				{name: file.content, path: file.path, display: file.preview, thumb: file.thumb} AS file, \
 				plan3d.content AS plan3d, \
+				spatial.content AS spatial, \
 				note.value AS note, \
 				repros.value AS repros, \
 				tags, \
@@ -56,7 +58,8 @@ var source = {
 			.then(function(response) {
 				if(response.errors.length) { utils.error.neo4j(res, response, '#source.getAll'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
-			}).catch(function(err) {
+			})
+			.catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
 			});
 	},
@@ -115,9 +118,10 @@ var source = {
 					res.json(rows[0]);
 				else
 					res.json(null);
-			}).catch(function(err) {
-			utils.error.neo4j(res, err, '#cypher');
-		});
+			})
+			.catch(function(err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
 	},
 	
 	// TODO: #source create/insert
@@ -326,9 +330,10 @@ var source = {
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#source.createConnections'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0])[0]);
-			}).catch(function(err) {
-			utils.error.neo4j(res, err, '#cypher');
-		});
+			})
+			.catch(function(err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
 	},
 
 	getLinks: function (req, res) {
@@ -344,9 +349,40 @@ var source = {
 			.then(function(response) {
 				if(response.errors.length) { utils.error.neo4j(res, response, '#source.getLinks'); return; }
 				res.json(neo4j.extractTransactionData(response.results[0]));
-			}).catch(function(err) {
-			utils.error.neo4j(res, err, '#cypher');
-		});
+			})
+			.catch(function(err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
+	},
+	
+	setSpatial: function (req, res) {
+		var prj = req.params.id;
+
+		var q = 'MATCH(e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36) \
+			MERGE (e36)-[:P106]->(e73:E73:'+prj+' {content: {e73id}}) \
+			ON CREATE SET e73 += {e73value} \
+			RETURN e73';
+
+		var params = {
+			sourceId: req.params.sourceId,
+			e73id: 'spatial_' + req.params.sourceId,
+			e73value: {
+				path: req.body.file.path,
+				map: req.body.file.display,
+				matrix: req.body.matrix,
+				fov: req.body.fov
+			}
+		};
+		
+		neo4j.transaction(q, params)
+			.then(function (response) {
+				if(response.errors.length) { utils.error.neo4j(res, response, '#source.setSpatial'); return; }
+				// res.json(neo4j.extractTransactionData(response.results[0])[0]);
+				res.send();
+			})
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
 	}
 	
 };

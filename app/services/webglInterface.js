@@ -8,13 +8,14 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		wi.callFunc = {};
 		
 		// Einstellungen
-		wi.viewportSettings = {};
-		wi.viewportSettings.shading = ['color', 'grey', 'transparent', 'onlyEdges', 'xray', 'Custom'];
+		wi.viewportSettings = {
+			shading: ['color', 'grey', 'transparent', 'onlyEdges', 'xray', 'Custom'],
+			camera: ['Perspective', 'Top', 'Front', 'Back', 'Left', 'Right', 'Custom'],
+			edges: true,
+			ssao: 'aa'
+		};
 		wi.viewportSettings.shadingSel = wi.viewportSettings.shading[0];
-		wi.viewportSettings.edges = true;
-		wi.viewportSettings.camera = ['Perspective', 'Top', 'Front', 'Back', 'Left', 'Right', 'Custom'];
 		wi.viewportSettings.cameraSel = wi.viewportSettings.camera[0];
-		wi.viewportSettings.ssao = 'aa';
 		
 		wi.unsafeSettings = {};
 		
@@ -25,11 +26,12 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		wi.vPanel.expand = false;
 		wi.vPanel.activeTab = 0;
 		
-		wi.vizSettings = {};
-		wi.vizSettings.opacitySelected = 100;
-		wi.vizSettings.edges = true;
-		wi.vizSettings.edgesOpacity = 100;
-		wi.vizSettings.edgesColor = 100;
+		wi.vizSettings = {
+			opacitySelected: 100,
+			edges: true,
+			edgesOpacity: 100,
+			edgesColor: 100
+		};
 
 		wi.snapshot = { active: false, mode: 'paint', text: '', title: '', refObj: [], refSrc: [], screenshots: [] };
 		wi.snapshot.paintOptions = {
@@ -39,6 +41,13 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			lineWidth: 3,
 			undo: true,
 			imageSrc: false
+		};
+		
+		wi.spatialize = {
+			active: false,
+			opacity: 50,
+			image: null,
+			fov: 35
 		};
 		
 		// Listen

@@ -422,6 +422,15 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				Utilities.throwApiException('on getModels()', err);
 			});
 		};
+
+		$scope.spatializeImage = function (obj) {
+			console.log(obj);
+			webglInterface.callFunc.openSpatializeImage(obj);
+		};
+
+		$scope.loadImage = function (obj) {
+
+		};
 		
 		$scope.reloadModels = function () {
 			webglInterface.callFunc.resetScene();

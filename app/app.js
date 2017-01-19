@@ -158,6 +158,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					'style/explorer.css',
 					'style/panelContainer.css',
 					'style/snapshot.css',
+					'style/spatialize.css',
 					'style/modals/screenshotDetail.min.css',
 					'style/modals/indexEdit.min.css',
 					'style/modals/categoryEdit.css'
