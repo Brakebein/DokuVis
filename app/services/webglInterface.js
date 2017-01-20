@@ -4,7 +4,7 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		
 		var wi = {};
 		
-		// Funktionsaufrufe vom Controller
+		// Funktionsaufrufe vom Controller bzw. von Directive
 		wi.callFunc = {};
 		
 		// Einstellungen
@@ -59,7 +59,8 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		wi.selected = [];
 		
 		wi.plans = [];
-		
+		wi.spatialImages = {};
+
 		var layerDict = {};
 		
 		wi.insertIntoLists = function(item) {
@@ -151,6 +152,31 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			};
 			this.setOrthoView = function() {
 				wi.callFunc.viewOrthoPlan(scope.id);
+			};
+		};
+
+		wi.ImageEntry = function (obj) {
+			this.id = obj.id;
+			this.name = obj.name;
+			this.object = obj;
+			this.title = obj.userData.source.title;
+			this.visible = true;
+			this.selected = false;
+			this.opacity = 1.0;
+			
+			var scope = this;
+			
+			this.toggle = function () {
+				scope.visible = !scope.visible;
+			};
+			this.select = function (event) {
+				
+			};
+			this.setOpacity = function (value) {
+				wi.callFunc.setImageOpacity(scope.object, value);
+			};
+			this.setImageView = function () {
+				wi.callFunc.setImageView(scope.object);
 			};
 		};
 		

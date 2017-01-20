@@ -19,6 +19,7 @@ angular.module('dokuvisApp').factory('webglContext',
 		
 		wc.objects = {};
 		wc.plans = {};
+		wc.spatialImages = {};
 		
 		// Camera
 		wc.camera = new THREE.CombinedCamera(initWidth, initHeight, 35, 0.1, FAR, 0.1, FAR);

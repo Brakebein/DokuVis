@@ -428,7 +428,13 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			webglInterface.callFunc.openSpatializeImage(obj);
 		};
 
-		$scope.loadImage = function (obj) {
+		$scope.loadImage = function (source) {
+			Source.getSpatial({ id: source.eid }).$promise.then(function (result) {
+				result.spatial.source = source;
+				webglInterface.callFunc.loadSpatializeImage(result.spatial);
+			}, function (err) {
+				Utilities.throwApiException('on Source.getSpatial()', err);
+			});
 
 		};
 		

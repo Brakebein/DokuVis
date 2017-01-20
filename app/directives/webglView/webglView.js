@@ -112,6 +112,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			// Übernahme aus webglContext
 			var objects = webglContext.objects;
 			var plans = webglContext.plans;
+			var spatialImages = webglContext.spatialImages;
 			var geometries = webglContext.geometries;
 			var materials = webglContext.materials;
 			
@@ -2262,13 +2263,75 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					scope.spatialize.fov = 35;
 				}, function (err) {
 					Utilities.throwApiException('on Source.spatialize()', err);
-				})
+				});
 			};
 
 			scope.changeFOV = function () {
 				camera.fov = scope.spatialize.fov;
 				camera.updateProjectionMatrix();
 				animate();
+			};
+			
+			webglInterface.callFunc.loadSpatializeImage = function (img) {
+				console.log(img);
+				var imagepane = new THREE.ImagePane('data/' + img.path + img.map, img.fov, 10);
+				imagepane.onComplete = function () {
+					animate();
+				};
+				var m = new THREE.Matrix4().fromArray(img.matrix);
+				imagepane.applyMatrix(m);
+				scene.add(imagepane);
+				
+				imagepane.name = img.content;
+				imagepane.userData.source = img.source;
+				webglInterface.spatialImages[imagepane.id] = new webglInterface.ImageEntry(imagepane);
+				console.log('ImagePane', imagepane);
+			};
+
+			webglInterface.callFunc.setImageOpacity = function (obj, value) {
+				for(var i=0; i<obj.children.length; i++) {
+					var mat = obj.children[i].material;
+					if(value < 1) {
+						mat.transparent = true;
+						mat.opacity = value;
+					}
+					else {
+						mat.transparent = false;
+						mat.opacity = 1;
+					}
+				}
+				animate();
+			};
+
+			webglInterface.callFunc.setImageView = function (obj) {
+				var end =  new THREE.Vector3(0,0,-1000);
+				end.applyQuaternion(obj.quaternion);
+				end.add(obj.position);
+
+				var line = new THREE.Line3(obj.position, end);
+				var plane = new THREE.Plane(new THREE.Vector3(0,1,0));
+				var lookAt = plane.intersectLine(line);
+
+				new TWEEN.Tween(camera.position.clone())
+					.to(obj.position, 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () { camera.position.copy(this); })
+					.start();
+				new TWEEN.Tween(controls.center.clone())
+					.to(lookAt, 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () { controls.center.copy(this); })
+					.start();
+				new TWEEN.Tween({ fov: camera.fov })
+					.to({ fov: obj.fov }, 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () {
+						camera.fov = this.fov;
+						camera.updateProjectionMatrix();
+					})
+					.start();
+
+				enableAnimationRequest();
 			};
 
 			/**

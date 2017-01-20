@@ -56,7 +56,11 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 			},
 			spatialize: {
 				method: 'PUT',
-				url: API + 'auth/project/:project/:subproject/source/:id/spatialize'
+				url: API + 'auth/project/:project/:subproject/source/:id/spatial'
+			},
+			getSpatial: {
+				method: 'GET',
+				url: API + 'auth/project/:project/:subproject/source/:id/spatial'
 			}
 		});
 

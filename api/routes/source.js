@@ -358,7 +358,9 @@ var source = {
 	setSpatial: function (req, res) {
 		var prj = req.params.id;
 
-		var q = 'MATCH(e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36) \
+		// TODO: convert image to 1024x1024 map
+
+		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36) \
 			MERGE (e36)-[:P106]->(e73:E73:'+prj+' {content: {e73id}}) \
 			ON CREATE SET e73 += {e73value} \
 			RETURN e73';
@@ -379,6 +381,27 @@ var source = {
 				if(response.errors.length) { utils.error.neo4j(res, response, '#source.setSpatial'); return; }
 				// res.json(neo4j.extractTransactionData(response.results[0])[0]);
 				res.send();
+			})
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
+	},
+	
+	getSpatial: function (req, res) {
+		var prj = req.params.id;
+		
+		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36)-[:P106]->(e73:E73) \
+			RETURN e73 AS spatial';
+			// RETURN e73.content AS id, e73.path AS path, e73.map AS map, e73.matrix AS matrix, e73.fov AS fov';
+		
+		var params = {
+			sourceId: req.params.sourceId
+		};
+
+		neo4j.transaction(q, params)
+			.then(function (response) {
+				if(response.errors.length) { utils.error.neo4j(res, response, '#source.getSpatial'); return; }
+				res.json(neo4j.extractTransactionData(response.results[0])[0]);
 			})
 			.catch(function (err) {
 				utils.error.neo4j(res, err, '#cypher');

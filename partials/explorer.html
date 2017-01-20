@@ -106,7 +106,17 @@
 					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="data.setOrthoView()"></span>
 					
 				</div>
-			
+
+				<h5>Verortete Bilder</h5>
+
+				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="(key, data) in wi.spatialImages">
+					<span class="glyphicon toggle" ng-class="{'glyphicon-eye-open': data.visible, 'glyphicon-eye-close': !data.visible}" ng-click="data.toggle()"></span>
+					<div class="expand"></div>
+					<span class="info" ng-click="data.select($event)">{{data.title}} {{data.id}}</span>
+					<div class="opacity" ramp-slider rs-model="data.opacity" rs-onchange="data.setOpacity" rs-color="#ddd" rs-color-two="#bbb"></div>
+					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="data.setImageView()"></span>
+				</div>
+
 		</div>
 		
 		<div class="sideFooter">
