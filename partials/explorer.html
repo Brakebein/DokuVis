@@ -95,10 +95,11 @@
 						</div>
 					</div>
 				</div>
-				
+
+				<hr/>
 				<h5>Plans</h5>
 				
-				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="data in wi.plans">
+				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="data in toRepeatArray(wi.plans) | orderBy: 'title'">
 					<span class="glyphicon toggle" ng-class="data.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="data.toggle()"></span>
 					<div class="expand"></div>
 					<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
@@ -107,12 +108,13 @@
 					
 				</div>
 
+				<hr/>
 				<h5>Verortete Bilder</h5>
 
-				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="(key, data) in wi.spatialImages">
+				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="data in toRepeatArray(wi.spatialImages) | orderBy: 'title'">
 					<span class="glyphicon toggle" ng-class="{'glyphicon-eye-open': data.visible, 'glyphicon-eye-close': !data.visible}" ng-click="data.toggle()"></span>
 					<div class="expand"></div>
-					<span class="info" ng-click="data.select($event)">{{data.title}} {{data.id}}</span>
+					<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
 					<div class="opacity" ramp-slider rs-model="data.opacity" rs-onchange="data.setOpacity" rs-color="#ddd" rs-color-two="#bbb"></div>
 					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="data.setImageView()"></span>
 				</div>
@@ -368,7 +370,7 @@
 					<div class="btnBar">
 						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid, selection: filteredSourceResults })"><span class="glyphicon glyphicon-zoom-in"></span></a>
 						<!--<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>-->
-						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="open3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
+						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="load3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
 						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
 						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><span class="fa fa-link"></span></a>
 						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><span class="fa fa-lightbulb-o"></span></a>

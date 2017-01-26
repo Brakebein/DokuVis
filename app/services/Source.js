@@ -18,7 +18,8 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 			subproject: function () {
 				return $stateParams.subproject;
 			},
-			id: '@eid'
+			id: '@eid',
+			type: '@type'
 		}, {
 			save: {
 				method: 'POST',
@@ -56,11 +57,11 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 			},
 			spatialize: {
 				method: 'PUT',
-				url: API + 'auth/project/:project/:subproject/source/:id/spatial'
+				url: API + 'auth/project/:project/:subproject/source/:id/:type/spatial'
 			},
 			getSpatial: {
 				method: 'GET',
-				url: API + 'auth/project/:project/:subproject/source/:id/spatial'
+				url: API + 'auth/project/:project/:subproject/source/:id/:type/spatial'
 			}
 		});
 

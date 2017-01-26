@@ -111,8 +111,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			
 			// Übernahme aus webglContext
 			var objects = webglContext.objects;
-			var plans = webglContext.plans;
-			var spatialImages = webglContext.spatialImages;
+			var plans = webglInterface.plans;
+			var spatialImages = webglInterface.spatialImages;
 			var geometries = webglContext.geometries;
 			var materials = webglContext.materials;
 			
@@ -315,6 +315,13 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			}
 
 			/**
+			 * call animate() from outside
+			 */
+			webglInterface.callFunc.animate = function () {
+				animate();
+			};
+
+			/**
 			 * animation loop
 			 */
 			function animate() {
@@ -366,7 +373,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 				
 				render();
-				stats.update();
+				//stats.update();
 			}
 
 			/**
@@ -485,7 +492,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 				for(key in plans) {
 					if(plans[key].visible)
-						testObjects.push(plans[key].mesh);
+						testObjects.push(plans[key].object.mesh);
+				}
+				for(key in spatialImages) {
+					if(spatialImages[key].visible)
+						testObjects.push(spatialImages[key].object.collisionObject);
 				}
 				
 				var intersects = raycaster.intersectObjects(testObjects, true);
@@ -493,7 +504,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				if(intersects.length > 0 ) {
 					console.log(intersects[0]);
 					console.log(objects[intersects[0].object.id]);
-					setSelected(intersects[0].object, ctrlKey);
+					if(intersects[0].object.parent instanceof THREE.Plan)
+						setSelected(intersects[0].object.parent, ctrlKey);
+					else if(intersects[0].object.parent instanceof THREE.ImagePane)
+						setSelected(intersects[0].object.parent, ctrlKey);
+					else
+						setSelected(intersects[0].object, ctrlKey);
 				}
 				else 
 					setSelected(null, ctrlKey);
@@ -582,9 +598,17 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				if(selected.length > 0 && !onlySelect) {
 					for(var i=0; i<selected.length; i++) {
 						var o = selected[i];
-						if(o.userData.type === 'object' || o.userData.type === 'plan')
+						if(o.userData.type === 'object')
 							rejectSelectionMat(o);
 						webglInterface.deselectListEntry(o.id, o.userData);
+						if(o.userData.type === 'plan') {
+							plans[o.id].selected = false;
+							o.deselect();
+						}
+						if(o.userData.type === 'image') {
+							spatialImages[o.id].selected = false;
+							o.deselect();
+						}
 						if(o.userData.type !== 'plan')
 							deselectChildren(o.children);
 						else
@@ -594,22 +618,39 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 				// selection
 				if(obj && !onlyDeselect && selected.indexOf(obj) === -1) {
-					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
+					if(obj.userData.type === 'object')
 						assignSelectionMat(obj);
 					webglInterface.selectListEntry(obj.id, obj.userData);
+					if(obj.userData.type === 'plan') {
+						plans[obj.id].selected = true;
+						obj.select();
+					}
+					if(obj.userData.type === 'image') {
+						spatialImages[obj.id].selected = true;
+						obj.select();
+					}
 					if(obj.userData.type !== 'plan')
 						selectChildren(obj.children);
 					else
-						setGizmo(obj, 'move', [plans[obj.id].edges]);
-					
+						// setGizmo(obj, 'move', [plans[obj.id].edges]);
+						setGizmo(obj, 'move');
+
 					selected.push(obj);
 					//console.log(selected);
 				}
 				// deselect obj
 				else if(obj && !onlyDeselect && selected.indexOf(obj) !== -1) {
-					if(obj.userData.type === 'object' || obj.userData.type === 'plan')
+					if(obj.userData.type === 'object')
 						rejectSelectionMat(obj);
 					webglInterface.deselectListEntry(obj.id, obj.userData);
+					if(obj.userData.type === 'plan') {
+						plans[obj.id].selected = false;
+						obj.deselect();
+					}
+					if(obj.userData.type === 'image') {
+						spatialImages[obj.id].selected = false;
+						obj.deselect();
+					}
 					if(obj.userData.type !== 'plan')
 						deselectChildren(obj.children);
 					else
@@ -617,6 +658,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						
 					selected.splice(selected.indexOf(obj), 1);
 				}
+
+				$rootScope.$applyAsync();
 			}
 
 			/**
@@ -673,6 +716,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					 plans[obj.id].edges.material = materials['edgesSelectionMat'];
 					 return;
 				 }
+
+				if(obj.userData.type === 'image') {
+					obj.pyramid.material.color.setHex(webglContext.selectionColor);
+					return;
+				}
 				
 				switch(currentShading) {
 					case 'xray': obj.material = materials['xraySelectionMat']; break;
@@ -718,11 +766,17 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					// obj.material = materials[obj.userData.originalMat];
 				// if(obj.userData.type === 'object' && objects[obj.id].edges)
 					// objects[obj.id].edges.material.color.setHex(0x333333);
-				 if(obj.userData.type === 'plan') {
+				if(obj.userData.type === 'plan') {
 					 //obj.material.color.setHex(0xffffff);
-					 plans[obj.id].edges.material = materials['edgesMat'];
-					 return;
-				 }
+					plans[obj.id].edges.material = materials['edgesMat'];
+					return;
+				}
+
+				if(obj.userData.type === 'image') {
+					obj.pyramid.material.color.setHex(0x0000ff);
+					return;
+				}
+
 				switch(currentShading) {
 					case 'xray': obj.material = materials['xrayMat']; break;
 					case 'onlyEdges': objects[obj.id].edges.material = materials['edgesMat']; break;
@@ -1600,12 +1654,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			};
 			
 			// set opacity of plans
-			webglInterface.callFunc.setPlanOpacity = function(id, value) {
-				var mesh = plans[id].mesh;
-				var edges = plans[id].edges;
-				setOpacity(mesh, edges, value);
-				animate();
-			};
+			// webglInterface.callFunc.setPlanOpacity = function(id, value) {
+			// 	var mesh = plans[id].mesh;
+			// 	var edges = plans[id].edges;
+			// 	setOpacity(mesh, edges, value);
+			// 	animate();
+			// };
 			
 			function setChildrenOpacity(children, value) {
 				for(var i=0; i<children.length; i++) {
@@ -2271,9 +2325,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				camera.updateProjectionMatrix();
 				animate();
 			};
-			
+
+			/**
+			 * Loads spatialized image into the scene.
+			 * @param img
+			 */
 			webglInterface.callFunc.loadSpatializeImage = function (img) {
-				console.log(img);
 				var imagepane = new THREE.ImagePane('data/' + img.path + img.map, img.fov, 10);
 				imagepane.onComplete = function () {
 					animate();
@@ -2284,25 +2341,23 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				imagepane.name = img.content;
 				imagepane.userData.source = img.source;
-				webglInterface.spatialImages[imagepane.id] = new webglInterface.ImageEntry(imagepane);
+				imagepane.userData.type = 'image';
+
+				spatialImages[imagepane.id] = new webglInterface.ImageEntry(imagepane);
 				console.log('ImagePane', imagepane);
 			};
 
-			webglInterface.callFunc.setImageOpacity = function (obj, value) {
-				for(var i=0; i<obj.children.length; i++) {
-					var mat = obj.children[i].material;
-					if(value < 1) {
-						mat.transparent = true;
-						mat.opacity = value;
-					}
-					else {
-						mat.transparent = false;
-						mat.opacity = 1;
-					}
-				}
+			webglInterface.callFunc.selectImage = function (imageentry, ctrlKey, deselect) {
+				if(imageentry.visible)
+					setSelected(imageentry.object, ctrlKey, deselect);
 				animate();
 			};
 
+			/**
+			 * Sets camera to position and angle of the image pane object.<br/>
+			 * Called form webglInterface ImageEntry.
+			 * @param obj
+			 */
 			webglInterface.callFunc.setImageView = function (obj) {
 				var end =  new THREE.Vector3(0,0,-1000);
 				end.applyQuaternion(obj.quaternion);
@@ -2328,6 +2383,108 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					.onUpdate(function () {
 						camera.fov = this.fov;
 						camera.updateProjectionMatrix();
+					})
+					.start();
+
+				enableAnimationRequest();
+			};
+
+			/**
+			 * Load spatialized plan into the scene.
+			 * @param obj
+			 */
+			webglInterface.callFunc.load3DPlan = function (obj) {
+				var plan = new THREE.Plan('data/' + obj.file.path + obj.file.content, 'data/' + obj.info.materialMapPath + obj.info.materialMap);
+				plan.onComplete = function () {
+					animate();
+				};
+				scene.add(plan);
+
+				plan.name = obj.info.content;
+				plan.userData.name = obj.info.materialName;
+				plan.userData.source = obj.source;
+				plan.userData.type = 'plan';
+
+				plans[plan.id] = new webglInterface.PlanEntry(plan);
+				console.log('Plan', plan);
+			};
+
+			webglInterface.callFunc.selectPlan = function(planentry, ctrlKey, deselect) {
+				if(planentry.visible)
+					setSelected(planentry.object, ctrlKey, deselect);
+				animate();
+			};
+
+			/**
+			 * toggle plan
+			 * @param pid
+			 * @param {boolean} visible
+			 */
+			webglInterface.callFunc.togglePlan = function(pid, visible) {
+				if(visible && !plans[pid].visible) {
+					scene.add(plans[pid].mesh);
+					scene.add(plans[pid].edges);
+					plans[pid].visible = true;
+				}
+				else {
+					scene.remove(plans[pid].mesh);
+					scene.remove(plans[pid].edges);
+					plans[pid].visible = false;
+				}
+
+				animate();
+			};
+
+			/**
+			 * set camera to orthogonal view to fit plan to viewport
+			 * @param obj
+			 */
+			webglInterface.callFunc.viewOrthoPlan = function(obj) {
+
+				var pgeo = obj.mesh.geometry;
+				var matWorld = obj.mesh.matrixWorld;
+
+				//console.log(pgeo);
+
+				var normal = new THREE.Vector3(pgeo.attributes.normal.array[0], pgeo.attributes.normal.array[1], pgeo.attributes.normal.array[2]);
+
+				var boundingBox = pgeo.boundingBox.clone().applyMatrix4(matWorld);
+
+				// Ausmaße im Raum
+				var aspect = SCREEN_WIDTH/SCREEN_HEIGHT;
+				var pwidth = Math.sqrt( Math.pow(boundingBox.max.x - boundingBox.min.x, 2) + Math.pow(boundingBox.max.z - boundingBox.min.z, 2) ) / 2;
+				var pheight = (boundingBox.max.y - boundingBox.min.y) / 2;
+
+				if(normal.y > 0.707 || normal.y < -0.707) {
+					pwidth = Math.sqrt( Math.pow(boundingBox.max.x - boundingBox.min.x, 2) + Math.pow(boundingBox.max.y - boundingBox.min.y, 2) ) / 2;
+					pheight = (boundingBox.max.z - boundingBox.min.z) / 2;
+				}
+
+				if(aspect < pwidth/pheight)
+					pheight = 1/aspect * pwidth;
+
+				// Abstand zum Bild (abhängig von Kamerawinkel)
+				var h = pheight / Math.tan( camera.fov/2 * Math.PI / 180 );
+
+				var bsCenter = pgeo.boundingSphere.center.clone().applyMatrix4(matWorld);
+
+				var newpos = new THREE.Vector3();
+				newpos.addVectors(bsCenter, normal.setLength(h));
+
+				// Kamerafahrt zur Ansicht
+				new TWEEN.Tween(camera.position.clone())
+					.to(newpos, 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () { camera.position.copy(this); })
+					.start();
+				new TWEEN.Tween(controls.center.clone())
+					.to(bsCenter, 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () { controls.center.copy(this); })
+					.onComplete(function() {
+						camera.toOrthographic(controls.center);
+						webglInterface.viewportSettings.cameraSel = 'Custom';
+						scope.$apply();
 					})
 					.start();
 
@@ -2566,7 +2723,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 				animate();
 			};
-			
+
+			/**
+			 * @deprecated
+			 * @param plan3d
+			 * @param info
+			 * @param file
+			 * @returns {{e36id: *}}
+			 */
 			scope.internalCallFunc.loadCTMPlanIntoScene = function(plan3d, info, file) {
 				
 				ctmloader.load('data/'+file.path+file.content, ctmPlanHandler, {useWorker: false});
@@ -2956,11 +3120,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				animate();
 			};
 			
-			webglInterface.callFunc.selectPlan = function(id, ctrlKey, deselect) {
-				if(plans[id].visible)
-					setSelected(plans[id].mesh, ctrlKey, deselect);
-				animate();
-			};
+			
 
 			/**
 			 * get object by id and add or remove mesh and edges
@@ -3009,26 +3169,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					removeChildren(children[i].children);
 				}
 			}
-
-			/**
-			 * toggle plan
-			 * @param pid
-             * @param {boolean} visible
-             */
-			webglInterface.callFunc.togglePlan = function(pid, visible) {
-				if(visible && !plans[pid].visible) {
-					scene.add(plans[pid].mesh);
-					scene.add(plans[pid].edges);
-					plans[pid].visible = true;
-				}
-				else {
-					scene.remove(plans[pid].mesh);
-					scene.remove(plans[pid].edges);
-					plans[pid].visible = false;
-				}
-
-				animate();
-			};
 
 			/**
 			 * color all objects by their assigned category attribute
@@ -3144,19 +3284,19 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					right: []	// +x
 				};
 				
-				var planNormal = new THREE.Vector3(plan.geometry.attributes.normal.array[0], plan.geometry.attributes.normal.array[1], plan.geometry.attributes.normal.array[2]).normalize();
+				var planNormal = new THREE.Vector3(plan.mesh.geometry.attributes.normal.array[0], plan.mesh.geometry.attributes.normal.array[1], plan.mesh.geometry.attributes.normal.array[2]).normalize();
 				
-				var planBbox = plan.geometry.boundingBox.clone().applyMatrix4(plan.matrixWorld);
+				var planBbox = plan.mesh.geometry.boundingBox.clone().applyMatrix4(plan.matrixWorld);
 				
 				console.log(planNormal, planBbox);
 				
 				for(var key in plans) {
-					if(plans[key].mesh.id === plan.id) continue;
-					var p = plans[key].mesh;
+					if(plans[key].object.id === plan.id) continue;
+					var p = plans[key].object;
 					//console.log(p);
 					
-					var pNormal = new THREE.Vector3(p.geometry.attributes.normal.array[0], p.geometry.attributes.normal.array[1], p.geometry.attributes.normal.array[2]).normalize();
-					var pBbox = p.geometry.boundingBox.clone().applyMatrix4(p.matrixWorld);
+					var pNormal = new THREE.Vector3(p.mesh.geometry.attributes.normal.array[0], p.mesh.geometry.attributes.normal.array[1], p.mesh.geometry.attributes.normal.array[2]).normalize();
+					var pBbox = p.mesh.geometry.boundingBox.clone().applyMatrix4(p.matrixWorld);
 					
 					//translate
 					var height = new THREE.Vector3().subVectors(pBbox.max, pBbox.min).multiply(planNormal).length();
@@ -3207,19 +3347,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						.easing(TWEEN.Easing.Quadratic.InOut)
 						//.onUpdate(function () { p.quaternion.copy(this); })
 						.start();
-					
-					if(plans[key].edges) {
-						new TWEEN.Tween(plans[key].edges.position)
-							.to(t, 500)
-							.easing(TWEEN.Easing.Quadratic.InOut)
-							//.onUpdate(function () { plans[key].edges.position.copy(this); })
-							.start();
-						new TWEEN.Tween(plans[key].edges.quaternion)
-							.to(q, 500)
-							.easing(TWEEN.Easing.Quadratic.InOut)
-							//.onUpdate(function () { plans[key].edges.quaternion.copy(this); })
-							.start();
-					}
 				}
 				enableAnimationRequest();
 			};
@@ -3229,91 +3356,23 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				for(var key in plans) {
 					//console.log(plans[key].mesh.matrix, plans[key].mesh.userData.initMatrix);
 					var t = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3();
-					plans[key].mesh.userData.initMatrix.decompose(t,q,s);
+					plans[key].object.userData.initMatrix.decompose(t,q,s);
 					
-					new TWEEN.Tween(plans[key].mesh.position)
+					new TWEEN.Tween(plans[key].object.position)
 						.to(t, 500)
 						.easing(TWEEN.Easing.Quadratic.InOut)
 						//.onUpdate(function () { plans[key].mesh.position.copy(this); })
 						.start();
-					new TWEEN.Tween(plans[key].mesh.quaternion)
+					new TWEEN.Tween(plans[key].object.quaternion)
 						.to(q, 500)
 						.easing(TWEEN.Easing.Quadratic.InOut)
 						//.onUpdate(function () { plans[key].mesh.quaternion.copy(this); })
 						.start();
-					
-					if(plans[key].edges) {
-						new TWEEN.Tween(plans[key].edges.position)
-							.to(t, 500)
-							.easing(TWEEN.Easing.Quadratic.InOut)
-							//.onUpdate(function () { plans[key].edges.position.copy(this); })
-							.start();
-						new TWEEN.Tween(plans[key].edges.quaternion)
-							.to(q, 500)
-							.easing(TWEEN.Easing.Quadratic.InOut)
-							//.onUpdate(function () { plans[key].edges.quaternion.copy(this); })
-							.start();
-					}
 				}
 				enableAnimationRequest();
 			};
 
-			/**
-			 * set camera to orthogonal view to fit plan to viewport
-			 * @param pid
-             */
-			webglInterface.callFunc.viewOrthoPlan = function(pid) {
-				
-				var pgeo = plans[pid].mesh.geometry;
-				var matWorld = plans[pid].mesh.matrixWorld;
-				
-				console.log(pgeo);
-				
-				var normal = new THREE.Vector3(pgeo.attributes.normal.array[0], pgeo.attributes.normal.array[1], pgeo.attributes.normal.array[2]);
-				
-				var boundingBox = pgeo.boundingBox.clone().applyMatrix4(matWorld);
-				
-				// Ausmaße im Raum
-				var aspect = SCREEN_WIDTH/SCREEN_HEIGHT;
-				var pwidth = Math.sqrt( Math.pow(boundingBox.max.x - boundingBox.min.x, 2) + Math.pow(boundingBox.max.z - boundingBox.min.z, 2) ) / 2;
-				var pheight = (boundingBox.max.y - boundingBox.min.y) / 2;
-				
-				if(normal.y > 0.707 || normal.y < -0.707) {
-					pwidth = Math.sqrt( Math.pow(boundingBox.max.x - boundingBox.min.x, 2) + Math.pow(boundingBox.max.y - boundingBox.min.y, 2) ) / 2;
-					pheight = (boundingBox.max.z - boundingBox.min.z) / 2;
-				}
-				
-				if(aspect < pwidth/pheight)
-					pheight = 1/aspect * pwidth;
-				
-				// Abstand zum Bild (abhängig von Kamerawinkel)
-				var h = pheight / Math.tan( camera.fov/2 * Math.PI / 180 );
-				
-				var bsCenter = pgeo.boundingSphere.center.clone().applyMatrix4(matWorld);
-				
-				var newpos = new THREE.Vector3();
-				newpos.addVectors(bsCenter, normal.setLength(h));
-				
-				// Kamerafahrt zur Ansicht
-				new TWEEN.Tween(camera.position.clone())
-					.to(newpos, 500)
-					.easing(TWEEN.Easing.Quadratic.InOut)
-					.onUpdate(function () { camera.position.copy(this); })
-					.start();
-				new TWEEN.Tween(controls.center.clone())
-					.to(bsCenter, 500)
-					.easing(TWEEN.Easing.Quadratic.InOut)
-					.onUpdate(function () { controls.center.copy(this); })
-					.onComplete(function() {
-						camera.toOrthographic(controls.center);
-						webglInterface.viewportSettings.cameraSel = 'Custom';
-						scope.$apply();
-					})
-					.start();
-
-				enableAnimationRequest();
-				console.log('orthoview');
-			};
+			
 
 			/**
 			 * focus object (call from object list)

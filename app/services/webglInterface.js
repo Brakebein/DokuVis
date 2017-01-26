@@ -58,7 +58,7 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		
 		wi.selected = [];
 		
-		wi.plans = [];
+		wi.plans = {};
 		wi.spatialImages = {};
 
 		var layerDict = {};
@@ -125,11 +125,11 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			}
 		};
 		
-		wi.PlanEntry = function(id, name, title, type) {
-			this.id = id;
-			this.name = name;
-			this.title = title;
-			this.type = type;
+		wi.PlanEntry = function(obj) {
+			this.id = obj.id;
+			this.name = obj.name;
+			this.title = obj.userData.source.title;
+			this.object = obj;
 			this.visible = true;
 			this.selected = false;
 			this.opacity = 1.0;
@@ -145,21 +145,22 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			};
 			this.select = function(event) {
 				if(scope.visible && event)
-					wi.callFunc.selectPlan(scope.id, event.ctrlKey, false);
+					wi.callFunc.selectPlan(scope, event.ctrlKey, false);
 			};
 			this.setOpacity = function(value) {
-				wi.callFunc.setPlanOpacity(scope.id, value);
+				scope.object.setOpacity(value);
+				wi.callFunc.animate();
 			};
 			this.setOrthoView = function() {
-				wi.callFunc.viewOrthoPlan(scope.id);
+				wi.callFunc.viewOrthoPlan(scope.object);
 			};
 		};
 
 		wi.ImageEntry = function (obj) {
 			this.id = obj.id;
 			this.name = obj.name;
-			this.object = obj;
 			this.title = obj.userData.source.title;
+			this.object = obj;
 			this.visible = true;
 			this.selected = false;
 			this.opacity = 1.0;
@@ -170,10 +171,12 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 				scope.visible = !scope.visible;
 			};
 			this.select = function (event) {
-				
+				if(scope.visible && event)
+					wi.callFunc.selectImage(scope, event.ctrlKey, false);
 			};
 			this.setOpacity = function (value) {
-				wi.callFunc.setImageOpacity(scope.object, value);
+				scope.object.setOpacity(value);
+				wi.callFunc.animate();
 			};
 			this.setImageView = function () {
 				wi.callFunc.setImageView(scope.object);

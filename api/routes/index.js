@@ -87,8 +87,8 @@ router.get('/auth/project/:id/:subprj/source/:sourceId', source.get);
 router.post('/auth/project/:id/:subprj/source', mUpload.single('uploadFile'), source.create);
 router.post('/auth/project/:id/:subprj/source/:sourceId/connect', source.link);
 router.get('/auth/project/:id/:subprj/source/:sourceId/connect', source.getLinks);
-router.put('/auth/project/:id/:subprj/source/:sourceId/spatial', source.setSpatial);
-router.get('/auth/project/:id/:subprj/source/:sourceId/spatial', source.getSpatial);
+router.put('/auth/project/:id/:subprj/source/:sourceId/:type/spatial', source.setSpatial);
+router.get('/auth/project/:id/:subprj/source/:sourceId/:type/spatial', source.getSpatial);
 
 // comments
 var comment = require('./comment');

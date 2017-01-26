@@ -320,7 +320,11 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		// TODO: "Pin-Linie" muss sich bei Focus-Animation mitbewegen oder ausgeblendet werden
 		// TODO: abfragen, ob Pin sich überhaupt innerhalb des Viewports befindet
-		
+
+		/**
+		 * @deprecated
+		 * @param plan
+		 */
 		$scope.open3DPlan = function(plan) {
 			neo4jRequest.getAttached3DPlan($stateParams.project, plan.eid, plan.plan3d).success(function(data, status){
 				
@@ -429,13 +433,22 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 
 		$scope.loadImage = function (source) {
-			Source.getSpatial({ id: source.eid }).$promise.then(function (result) {
+			Source.getSpatial({ id: source.eid, type: 'picture' }).$promise.then(function (result) {
 				result.spatial.source = source;
 				webglInterface.callFunc.loadSpatializeImage(result.spatial);
 			}, function (err) {
 				Utilities.throwApiException('on Source.getSpatial()', err);
 			});
 
+		};
+
+		$scope.load3DPlan = function (plan) {
+			Source.getSpatial({ id: plan.eid, type: 'plan' }).$promise.then(function (result) {
+				result.source = plan;
+				webglInterface.callFunc.load3DPlan(result);
+			}, function (err) {
+				Utilities.throwApiException('on Source.getSpatial()', err);
+			});
 		};
 		
 		$scope.reloadModels = function () {
@@ -689,6 +702,14 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				}
 			}
 		}, true);
+
+		$scope.toRepeatArray = function (list) {
+			var array = [];
+			angular.forEach(list, function (val) {
+				array.push(val);
+			});
+			return array;
+		};
 		
 		// oninit Funktionsaufrufe
 		$timeout(function() {

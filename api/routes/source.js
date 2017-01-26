@@ -390,9 +390,15 @@ var source = {
 	getSpatial: function (req, res) {
 		var prj = req.params.id;
 		
-		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36)-[:P106]->(e73:E73) \
-			RETURN e73 AS spatial';
-			// RETURN e73.content AS id, e73.path AS path, e73.map AS map, e73.matrix AS matrix, e73.fov AS fov';
+		if(req.params.type === 'picture') {
+			var q = 'MATCH (e31:E31:' + prj + ' {content: {sourceId}})-[:P70]->(e36:E36)-[:P106]->(e73:E73) \
+				RETURN e73 AS spatial';
+				// RETURN e73.content AS id, e73.path AS path, e73.map AS map, e73.matrix AS matrix, e73.fov AS fov';
+		}
+		else if(req.params.type === 'plan') {
+			q = 'MATCH (:E31:'+prj+' {content: {sourceId}})<-[:P138]-(:E36)-[:P106]->(e73:E73)-[:P1]->(e75:E75) \
+				RETURN e73 AS info, e75 AS file';
+		}
 		
 		var params = {
 			sourceId: req.params.sourceId

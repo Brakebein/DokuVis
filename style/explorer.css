@@ -141,7 +141,10 @@
     font-size: 6pt; }
   .listItem > .info {
     flex: 1 1 100px;
-    color: #333; }
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; }
   .listItem > .opacity {
     flex: 0 0 50px;
     border: 1px solid #555;
