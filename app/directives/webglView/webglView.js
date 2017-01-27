@@ -663,6 +663,17 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			}
 
 			/**
+			 * Call `setSelected` from outside.
+			 * @param obj
+			 * @param ctrlKey
+			 * @param deselect
+			 */
+			webglInterface.callFunc.setSelected = function (obj, ctrlKey, deselect) {
+				setSelected(obj, ctrlKey, deselect);
+				animate();
+			};
+
+			/**
 			 * look for any children and select them
 			 * @param {Array} children
              */
@@ -2331,6 +2342,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			 * @param img
 			 */
 			webglInterface.callFunc.loadSpatializeImage = function (img) {
+				if(webglInterface.getImageEntryByName(img.content)) return;
+				
 				var imagepane = new THREE.ImagePane('data/' + img.path + img.map, img.fov, 10);
 				imagepane.onComplete = function () {
 					animate();
@@ -2343,14 +2356,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				imagepane.userData.source = img.source;
 				imagepane.userData.type = 'image';
 
-				spatialImages[imagepane.id] = new webglInterface.ImageEntry(imagepane);
+				var entry = new webglInterface.ImageEntry(imagepane);
+				imagepane.entry = entry;
+				spatialImages[imagepane.id] = entry;
 				console.log('ImagePane', imagepane);
-			};
-
-			webglInterface.callFunc.selectImage = function (imageentry, ctrlKey, deselect) {
-				if(imageentry.visible)
-					setSelected(imageentry.object, ctrlKey, deselect);
-				animate();
 			};
 
 			/**
@@ -2394,6 +2403,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			 * @param obj
 			 */
 			webglInterface.callFunc.load3DPlan = function (obj) {
+				if(webglInterface.getPlanEntryByName(obj.info.content)) return;
+				
 				var plan = new THREE.Plan('data/' + obj.file.path + obj.file.content, 'data/' + obj.info.materialMapPath + obj.info.materialMap);
 				plan.onComplete = function () {
 					animate();
@@ -2407,32 +2418,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 
 				plans[plan.id] = new webglInterface.PlanEntry(plan);
 				console.log('Plan', plan);
-			};
-
-			webglInterface.callFunc.selectPlan = function(planentry, ctrlKey, deselect) {
-				if(planentry.visible)
-					setSelected(planentry.object, ctrlKey, deselect);
-				animate();
-			};
-
-			/**
-			 * toggle plan
-			 * @param pid
-			 * @param {boolean} visible
-			 */
-			webglInterface.callFunc.togglePlan = function(pid, visible) {
-				if(visible && !plans[pid].visible) {
-					scene.add(plans[pid].mesh);
-					scene.add(plans[pid].edges);
-					plans[pid].visible = true;
-				}
-				else {
-					scene.remove(plans[pid].mesh);
-					scene.remove(plans[pid].edges);
-					plans[pid].visible = false;
-				}
-
-				animate();
 			};
 
 			/**
@@ -2489,6 +2474,46 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					.start();
 
 				enableAnimationRequest();
+			};
+
+			/**
+			 * toggle plan or spatialImage
+			 * @param obj
+			 * @param {boolean} visible
+			 */
+			webglInterface.callFunc.toggle = function(obj, visible) {
+				if(visible)
+					scene.add(obj);
+				else
+					scene.remove(obj);
+				animate();
+			};
+
+			webglInterface.callFunc.toggleAll = function (list, visible) {
+				for(var key in list) {
+					if(list[key].visible !== visible) {
+						if(list[key].selected && !visible)
+							setSelected(list[key].object, false, true);
+						webglInterface.callFunc.toggle(list[key].object, visible);
+						list[key].visible = visible;
+					}
+				}
+				animate();
+			};
+
+			webglInterface.callFunc.setScaleAll = function (value) {
+				for(var key in spatialImages) {
+					spatialImages[key].object.setScale(value);
+				}
+				animate();
+			};
+
+			webglInterface.callFunc.setOpacityAll = function (list, value) {
+				for(var key in list) {
+					list[key].object.setOpacity(value);
+					list[key].opacity = value;
+				}
+				animate();
 			};
 
 			/**
@@ -3284,20 +3309,23 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					right: []	// +x
 				};
 				
-				var planNormal = new THREE.Vector3(plan.mesh.geometry.attributes.normal.array[0], plan.mesh.geometry.attributes.normal.array[1], plan.mesh.geometry.attributes.normal.array[2]).normalize();
+				var planNormal = new THREE.Vector3(plan.mesh.geometry.attributes.normal.array[0], plan.mesh.geometry.attributes.normal.array[1], plan.mesh.geometry.attributes.normal.array[2]).applyQuaternion(plan.quaternion).normalize();
 				
 				var planBbox = plan.mesh.geometry.boundingBox.clone().applyMatrix4(plan.matrixWorld);
 				
 				console.log(planNormal, planBbox);
 				
 				for(var key in plans) {
-					if(plans[key].object.id === plan.id) continue;
+					if(plans[key].object.id === plan.id || !plans[key].visible) continue;
 					var p = plans[key].object;
 					//console.log(p);
 					
-					var pNormal = new THREE.Vector3(p.mesh.geometry.attributes.normal.array[0], p.mesh.geometry.attributes.normal.array[1], p.mesh.geometry.attributes.normal.array[2]).normalize();
+					var pNormal = new THREE.Vector3(p.mesh.geometry.attributes.normal.array[0], p.mesh.geometry.attributes.normal.array[1], p.mesh.geometry.attributes.normal.array[2]).applyQuaternion(p.quaternion).normalize();
 					var pBbox = p.mesh.geometry.boundingBox.clone().applyMatrix4(p.matrixWorld);
-					
+
+					// console.log(plans[key].name, pNormal);
+					// console.log(pBbox);
+
 					//translate
 					var height = new THREE.Vector3().subVectors(pBbox.max, pBbox.min).multiply(planNormal).length();
 					var distance = height / 2 + padding;
@@ -3310,14 +3338,23 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						distance += subMax.projectOnVector(pNormal).length();
 					
 					var arrange = '';
-					if(pNormal.x > 0.9)
+					var directionVector = new THREE.Vector3();
+					if(pNormal.x > 0.9) {
 						arrange = 'right';
-					else if(pNormal.x < -0.9)
+						directionVector.set(1, 0, 0);
+					}
+					else if(pNormal.x < -0.9) {
 						arrange = 'left';
-					else if(pNormal.z > 0.9)
+						directionVector.set(-1, 0, 0);
+					}
+					else if(pNormal.z > 0.9) {
 						arrange = 'bottom';
-					else if(pNormal.z < -0.9)
+						directionVector.set(0, 0, 1);
+					}
+					else if(pNormal.z < -0.9) {
 						arrange = 'top';
+						directionVector.set(0, 0, -1);
+					}
 					
 					if(arrange) {
 						for(var i=0; i<offset[arrange].length; i++)
@@ -3325,14 +3362,15 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						offset[arrange].push({ name: p.name, height: height });
 					}
 					
-					var t = p.position.clone().add(new THREE.Vector3().copy(pNormal).applyQuaternion(p.quaternion).multiplyScalar(distance));
+					var t = p.position.clone().add(new THREE.Vector3().copy(pNormal).multiplyScalar(distance));
 					//p.translateOnAxis(pNormal, distance);
 					t.add(new THREE.Vector3().subVectors(planBbox.min, t).multiply(planNormal));
 					//t.set(t.x, planBbox.min.y, t.z);
 					
 					//rotate
-					var rAxis = new THREE.Vector3().crossVectors(planNormal, pNormal);
-					var q = p.quaternion.clone().multiply(new THREE.Quaternion().setFromAxisAngle(rAxis, Math.PI / 2));
+					// var rAxis = new THREE.Vector3().crossVectors(pNormal, planNormal);
+					var theta = planNormal.angleTo(pNormal);
+					var q = p.quaternion.clone().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), theta));
 					//p.rotateOnAxis(rAxis, Math.PI / 2);
 					
 					// tween animation

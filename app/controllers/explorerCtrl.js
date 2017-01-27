@@ -8,8 +8,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		$scope.views = {};
 		$scope.views.activeMain = '3dview';
-		//$scope.views.activeSide = 'objproperties';
-		$scope.views.activeSide = 'comments';
+		$scope.views.activeSide = 'objlist';
+		//$scope.views.activeSide = 'comments';
 								
 		$scope.overlayParams = {url: '', params: {}};
 		
@@ -442,6 +442,14 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 
 		};
 
+		$scope.loadAllImages = function () {
+			for(var i=0; i<$scope.sourceResults.length; i++) {
+				var source = $scope.sourceResults[i];
+				if(source.type === 'picture' && source.spatial)
+					$scope.loadImage(source);
+			}
+		};
+
 		$scope.load3DPlan = function (plan) {
 			Source.getSpatial({ id: plan.eid, type: 'plan' }).$promise.then(function (result) {
 				result.source = plan;
@@ -449,6 +457,14 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}, function (err) {
 				Utilities.throwApiException('on Source.getSpatial()', err);
 			});
+		};
+
+		$scope.loadAll3DPlans = function () {
+			for(var i=0; i<$scope.sourceResults.length; i++) {
+				var source = $scope.sourceResults[i];
+				if(source.type === 'plan' && source.plan3d)
+					$scope.load3DPlan(source);
+			}
 		};
 		
 		$scope.reloadModels = function () {

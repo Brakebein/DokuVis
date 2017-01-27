@@ -50,6 +50,18 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			fov: 35
 		};
 		
+		wi.listProperties = {
+			plans: {
+				visible: true,
+				opacity: 1
+			},
+			images: {
+				visible: true,
+				scale: 10,
+				opacity: 1
+			}
+		};
+		
 		// Listen
 		wi.objects = [];
 		wi.layerList = [];
@@ -139,13 +151,13 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			this.toggle = function() {
 				scope.visible = !scope.visible;
 				if(!scope.visible && scope.selected)
-					wi.callFunc.selectPlan(scope.id, false, true);
-				wi.callFunc.togglePlan(scope.id, scope.visible);
+					wi.callFunc.setSelected(scope.object, false, true);
+				wi.callFunc.toggle(scope.object, scope.visible);
 				
 			};
 			this.select = function(event) {
 				if(scope.visible && event)
-					wi.callFunc.selectPlan(scope, event.ctrlKey, false);
+					wi.callFunc.setSelected(scope.object, event.ctrlKey, false);
 			};
 			this.setOpacity = function(value) {
 				scope.object.setOpacity(value);
@@ -169,10 +181,13 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			
 			this.toggle = function () {
 				scope.visible = !scope.visible;
+				if(!scope.visible && scope.selected)
+					wi.callFunc.setSelected(scope.object, false, true);
+				wi.callFunc.toggle(scope.object, scope.visible);
 			};
 			this.select = function (event) {
 				if(scope.visible && event)
-					wi.callFunc.selectImage(scope, event.ctrlKey, false);
+					wi.callFunc.setSelected(scope.object, event.ctrlKey, false);
 			};
 			this.setOpacity = function (value) {
 				scope.object.setOpacity(value);
@@ -181,6 +196,22 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			this.setImageView = function () {
 				wi.callFunc.setImageView(scope.object);
 			};
+		};
+		
+		wi.getPlanEntryByName = function (name) {
+			for(var key in wi.plans) {
+				if(wi.plans[key].name === name)
+					return wi.plans[key];
+			}
+			return null;
+		};
+		
+		wi.getImageEntryByName = function (name) {
+			for(var key in wi.spatialImages) {
+				if(wi.spatialImages[key].name === name)
+					return wi.spatialImages[key];
+			}
+			return null;
 		};
 		
 		function insertIntoHierarchList(item) {

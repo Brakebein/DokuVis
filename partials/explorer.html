@@ -58,20 +58,38 @@
 	<div ng-show="views.activeSide == 'objlist'" class="sideContainer">
 		
 		<div class="sideHeader">
-			<h4>Objekte</h4>
+			<h4>3D-Szene</h4>
 			<hr/>
-			
-			<div class="btn-group btn-group-xs">
-				<button type="button" class="btn" ng-class="listSettings == 'hierarchy' ? 'btn-primary' : 'btn-default'" ng-click="listSettings = 'hierarchy'">Hierarchie</button>
-				<button type="button" class="btn" ng-class="listSettings == 'layers' ? 'btn-primary' : 'btn-default'" ng-click="listSettings = 'layers'">Layer</button>
-			</div>
 
-			<button class="btn btn-default btn-xs" ng-click="reloadModels()"><i class="glyphicon glyphicon-refresh"></i> Reload Scene</button>
+			<p ng-hide="wi.selected.length">Keine Objekte ausgewählt</p>
+			<p ng-show="wi.selected.length === 1">1 Objekt ausgewählt</p>
+			<p ng-show="wi.selected.length > 1">{{wi.selected.length}} Objekte ausgewählt</p>
 		</div>
 		
 		<div class="sideContent smallFont">
 				
-				<h5>Objekte</h5>
+				<div class="listHeader">
+					<div class="listHeaderCaption">
+						<span>3D-Objekte</span>
+						<span><button class="btn btn-default btn-xs" ng-click="reloadModels()"><i class="glyphicon glyphicon-refresh"></i> Alle 3D-Objekte laden</button></span>
+						<div class="btn-group btn-group-xs">
+							<button class="btn" ng-class="listSettings == 'hierarchy' ? 'btn-primary' : 'btn-default'" ng-click="listSettings = 'hierarchy'">Hierarchie</button>
+							<button class="btn" ng-class="listSettings == 'layers' ? 'btn-primary' : 'btn-default'" ng-click="listSettings = 'layers'">Layer</button>
+						</div>
+					</div>
+					<div class="listHeaderCtrls">
+						<div class="ctrlGroup">
+							<span class="toggle glyphicon glyphicon-eye-open"></span>
+						</div>
+						<div class="ctrlGroup">
+							<div class="dvSlider-container dvSlider-slim">
+								Opacity
+								<input class="dvSlider dvSlider-dark" type="range" style="width:100px" min="0.1" max="1" step="0.1" ng-model="wi.listProperties.plans.opacity"/>
+								{{ wi.listProperties.plans.opacity | number: 1 }}
+							</div>
+						</div>
+					</div>
+				</div>
 				
 				<div ng-if="listSettings=='hierarchy'" ng-repeat="data in wi.hierarchList | orderBy: 'name'" ng-init="depth=0" ng-include="'partials/tree_item_renderer.html'"></div>
 				
@@ -96,8 +114,24 @@
 					</div>
 				</div>
 
-				<hr/>
-				<h5>Plans</h5>
+				<div class="listHeader">
+					<div class="listHeaderCaption">
+						<span>Pläne</span>
+						<span><button class="btn btn-default btn-xs" ng-click="loadAll3DPlans()"><i class="glyphicon glyphicon-refresh"></i> Alle Pläne laden</button></span>
+					</div>
+					<div class="listHeaderCtrls">
+						<div class="ctrlGroup">
+							<span class="toggle glyphicon" ng-class="{'glyphicon-eye-open': wi.listProperties.plans.visible, 'glyphicon-eye-close': !wi.listProperties.plans.visible}" ng-click="wi.listProperties.plans.visible = !wi.listProperties.plans.visible; wi.callFunc.toggleAll(wi.plans, wi.listProperties.plans.visible)"></span>
+						</div>
+						<div class="ctrlGroup">
+							<div class="dvSlider-container dvSlider-slim">
+								Opacity
+								<input class="dvSlider dvSlider-dark" type="range" style="width:100px" min="0.1" max="1" step="0.1" ng-model="wi.listProperties.plans.opacity" ng-change="wi.callFunc.setOpacityAll(wi.plans, wi.listProperties.plans.opacity)"/>
+								{{ wi.listProperties.plans.opacity | number: 1 }}
+							</div>
+						</div>
+					</div>
+				</div>
 				
 				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="data in toRepeatArray(wi.plans) | orderBy: 'title'">
 					<span class="glyphicon toggle" ng-class="data.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="data.toggle()"></span>
@@ -108,8 +142,32 @@
 					
 				</div>
 
-				<hr/>
-				<h5>Verortete Bilder</h5>
+				<!-- spatialImages -->
+				<div class="listHeader">
+					<div class="listHeaderCaption">
+						<span>Verortete Bilder</span>
+						<span><button class="btn btn-default btn-xs" ng-click="loadAllImages()"><i class="glyphicon glyphicon-refresh"></i> Alle Bilder laden</button></span>
+					</div>
+					<div class="listHeaderCtrls">
+						<div class="ctrlGroup">
+							<span class="toggle glyphicon" ng-class="{'glyphicon-eye-open': wi.listProperties.images.visible, 'glyphicon-eye-close': !wi.listProperties.images.visible}" ng-click="wi.listProperties.images.visible = !wi.listProperties.images.visible; wi.callFunc.toggleAll(wi.spatialImages, wi.listProperties.images.visible)"></span>
+						</div>
+						<div class="ctrlGroup">
+							<div class="dvSlider-container dvSlider-slim">
+								Size
+								<input class="dvSlider dvSlider-dark" type="range" style="width:100px" min="5" max="50" step="0.5" ng-model="wi.listProperties.images.scale" ng-change="wi.callFunc.setScaleAll(wi.listProperties.images.scale)"/>
+								{{ wi.listProperties.images.scale | number: 1 }}
+							</div>
+						</div>
+						<div class="ctrlGroup">
+							<div class="dvSlider-container dvSlider-slim">
+								Opacity
+								<input class="dvSlider dvSlider-dark" type="range" style="width:100px" min="0.1" max="1" step="0.1" ng-model="wi.listProperties.images.opacity" ng-change="wi.callFunc.setOpacityAll(wi.spatialImages, wi.listProperties.images.opacity)"/>
+								{{ wi.listProperties.images.opacity | number: 1 }}
+							</div>
+						</div>
+					</div>
+				</div>
 
 				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="data in toRepeatArray(wi.spatialImages) | orderBy: 'title'">
 					<span class="glyphicon toggle" ng-class="{'glyphicon-eye-open': data.visible, 'glyphicon-eye-close': !data.visible}" ng-click="data.toggle()"></span>

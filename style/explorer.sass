@@ -136,6 +136,42 @@
 	width: 100%
 	padding: 20px
 
+.listHeader
+	margin: 20px 0 5px
+	&:first-child
+		margin-top: 0
+	& > .listHeaderCaption
+		display: flex
+		align-items: stretch
+
+		& > *
+			padding: 5px
+			background-color: #ddd
+			font-weight: bold
+			font-size: 14px
+			border-bottom: 1px dotted #aaa
+
+			&:first-child
+				border-top-left-radius: 5px
+			&:last-child
+				border-top-right-radius: 5px
+
+
+	& > .listHeaderCtrls
+		height: 19px
+		padding: 3px
+		background-color: #ddd
+		border-radius: 0 5px 5px
+
+		.toggle
+			width: 15px
+			cursor: pointer
+			margin: 0 5px 0 1px
+			&.glyphicon-eye-open
+				color: #555
+			&.glyphicon-eye-close
+				color: #aaa
+
 .listItem
 	padding: 3px 3px 3px
 	display: flex
