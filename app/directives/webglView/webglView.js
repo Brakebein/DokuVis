@@ -266,9 +266,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				*/
 				
 				// Gizmo
-				gizmoMove = new THREE.GizmoMove(10, 2.5, 1.2);
+				gizmoMove = new DV3D.GizmoMove(10, 2.5, 1.2);
 				gizmoMove.addEventListener('change', animate);
-				gizmoRotate = new THREE.GizmoRotate(10);
+				gizmoRotate = new DV3D.GizmoRotate(10);
 				gizmoRotate.addEventListener('change', animate);
 				//console.log(gizmo);
 				
@@ -504,9 +504,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				if(intersects.length > 0 ) {
 					console.log(intersects[0]);
 					console.log(objects[intersects[0].object.id]);
-					if(intersects[0].object.parent instanceof THREE.Plan)
+					if(intersects[0].object.parent instanceof DV3D.Plan)
 						setSelected(intersects[0].object.parent, ctrlKey);
-					else if(intersects[0].object.parent instanceof THREE.ImagePane)
+					else if(intersects[0].object.parent instanceof DV3D.ImagePane)
 						setSelected(intersects[0].object.parent, ctrlKey);
 					else
 						setSelected(intersects[0].object, ctrlKey);
@@ -1820,7 +1820,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					// transform gizmo
 					if(activeGizmo && event.button === 0) {
 						
-						if(gizmo instanceof THREE.GizmoMove) {
+						if(gizmo instanceof DV3D.GizmoMove) {
 							var movementX = event.originalEvent.movementX || event.originalEvent.mozMovementX || event.originalEvent.webkitMovementX || 0;
 							var movementY = event.originalEvent.movementY || event.originalEvent.mozMovementY || event.originalEvent.webkitMovementY || 0;
 							
@@ -1828,7 +1828,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 							gizmo.transformObject(mv, camera);
 							setGizmoCoords('move', true);
 						}
-						else if(gizmo instanceof THREE.GizmoRotate) {
+						else if(gizmo instanceof DV3D.GizmoRotate) {
 							var mouse = mouseInputToViewport(event);
 							gizmo.transformObject(mouse, camera);
 							setGizmoCoords('rotate', true);
@@ -2288,7 +2288,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			scope.startMarking = function () {
 				scope.setNavigationMode();
 				scope.snapshot.mode = 'pin';
-				pin = new THREE.Pin(3, 0.5);
+				pin = new DV3D.Pin(3, 0.5);
 				pin.addEventListener('change', animate);
 				scene.add(pin);
 				isPinning = true;
@@ -2296,7 +2296,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 
 			scope.startMeasuring = function () {
 				scope.setNavigationMode();
-				measureTool = new THREE.Measure(2);
+				measureTool = new DV3D.Measure(2);
 				measureTool.addEventListener('change', animate);
 				scene.add(measureTool);
 				measureTool.onComplete = function (distance) {
@@ -2346,7 +2346,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			webglInterface.callFunc.loadSpatializeImage = function (img) {
 				if(webglInterface.getImageEntryByName(img.content)) return;
 				
-				var imagepane = new THREE.ImagePane('data/' + img.path + img.map, img.fov, 10);
+				var imagepane = new DV3D.ImagePane('data/' + img.path + img.map, img.fov, 10);
 				imagepane.onComplete = function () {
 					animate();
 				};
@@ -2370,7 +2370,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			 * @param obj
 			 */
 			webglInterface.callFunc.setImageView = function (obj) {
-				var end =  new THREE.Vector3(0,0,-1000);
+				var end =  new THREE.Vector3(0,0,-100);
 				end.applyQuaternion(obj.quaternion);
 				end.add(obj.position);
 
@@ -2384,7 +2384,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					.onUpdate(function () { camera.position.copy(this); })
 					.start();
 				new TWEEN.Tween(controls.center.clone())
-					.to(lookAt, 500)
+					.to(end, 500)
 					.easing(TWEEN.Easing.Quadratic.InOut)
 					.onUpdate(function () { controls.center.copy(this); })
 					.start();
@@ -2410,7 +2410,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				if(webglInterface.getPlanEntryByName(obj.info.content)) return;
 				// if(obj.info.content in plans) return;
 				
-				var plan = new THREE.Plan('data/' + obj.file.path + obj.file.content, 'data/' + obj.info.materialMapPath + obj.info.materialMap, obj.info.scale);
+				var plan = new DV3D.Plan('data/' + obj.file.path + obj.file.content, 'data/' + obj.info.materialMapPath + obj.info.materialMap, obj.info.scale);
 				plan.onComplete = function () {
 					animate();
 				};
@@ -2607,7 +2607,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						}
 						break;
 					case 'measure':
-						measureTool = new THREE.Measure(2);
+						measureTool = new DV3D.Measure(2);
 						scene.add(measureTool);
 						break;	
 					default:
@@ -3073,9 +3073,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			 * @param coords
 			 */
 			scope.internalCallFunc.setCoordsFromInput = function(coords) {
-				if(gizmo instanceof THREE.GizmoMove)
+				if(gizmo instanceof DV3D.GizmoMove)
 					gizmo.object.position.set(parseFloat(coords.x), parseFloat(coords.y), parseFloat(coords.z));
-				else if(gizmo instanceof THREE.GizmoRotate)
+				else if(gizmo instanceof DV3D.GizmoRotate)
 					gizmo.object.rotation.set(THREE.Math.degToRad(coords.x), THREE.Math.degToRad(coords.y), THREE.Math.degToRad(coords.z));
 			};
 
@@ -3250,7 +3250,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			// add and remove pins
 			webglInterface.callFunc.addPin = function(id, pinObj) {
 				if(pins[id]) return;
-				var pin = new THREE.Pin(3, 0.5);
+				var pin = new DV3D.Pin(3, 0.5);
 				var m = pinObj.pinMatrix;
 				pin.applyMatrix(new THREE.Matrix4().set(m[0],m[4],m[8],m[12],m[1],m[5],m[9],m[13],m[2],m[6],m[10],m[14],m[3],m[7],m[11],m[15]));
 				scene.add(pin);
