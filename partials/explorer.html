@@ -118,6 +118,8 @@
 					<div class="listHeaderCaption">
 						<span>Pläne</span>
 						<span><button class="btn btn-default btn-xs" ng-click="loadAll3DPlans()"><i class="glyphicon glyphicon-refresh"></i> Alle Pläne laden</button></span>
+						<span><button class="btn btn-default btn-xs" ng-click="wi.callFunc.explodePlans()">Explode</button></span>
+						<span><button class="btn btn-default btn-xs" ng-click="wi.callFunc.resetPlans()">Reset</button></span>
 					</div>
 					<div class="listHeaderCtrls">
 						<div class="ctrlGroup">
@@ -453,9 +455,6 @@
 		<button ng-click="openIndexEdit()">index modal</button>
 		
 		<button ng-click="resizerValue = 800">resizerAnim</button>
-
-		<button ng-click="wi.callFunc.explodePlans()">explodePlans</button>
-		<button ng-click="wi.callFunc.resetPlans()">resetPlans</button>
 	</div>
 	
 	

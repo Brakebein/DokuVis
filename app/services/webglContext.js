@@ -7,16 +7,18 @@ angular.module('dokuvisApp').factory('webglContext',
 	 */
 	function() {
 
-		// Konstante maximale Sichtweite
-		var FAR = 1400;
-		var backgroundColor = 0x666666;
-		var selectionColor = 0xff4444;
-		var defaultEdgeColor = 0x333333;
+		// frustums
+		var NEAR = 1,
+			FAR = 1400;
+		// colors
+		var backgroundColor = 0x666666,
+			selectionColor = 0xff4444,
+			defaultEdgeColor = 0x333333;
 
 		var initWidth = 800, initHeight = 600;
 
 		// Camera
-		var camera = new THREE.CombinedCamera(initWidth, initHeight, 35, 0.1, FAR, 0.1, FAR);
+		var camera = new THREE.CombinedCamera(initWidth, initHeight, 35, NEAR, FAR, NEAR, FAR);
 		camera.position.set(-100, 60, 100);
 
 		// Scene
