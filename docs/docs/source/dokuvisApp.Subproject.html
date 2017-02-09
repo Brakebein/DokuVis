@@ -1,1 +1,213 @@
-<!doctype html><html>  <head>    <meta charset="utf-8">    <base href="../">    <title>JSDoc: source : Subproject.js</title>    <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">    <link href="css/site.css" type="text/css" rel="stylesheet">  </head>  <body ng-app="">    <nav id="toc">      <input placeholder="Filter" id="filter-input" class="col12 block field" type="text">      <div class="nav-wrapper">      <h2><a href="index.html">Index</a></h2>      <ul class="module">        <!-- dokuvis_pp -->        <h2 class="module">          <a chref="" ng-click="moduledokuvis_pp = !moduledokuvis_pp">            module: dokuvisApp          </a>          <i ng-cloak="" ng-show="moduledokuvis_pp">+</i>        </h2>        <li id="dokuvisApp" ng-hide="moduledokuvis_pp">          <ul class="group">            <h2>              <a href="" ng-click="dokuvis_ppservice = !dokuvis_ppservice">                service              </a>              <i ng-cloak="" ng-show="dokuvis_ppservice">+</i>            </h2>            <ul ng-hide="dokuvis_ppservice">              <li>                <a href="dokuvisApp.Archive.html">Archive</a>              </li><li>                <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>              </li><li>                <a href="dokuvisApp.Category.html">Category</a>              </li><li>                <a href="dokuvisApp.CategoryAttribute.html">CategoryAttribute</a>              </li><li>                <a href="dokuvisApp.Comment.html">Comment</a>              </li><li>                <a href="dokuvisApp.ConfirmService.html">ConfirmService</a>              </li><li>                <a href="dokuvisApp.Project.html">Project</a>              </li><li>                <a href="dokuvisApp.ProjInfo.html">ProjInfo</a>              </li><li>                <a href="dokuvisApp.Source.html">Source</a>              </li><li>                <a href="dokuvisApp.Subproject.html">Subproject</a>              </li><li>                <a href="dokuvisApp.TokenInterceptor.html">TokenInterceptor</a>              </li><li>                <a href="dokuvisApp.UserAuthFactory.html">UserAuthFactory</a>              </li><li>                <a href="dokuvisApp.Utilities.html">Utilities</a>              </li><li>                <a href="dokuvisApp.weblgContext.html">weblgContext</a>              </li>            </ul>          </ul><ul class="group">            <h2>              <a href="" ng-click="dokuvis_ppconfig = !dokuvis_ppconfig">                config              </a>              <i ng-cloak="" ng-show="dokuvis_ppconfig">+</i>            </h2>            <ul ng-hide="dokuvis_ppconfig">              <li>                <a href="dokuvisApp.config.html">config</a>              </li>            </ul>          </ul><ul class="group">            <h2>              <a href="" ng-click="dokuvis_ppcontroller = !dokuvis_ppcontroller">                controller              </a>              <i ng-cloak="" ng-show="dokuvis_ppcontroller">+</i>            </h2>            <ul ng-hide="dokuvis_ppcontroller">              <li>                <a href="dokuvisApp.navCtrl.html">navCtrl</a>              </li><li>                <a href="dokuvisApp.newArchiveModalCtrl.html">newArchiveModalCtrl</a>              </li><li>                <a href="dokuvisApp.newProjectModalCtrl.html">newProjectModalCtrl</a>              </li><li>                <a href="dokuvisApp.newSubprojectModalCtrl.html">newSubprojectModalCtrl</a>              </li><li>                <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>              </li><li>                <a href="dokuvisApp.projHomeCtrl.html">projHomeCtrl</a>              </li><li>                <a href="dokuvisApp.registerCtrl.html">registerCtrl</a>              </li><li>                <a href="dokuvisApp.sourceDetailCtrl.html">sourceDetailCtrl</a>              </li><li>                <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>              </li>            </ul>          </ul><ul class="group">            <h2>              <a href="" ng-click="dokuvis_ppdirective = !dokuvis_ppdirective">                directive              </a>              <i ng-cloak="" ng-show="dokuvis_ppdirective">+</i>            </h2>            <ul ng-hide="dokuvis_ppdirective">              <li>                <a href="dokuvisApp.webglView.html">webglView</a>              </li>            </ul>          </ul>        </li>      </ul>      </div>    </nav>    <div id="content" class="page-wrap">      <h1 class="title">        source : Subproject.js      </h1>      <div id="main" class="big-container">        <!-- source code html -->        <article>          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateParams', 'Utilities',	/**	 * $http methods for subproject related tasks	 * @memberof dokuvisApp	 * @ngdoc service	 * @name Subproject	 * @author Brakebein	 */	function($resource, API, $stateParams, Utilities) {		return $resource(API + 'auth/project/:project/subproject/:id', {			project: function () {				return $stateParams.project;			},			id: '@id'		}, {			/**			 * Get subproject by id.			 * ```			 * Subproject.save({ id: &lt;id> }).$promise.then(...);			 * ```			 * @memberof Subproject			 * @method get			 */			get: {				method: 'GET',				cache: true			},			/**			 * Save a new subroject.			 * ```			 * Subproject.save({			 *   name: &lt;string>,			 *   description: &lt;string>  // (optional)			 * }).$promise.then(...);			 * ```			 * @memberof Subproject			 * @method save			 */			save: {				method: 'POST',				transformRequest: function (data) {					return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() }));				}			},			/**			 * Saves any changes to name or description.			 * ```			 * subproject.$update().then(...);			 * ```			 * @memberof Subproject			 * @method update			 */			update: { method: 'PUT' }		});		/**		 * Get all subprojects.		 * ```		 * Subproject.query().$promise.then(...);		 * ```		 * @memberof Subproject		 * @method query		 */	}]);</code></pre>        </article>        <!-- index.html -->        <!-- class files -->      </div>      <footer style="clear:both">        Documentation generated by        <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a>        using        <a href="https://github.com/allenhwkim/angular-jsdoc">Angular-JSDoc template</a>      </footer>    </div>    <script src="js/prettify.js"></script>    <script src="js/angular.min.js"></script>    <script src="js/site.js"></script>    <!--%= prettyJson %-->    <script>      prettyPrint();      var lineNo = window.location.hash.match(/#line([0-9]+)$/);      lineNo && document.querySelector("ol li:nth-child("+(lineNo[1])+")").scrollIntoView();    </script>  </body></html>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <base href="../">
+    <title>JSDoc: source : Subproject.js</title>
+    <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">
+    <link href="css/site.css" type="text/css" rel="stylesheet">
+  </head>
+  <body ng-app="">
+    <nav id="toc">
+      <input placeholder="Filter" id="filter-input" class="col12 block field" type="text">
+      <div class="nav-wrapper">
+      <h2><a href="index.html">Index</a></h2>
+      <ul class="module">
+        <!-- dokuvis_pp -->
+        <h2 class="module">
+          <a chref="" ng-click="moduledokuvis_pp = !moduledokuvis_pp">
+            module: dokuvisApp
+          </a>
+          <i ng-cloak="" ng-show="moduledokuvis_pp">+</i>
+        </h2>
+        <li id="dokuvisApp" ng-hide="moduledokuvis_pp">
+          <ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppservice = !dokuvis_ppservice">
+                service
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppservice">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppservice">
+              <li>
+                <a href="dokuvisApp.Archive.html">Archive</a>
+              </li><li>
+                <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
+              </li><li>
+                <a href="dokuvisApp.Category.html">Category</a>
+              </li><li>
+                <a href="dokuvisApp.CategoryAttribute.html">CategoryAttribute</a>
+              </li><li>
+                <a href="dokuvisApp.Comment.html">Comment</a>
+              </li><li>
+                <a href="dokuvisApp.ConfirmService.html">ConfirmService</a>
+              </li><li>
+                <a href="dokuvisApp.Project.html">Project</a>
+              </li><li>
+                <a href="dokuvisApp.ProjInfo.html">ProjInfo</a>
+              </li><li>
+                <a href="dokuvisApp.Source.html">Source</a>
+              </li><li>
+                <a href="dokuvisApp.Subproject.html">Subproject</a>
+              </li><li>
+                <a href="dokuvisApp.TokenInterceptor.html">TokenInterceptor</a>
+              </li><li>
+                <a href="dokuvisApp.UserAuthFactory.html">UserAuthFactory</a>
+              </li><li>
+                <a href="dokuvisApp.Utilities.html">Utilities</a>
+              </li><li>
+                <a href="dokuvisApp.weblgContext.html">weblgContext</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppconfig = !dokuvis_ppconfig">
+                config
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppconfig">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppconfig">
+              <li>
+                <a href="dokuvisApp.config.html">config</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppcontroller = !dokuvis_ppcontroller">
+                controller
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppcontroller">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppcontroller">
+              <li>
+                <a href="dokuvisApp.navCtrl.html">navCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newArchiveModalCtrl.html">newArchiveModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newProjectModalCtrl.html">newProjectModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.newSubprojectModalCtrl.html">newSubprojectModalCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.projHomeCtrl.html">projHomeCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.registerCtrl.html">registerCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.sourceDetailCtrl.html">sourceDetailCtrl</a>
+              </li><li>
+                <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
+              </li>
+            </ul>
+          </ul><ul class="group">
+            <h2>
+              <a href="" ng-click="dokuvis_ppdirective = !dokuvis_ppdirective">
+                directive
+              </a>
+              <i ng-cloak="" ng-show="dokuvis_ppdirective">+</i>
+            </h2>
+            <ul ng-hide="dokuvis_ppdirective">
+              <li>
+                <a href="dokuvisApp.rampSlider.html">rampSlider</a>
+              </li><li>
+                <a href="dokuvisApp.webglView.html">webglView</a>
+              </li>
+            </ul>
+          </ul>
+        </li>
+      </ul>
+      </div>
+    </nav>
+    <div id="content" class="page-wrap">
+      <h1 class="title">
+        source : Subproject.js
+      </h1>
+      <div id="main" class="big-container">
+        <!-- source code html -->
+        <article>
+          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateParams', 'Utilities',
+	/**
+	 * $http methods for subproject related tasks
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name Subproject
+	 * @author Brakebein
+	 */
+	function($resource, API, $stateParams, Utilities) {
+		return $resource(API + 'auth/project/:project/subproject/:id', {
+			project: function () {
+				return $stateParams.project;
+			},
+			id: '@id'
+		}, {
+			/**
+			 * Get subproject by id.
+			 * ```
+			 * Subproject.save({ id: &lt;id> }).$promise.then(...);
+			 * ```
+			 * @memberof Subproject
+			 * @method get
+			 */
+			get: {
+				method: 'GET',
+				cache: true
+			},
+			/**
+			 * Save a new subroject.
+			 * ```
+			 * Subproject.save({
+			 *   name: &lt;string>,
+			 *   description: &lt;string>  // (optional)
+			 * }).$promise.then(...);
+			 * ```
+			 * @memberof Subproject
+			 * @method save
+			 */
+			save: {
+				method: 'POST',
+				transformRequest: function (data) {
+					return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() }));
+				}
+			},
+			/**
+			 * Saves any changes to name or description.
+			 * ```
+			 * subproject.$update().then(...);
+			 * ```
+			 * @memberof Subproject
+			 * @method update
+			 */
+			update: { method: 'PUT' }
+		});
+		/**
+		 * Get all subprojects.
+		 * ```
+		 * Subproject.query().$promise.then(...);
+		 * ```
+		 * @memberof Subproject
+		 * @method query
+		 */
+	}]);
+</code></pre>
+        </article>
+        <!-- index.html -->
+        <!-- class files -->
+      </div>
+      <footer style="clear:both">
+        Documentation generated by
+        <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a>
+        using
+        <a href="https://github.com/allenhwkim/angular-jsdoc">Angular-JSDoc template</a>
+      </footer>
+    </div>
+    <script src="js/prettify.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/site.js"></script>
+    <!--%= prettyJson %-->
+    <script>
+      prettyPrint();
+      var lineNo = window.location.hash.match(/#line([0-9]+)$/);
+      lineNo && document.querySelector("ol li:nth-child("+(lineNo[1])+")").scrollIntoView();
+    </script>
+  </body>
+</html>

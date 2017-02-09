@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.4.1">
+  <meta charset="utf-8">
+  <title>Source: ImagePane.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: ImagePane.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * Class for visualizing spatialized images. It consists of a plane with the image as texture, and lines arranged as a pyramid representing the camera orientation and fov.&amp;lt;br/&gt;
+ * Extends [THREE.Object3D]{@link https://threejs.org/docs/index.html#Reference/Core/Object3D}.
+ * @param imageUrl {string} Path to the image
+ * @param fov {number} FOV of the camera
+ * @param [scale] {number} Initial scale
+ * @extends THREE.Object3D
+ * @constructor
+ */
+DV3D.ImagePane &#x3D; function ( imageUrl, fov, scale ) {
+
+	THREE.Object3D.call( this );
+
+	var scope &#x3D; this;
+
+	scope.width &#x3D; 1;
+	scope.height &#x3D; 1;
+	scope.fov &#x3D; fov || 35;
+
+
+	var loader &#x3D; new THREE.TextureLoader();
+
+	loader.load(imageUrl, function ( texture ) {
+
+		if(texture.image.width &amp;lt; texture.image.height)
+			scope.width &#x3D; scope.height * texture.image.width / texture.image.height;
+		else
+			scope.height &#x3D; scope.width * texture.image.height / texture.image.width;
+
+		var distance &#x3D; scope.height / (2 * Math.tan( scope.fov / 2 * Math.PI / 180 ));
+
+		// plane with texture
+		var paneGeometry &#x3D; new THREE.PlaneBufferGeometry(scope.width, scope.height);
+		var paneMaterial &#x3D; new THREE.MeshBasicMaterial({ color: 0xffffff, map: texture, side: THREE.DoubleSide });
+
+		var pane &#x3D; new THREE.Mesh(paneGeometry, paneMaterial);
+		pane.translateZ(-distance);
+
+		// pyramid representing camera
+		var vertices &#x3D; {
+			origin: new THREE.Vector3(0,0,0),
+			topleft: new THREE.Vector3(-scope.width/2, scope.height/2, -distance),
+			topright: new THREE.Vector3(scope.width/2, scope.height/2, -distance),
+			bottomleft: new THREE.Vector3(-scope.width/2, -scope.height/2, -distance),
+			bottomright: new THREE.Vector3(scope.width/2, -scope.height/2, -distance)
+		};
+		scope.vertices &#x3D; vertices;
+
+		var lineGeometry &#x3D; new THREE.Geometry();
+		lineGeometry.vertices.push(
+			vertices.origin, vertices.topleft,
+			vertices.origin, vertices.topright,
+			vertices.origin, vertices.bottomleft,
+			vertices.origin, vertices.bottomright,
+			vertices.topleft, vertices.bottomleft,
+			vertices.bottomleft, vertices.bottomright,
+			vertices.bottomright, vertices.topright,
+			vertices.topright, vertices.topleft
+		);
+		var lineMaterial &#x3D; new THREE.LineBasicMaterial({ color: 0x0000ff });
+
+		var line &#x3D; new THREE.LineSegments( lineGeometry, lineMaterial );
+
+		// invisible click dummy
+		var boxGeometry &#x3D; new THREE.BoxGeometry(scope.width, scope.height, distance);
+		var boxMaterial &#x3D; new THREE.MeshBasicMaterial({ visible: false });
+
+		var clickBox &#x3D; new THREE.Mesh(boxGeometry, boxMaterial);
+		clickBox.translateZ( - distance / 2 );
+
+		scope.add( pane );
+		scope.add( line );
+		scope.add( clickBox );
+		scope.setScale(scale);
+		
+		scope.collisionObject &#x3D; clickBox;
+		scope.pyramid &#x3D; line;
+		scope.image &#x3D; pane;
+
+		if(scope.onComplete) scope.onComplete();
+		
+	}, null, function ( xhr ) {
+		console.error(&#x27;Couldn\&#x27;t load texture!&#x27;, xhr);
+	});
+	
+	scope.onComplete &#x3D; undefined;
+	
+};
+
+DV3D.ImagePane.prototype &#x3D; Object.create( THREE.Object3D.prototype );
+/**
+ * Applies the selection color to the material of the pyramid.
+ */
+DV3D.ImagePane.prototype.select &#x3D; function () {
+	this.pyramid.material.color.setHex(THREE.DokuVisTray.selectionColor);	
+};
+/**
+ * Applies the default color to the material of the pyramid.
+ */
+DV3D.ImagePane.prototype.deselect &#x3D; function () {
+	this.pyramid.material.color.setHex(0x0000ff);	
+};
+/**
+ * Sets the scale of the object.
+ * @param value {number} New scale value
+ */
+DV3D.ImagePane.prototype.setScale &#x3D; function (value) {
+	this.scale.set(value, value, value);
+};
+/**
+ * Sets the opacity of the object.
+ * @param value {number} New opacity value
+ */
+DV3D.ImagePane.prototype.setOpacity &#x3D; function (value) {
+	for(var i&#x3D;0; i&amp;lt;this.children.length; i++) {
+		var mat &#x3D; this.children[i].material;
+		if(value &amp;lt; 1) {
+			mat.transparent &#x3D; true;
+			mat.opacity &#x3D; value;
+		}
+		else {
+			mat.transparent &#x3D; false;
+			mat.opacity &#x3D; 1;
+		}
+	}
+};
+/**
+ * Disposes geometries, materials, and textures.
+ */
+DV3D.ImagePane.prototype.dispose &#x3D; function () {
+	this.collisionObject.material.dispose();
+	this.collisionObject.geometry.dispose();
+	this.pyramid.material.dispose();
+	this.pyramid.geometry.dispose();
+	this.image.material.map.dispose();
+	this.image.material.dispose();
+	this.image.geometry.dispose();
+};
+</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.4.1 on February 9, 2017.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

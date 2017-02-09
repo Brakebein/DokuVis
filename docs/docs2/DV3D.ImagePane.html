@@ -1,0 +1,242 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.4.1">
+  <meta charset="utf-8">
+  <title>Class: ImagePane</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <div class="symbol-detail-labels"><span class="label label-kind">class</span>&nbsp;<span class="label label-static">static</span></div>
+            <h1><small><a href="DV3D.html">DV3D</a>.<wbr></small><span class="symbol-name">ImagePane</span></h1>
+            <p class="source-link">Source: <a href="ImagePane.js.html#source-line-10">ImagePane.<wbr>js:10</a></p>
+            <dl class="dl-compact">
+            </dl>
+          </header>
+          <section id="summary">
+            <div class="summary-callout">
+              <h2 class="summary-callout-heading">Methods</h2>
+              <div class="summary-content">
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="DV3D.ImagePane.html#deselect">deselect()</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="DV3D.ImagePane.html#dispose">dispose()</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="DV3D.ImagePane.html#select">select()</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="DV3D.ImagePane.html#setOpacity">setOpacity(value)</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="DV3D.ImagePane.html#setScale">setScale(value)</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section>
+            <h2 id="ImagePane">new&nbsp;<span class="symbol-name">ImagePane</span><span class="signature"><span class="signature-params">(imageUrl, fov[, scale])</span></span>
+            </h2>
+            <p>Class for visualizing spatialized images. It consists of a plane with the image as texture, and lines arranged as a pyramid representing the camera orientation and fov.<br/> Extends <a href="https://threejs.org/docs/index.html#Reference/Core/Object3D">THREE.Object3D</a>.</p>
+            <section>
+              <h3>Parameters</h3>
+              <table class="jsdoc-details-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Optional</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <p>imageUrl</p>
+                    </td>
+                    <td>
+                      <p>string</p>
+                    </td>
+                    <td>
+                      <p>&nbsp;</p>
+                    </td>
+                    <td>
+                      <p>Path to the image</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <p>fov</p>
+                    </td>
+                    <td>
+                      <p>number</p>
+                    </td>
+                    <td>
+                      <p>&nbsp;</p>
+                    </td>
+                    <td>
+                      <p>FOV of the camera</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <p>scale</p>
+                    </td>
+                    <td>
+                      <p>number</p>
+                    </td>
+                    <td>
+                      <p>Yes</p>
+                    </td>
+                    <td>
+                      <p>Initial scale</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+            <dl class="dl-compact">
+              <dt>Extends</dt>
+              <dd>THREE.Object3D</dd>
+            </dl>
+          </section>
+          <section>
+            <h2>Methods</h2>
+            <section>
+              <h3 id="deselect"><span class="symbol-name">deselect</span><span class="signature"><span class="signature-params">()</span></span>
+              </h3>
+              <p>Applies the default color to the material of the pyramid.</p>
+              <dl class="dl-compact">
+              </dl>
+              <h3 id="dispose"><span class="symbol-name">dispose</span><span class="signature"><span class="signature-params">()</span></span>
+              </h3>
+              <p>Disposes geometries, materials, and textures.</p>
+              <dl class="dl-compact">
+              </dl>
+              <h3 id="select"><span class="symbol-name">select</span><span class="signature"><span class="signature-params">()</span></span>
+              </h3>
+              <p>Applies the selection color to the material of the pyramid.</p>
+              <dl class="dl-compact">
+              </dl>
+              <h3 id="setOpacity"><span class="symbol-name">setOpacity</span><span class="signature"><span class="signature-params">(value)</span></span>
+              </h3>
+              <p>Sets the opacity of the object.</p>
+              <section>
+                <h4>Parameter</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>value</p>
+                      </td>
+                      <td>
+                        <p>number</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>New opacity value</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <h3 id="setScale"><span class="symbol-name">setScale</span><span class="signature"><span class="signature-params">(value)</span></span>
+              </h3>
+              <p>Sets the scale of the object.</p>
+              <section>
+                <h4>Parameter</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>value</p>
+                      </td>
+                      <td>
+                        <p>number</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>New scale value</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+            </section>
+          </section>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.4.1 on February 9, 2017.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

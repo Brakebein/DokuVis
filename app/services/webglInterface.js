@@ -6,6 +6,7 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		
 		// Funktionsaufrufe vom Controller bzw. von Directive
 		wi.callFunc = {};
+		DV3D.callFunc = wi.callFunc;
 		
 		// Einstellungen
 		wi.viewportSettings = {
@@ -70,8 +71,9 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		
 		wi.selected = [];
 		
-		wi.plans = {};
-		wi.spatialImages = {};
+		wi.plans = new DV3D.Collection();
+		wi.spatialImages = new DV3D.Collection();
+		wi.spatialImages.setScale(10);
 
 		var layerDict = {};
 		
@@ -135,83 +137,6 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			this.showSources = function () {
 				wi.callFunc.highlightSources(scope);
 			}
-		};
-		
-		wi.PlanEntry = function(obj) {
-			this.id = obj.id;
-			this.name = obj.name;
-			this.title = obj.userData.source.title;
-			this.object = obj;
-			this.visible = true;
-			this.selected = false;
-			this.opacity = 1.0;
-			
-			var scope = this;
-			
-			this.toggle = function() {
-				scope.visible = !scope.visible;
-				if(!scope.visible && scope.selected)
-					wi.callFunc.setSelected(scope.object, false, true);
-				wi.callFunc.toggle(scope.object, scope.visible);
-				
-			};
-			this.select = function(event) {
-				if(scope.visible && event)
-					wi.callFunc.setSelected(scope.object, event.ctrlKey, false);
-			};
-			this.setOpacity = function(value) {
-				scope.object.setOpacity(value);
-				wi.callFunc.animate();
-			};
-			this.setOrthoView = function() {
-				wi.callFunc.viewOrthoPlan(scope.object);
-			};
-		};
-
-		wi.ImageEntry = function (obj) {
-			this.id = obj.id;
-			this.name = obj.name;
-			this.title = obj.userData.source.title;
-			this.object = obj;
-			this.visible = true;
-			this.selected = false;
-			this.opacity = 1.0;
-			
-			var scope = this;
-			
-			this.toggle = function () {
-				scope.visible = !scope.visible;
-				if(!scope.visible && scope.selected)
-					wi.callFunc.setSelected(scope.object, false, true);
-				wi.callFunc.toggle(scope.object, scope.visible);
-			};
-			this.select = function (event) {
-				if(scope.visible && event)
-					wi.callFunc.setSelected(scope.object, event.ctrlKey, false);
-			};
-			this.setOpacity = function (value) {
-				scope.object.setOpacity(value);
-				wi.callFunc.animate();
-			};
-			this.setImageView = function () {
-				wi.callFunc.setImageView(scope.object);
-			};
-		};
-		
-		wi.getPlanEntryByName = function (name) {
-			for(var key in wi.plans) {
-				if(wi.plans[key].name === name)
-					return wi.plans[key];
-			}
-			return null;
-		};
-		
-		wi.getImageEntryByName = function (name) {
-			for(var key in wi.spatialImages) {
-				if(wi.spatialImages[key].name === name)
-					return wi.spatialImages[key];
-			}
-			return null;
 		};
 		
 		function insertIntoHierarchList(item) {
