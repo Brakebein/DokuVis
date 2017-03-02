@@ -36,7 +36,7 @@ module.exports = function (grunt) {
 		},
 		
 		jsdoc: {
-			dist: {
+			ng: {
 				src: ['app/*', 'app/directives/webglView/webglView.js'],
 				options: {
 					destination: 'docs/docs',
@@ -44,6 +44,15 @@ module.exports = function (grunt) {
 					template: 'docs/docs/angular-template-custom',
 					tutorials: 'docs/docs/tutorials',
 					readme: 'docs/docs/README.md',
+					private: true
+				}
+			},
+			dv3d: {
+				src: ['lib/dv3d/*.js'],
+				options: {
+					destination: 'docs/docs2',
+					configure: 'node_modules/jsdoc-baseline/baseline-config.json',
+					template: 'node_modules/jsdoc-baseline',
 					private: true
 				}
 			}

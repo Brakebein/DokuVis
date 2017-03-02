@@ -1,0 +1,213 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.4.1">
+  <meta charset="utf-8">
+  <title>Source: Measure.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: Measure.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * Tool to measure linear distance between two points.
+ * @param {number} length - length of cross axes
+ * @extends THREE.Object3D
+ * @constructor
+ */
+DV3D.Measure &#x3D; function ( length ) {
+
+	THREE.Object3D.call( this );
+
+	var lineMat &#x3D; new THREE.LineBasicMaterial({color: 0x00ff00, depthTest: false, depthWrite: false});
+	var dashMat &#x3D; new THREE.LineDashedMaterial({color: 0x00ff00, dashSize: 3, gapSize: 1.5, scale: 3.0, depthTest: false, depthWrite: false});
+
+	var geo &#x3D; new THREE.Geometry();
+	geo.vertices.push(new THREE.Vector3(-length/2, 0, 0), new THREE.Vector3(length/2, 0, 0));
+
+	var line &#x3D; new THREE.Line(geo, lineMat);
+	var cross &#x3D; new THREE.Object3D();
+	cross.add(line);
+	cross.add(line.clone().rotateOnAxis(new THREE.Vector3(0,0,1), 0.5 * Math.PI));
+	cross.add(line.clone().rotateOnAxis(new THREE.Vector3(0,1,0), 0.5 * Math.PI));
+
+	this.crossOrigin &#x3D; cross.clone();
+	this.crossTarget &#x3D; cross.clone();
+
+	//var buffergeo &#x3D; new THREE.BufferGeometry();
+	//buffergeo.addAttribute(&#x27;position&#x27;, new THREE.Float32Attribute(2,3));
+
+	this.distLine &#x3D; new THREE.Line(geo.clone(), dashMat);
+
+	this.states &#x3D; {
+		SETORIGIN: 0,
+		SETTARGET: 1,
+		SHOWRESULT: 2
+	};
+	this.currentState &#x3D; 0;
+
+	this.onComplete &#x3D; undefined;
+
+	this.add(this.crossOrigin);
+};
+
+DV3D.Measure.prototype &#x3D; Object.create( THREE.Object3D.prototype );
+
+DV3D.Measure.prototype.setTarget &#x3D; function ( mx, my, camera, testObjects ) {
+
+	if(this.currentState &#x3D;&#x3D;&#x3D; this.states.SHOWRESULT) {
+		this.remove(this.distLine);
+		this.remove(this.crossTarget);
+		this.currentState &#x3D; this.states.SETORIGIN;
+		return;
+	}
+
+	var np &#x3D; obtainNearestPoint(mx, my, camera, testObjects);
+
+	if(this.currentState &#x3D;&#x3D;&#x3D; this.states.SETORIGIN &amp;amp;&amp;amp; np) {
+		this.crossOrigin.position.copy(np);
+		this.distLine.geometry.vertices[0] &#x3D; np;
+		this.distLine.geometry.verticesNeedUpdate &#x3D; true;
+		this.add(this.distLine);
+		this.add(this.crossTarget);
+		this.currentState &#x3D; this.states.SETTARGET;
+	}
+	else if(this.currentState &#x3D;&#x3D;&#x3D; this.states.SETTARGET &amp;amp;&amp;amp; np) {
+		this.crossTarget.position.copy(np);
+		this.distLine.geometry.vertices[1] &#x3D; np;
+		this.distLine.geometry.computeBoundingSphere();
+		this.distLine.geometry.computeLineDistances();
+		this.distLine.geometry.lineDistancesNeedUpdate &#x3D; true;
+		this.distLine.geometry.verticesNeedUpdate &#x3D; true;
+		this.currentState &#x3D; this.states.SHOWRESULT;
+
+		var finalDistance &#x3D; this.crossTarget.position.distanceTo(this.crossOrigin.position);
+		console.log(&#x27;distance:&#x27;, finalDistance);
+		if(this.onComplete) this.onComplete(finalDistance);
+	}
+
+	this.dispatchEvent({ type: &#x27;change&#x27; });
+};
+
+DV3D.Measure.prototype.checkMouseHit &#x3D; function ( mx, my, camera, testObjects ) {
+
+	if(this.currentState &#x3D;&#x3D;&#x3D; this.states.SHOWRESULT) return;
+
+	var np &#x3D; obtainNearestPoint(mx, my, camera, testObjects);
+
+	if(this.currentState &#x3D;&#x3D;&#x3D; this.states.SETORIGIN &amp;amp;&amp;amp; np) {
+		//this.crossOrigin.position &#x3D; np;
+		this.crossOrigin.position.copy(np);
+	}
+	else if(this.currentState &#x3D;&#x3D;&#x3D; this.states.SETTARGET &amp;amp;&amp;amp; np) {
+		this.crossTarget.position.copy(np);
+		this.distLine.geometry.vertices[1] &#x3D; np;
+		this.distLine.geometry.computeLineDistances();
+		this.distLine.geometry.lineDistancesNeedUpdate &#x3D; true;
+		this.distLine.geometry.verticesNeedUpdate &#x3D; true;
+	}
+
+	this.dispatchEvent({ type: &#x27;change&#x27; });
+};
+/**
+ * Dispose geometries and materials.
+ */
+DV3D.Measure.prototype.dispose &#x3D; function () {
+	this.crossOrigin.children[0].geometry.dispose();
+	this.crossOrigin.children[0].material.dispose();
+	this.distLine.geometry.dispose();
+	this.distLine.material.dispose();
+};
+
+
+/**
+ * When hitting a triangle/mesh, determine the nearest vertex.
+ * @memberof DV3D.Measure
+ * @param mx {number} mouse X coordinate
+ * @param my {number} mouse Y coordinate
+ * @param camera {THREE.Camera} camera
+ * @param testObjects {Array} array of objects
+ * @returns {THREE.Vector3|null}
+ * @private
+ */
+function obtainNearestPoint( mx, my, camera, testObjects ) {
+
+	var vector &#x3D; new THREE.Vector3(mx, my, 0.5).unproject(camera);
+
+	var raycaster &#x3D; new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+
+	var intersects &#x3D; raycaster.intersectObjects(testObjects, false);
+
+	if(intersects.length &gt; 0) {
+		var geoPos &#x3D; intersects[0].object.geometry.attributes.position.array;
+		var matrix &#x3D; intersects[0].object.matrixWorld;
+		var index &#x3D; intersects[0].face.a * 3;
+		var vA &#x3D; new THREE.Vector3(geoPos[index], geoPos[index+1], geoPos[index+2]).applyMatrix4(matrix);
+		index &#x3D; intersects[0].face.b * 3;
+		var vB &#x3D; new THREE.Vector3(geoPos[index], geoPos[index+1], geoPos[index+2]).applyMatrix4(matrix);
+		index &#x3D; intersects[0].face.c * 3;
+		var vC &#x3D; new THREE.Vector3(geoPos[index], geoPos[index+1], geoPos[index+2]).applyMatrix4(matrix);
+
+		var s &#x3D; intersects[0].point;
+		var nearest &#x3D; vA; //intersects[0].object.geometry.vertices[intersects[0].face.a];
+		var d &#x3D; s.distanceTo(nearest);
+		var dtest &#x3D; s.distanceTo(vB); //intersects[0].object.geometry.vertices[intersects[0].face.b]);
+		if(dtest &amp;lt; d) {
+			nearest &#x3D; vB; //intersects[0].object.geometry.vertices[intersects[0].face.b];
+			d &#x3D; dtest;
+		}
+		dtest &#x3D; s.distanceTo(vC); //intersects[0].object.geometry.vertices[intersects[0].face.c]);
+		if(dtest &amp;lt; d) {
+			nearest &#x3D; vC; //intersects[0].object.geometry.vertices[intersects[0].face.c];
+			//d &#x3D; dtest;
+		}
+
+		return nearest; //.clone();
+	}
+	else
+		return null;
+}
+</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.4.1 on February 9, 2017.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

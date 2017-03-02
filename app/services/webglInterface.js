@@ -4,17 +4,19 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		
 		var wi = {};
 		
-		// Funktionsaufrufe vom Controller
+		// Funktionsaufrufe vom Controller bzw. von Directive
 		wi.callFunc = {};
+		DV3D.callFunc = wi.callFunc;
 		
 		// Einstellungen
-		wi.viewportSettings = {};
-		wi.viewportSettings.shading = ['color', 'grey', 'transparent', 'onlyEdges', 'xray', 'Custom'];
+		wi.viewportSettings = {
+			shading: ['color', 'grey', 'transparent', 'onlyEdges', 'xray', 'Custom'],
+			camera: ['Perspective', 'Top', 'Front', 'Back', 'Left', 'Right', 'Custom'],
+			edges: true,
+			ssao: 'aa'
+		};
 		wi.viewportSettings.shadingSel = wi.viewportSettings.shading[0];
-		wi.viewportSettings.edges = true;
-		wi.viewportSettings.camera = ['Perspective', 'Top', 'Front', 'Back', 'Left', 'Right', 'Custom'];
 		wi.viewportSettings.cameraSel = wi.viewportSettings.camera[0];
-		wi.viewportSettings.ssao = 'aa';
 		
 		wi.unsafeSettings = {};
 		
@@ -25,11 +27,12 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		wi.vPanel.expand = false;
 		wi.vPanel.activeTab = 0;
 		
-		wi.vizSettings = {};
-		wi.vizSettings.opacitySelected = 100;
-		wi.vizSettings.edges = true;
-		wi.vizSettings.edgesOpacity = 100;
-		wi.vizSettings.edgesColor = 100;
+		wi.vizSettings = {
+			opacitySelected: 100,
+			edges: true,
+			edgesOpacity: 100,
+			edgesColor: 100
+		};
 
 		wi.snapshot = { active: false, mode: 'paint', text: '', title: '', refObj: [], refSrc: [], screenshots: [] };
 		wi.snapshot.paintOptions = {
@@ -41,6 +44,25 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			imageSrc: false
 		};
 		
+		wi.spatialize = {
+			active: false,
+			opacity: 50,
+			image: null,
+			fov: 35
+		};
+		
+		wi.listProperties = {
+			plans: {
+				visible: true,
+				opacity: 1
+			},
+			images: {
+				visible: true,
+				scale: 10,
+				opacity: 1
+			}
+		};
+		
 		// Listen
 		wi.objects = [];
 		wi.layerList = [];
@@ -49,8 +71,10 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 		
 		wi.selected = [];
 		
-		wi.plans = [];
-		
+		wi.plans = new DV3D.Collection();
+		wi.spatialImages = new DV3D.Collection();
+		wi.spatialImages.setScale(10);
+
 		var layerDict = {};
 		
 		wi.insertIntoLists = function(item) {
@@ -113,36 +137,6 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			this.showSources = function () {
 				wi.callFunc.highlightSources(scope);
 			}
-		};
-		
-		wi.PlanEntry = function(id, name, title, type) {
-			this.id = id;
-			this.name = name;
-			this.title = title;
-			this.type = type;
-			this.visible = true;
-			this.selected = false;
-			this.opacity = 1.0;
-			
-			var scope = this;
-			
-			this.toggle = function() {
-				scope.visible = !scope.visible;
-				if(!scope.visible && scope.selected)
-					wi.callFunc.selectPlan(scope.id, false, true);
-				wi.callFunc.togglePlan(scope.id, scope.visible);
-				
-			};
-			this.select = function(event) {
-				if(scope.visible && event)
-					wi.callFunc.selectPlan(scope.id, event.ctrlKey, false);
-			};
-			this.setOpacity = function(value) {
-				wi.callFunc.setPlanOpacity(scope.id, value);
-			};
-			this.setOrthoView = function() {
-				wi.callFunc.viewOrthoPlan(scope.id);
-			};
 		};
 		
 		function insertIntoHierarchList(item) {

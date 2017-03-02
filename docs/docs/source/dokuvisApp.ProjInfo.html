@@ -108,6 +108,8 @@
             </h2>
             <ul ng-hide="dokuvis_ppdirective">
               <li>
+                <a href="dokuvisApp.rampSlider.html">rampSlider</a>
+              </li><li>
                 <a href="dokuvisApp.webglView.html">webglView</a>
               </li>
             </ul>
@@ -123,7 +125,70 @@
       <div id="main" class="big-container">
         <!-- source code html -->
         <article>
-          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$stateParams', 'Utilities',	/**	 * $resource for ProjInfo	 * @memberof dokuvisApp	 * @ngdoc service	 * @name ProjInfo	 * @author Brakebein	 */	function ($resource, API, $stateParams, Utilities) {		return $resource(API + 'auth/project/:project/:subproject/projinfo/:id', {			project: function () {				return $stateParams.project;			},			subproject: function () {				return $stateParams.subproject;			},			id: '@id'		}, {			/**			 * Save a new info item.			 * ```			 * ProjInfo.save({ info: &lt;string> }).$promise.then(...);			 * ```			 * @memberof ProjInfo			 * @method save			 */			save: {				method: 'POST',				transformRequest: function (data) {					return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() + '_' + $stateParams.subproject }));				}			},			/**			 * Save any changes to name or description.			 * ```			 * info.$update().then(...);			 * ```			 * @memberof ProjInfo			 * @method update			 */			update: { method: 'PUT' },			/**			 * Swap the order of two info items.			 * ```			 * ProjInfo.swap({			 *   from: &lt;id>,			 *   to: &lt;id>			 * }).$promise.then(...);			 * ```			 * @memberof ProjInfo			 * @method swap			 */			swap: { method: 'PUT' }		});		/**		 * Get all info items of the current subproject.		 * ```		 * ProjInfo.query().$promise.then(...);		 * ```		 * @memberof ProjInfo		 * @method query		 */	}]);</code></pre>
+          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$stateParams', 'Utilities',
+	/**
+	 * $resource for ProjInfo
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name ProjInfo
+	 * @author Brakebein
+	 */
+	function ($resource, API, $stateParams, Utilities) {
+		return $resource(API + 'auth/project/:project/:subproject/projinfo/:id', {
+			project: function () {
+				return $stateParams.project;
+			},
+			subproject: function () {
+				return $stateParams.subproject;
+			},
+			id: '@id'
+		}, {
+			/**
+			 * Save a new info item.
+			 * ```
+			 * ProjInfo.save({ info: &lt;string> }).$promise.then(...);
+			 * ```
+			 * @memberof ProjInfo
+			 * @method save
+			 */
+			save: {
+				method: 'POST',
+				transformRequest: function (data) {
+					return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() + '_' + $stateParams.subproject }));
+				}
+			},
+			/**
+			 * Save any changes to name or description.
+			 * ```
+			 * info.$update().then(...);
+			 * ```
+			 * @memberof ProjInfo
+			 * @method update
+			 */
+			update: { method: 'PUT' },
+			/**
+			 * Swap the order of two info items.
+			 * ```
+			 * ProjInfo.swap({
+			 *   from: &lt;id>,
+			 *   to: &lt;id>
+			 * }).$promise.then(...);
+			 * ```
+			 * @memberof ProjInfo
+			 * @method swap
+			 */
+			swap: { method: 'PUT' }
+		});
+		/**
+		 * Get all info items of the current subproject.
+		 * ```
+		 * ProjInfo.query().$promise.then(...);
+		 * ```
+		 * @memberof ProjInfo
+		 * @method query
+		 */
+	}]);
+</code></pre>
         </article>
         <!-- index.html -->
         <!-- class files -->

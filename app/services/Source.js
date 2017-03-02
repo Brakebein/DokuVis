@@ -1,11 +1,14 @@
+/**
+ * $resource for sources/documents.
+ * @memberof dokuvisApp
+ * @ngdoc service
+ * @name Source
+ * @author Brakebein
+ * @requires $resource
+ * @requires API constant
+ * @requires $stateParams
+ */
 angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParams',
-	/**
-	 * $resource for sources/documents.
-	 * @memberof dokuvisApp
-	 * @ngdoc service
-	 * @name Source
-	 * @author Brakebein
-	 */
 	function($resource, API, $stateParams) {
 		
 		return $resource(API + 'auth/project/:project/:subproject/source/:id', {
@@ -15,7 +18,8 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 			subproject: function () {
 				return $stateParams.subproject;
 			},
-			id: '@eid'
+			id: '@eid',
+			type: '@type'
 		}, {
 			save: {
 				method: 'POST',
@@ -50,6 +54,14 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 				method: 'GET',
 				url: API + 'auth/project/:project/:subproject/source/:id/connect',
 				isArray: true
+			},
+			spatialize: {
+				method: 'PUT',
+				url: API + 'auth/project/:project/:subproject/source/:id/:type/spatial'
+			},
+			getSpatial: {
+				method: 'GET',
+				url: API + 'auth/project/:project/:subproject/source/:id/:type/spatial'
 			}
 		});
 

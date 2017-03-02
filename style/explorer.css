@@ -116,6 +116,37 @@
   width: 100%;
   padding: 20px; }
 
+.listHeader {
+  margin: 20px 0 5px; }
+  .listHeader:first-child {
+    margin-top: 0; }
+  .listHeader > .listHeaderCaption {
+    display: flex;
+    align-items: stretch; }
+    .listHeader > .listHeaderCaption > * {
+      padding: 5px;
+      background-color: #ddd;
+      font-weight: bold;
+      font-size: 14px;
+      border-bottom: 1px dotted #aaa; }
+      .listHeader > .listHeaderCaption > *:first-child {
+        border-top-left-radius: 5px; }
+      .listHeader > .listHeaderCaption > *:last-child {
+        border-top-right-radius: 5px; }
+  .listHeader > .listHeaderCtrls {
+    height: 19px;
+    padding: 3px;
+    background-color: #ddd;
+    border-radius: 0 5px 5px; }
+    .listHeader > .listHeaderCtrls .toggle {
+      width: 15px;
+      cursor: pointer;
+      margin: 0 5px 0 1px; }
+      .listHeader > .listHeaderCtrls .toggle.glyphicon-eye-open {
+        color: #555; }
+      .listHeader > .listHeaderCtrls .toggle.glyphicon-eye-close {
+        color: #aaa; }
+
 .listItem {
   padding: 3px 3px 3px;
   display: flex; }
@@ -141,7 +172,10 @@
     font-size: 6pt; }
   .listItem > .info {
     flex: 1 1 100px;
-    color: #333; }
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; }
   .listItem > .opacity {
     flex: 0 0 50px;
     border: 1px solid #555;

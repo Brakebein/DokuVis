@@ -108,6 +108,8 @@
             </h2>
             <ul ng-hide="dokuvis_ppdirective">
               <li>
+                <a href="dokuvisApp.rampSlider.html">rampSlider</a>
+              </li><li>
                 <a href="dokuvisApp.webglView.html">webglView</a>
               </li>
             </ul>
@@ -123,7 +125,70 @@
       <div id="main" class="big-container">
         <!-- source code html -->
         <article>
-          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateParams', 'Utilities',	/**	 * $http methods for subproject related tasks	 * @memberof dokuvisApp	 * @ngdoc service	 * @name Subproject	 * @author Brakebein	 */	function($resource, API, $stateParams, Utilities) {		return $resource(API + 'auth/project/:project/subproject/:id', {			project: function () {				return $stateParams.project;			},			id: '@id'		}, {			/**			 * Get subproject by id.			 * ```			 * Subproject.save({ id: &lt;id> }).$promise.then(...);			 * ```			 * @memberof Subproject			 * @method get			 */			get: {				method: 'GET',				cache: true			},			/**			 * Save a new subroject.			 * ```			 * Subproject.save({			 *   name: &lt;string>,			 *   description: &lt;string>  // (optional)			 * }).$promise.then(...);			 * ```			 * @memberof Subproject			 * @method save			 */			save: {				method: 'POST',				transformRequest: function (data) {					return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() }));				}			},			/**			 * Saves any changes to name or description.			 * ```			 * subproject.$update().then(...);			 * ```			 * @memberof Subproject			 * @method update			 */			update: { method: 'PUT' }		});		/**		 * Get all subprojects.		 * ```		 * Subproject.query().$promise.then(...);		 * ```		 * @memberof Subproject		 * @method query		 */	}]);</code></pre>
+          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateParams', 'Utilities',
+	/**
+	 * $http methods for subproject related tasks
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name Subproject
+	 * @author Brakebein
+	 */
+	function($resource, API, $stateParams, Utilities) {
+		return $resource(API + 'auth/project/:project/subproject/:id', {
+			project: function () {
+				return $stateParams.project;
+			},
+			id: '@id'
+		}, {
+			/**
+			 * Get subproject by id.
+			 * ```
+			 * Subproject.save({ id: &lt;id> }).$promise.then(...);
+			 * ```
+			 * @memberof Subproject
+			 * @method get
+			 */
+			get: {
+				method: 'GET',
+				cache: true
+			},
+			/**
+			 * Save a new subroject.
+			 * ```
+			 * Subproject.save({
+			 *   name: &lt;string>,
+			 *   description: &lt;string>  // (optional)
+			 * }).$promise.then(...);
+			 * ```
+			 * @memberof Subproject
+			 * @method save
+			 */
+			save: {
+				method: 'POST',
+				transformRequest: function (data) {
+					return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() }));
+				}
+			},
+			/**
+			 * Saves any changes to name or description.
+			 * ```
+			 * subproject.$update().then(...);
+			 * ```
+			 * @memberof Subproject
+			 * @method update
+			 */
+			update: { method: 'PUT' }
+		});
+		/**
+		 * Get all subprojects.
+		 * ```
+		 * Subproject.query().$promise.then(...);
+		 * ```
+		 * @memberof Subproject
+		 * @method query
+		 */
+	}]);
+</code></pre>
         </article>
         <!-- index.html -->
         <!-- class files -->

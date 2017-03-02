@@ -108,6 +108,8 @@
             </h2>
             <ul ng-hide="dokuvis_ppdirective">
               <li>
+                <a href="dokuvisApp.rampSlider.html">rampSlider</a>
+              </li><li>
                 <a href="dokuvisApp.webglView.html">webglView</a>
               </li>
             </ul>
@@ -123,7 +125,82 @@
       <div id="main" class="big-container">
         <!-- source code html -->
         <article>
-          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('Comment', ['$resource', 'API', '$stateParams', 'Utilities',	/**	 * $resource for comments.	 * @memberof dokuvisApp	 * @ngdoc service	 * @name Comment	 * @author Brakebein	 */	function($resource, API, $stateParams, Utilities) {		return $resource(API + 'auth/project/:project/:subproject/comment/:id', {			project: function () {				return $stateParams.project;			},			subproject: function () {				return $stateParams.subproject;			},			id: '@eid'		}, {			/**			 * Save a new comment with following post parameters.			 * ```			 * Comment.save({			 *   type: 'model'|'source'|'answer'|'task',			 *   text: &lt;string>,			 *   title: &lt;string>,               // (optional)			 *   targets: &lt;id>|&lt;Array>,         // ids of the items the comment is attached to			 *   refs: &lt;id>|&lt;Array>,            // ids of any references (optional)			 *   screenshots: &lt;Object>|&lt;Array>  // screenshots and user drawings (optional)			 * }).$promise.then(...);			 * ```			 * @memberof Comment			 * @method save			 */			save: {				method: 'POST',				transformRequest: function (data) {					return angular.toJson(angular.extend(data, {						tid: Utilities.getUniqueId(),						date: moment().format()					}));				}			},			/**			 * Get all comments of an element specified by its id.			 * ```			 * Comment.queryTarget({ targetId: &lt;id> }).$promise.then(...);			 * ```			 * @memberof Comment			 * @method queryTarget			 */			queryTarget: {				method: 'GET',				url: API + 'auth/project/:project/:subproject/comment/target/:targetId',				isArray: true			}		});		/**		 * Get all comments within the current project/subproject.		 * ```		 * Comment.query().$promise.then(function (comments) {...});		 * ```		 * @memberof Comment		 * @method query		 */		/**		 * Get a specific comment by id.		 * ```		 * Comment.get({ id: &lt;id> }).$promise.then(...);		 * ```		 * @memberof Comment		 * @method get		 */		// TODO: #Comment Answer comments to $resource		// TODO: #Comment update	}]);</code></pre>
+          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('Comment', ['$resource', 'API', '$stateParams', 'Utilities',
+	/**
+	 * $resource for comments.
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name Comment
+	 * @author Brakebein
+	 */
+	function($resource, API, $stateParams, Utilities) {
+		return $resource(API + 'auth/project/:project/:subproject/comment/:id', {
+			project: function () {
+				return $stateParams.project;
+			},
+			subproject: function () {
+				return $stateParams.subproject;
+			},
+			id: '@eid'
+		}, {
+			/**
+			 * Save a new comment with following post parameters.
+			 * ```
+			 * Comment.save({
+			 *   type: 'model'|'source'|'answer'|'task',
+			 *   text: &lt;string>,
+			 *   title: &lt;string>,               // (optional)
+			 *   targets: &lt;id>|&lt;Array>,         // ids of the items the comment is attached to
+			 *   refs: &lt;id>|&lt;Array>,            // ids of any references (optional)
+			 *   screenshots: &lt;Object>|&lt;Array>  // screenshots and user drawings (optional)
+			 * }).$promise.then(...);
+			 * ```
+			 * @memberof Comment
+			 * @method save
+			 */
+			save: {
+				method: 'POST',
+				transformRequest: function (data) {
+					return angular.toJson(angular.extend(data, {
+						tid: Utilities.getUniqueId(),
+						date: moment().format()
+					}));
+				}
+			},
+			/**
+			 * Get all comments of an element specified by its id.
+			 * ```
+			 * Comment.queryTarget({ targetId: &lt;id> }).$promise.then(...);
+			 * ```
+			 * @memberof Comment
+			 * @method queryTarget
+			 */
+			queryTarget: {
+				method: 'GET',
+				url: API + 'auth/project/:project/:subproject/comment/target/:targetId',
+				isArray: true
+			}
+		});
+		/**
+		 * Get all comments within the current project/subproject.
+		 * ```
+		 * Comment.query().$promise.then(function (comments) {...});
+		 * ```
+		 * @memberof Comment
+		 * @method query
+		 */
+		/**
+		 * Get a specific comment by id.
+		 * ```
+		 * Comment.get({ id: &lt;id> }).$promise.then(...);
+		 * ```
+		 * @memberof Comment
+		 * @method get
+		 */
+		// TODO: #Comment Answer comments to $resource
+		// TODO: #Comment update
+	}]);
+</code></pre>
         </article>
         <!-- index.html -->
         <!-- class files -->

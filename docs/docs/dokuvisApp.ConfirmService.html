@@ -107,6 +107,8 @@
             </h2>
             <ul ng-hide="dokuvis_ppdirective">
               <li>
+                <a href="dokuvisApp.rampSlider.html">rampSlider</a>
+              </li><li>
                 <a href="dokuvisApp.webglView.html">webglView</a>
               </li>
             </ul>
@@ -219,7 +221,14 @@ alertOptions = {
   </div>
   <div>
     <h4>Example</h4>
-    <pre class="prettyprint"><code><span class="str">ConfirmService.showAlert({    headerText: 'Projekt löschen',    bodyText: 'Soll das Projekt wirklich gelöscht werden?'}).then(function () {    // do something, if confirm button has been pressed}, function () {    // do something, if abort button has been pressed});</span></code></pre>
+    <pre class="prettyprint"><code><span class="str">ConfirmService.showAlert({
+    headerText: 'Projekt löschen',
+    bodyText: 'Soll das Projekt wirklich gelöscht werden?'
+}).then(function () {
+    // do something, if confirm button has been pressed
+}, function () {
+    // do something, if abort button has been pressed
+});</span></code></pre>
   </div>
 </div>
 <div class="functions">

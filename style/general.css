@@ -135,6 +135,35 @@ input[type=range].dvSlider {
   input[type=range].dvSlider:focus::-ms-fill-upper {
     background: #626262; }
 
+input[type=range].dvSlider.dvSlider-dark::-webkit-slider-runnable-track {
+  background: #aaa; }
+input[type=range].dvSlider.dvSlider-dark:focus::-webkit-slider-runnable-track {
+  background: #999; }
+
+.dvSlider-container {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 5px; }
+  .dvSlider-container > input[type=range].dvSlider {
+    width: 200px;
+    display: inline-block;
+    vertical-align: middle; }
+  .dvSlider-container.dvSlider-slim {
+    vertical-align: initial; }
+  .dvSlider-container.dvSlider-slim > input[type=range].dvSlider {
+    height: 10px;
+    margin-top: -2px; }
+    .dvSlider-container.dvSlider-slim > input[type=range].dvSlider::-webkit-slider-thumb {
+      height: 10px;
+      width: 10px;
+      margin-top: -2px; }
+    .dvSlider-container.dvSlider-slim > input[type=range].dvSlider::-moz-range-thumb {
+      height: 10px;
+      width: 10px; }
+    .dvSlider-container.dvSlider-slim > input[type=range].dvSlider::-ms-thumb {
+      height: 10px;
+      width: 10px; }
+
 .ta-toolbar {
   margin-bottom: 5px; }
 

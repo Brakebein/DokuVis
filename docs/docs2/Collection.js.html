@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.4.1">
+  <meta charset="utf-8">
+  <title>Source: Collection.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: Collection.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * This class is container for objects, plans, or images. There are properties that are useful for global settings. Methods like &#x60;toggle()&#x60; iterate over all items.
+ * @memberof DV3D
+ * @constructor
+ */
+DV3D.Collection &#x3D; function () {
+
+	/**
+	 * Associative array containing all entries.
+	 * @type {object}
+	 */
+	this.list &#x3D; {};
+
+	/**
+	 * Global visibility.
+	 * @type {boolean}
+	 */
+	this.visible &#x3D; true;
+	/**
+	 * Global opacity value.
+	 * @type {number}
+	 */
+	this.opacity &#x3D; 1.0;
+	/**
+	 * Global scale value.
+	 * @type {number}
+	 */
+	this.scale &#x3D; 1.0;
+	
+};
+/**
+ * Returns the entry with the given id. If no id is specified, the whole list is returned.
+ * @param [id] {string|number} Id of the entry
+ * @returns {DV3D.Entry|object}
+ */
+DV3D.Collection.prototype.get &#x3D; function (id) {
+	if(id) return this.list[id];
+	else return this.list;
+};
+/**
+ * Returns the list as array.
+ * @returns {Array}
+ */
+DV3D.Collection.prototype.asArray &#x3D; function () {
+	var array &#x3D; [];
+	for(var key in this.list) {
+		array.push(this.list[key]);
+	}
+	return array;
+};
+/**
+ * Adds the object to the list (uses &#x60;obj.id&#x60; as id).
+ * @param obj {DV3D.Entry} New entry
+ */
+DV3D.Collection.prototype.add &#x3D; function (obj) {
+	this.list[obj.id] &#x3D; obj;
+};
+/**
+ * Removes the object from the list.
+ * @param obj {DV3D.Entry} Object to be removed
+ */
+DV3D.Collection.prototype.remove &#x3D; function (obj) {
+	delete this.list[obj.id];
+};
+/**
+ * Find object by name and return it.
+ * @param value {&#x27;string&#x27;} Name
+ */
+DV3D.Collection.prototype.getByName &#x3D; function (value) {
+	return this.getByProperty(&#x27;name&#x27;, value);
+};
+/**
+ * Find object by property and return it.
+ * @param prop {string} Property name
+ * @param value {*} Property value
+ * @returns {DV3D.Entry|null} Returns entry if found, or null
+ */
+DV3D.Collection.prototype.getByProperty &#x3D; function (prop, value) {
+	for(var key in this.list) {
+		if(this.list[key][prop] &#x3D;&#x3D;&#x3D; value)
+			return this.list[key];
+	}
+	return null;
+};
+DV3D.Collection.prototype.getVisible &#x3D; function () {
+	var array &#x3D; [];
+	for(var key in this.list) {
+		if(this.list[key].visible)
+			array.push(this.list[key]);
+	}
+	return array;
+};
+/**
+ * Iterates over the list and executes the given function for each item.
+ * @param callback {function} Function to be executed
+ * @param [onlyVisible] {boolean} Consider only visible items
+ */
+DV3D.Collection.prototype.map &#x3D; function (callback, onlyVisible) {
+	var filterVisible &#x3D; onlyVisible || false;
+	for(var key in this.list) {
+		if((filterVisible &amp;amp;&amp;amp; this.list[key].visible) || !filterVisible)
+			callback(this.list[key]);
+	}
+};
+/**
+ * Toggle all entries.
+ * @returns {DV3D.Collection}
+ */
+DV3D.Collection.prototype.toggle &#x3D; function () {
+	this.visible &#x3D; !this.visible;
+	for(var key in this.list) {
+		this.list[key].toggle(this.visible);
+	}
+	return this;
+};
+/**
+ * Set the opacity of all entries.
+ * @param value {number} New opacity value
+ */
+DV3D.Collection.prototype.setOpacity &#x3D; function (value) {
+	if(typeof value !&#x3D;&#x3D; &#x27;undefined&#x27;) this.opacity &#x3D; value;
+	for(var key in this.list) {
+		this.list[key].setOpacity(this.opacity);
+	}
+	DV3D.callFunc.animateAsync();
+};
+/**
+ * Set the scale of all entries.
+ * @param value {number} New scale value
+ */
+DV3D.Collection.prototype.setScale &#x3D; function (value) {
+	if(typeof value !&#x3D;&#x3D; &#x27;undefined&#x27;) this.scale &#x3D; value;
+	for(var key in this.list) {
+		this.list[key].object.setScale(this.scale);
+	}
+	if(DV3D.callFunc.animateAsync) DV3D.callFunc.animateAsync();
+};
+DV3D.Collection.prototype.then &#x3D; function (cb) {
+	if(cb) cb();
+};
+</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.4.1 on February 9, 2017.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

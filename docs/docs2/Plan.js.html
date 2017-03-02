@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.4.1">
+  <meta charset="utf-8">
+  <title>Source: Plan.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: Plan.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * Class for a 2D plan. The mesh is retrieved from a ctm file.&amp;lt;br/&gt;
+ * Extends [THREE.Object3D]{@link https://threejs.org/docs/index.html#Reference/Core/Object3D}.
+ * @param fileUrl {string} path to mesh (.ctm file)
+ * @param imageUrl {string} path to texture
+ * @param [scale&#x3D;0.01] {number} scale of the mesh
+ * @param [ctmloader] {THREE.CTMLoader} CTMLoader
+ * @extends THREE.Object3D
+ * @constructor
+ */
+DV3D.Plan &#x3D; function ( fileUrl, imageUrl, scale, ctmloader ) {
+	
+	THREE.Object3D.call( this );
+
+	var scope &#x3D; this;
+
+	scale &#x3D; scale || 0.01;
+	ctmloader &#x3D; ctmloader || new THREE.CTMLoader();
+	
+	ctmloader.load(fileUrl, function (geo) {
+
+		geo.computeBoundingSphere();
+
+		// scale
+		geo.scale(scale, scale, scale);
+
+		// translate to origin
+		var t &#x3D; geo.boundingSphere.center.clone();
+		geo.translate(-t.x, -t.y, -t.z);
+
+		var xAxis &#x3D; new THREE.Vector3(1,0,0);
+		var yAxis &#x3D; new THREE.Vector3(0,1,0);
+		var zAxis &#x3D; new THREE.Vector3(0,0,1);
+
+		// rotate to normal faces to positive Z axis
+		var normalXZ &#x3D; new THREE.Vector3(geo.attributes.normal.array[0], 0, geo.attributes.normal.array[2]).normalize();
+		var angleY &#x3D; 0;
+		if(normalXZ.length()) {
+			angleY &#x3D; normalXZ.angleTo(zAxis);
+			angleY *&#x3D; normalXZ.dot(xAxis) &gt; 0 ? -1 : 1;
+		}
+		geo.rotateY(angleY);
+		var normalYZ &#x3D; new THREE.Vector3(0, geo.attributes.normal.array[1], geo.attributes.normal.array[2]).normalize();
+		var angleX &#x3D; 0;
+		if(normalYZ.length()) {
+			angleX &#x3D; normalYZ.angleTo(zAxis);
+			angleX *&#x3D; normalYZ.dot(yAxis) &gt; 0 ? 1 : -1;
+		}
+		geo.rotateX(angleX);
+
+		geo.computeBoundingBox();
+		geo.computeBoundingSphere();
+
+		// material
+		if(imageUrl) {
+			var texture &#x3D; new THREE.TextureLoader().load(imageUrl, function () {
+				if(scope.onComplete) scope.onComplete();
+			});
+			texture.anisotropy &#x3D; 8;
+			var material &#x3D; new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+		}
+		else
+			material &#x3D; THREE.DokuVisTray.materials[&#x27;defaultDoublesideMat&#x27;].clone();
+
+		var mesh &#x3D; new THREE.Mesh(geo, material);
+		var edges &#x3D; new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), THREE.DokuVisTray.materials[&#x27;edgesMat&#x27;].clone());
+
+		scope.add( mesh );
+		scope.add( edges );
+
+		scope.mesh &#x3D; mesh;
+		scope.edges &#x3D; edges;
+
+		// translate and rotate to original position
+		scope.rotateX(-angleX);
+		scope.rotateY(-angleY);
+		scope.position.set(t.x, t.y, t.z);
+		
+		scope.updateMatrix();
+		scope.userData.initMatrix &#x3D; scope.matrix.clone();
+
+	}, { useWorker: false });
+
+	scope.onComplete &#x3D; undefined;
+	
+};
+
+DV3D.Plan.prototype &#x3D; Object.create( THREE.Object3D.prototype );
+
+/**
+ * Applies selection color to the material of the edges.
+ */
+DV3D.Plan.prototype.select &#x3D; function () {
+	this.edges.material.color.set(THREE.DokuVisTray.selectionColor);
+};
+/**
+ * Applies default color to the material of the edges.
+ */
+DV3D.Plan.prototype.deselect &#x3D; function () {
+	this.edges.material.color.set(THREE.DokuVisTray.defaultEdgeColor);
+};
+/**
+ * Sets the opacity of the plan.
+ * @param value {number} New opacity value
+ */
+DV3D.Plan.prototype.setOpacity &#x3D; function (value) {
+	if(value &amp;lt; 1) {
+		this.mesh.material.transparent &#x3D; true;
+		this.mesh.material.opacity &#x3D; value;
+		this.edges.material.transparent &#x3D; true;
+		this.edges.material.opacity &#x3D; value;
+	}
+	else {
+		this.mesh.material.transparent &#x3D; false;
+		this.mesh.material.opacity &#x3D; 1;
+		this.edges.material.transparent &#x3D; false;
+		this.edges.material.opacity &#x3D; 1;
+	}
+};
+/**
+ * Disposes geometries, materials, and textures.
+ */
+DV3D.Plan.prototype.dispose &#x3D; function () {
+	this.edges.material.dispose();
+	this.edges.geometry.dispose();
+	this.mesh.material.map.dispose();
+	this.mesh.material.dispose();
+	this.mesh.geometry.dispose();
+};
+</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.4.1 on February 9, 2017.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

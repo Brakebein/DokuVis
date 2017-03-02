@@ -242,56 +242,6 @@ angular.module('dokuvisApp').directive('resizer',
 		};
 	});
 
-angular.module('dokuvisApp').directive('rampSlider',
-	function($document) {
-		return {
-			scope: {
-				rsModel: '=',
-				rsOnchange: '='
-			},
-			template: '<div ng-style="{width: rsModel*100+\'%\'}""></div>',
-			link: function(scope, element, attrs) {
-				
-				var colorStart = attrs.rsColor || '#aaa';
-				var colorEnd = attrs.rsColorTwo || colorStart;
-				
-				element.css('position', 'relative');
-				var ramp = element.find('div');
-				ramp.css({
-					position: 'absolute',
-					top: 0,
-					bottom: 0,
-					background: 'linear-gradient(to right, '+colorStart+', '+colorEnd+')'
-				});
-				
-				element.on('mousedown', function(event) {
-					event.preventDefault();
-					$document.bind('mousemove', jQuery.throttle(100, rampSliderMousemove) );
-					$document.bind('mouseup', rampSliderMouseup);
-				});
-				
-				function rampSliderMousemove(event) {
-					applyChange(event);
-				}
-				
-				function rampSliderMouseup() {
-					applyChange(event);
-					$document.unbind('mousemove', rampSliderMousemove);
-					$document.unbind('mouseup', rampSliderMouseup);
-				}
-				
-				function applyChange(event) {
-					scope.rsModel = parseFloat(((event.pageX - element.offset().left) / element[0].offsetWidth ).toFixed(2));
-					if(scope.rsModel > 0.9) scope.rsModel = 1.0;
-					else if(scope.rsModel < 0.1) scope.rsModel = 0.0;
-					
-					scope.rsOnchange(scope.rsModel);
-					scope.$applyAsync();
-				}
-			}
-		};
-	});
-
 angular.module('dokuvisApp').directive('ngWheel',
 	function($parse) {
 		return {

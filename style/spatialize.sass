@@ -1,0 +1,45 @@
+@import "variables"
+
+.spatialize
+	position: absolute
+	width: 100%
+	height: 100%
+	color: $panelFontColor
+	font-size: $panelFontSize
+	pointer-events: none
+
+	.imageLayer
+		position: absolute
+		width: 100%
+		height: 100%
+		background-position: center
+		background-size: contain
+		background-repeat: no-repeat
+
+	.settingsContainer
+		position: absolute
+		bottom: 0
+		width: 100%
+		z-index: 50
+		display: flex
+		justify-content: center
+
+	.settings
+		height: 33px
+		padding: 6px 6px 3px
+		background-color: $panelBackground
+		border: $panelBorder
+		border-bottom: none
+		border-top-left-radius: $panelBorderRadius
+		border-top-right-radius: $panelBorderRadius
+		pointer-events: auto
+
+		.sliderDiv
+			display: inline-block
+			vertical-align: middle
+			margin: 0 5px
+
+			input[type=range]
+				width: 200px
+				display: inline-block
+				vertical-align: middle

@@ -108,6 +108,8 @@
             </h2>
             <ul ng-hide="dokuvis_ppdirective">
               <li>
+                <a href="dokuvisApp.rampSlider.html">rampSlider</a>
+              </li><li>
                 <a href="dokuvisApp.webglView.html">webglView</a>
               </li>
             </ul>
@@ -123,7 +125,50 @@
       <div id="main" class="big-container">
         <!-- source code html -->
         <article>
-          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$stateParams', 'Utilities',	/**	 * $resource for archives.	 * @memberof dokuvisApp	 * @ngdoc service	 * @name Archive	 * @author Brakebein	 */	function($resource, API, $stateParams, Utilities) {		return $resource(API + 'auth/project/:project/archive', {			project: function () {				return $stateParams.project;			}		}, {			/**			 * Save a new arvhive.			 * ```			 * Archive.save({			 *   name: &lt;string>  // archive name			 *   abbr: &lt;string>  // abbreviation (optional)			 *   coll: &lt;string>  // collection name			 * }).$promise.then(...);			 * ```			 * @memberof Archive			 * @method save			 */			save: {				method: 'POST',				transformRequest: function (data) {					return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() }));				}			}		});		/**		 * Get all archives.		 * ```		 * Archive.query().$promise.then(...);		 * ```		 * @memberof Archive		 * @method query		 */		// TODO: #Archive update, delete	}]);</code></pre>
+          <pre class="prettyprint source linenums"><code>angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$stateParams', 'Utilities',
+	/**
+	 * $resource for archives.
+	 * @memberof dokuvisApp
+	 * @ngdoc service
+	 * @name Archive
+	 * @author Brakebein
+	 */
+	function($resource, API, $stateParams, Utilities) {
+		return $resource(API + 'auth/project/:project/archive', {
+			project: function () {
+				return $stateParams.project;
+			}
+		}, {
+			/**
+			 * Save a new arvhive.
+			 * ```
+			 * Archive.save({
+			 *   name: &lt;string>  // archive name
+			 *   abbr: &lt;string>  // abbreviation (optional)
+			 *   coll: &lt;string>  // collection name
+			 * }).$promise.then(...);
+			 * ```
+			 * @memberof Archive
+			 * @method save
+			 */
+			save: {
+				method: 'POST',
+				transformRequest: function (data) {
+					return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() }));
+				}
+			}
+		});
+		/**
+		 * Get all archives.
+		 * ```
+		 * Archive.query().$promise.then(...);
+		 * ```
+		 * @memberof Archive
+		 * @method query
+		 */
+		// TODO: #Archive update, delete
+	}]);
+</code></pre>
         </article>
         <!-- index.html -->
         <!-- class files -->

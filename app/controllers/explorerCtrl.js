@@ -8,8 +8,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		$scope.views = {};
 		$scope.views.activeMain = '3dview';
-		//$scope.views.activeSide = 'objproperties';
-		$scope.views.activeSide = 'comments';
+		$scope.views.activeSide = 'objlist';
+		//$scope.views.activeSide = 'comments';
 								
 		$scope.overlayParams = {url: '', params: {}};
 		
@@ -320,7 +320,11 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		// TODO: "Pin-Linie" muss sich bei Focus-Animation mitbewegen oder ausgeblendet werden
 		// TODO: abfragen, ob Pin sich überhaupt innerhalb des Viewports befindet
-		
+
+		/**
+		 * @deprecated
+		 * @param plan
+		 */
 		$scope.open3DPlan = function(plan) {
 			neo4jRequest.getAttached3DPlan($stateParams.project, plan.eid, plan.plan3d).success(function(data, status){
 				
@@ -421,6 +425,46 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}, function(err) {
 				Utilities.throwApiException('on getModels()', err);
 			});
+		};
+
+		$scope.spatializeImage = function (obj) {
+			console.log(obj);
+			webglInterface.callFunc.openSpatializeImage(obj);
+		};
+
+		$scope.loadImage = function (source) {
+			Source.getSpatial({ id: source.eid, type: 'picture' }).$promise.then(function (result) {
+				result.spatial.source = source;
+				webglInterface.callFunc.loadSpatializeImage(result.spatial);
+			}, function (err) {
+				Utilities.throwApiException('on Source.getSpatial()', err);
+			});
+
+		};
+
+		$scope.loadAllImages = function () {
+			for(var i=0; i<$scope.sourceResults.length; i++) {
+				var source = $scope.sourceResults[i];
+				if(source.type === 'picture' && source.spatial)
+					$scope.loadImage(source);
+			}
+		};
+
+		$scope.load3DPlan = function (plan) {
+			Source.getSpatial({ id: plan.eid, type: 'plan' }).$promise.then(function (result) {
+				result.source = plan;
+				webglInterface.callFunc.load3DPlan(result);
+			}, function (err) {
+				Utilities.throwApiException('on Source.getSpatial()', err);
+			});
+		};
+
+		$scope.loadAll3DPlans = function () {
+			for(var i=0; i<$scope.sourceResults.length; i++) {
+				var source = $scope.sourceResults[i];
+				if(source.type === 'plan' && source.plan3d)
+					$scope.load3DPlan(source);
+			}
 		};
 		
 		$scope.reloadModels = function () {
@@ -674,6 +718,14 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				}
 			}
 		}, true);
+
+		$scope.toRepeatArray = function (list) {
+			var array = [];
+			angular.forEach(list, function (val) {
+				array.push(val);
+			});
+			return array;
+		};
 		
 		// oninit Funktionsaufrufe
 		$timeout(function() {
