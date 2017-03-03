@@ -6,6 +6,7 @@ const Promise = require('bluebird');
 const eos = require('end-of-stream');
 const npath = require('path');
 const exec = require('child_process').exec;
+const LineByLineReader = require('line-by-line');
 
 const log4js = require('log4js');
 const logger = log4js.getLogger('DAE PROCESS');
@@ -28,12 +29,6 @@ if(!(file && tid && path)) {
 	process.exit();
 }
 
-var stream = fs.createReadStream( file );
-stream.on('close', function () {
-	console.debug('readstream closed');
-});
-var xml = new XmlStream( stream );
-
 var effects = {},
 	materials = {},
 	nodes = [],
@@ -41,101 +36,163 @@ var effects = {},
 	upAxis = '',
 	unit = {};
 
-// collect data
-xml.on('updateElement: up_axis', function (axis) {
-	upAxis = axis.$text;
-});
+// 1. extract geometries
+// 2. parse DAE file
+// 3. convert to CTM
+// 4. return nodes
 
-xml.on('updateElement: unit', function (u) {
-	unit = u.$;
-});
+extractGeometries();
 
-xml.on('updateElement: effect', function (effect) {
-	effects[effect.$.id] = effect.profile_COMMON.technique;
-});
+function extractGeometries() {
+	var wstream;
+	var lrIsWriting = false;
+	var lr = new LineByLineReader( file );
 
-xml.on('updateElement: material', function (material) {
-	materials[material.$.id] = material;
-});
+	lr.on('error', function (err) {
+		console.error('lr error', err);
+	});
 
-xml.collect('node');
-xml.on('endElement: visual_scene', function (scene) {
-	for(var i=0; i<scene.node.length; i++) {
-		if(scene.node[i].$.id)
-			nodes.push(scene.node[i]);
-	}
-});
+	lr.on('end', function () {
+		console.debug('lr finished');
+		parseDAE();
+	});
 
-var temp_p;
-xml.on('updateElement: p', function (p) {
-	// console.log(p);
-	if(typeof p === 'string') {
-		console.log('p is string');
-		temp_p = p;
-	}
-	else if(p instanceof Object) {
-		console.log('p is object');
-		temp_p = p.$text;
-		var arr = p.$text.split(' ');
-		for(var i=0; i<arr.length; i++) {
-			if(arr[i].length > 8)
-				console.log(i, arr[i-1], arr[i], arr[i+1]);
+	lr.on('line', function (line) {
+		if(!lrIsWriting) {
+			if(/<geometry/.test(line)) {
+				var capt = /<geometry.*id="([^"]+)"/.exec(line);
+				//console.log(capt[1]);
+				geoIds.push({ id: capt[1] });
+				lrIsWriting = true;
+				wstream = fs.createWriteStream( config.path.tmp + '/' + tid + '_' + capt[1] + '.dae' );
+				wstream.write('<?xml version="1.0" encoding="utf-8"?>' + "\n");
+				wstream.write('<COLLADA>' + "\n" + '<library_geometries>' + "\n");
+				wstream.write(line + "\n");
+			}
 		}
-	}
-});
+		else {
+			if(/<\/geometry>/.test(line)) {
+				wstream.write(line + "\n");
+				wstream.end('</library_geometries>' + "\n" + '</COLLADA>');
+				lrIsWriting = false;
+			}
+			else {
+				wstream.write(line + "\n");
+			}
+		}
+
+	});
+}
+
+function parseDAE() {
+	var stream = fs.createReadStream(file);
+	stream.on('close', function () {
+		console.debug('readstream closed');
+	});
+
+	var xml = new XmlStream(stream);
+
+	// collect data
+	xml.on('updateElement: up_axis', function (axis) {
+		upAxis = axis.$text;
+	});
+
+	xml.on('updateElement: unit', function (u) {
+		unit = u.$;
+	});
+
+	xml.on('updateElement: effect', function (effect) {
+		effects[effect.$.id] = effect.profile_COMMON.technique;
+	});
+
+	xml.on('updateElement: material', function (material) {
+		materials[material.$.id] = material;
+	});
+
+	xml.collect('node');
+	xml.on('endElement: visual_scene', function (scene) {
+		for (var i = 0; i < scene.node.length; i++) {
+			if (scene.node[i].$.id)
+				nodes.push(scene.node[i]);
+		}
+	});
+
+	// return data and close
+	xml.on('end', function () {
+		finalize();
+	});
+}
+
+// var temp_p;
+// xml.on('updateElement: p', function (p) {
+// 	// console.log(p);
+// 	if(typeof p === 'string') {
+// 		console.log('p is string');
+// 		temp_p = p;
+// 	}
+// 	else if(p instanceof Object) {
+// 		console.log('p is object');
+// 		temp_p = p.$text;
+// 		var arr = p.$text.split(' ');
+// 		for(var i=0; i<arr.length; i++) {
+// 			if(arr[i].length > 8)
+// 				console.log(i, arr[i-1], arr[i], arr[i+1]);
+// 		}
+// 	}
+// });
 
 // convert geometries
-xml.collect('source');
-xml.collect('input');
-xml.collect('param');
-xml.on('endElement: geometry', function (geo) {
-	//TODO: convert to <triangles> if necessary
-
-	if(geo.$.id === 'geom-paviilon_aussen')
-		console.log(geo.$.id);
-
-	var geoxml = buildXml(geo);
-
-	var daefile = config.path.tmp + '/' + tid + '_' + geo.$.id + '.dae';
-
-	var wstream = fs.createWriteStream(daefile);
-
-	var pstream = new Promise(function (resolve, reject) {
-		eos(wstream, function (err) {
-			if(err) reject(err);
-			else resolve();
-		})
-	});
-	pstream.then(function () {
-		geoIds.push({ id: geo.$.id });
-	});
-	pstream.catch(function (err) {
-		console.error(err);
-		geoIds.push({ id: geo.$.id, error: err });
-	});
-
-	wstream.on('drain', function () {
-		console.log('drain wstream on', daefile);
-	});
-
-	var writer = xmlbuilder.streamWriter(wstream, { pretty: true, indent: '  ', newline: "\n" });
-	geoxml.end(writer);
-	wstream.end("\n");
-
-	// var xmlstring = geoxml.end({ pretty: true, indent: '  ', newline: "\n" });
-	// xmlstring += "\n";
-	//
-	// fs.writeFileAsync(daefile, xmlstring).then(function () {
-	// 	geoIds.push({ id: geo.$.id });
-	// }).catch(function (err) {
-	// 	console.error(err);
-	// 	geoIds.push({ id: geo.$.id, error: err });
-	// });
-	
-});
+// xml.collect('source');
+// xml.collect('input');
+// xml.collect('param');
+// xml.on('endElement: geometry', function (geo) {
+// 	//TODO: convert to <triangles> if necessary
+//
+// 	if(geo.$.id === 'geom-paviilon_aussen')
+// 		console.log(geo.$.id);
+//
+// 	var geoxml = buildXml(geo);
+//
+// 	var daefile = config.path.tmp + '/' + tid + '_' + geo.$.id + '.dae';
+//
+// 	var wstream = fs.createWriteStream(daefile);
+//
+// 	var pstream = new Promise(function (resolve, reject) {
+// 		eos(wstream, function (err) {
+// 			if(err) reject(err);
+// 			else resolve();
+// 		})
+// 	});
+// 	pstream.then(function () {
+// 		geoIds.push({ id: geo.$.id });
+// 	});
+// 	pstream.catch(function (err) {
+// 		console.error(err);
+// 		geoIds.push({ id: geo.$.id, error: err });
+// 	});
+//
+// 	wstream.on('drain', function () {
+// 		console.log('drain wstream on', daefile);
+// 	});
+//
+// 	var writer = xmlbuilder.streamWriter(wstream, { pretty: true, indent: '  ', newline: "\n" });
+// 	geoxml.end(writer);
+// 	wstream.end("\n");
+//
+// 	// var xmlstring = geoxml.end({ pretty: true, indent: '  ', newline: "\n" });
+// 	// xmlstring += "\n";
+// 	//
+// 	// fs.writeFileAsync(daefile, xmlstring).then(function () {
+// 	// 	geoIds.push({ id: geo.$.id });
+// 	// }).catch(function (err) {
+// 	// 	console.error(err);
+// 	// 	geoIds.push({ id: geo.$.id, error: err });
+// 	// });
+//
+// });
 
 // return data and close
-xml.on('end', function () {
+function finalize() {
 
 	var geometries = {};
 
@@ -241,7 +298,7 @@ xml.on('end', function () {
 		
 	});
 
-});
+}
 
 function prepareNodes(nodes, parentid) {
 

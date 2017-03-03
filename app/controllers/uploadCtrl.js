@@ -100,8 +100,8 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			}
 			else if($scope.uploadType === 'model') {
 				item.sourceType = 'model';
-				item.url = 'php/processDAE.php';
-				//item.url = API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
+				//item.url = 'php/processDAE.php';
+				item.url = API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
 			}
 			else if($scope.uploadType === 'zip') {
 				item.sourceType = 'plans/model';
@@ -127,29 +127,40 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			
 			// push data to request form data
 			item.formData = [];
-			item.formData.push({
-				sourceType: item.sourceType,
-				tid: item.tid,
-				date: moment().format(),
 
-				title: item.title,
-				author: item.author,
-				creationDate: item.creationDate,
-				repros: item.repros,
-				note: item.note,
+			if($scope.uploadType === 'source') {
+				item.formData.push({
+					sourceType: item.sourceType,
+					tid: item.tid,
+					date: moment().format(),
 
-				creationPlace: item.creationPlace,
-				archive: item.archive,
-				archiveNr: item.archiveNr,
-				primary: item.primary,
-				tags: item.tags.map(function (t) {
-					return t.text;
-				}),
+					title: item.title,
+					author: item.author,
+					creationDate: item.creationDate,
+					repros: item.repros,
+					note: item.note,
 
-				language: item.language,
-				ocr: item.ocr,
-				resample: item.resample
-			});
+					creationPlace: item.creationPlace,
+					archive: item.archive,
+					archiveNr: item.archiveNr,
+					primary: item.primary,
+					tags: item.tags.map(function (t) {
+						return t.text;
+					}),
+
+					language: item.language,
+					ocr: item.ocr,
+					resample: item.resample
+				});
+			}
+			else if($scope.uploadType === 'model') {
+				item.formData.push({
+					sourceType: item.sourceType,
+					tid: item.tid,
+					date: moment().format()
+
+				});
+			}
 		};
 		uploader.onProgressItem = function(fileItem, progress) {
 			//console.info('onProgressItem', fileItem, progress);
@@ -202,7 +213,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			else if($scope.uploadType == 'model') {
 
 				console.log('done', response);
-				//return;
+				return;
 
 				/*function neo4jinsertNode(formData, params) {
 				 neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, formData, params.obj).then(function(response){
