@@ -68,7 +68,7 @@ router.get('/auth/project/:id/:subprj/models', models.getTree);
 router.post('/auth/project/:id/:subprj/models', models.insert);
 router.post('/auth/project/:id/:subprj/assignCategory', models.assignCategory);
 router.get('/auth/project/:id/:subprj/model/:modelId/connect', models.getConnections);
-router.post('/auth/project/:id/:suprj/model/upload', mUpload.any(), upload.model);
+router.post('/auth/project/:id/:subprj/model/upload', mUpload.any(), upload.model);
 
 // categories
 var category = require('./category');

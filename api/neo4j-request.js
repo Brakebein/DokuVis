@@ -62,6 +62,23 @@ var neo4j = {
 		}
 		return results;
 	},
+	
+	extractTransactionArrayData: function (data) {
+		if(!data) return [];
+		var results = [];
+		for(var i=0, l=data.length; i<l; i++) {
+			var arr = [];
+			for(var j=0, m=data[i].data.length; j<m; j++) {
+				var obj = {};
+				for(var k=0, n=data[i].columns.length; k<n; k++) {
+					obj[data[i].columns[k]] = data[i].data[j].row[k];
+				}
+				arr.push(obj);
+			}
+			results.push(arr);
+		}
+		return results;
+	},
 
 	removeEmptyArrays: function (data, checkObj, checkKey) {
 		for(var i= 0, l=data.length; i<l; i++) {

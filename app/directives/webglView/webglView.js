@@ -2234,7 +2234,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					case 'decimeter': scale = 0.1; break;
 					case 'centimeter': scale = 0.01; break;
 					case 'millimeter': scale = 0.001; break;
-					default: scale = 1.0;
+					default: typeof info.unit === 'number' ? scale = info.unit : scale = 1.0;
 				}
 
 				var obj = info.type === 'group' ? new THREE.Object3D() : new THREE.Mesh(geometries['initgeo'], materials['defaultMat']);
