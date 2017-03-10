@@ -1,13 +1,23 @@
-angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', 'Uploader', 'neo4jRequest', 'Utilities', '$timeout', 'API', 'Source', 'Model', 'Archive', '$translatePartialLoader',
-
-	/**
-	 * Controller of the Upload modal.
-	 * @memberof dokuvisApp
-	 * @ngdoc controller
-	 * @name uploadCtrl
-	 * @author Brakebein
-	 */
-	function($scope, $state, $stateParams, $previousState, Uploader, neo4jRequest, Utilities, $timeout, API, Source, Model, Archive, $translatePartialLoader) {
+/**
+ * Controller of the Upload modal. The modal can be used to upload either a source with its metadata, or a 3d model.  
+ * @memberof dokuvisApp
+ * @ngdoc controller
+ * @name uploadCtrl
+ * @author Brakebein
+ * @requires $scope
+ * @requires $state
+ * @requires $stateParams
+ * @requires $previousState
+ * @requires $timeout
+ * @requires Uploader
+ * @requires neo4jRequest
+ * @requires API
+ * @requires Archive
+ * @requires Utilities
+ * @requires $translatePartialLoader
+ */
+angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$timeout', 'Uploader', 'neo4jRequest', 'API', 'Archive', 'Utilities', '$translatePartialLoader',
+	function($scope, $state, $stateParams, $previousState, $timeout, Uploader, neo4jRequest, API, Archive, Utilities, $translatePartialLoader) {
 
         $previousState.memo('modalInvoker');
 		$translatePartialLoader.addPart('source');
@@ -100,8 +110,8 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			}
 			else if($scope.uploadType === 'model') {
 				item.sourceType = 'model';
-				item.url = 'php/processDAE.php';
-				//item.url = API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
+				//item.url = 'php/processDAE.php';
+				item.url = API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
 			}
 			else if($scope.uploadType === 'zip') {
 				item.sourceType = 'plans/model';
@@ -127,29 +137,40 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			
 			// push data to request form data
 			item.formData = [];
-			item.formData.push({
-				sourceType: item.sourceType,
-				tid: item.tid,
-				date: moment().format(),
 
-				title: item.title,
-				author: item.author,
-				creationDate: item.creationDate,
-				repros: item.repros,
-				note: item.note,
+			if($scope.uploadType === 'source') {
+				item.formData.push({
+					sourceType: item.sourceType,
+					tid: item.tid,
+					date: moment().format(),
 
-				creationPlace: item.creationPlace,
-				archive: item.archive,
-				archiveNr: item.archiveNr,
-				primary: item.primary,
-				tags: item.tags.map(function (t) {
-					return t.text;
-				}),
+					title: item.title,
+					author: item.author,
+					creationDate: item.creationDate,
+					repros: item.repros,
+					note: item.note,
 
-				language: item.language,
-				ocr: item.ocr,
-				resample: item.resample
-			});
+					creationPlace: item.creationPlace,
+					archive: item.archive,
+					archiveNr: item.archiveNr,
+					primary: item.primary,
+					tags: item.tags.map(function (t) {
+						return t.text;
+					}),
+
+					language: item.language,
+					ocr: item.ocr,
+					resample: item.resample
+				});
+			}
+			else if($scope.uploadType === 'model') {
+				item.formData.push({
+					sourceType: item.sourceType,
+					tid: item.tid,
+					date: moment().format()
+
+				});
+			}
 		};
 		uploader.onProgressItem = function(fileItem, progress) {
 			//console.info('onProgressItem', fileItem, progress);
@@ -183,100 +204,12 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			if($scope.uploadType == 'source') {
 				console.log('done', response);
 
-				// Utilities.waitfor(function(){return isInserting;}, false, 20, {}, function(params) {
-				// 	isInserting = true;
-				// 	neo4jRequest.insertDocument($stateParams.project, $stateParams.subproject, fileItem.formData[0]).then(function(response){
-				// 		if(response.data.exception) { console.error('neo4j failed on insertDocument()', response.data); return; }
-				// 		if(response.data.data.length > 0 ) console.log('insertDocument', response.data);
-				// 		else {
-				// 			console.error('no document inserted', response.data);
-				// 			fileItem.isSuccess = false;
-				// 			fileItem.isError = true;
-				// 		}
-				// 		isInserting = false;
-				// 		fileItem.isInserting = false;
-				// 	});
-				// });
 			}
 
 			else if($scope.uploadType == 'model') {
 
 				console.log('done', response);
-				//return;
 
-				/*function neo4jinsertNode(formData, params) {
-				 neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, formData, params.obj).then(function(response){
-				 if(response.data.exception) { console.error('neo4j failed on insertModel()', response.data); return; }
-				 console.log('insertModel', response.data);
-				 //isInserting = false;
-				 fileItem.anzInserted++;
-				 console.log(fileItem.anzInserted, fileItem.anzInserting);
-				 if(fileItem.anzInserted == fileItem.anzInserting)
-				 fileItem.isInserting = false;
-				 });
-				 insertNodes(params.obj.children);
-				 }*/
-				var objDatas = [];
-				function insertNodes(nodes) {
-					for(var i=0, l=nodes.length; i<l; i++) {
-						objDatas.push(nodes[i]);
-						/*fileItem.anzInserting++;
-						neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, fileItem.formData[0], nodes[i]).then(function(response){
-							if(response.data.exception) { console.error('neo4j failed on insertModel()', response.data); return; }
-							console.log('insertModel', response.data);
-							//isInserting = false;
-							fileItem.anzInserted++;
-							console.log(fileItem.anzInserted, fileItem.anzInserting);
-							if(fileItem.anzInserted == fileItem.anzInserting)
-								fileItem.isInserting = false;
-						});*/
-						insertNodes(nodes[i].children);
-					}
-				}
-
-				/*function neo4jinsertNode(formData, params) {
-				 //var obj = $.extend(true, {}, objData);
-				 neo4jRequest.insertModel($stateParams.project, $stateParams.subproject, formData, params.obj).then(function(response){
-				 if(response.data.exception) { console.error('neo4j failed on insertModel()', response.data); return; }
-				 console.log('insertModel', response.data);
-				 isInserting = false;
-
-				 insertNodes(params.obj.children);
-
-				 fileItem.anzInserted++;
-				 //console.log(params.index, params.length);
-				 console.log(fileItem.anzInserted, fileItem.anzInserting);
-				 if(fileItem.anzInserted == fileItem.anzInserting)
-				 fileItem.isInserting = false;
-				 });
-				 }
-
-				 function insertNodes(nodes) {
-				 for(var i=0, l=nodes.length; i<l; i++) {
-				 //if(nodes[i].type != 'object') continue;
-
-				 fileItem.anzInserting++;
-				 Utilities.waitfor(function(){return isInserting;}, false, 20, {obj: nodes[i]}, function(params) {
-				 isInserting = true;
-				 //fileItem.isInserting = true;
-				 neo4jinsertNode(fileItem.formData[0], params);
-				 /*neo4jRequest.insertModel($scope.$parent.project, fileItem.formData[0], nodes[i]).success(function(data, status){
-				 //var res = cleanData(data);
-				 console.log('insertModel', data);
-				 isInserting = false;
-				 insertNodes(nodes[i].children);
-				 });*
-				 });
-				 }
-				 }*/
-				insertNodes(response);
-				console.log(fileItem.formData[0], objDatas);
-				Model.insert(fileItem.formData[0], objDatas).then(function(response) {
-					console.log('insertModel', response.data);
-					fileItem.isInserting = false;
-				}, function(err) {
-					Utilities.throwApiException('on Model.insert()', err);
-				});
 			}
 
 			else if($scope.uploadType == 'zip') {
@@ -295,7 +228,11 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 			console.info('onErrorItem', fileItem, response, status, headers);
 			fileItem.isProcessing = false;
 			fileItem.isUploaded = false;
-			Utilities.throwApiException('on source.create', response);
+			if($scope.uploadType === 'source')
+				Utilities.throwApiException('on source.create', response);
+			else if($scope.uploadType === 'model')
+				Utilities.throwApiException('on upload.model', response);
+
 		};
 		uploader.onCancelItem = function(fileItem, response, status, headers) {
 			console.info('onCancelItem', fileItem, response, status, headers);
@@ -351,7 +288,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		};
 
 		/**
-		 * Process tag after it has be added.
+		 * Process tag after it has been added.
 		 * @memberof uploadCtrl
 		 * @function onTagAdded
 		 * @param tag {Object} reference to tag object

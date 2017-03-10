@@ -1,4 +1,3 @@
-//var dateFormat = require('dateformat');
 const mysql = require('./mysql-request');
 const Promise = require('bluebird');
 const log4js = require('log4js');
