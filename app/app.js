@@ -2,7 +2,13 @@
 	'use strict';
 
 /**
- * @namespace dokuvisApp
+ * Dokuvis base module.
+ *
+ * @ngdoc module
+ * @name dokuvisApp
+ * @module dokuvisApp
+ * @requires ui.router
+ * @requires ngResource
  */
 
 var dokuvisApp = angular.module('dokuvisApp', [
@@ -45,24 +51,30 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'pascalprecht.translate'
 ]);
 
+/**
+ * Constant defining the base url to API. It is injectable like any other service.
+ * @ngdoc object
+ * @name API
+ * @module dokuvisApp
+ */
 dokuvisApp.constant('API', 'api/');
-
+	
+/**
+ * Configures ui.router states, state resolve functions, and some defaults.
+ * @ngdoc object
+ * @name config
+ * @module dokuvisApp
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateProvider $stateProvider
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.router.$urlRouterProvider $urlRouterProvider
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/provider/$httpProvider $httpProvider
+ * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translateProvider $translateProvider
+ * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translatePartialLoaderProvider $translatePartialLoaderProvider
+ * @requires http://mgcrea.github.io/angular-strap/#/modals $modalProvider
+ * @requires http://mgcrea.github.io/angular-strap/#/alerts $alertProvider
+ * @requires http://mgcrea.github.io/angular-strap/#/tooltips $tooltipProvider
+ */
+	
 dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider', '$modalProvider', '$alertProvider', '$tooltipProvider',
-	/**
-	 * Configures ui.router states, state resolve functions, and some defaults
-	 * @memberof dokuvisApp
-	 * @ngdoc config
-	 * @name config
-	 * @author Brakebein
-	 * @param $stateProvider {$stateProvider} provider to configure states
-	 * @param $urlRouterProvider {$urlRouterProvider} Watches $location and provides interface to default state
-	 * @param $httpProvider {$httpProvider} Used to push new interceptors
-	 * @param $translateProvider {$translateProvider} provider to configure translate settings
-	 * @param $translatePartialLoaderProvider {$translatePartialLoaderProvider} provider to configure translatePartialLoader settings
-	 * @param $modalProvider {$modalProvider} provider to configure defaults
-	 * @param $alertProvider {$alertProvider} provider to configure defaults
-	 * @param $tooltipProvider {$tooltipProvider} provider to configure defaults
-	 */
 	function($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider, $modalProvider, $alertProvider, $tooltipProvider) {
 		
 		// add interceptors
@@ -444,7 +456,22 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
-	
+
+/**
+ *
+ * @ngdoc object
+ * @name run
+ * @module dokuvisApp
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$rootScope $rootScope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
+ * @requires https://christopherthielen.github.io/ui-router-extras/#/previous $previousState
+ * @requires AuthenticationFactory
+ * @requires https://github.com/mikemclin/angular-acl AclService
+ * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translate $translate
+ * @requires https://github.com/urish/angular-moment amMoment
+ * @requires https://vitalets.github.io/angular-xeditable/#ref-options editableOptions
+ * @requires TypeaheadRequest
+ */
 dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory', 'AclService', '$translate', 'amMoment', 'editableOptions', 'TypeaheadRequest',
 	function($rootScope, $state, $previousState, AuthenticationFactory, AclService, $translate, amMoment, editableOptions, TypeaheadRequest) {
 		// when the page refreshes, check if the user is already logged in

@@ -1,22 +1,24 @@
+/**
+ * Directive implementing the 3D viewport and all 3D functionalities using http://threejs.org/.
+ * @ngdoc directive
+ * @name webglView
+ * @module dokuvisApp
+ * @requires $stateParams
+ * @requires $timeout
+ * @requires webglContext
+ * @requires webglInterface
+ * @requires $rootScope
+ * @requires phpRequest
+ * @requires neo4jRequest
+ * @requires $http
+ * @requires $q
+ * @requires Utilities
+ * @requires Comment
+ * @requires ConfirmService
+ * @restrict AE
+ * @param webglView {boolean}
+ */
 angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', 'debounce',
-	/**
-	 * Directive implementing the 3D viewport and all 3D functionalities using {@link http://threejs.org/ threes.js}
-	 * @memberof dokuvisApp
-	 * @ngdoc directive
-	 * @name webglView
-	 * @param $stateParams {service}
-	 * @param $timeout {service}
-	 * @param webglContext {webglContext}
-	 * @param webglInterface {webglInterface}
-	 * @param $rootScope {service}
-	 * @param phpRequest {service}
-	 * @param neo4jRequest {service}
-	 * @param $http {service}
-	 * @param $q {service}
-	 * @param Utilities {Utilities}
-	 * @param Comment {Comment}
-	 * @param ConfirmService {ConfirmService}
-	 */
 	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService, debounce) {
 		
 		function link(scope, element) {
@@ -1690,7 +1692,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				//console.log(sData);
 			};
 			webglInterface.callFunc.abortSnapshot = function () {
-				ConfirmService.showAlert({
+				ConfirmService({
 					headerText: 'Vorgrang abbrechen',
 					bodyText: 'Snapshot nicht gespeichert! Fortfahren?'
 				}).then(function () {

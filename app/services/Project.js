@@ -1,11 +1,14 @@
+/**
+ * $resource for project related tasks.
+ * @ngdoc factory
+ * @name Project
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
+ * @requires API
+ * @requires Utilities
+ */
 angular.module('dokuvisApp').factory('Project', ['$resource', 'API', 'Utilities',
-	/**
-	 * $resource for project related tasks.
-	 * @memberof dokuvisApp
-	 * @ngdoc service
-	 * @name Project
-	 * @author Brakebein
-	 */
 	function ($resource, API, Utilities) {
 		
 		return $resource(API + 'auth/project/:id', {
@@ -19,8 +22,9 @@ angular.module('dokuvisApp').factory('Project', ['$resource', 'API', 'Utilities'
 			 *   description: <string>  // (optional)
 			 * }).$promise.then(...);
 			 * ```
-			 * @memberof Project
-			 * @method save
+			 * @ngdoc method
+			 * @name Project#save
+			 * @param data {Object} Object with data
 			 */
 			save: {
 				method: 'POST',
@@ -36,8 +40,8 @@ angular.module('dokuvisApp').factory('Project', ['$resource', 'API', 'Utilities'
 			 * @example
 			 * project.name = 'new name';
 			 * project.$update();
-			 * @memberof Project
-			 * @method update
+			 * @ngdoc method
+			 * @name Project#$update
 			 */
 			update: { method: 'PUT' }
 		});
@@ -47,8 +51,8 @@ angular.module('dokuvisApp').factory('Project', ['$resource', 'API', 'Utilities'
 		 * ```
 		 * Project.query().$promise.then(...);
 		 * ```
-		 * @memberof Project
-		 * @method query
+		 * @ngdoc method
+		 * @name Project#query
 		 */
 		
 		/**
@@ -56,8 +60,18 @@ angular.module('dokuvisApp').factory('Project', ['$resource', 'API', 'Utilities'
 		 * ```
 		 * Project.get({ id: <id> }).$promise.then(...);
 		 * ```
-		 * @memberof Project
-		 * @method get
+		 * @ngdoc method
+		 * @name Project#get
+		 * @param id {Object} Object with project id
+		 */
+
+		/**
+		 * Delete project and all its files and entries from database.
+		 * ```
+		 * project.$delete().then(...);
+		 * ```
+		 * @ngdoc method
+		 * @name Project#$delete
 		 */
 
 	}]);

@@ -1,15 +1,16 @@
 /**
  * $resource for sources/documents.
- * @memberof dokuvisApp
- * @ngdoc service
+ * @ngdoc factory
  * @name Source
+ * @module dokuvisApp
  * @author Brakebein
- * @requires $resource
- * @requires API constant
- * @requires $stateParams
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
+ * @requires API
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires Utilities
  */
-angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParams',
-	function($resource, API, $stateParams) {
+angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParams', 'Utilities',
+	function($resource, API, $stateParams, Utilities) {
 		
 		return $resource(API + 'auth/project/:project/:subproject/source/:id', {
 			project: function () {
@@ -35,8 +36,9 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 			 * ```
 			 * source.$link({ targets: <id>|<Array> }).then(...);
 			 * ```
-			 * @memberof Source
-			 * @method link
+			 * @ngdoc method
+			 * @name Source#link
+			 * @param targets {Object} Object with targets
 			 */
 			link: {
 				method: 'POST',
@@ -47,8 +49,8 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 			 * ```
 			 * source.$getLinks().then(...);
 			 * ```
-			 * @memberof Source
-			 * @method getLinks
+			 * @ngdoc method
+			 * @name Source#$getLinks
 			 */
 			getLinks: {
 				method: 'GET',
@@ -70,8 +72,8 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 		 * ```
 		 * Source.query().$promise.then(...);
 		 * ```
-		 * @memberof Source
-		 * @method query
+		 * @ngdoc method
+		 * @name Source#query
 		 */
 
 		/**
@@ -79,8 +81,9 @@ angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParam
 		 * ```
 		 * Source.get({ id: <id> }).$promise.then(...);
 		 * ```
-		 * @memberof Source
-		 * @method get
+		 * @ngdoc method
+		 * @name Source#get
+		 * @param id {Object} Object with source id
 		 */
 
 		// TODO: #Source update

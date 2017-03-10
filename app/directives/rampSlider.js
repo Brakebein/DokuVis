@@ -1,21 +1,25 @@
 /**
  * A slider visualized as a box with a color ramp as background.
- * @memberof dokuvisApp
  * @ngdoc directive
  * @name rampSlider
+ * @module dokuvisApp
  * @author Brakebein
- * @requires $document
- * @attr ng-model {Number} Value the directive is bound to [0..1]
- * @attr [ng-change] {Expression} Expression to be evaluated after the value has changed
- * @attr [rs-color] {string} Left (or base) color as hexadecimal color value
- * @attr [rs-color-end] {string} Right color as hexadecimal color value
+ * @requires https://docs.angularjs.org/api/ng/service/$document $document
+ * @restrict AE
+ * @param rampSlider {boolean}
+ * @param {number} ngModel Value the directive is bound to [0..1]
+ * @param {expression=} ng-change Expression to be evaluated after the value has changed
+ * @param {string=} rs-color Left (or base) color as hexadecimal color value
+ * @param {string=} rs-color-end Right color as hexadecimal color value
  * @example
+ * ```html
  * <div ramp-slider
  *     ng-model="opacity"
  *     ng-change="setOpacity()"
  *     rs-color="#ddd"
  *     rs-color-end="#bbb" >
  * </div>
+ * ```
  */
 angular.module('dokuvisApp').directive('rampSlider', ['$document',
 	function($document) {

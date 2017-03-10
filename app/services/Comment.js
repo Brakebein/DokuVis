@@ -1,11 +1,15 @@
+/**
+ * $resource for comments.
+ * @ngdoc factory
+ * @name Comment
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
+ * @requires API
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires Utilities
+ */
 angular.module('dokuvisApp').factory('Comment', ['$resource', 'API', '$stateParams', 'Utilities',
-	/**
-	 * $resource for comments.
-	 * @memberof dokuvisApp
-	 * @ngdoc service
-	 * @name Comment
-	 * @author Brakebein
-	 */
 	function($resource, API, $stateParams, Utilities) {
 		
 		return $resource(API + 'auth/project/:project/:subproject/comment/:id', {
@@ -29,8 +33,9 @@ angular.module('dokuvisApp').factory('Comment', ['$resource', 'API', '$statePara
 			 *   screenshots: <Object>|<Array>  // screenshots and user drawings (optional)
 			 * }).$promise.then(...);
 			 * ```
-			 * @memberof Comment
-			 * @method save
+			 * @ngdoc method
+			 * @name Comment#save
+			 * @param data {Object} Object with data
 			 */
 			save: {
 				method: 'POST',
@@ -46,8 +51,9 @@ angular.module('dokuvisApp').factory('Comment', ['$resource', 'API', '$statePara
 			 * ```
 			 * Comment.queryTarget({ targetId: <id> }).$promise.then(...);
 			 * ```
-			 * @memberof Comment
-			 * @method queryTarget
+			 * @ngdoc method
+			 * @name Comment#queryTarget
+			 * @param targetId {Object} Object with targetId
 			 */
 			queryTarget: {
 				method: 'GET',
@@ -61,8 +67,8 @@ angular.module('dokuvisApp').factory('Comment', ['$resource', 'API', '$statePara
 		 * ```
 		 * Comment.query().$promise.then(function (comments) {...});
 		 * ```
-		 * @memberof Comment
-		 * @method query
+		 * @ngdoc method
+		 * @name Comment#query
 		 */
 
 		/**
@@ -70,8 +76,9 @@ angular.module('dokuvisApp').factory('Comment', ['$resource', 'API', '$statePara
 		 * ```
 		 * Comment.get({ id: <id> }).$promise.then(...);
 		 * ```
-		 * @memberof Comment
-		 * @method get
+		 * @ngdoc method
+		 * @name Comment#get
+		 * @param id {Object} Object with comment id
 		 */
 
 		// TODO: #Comment Answer comments to $resource

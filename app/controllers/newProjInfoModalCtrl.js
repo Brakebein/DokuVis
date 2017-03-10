@@ -1,15 +1,39 @@
-angular.module('dokuvisApp').controller('newProjInfoModalCtrl', ['$scope', '$state', '$stateParams', 'Utilities', 'ProjInfo',
-	function ($scope, $state, $stateParams, Utilities, ProjInfo) {
+/**
+ * Modal controller for creating or editing information assets ({@link ProjInfo}) of projects/subprojects.
+ * @ngdoc controller
+ * @name newProjInfoModalCtrl
+ * @module dokuvisApp
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout $timeout
+ * @requires Utilities
+ * @requires ProjInfo
+ */
+angular.module('dokuvisApp').controller('newProjInfoModalCtrl', ['$scope', '$state', '$stateParams', 'Utilities', '$timeout', 'ProjInfo',
+	function ($scope, $state, $stateParams, $timeout, Utilities, ProjInfo) {
 
 		var note = $stateParams.note;
-		
+
+		/**
+		 * Title translation id
+		 * @ngdoc property
+		 * @name newProjInfoModalCtrl#title
+		 * @type {string}
+		 */
 		$scope.title = note ? 'Info bearbeiten' : 'Neue Info';
+		/**
+		 * Model for the textarea field
+		 * @ngdoc property
+		 * @name newProjInfoModalCtrl#input
+		 * @type {string}
+		 */
 		$scope.input = note ? note.info : '';
 
 		/**
-		 * Saves the input data by either creating new or updating nodes
-		 * @memberof newProjInfoModalCtrl
-		 * @function save
+		 * Saves the input data by either creating new or updating nodes.
+		 * @ngdoc method
+		 * @name newProjInfoModalCtrl#save
 		 */
 		$scope.save = function () {
 			if(!$scope.input.length) {
@@ -35,9 +59,9 @@ angular.module('dokuvisApp').controller('newProjInfoModalCtrl', ['$scope', '$sta
 		};
 
 		/**
-		 * Closes the modal and destroys the scope
-		 * @memberof newProjInfoModalCtrl
-		 * @function close
+		 * Closes the modal and destroys the scope.
+		 * @ngdoc method
+		 * @name newProjInfoModalCtrl#close
 		 */
 		$scope.close = function () {
 			this.$hide();

@@ -1,10 +1,10 @@
+/**
+ * This service initializes standard objects and materials for the 3D viewport and holds all mesh/geometry instances. So the 3D content is kept in the memory, even if the viewport (respectively webglView directive) gets destroyed, and doesn't need to be reloaded when the user returns to the 3D viewport. Materials etc. are also globally availlable via `THREE.DokuVisTray`.
+ * @ngdoc factory
+ * @name webglContext
+ * @module dokuvisApp
+ */
 angular.module('dokuvisApp').factory('webglContext',
-	/**
-	 * This service initializes standard objects and materials for the 3D viewport and holds all mesh/geometry instances. So the 3D content is kept in the memory, even if the viewport (respectively webglView directive) gets destroyed, and doesn't need to be reloaded when the user returns to the 3D viewport. Materials etc. are also globally availlable via THREE.DokuVisTray
-	 * @memberof dokuvisApp
-	 * @ngdoc service
-	 * @name weblgContext
-	 */
 	function() {
 
 		// frustums

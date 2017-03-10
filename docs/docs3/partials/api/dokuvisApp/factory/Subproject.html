@@ -1,0 +1,205 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">Subproject</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+  
+
+    <li>
+      - factory in module <a href="api/dokuvisApp">dokuvisApp</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>$http methods for subproject related tasks</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource">$resource</a></li><li><a href="api/dokuvisApp/object/API">API</a></li><li><a href="https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams">$stateParams</a></li><li><a href="api/dokuvisApp/factory/Utilities">Utilities</a></li>
+  </ul>
+  
+
+  
+<h2>Methods</h2>
+<ul class="methods">
+  <li id="get">
+    <h3 class="">
+      <span class="title"><p><code>get(id);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Get subproject by id.</p>
+<pre><code>Subproject.save({ id: &lt;id&gt; }).$promise.then(...);
+</code></pre>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        id
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Object with subproject id</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="save">
+    <h3 class="">
+      <span class="title"><p><code>save(data);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Save a new subroject.</p>
+<pre><code>Subproject.save({
+  name: &lt;string&gt;,
+  description: &lt;string&gt;  // (optional)
+}).$promise.then(...);
+</code></pre>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Object with data</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="$update">
+    <h3 class="">
+      <span class="title"><p><code>$update();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Saves any changes to name or description.</p>
+<pre><code>subproject.$update().then(...);
+</code></pre>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="query">
+    <h3 class="">
+      <span class="title"><p><code>query();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Get all subprojects.</p>
+<pre><code>Subproject.query().$promise.then(...);
+</code></pre>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  </ul>
+
+  
+</div>
+
+

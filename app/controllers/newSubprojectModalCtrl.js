@@ -1,29 +1,47 @@
+/**
+ * Modal controller for creating or editing subprojects.
+ * @ngdoc controller
+ * @name newSubprojectModalCtrl
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout $timeout
+ * @requires Utilities
+ * @requires Subproject
+ */
 angular.module('dokuvisApp').controller('newSubprojectModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'Utilities', 'Subproject',
-	/**
-	 * Modal controller for creating or editing subprojects
-	 * @memberof dokuvisApp
-	 * @ngdoc controller
-	 * @name newSubprojectModalCtrl
-	 * @author Brakebein
-	 * @param $scope {$scope} controller scope
-	 * @param $state {$state} ui.router state
-	 * @param $stateParams {$stateParams} ui.router stateParams
-	 * @param $timeout {$timeout} Angular timeout
-	 * @param Utilities {Utilities} Utilities
-	 * @param Subproject {Subproject} Subproject http
-	 */
-	function($scope, $state, $stateParams, $timeout, Utilities, Subproject) {
+	function ($scope, $state, $stateParams, $timeout, Utilities, Subproject) {
 
 		var sub = $stateParams.sub;
-		
+
+		/**
+		 * Title translation id
+		 * @ngdoc property
+		 * @name newSubprojectModalCtrl#title
+		 * @type {string}
+		 */
 		$scope.title = sub ? 'subproject_edit' : 'subproject_new';
+		/**
+		 * Model for name input field
+		 * @ngdoc property
+		 * @name newSubprojectModalCtrl#name
+		 * @type {string}
+		 */
 		$scope.name = sub ? sub.name : '';
+		/**
+		 * Model for description input field
+		 * @ngdoc property
+		 * @name newSubprojectModalCtrl#desc
+		 * @type {string}
+		 */
 		$scope.desc = sub ? sub.desc : '';
 
 		/**
-		 * Saves the input data by either creating new subproject or updating nodes
-		 * @memberof newSubprojectModalCtrl
-		 * @function save
+		 * Saves the input data by either creating new subproject or updating nodes.
+		 * @ngdoc method
+		 * @name newSubprojectModalCtrl#save
 		 */
 		$scope.save = function () {
 			if(!$scope.name.length) {
@@ -51,22 +69,22 @@ angular.module('dokuvisApp').controller('newSubprojectModalCtrl', ['$scope', '$s
 			}
 		};
 		
-		$scope.$on('$stateChangeSuccess', function () {
-			$timeout(function () {
-				$scope.$hide();
-				$scope.$destroy();
-			});
-		});
-
 		/**
-		 * Closes the modal and destroys the scope
-		 * @memberof newSubprojectModalCtrl
-		 * @function close
+		 * Closes the modal and destroys the scope.
+		 * @ngdoc method
+		 * @name newSubprojectModalCtrl#close
 		 */
 		$scope.close = function () {
 			this.$hide();
 			this.$destroy();
 			$state.go('^');
 		};
+
+		$scope.$on('$stateChangeSuccess', function () {
+			$timeout(function () {
+				$scope.$hide();
+				$scope.$destroy();
+			});
+		});
 		
 	}]);

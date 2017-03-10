@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Brakebein/DokuVis#readme",
   "devDependencies": {
     "angular-jsdoc": "^1.4.2",
+    "dgeni-alive": "^0.3.5",
     "grunt": "^1.0.1",
     "grunt-bower-concat": "^1.0.0",
     "grunt-contrib-concat": "^1.0.1",

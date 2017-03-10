@@ -1,12 +1,16 @@
+/**
+ * $resource for CategoryAttribute, that can be assigned to models. Usually in combination with {@link Category}.<br/>
+ * API url: `api/auth/project/:project/category/:cid/attribute/:aid`
+ * @ngdoc factory
+ * @name CategoryAttribute
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
+ * @requires API
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires Utilities
+ */
 angular.module('dokuvisApp').factory('CategoryAttribute', ['$resource', 'API', '$stateParams', 'Utilities',
-	/**
-	 * $resource for CategoryAttribute, that can be assigned to models. Usually in combination with [Category]{@link dokuvisApp.Category.html}.<br/>
-	 * API url: `api/auth/project/:project/category/:cid/attribute/:aid`
-	 * @memberof dokuvisApp
-	 * @ngdoc service
-	 * @name CategoryAttribute
-	 * @author Brakebein
-	 */
 	function ($resource, API, $stateParams, Utilities) {
 		
 		return $resource(API + 'auth/project/:project/category/:cid/attribute/:aid', {
@@ -25,8 +29,9 @@ angular.module('dokuvisApp').factory('CategoryAttribute', ['$resource', 'API', '
 			 *   color: <string>  // hexadecimal, e.g. '#ffdd44'
 			 * }).$promise.then(...);
 			 * ```
-			 * @memberof CategoryAttribute
-			 * @method save
+			 * @ngdoc method
+			 * @name CategoryAttribute#save
+			 * @param data {Object} Object with data
 			 */
 			save: {
 				method: 'POST',
@@ -39,8 +44,8 @@ angular.module('dokuvisApp').factory('CategoryAttribute', ['$resource', 'API', '
 			 * ```
 			 * attribute.$update().then(...);
 			 * ```
-			 * @memberof CategoryAttribute
-			 * @method update
+			 * @ngdoc method
+			 * @name CategoryAttribute#$update
 			 */
 			update: { method: 'PUT' }
 		});
@@ -50,8 +55,8 @@ angular.module('dokuvisApp').factory('CategoryAttribute', ['$resource', 'API', '
 		 * ```
 		 * attribute.$delete().then(...);
 		 * ```
-		 * @memberof CategoryAttribute
-		 * @method delete
+		 * @ngdoc method
+		 * @name CategoryAttribute#$delete
 		 */
 
 	}]);

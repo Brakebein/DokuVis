@@ -1,23 +1,23 @@
 /**
- * Controller of the Upload modal. The modal can be used to upload either a source with its metadata, or a 3d model.  
- * @memberof dokuvisApp
+ * Controller of the Upload modal. The modal can be used to upload either a source with its metadata, or a 3D model.
  * @ngdoc controller
  * @name uploadCtrl
+ * @module dokuvisApp
  * @author Brakebein
- * @requires $scope
- * @requires $state
- * @requires $stateParams
- * @requires $previousState
- * @requires $timeout
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires https://christopherthielen.github.io/ui-router-extras/#/previous $previousState
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout $timeout
  * @requires Uploader
  * @requires neo4jRequest
  * @requires API
  * @requires Archive
  * @requires Utilities
- * @requires $translatePartialLoader
+ * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translatePartialLoader $translatePartialLoader
  */
 angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$timeout', 'Uploader', 'neo4jRequest', 'API', 'Archive', 'Utilities', '$translatePartialLoader',
-	function($scope, $state, $stateParams, $previousState, $timeout, Uploader, neo4jRequest, API, Archive, Utilities, $translatePartialLoader) {
+	function ($scope, $state, $stateParams, $previousState, $timeout, Uploader, neo4jRequest, API, Archive, Utilities, $translatePartialLoader) {
 
         $previousState.memo('modalInvoker');
 		$translatePartialLoader.addPart('source');
@@ -28,9 +28,21 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 		var imageTypes = ['jpg','JPG','png','PNG','jpeg','bmp','gif','tiff'];
 		var textTypes = ['pdf'];
 
+		/**
+		 * Current upload type (part of route/state url) `'source'|'model'|'zip'`
+		 * @ngdoc property
+		 * @name uploadCtrl#uploadType
+		 * @type {string}
+		 */
 		$scope.uploadType = $stateParams.uploadType;
 		$scope.attachTo = $stateParams.attachTo;
 
+		/**
+		 * List of available archives (to choose from source select form)
+		 * @ngdoc property
+		 * @name uploadCtrl#archives
+		 * @type {Array}
+		 */
 		$scope.archives = [];
 
 		var uploader = Uploader;
@@ -250,8 +262,8 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 
 		/**
 		 * Check, if all relevant input fields are set, and upload each item.
-		 * @memberof uploadCtrl
-		 * @function checkAndUploadAll
+		 * @ngdoc method
+		 * @name uploadCtrl#checkAndUploadAll
 		 */
 		$scope.checkAndUploadAll = function() {
 			// wait for responses and validate inputs
@@ -277,9 +289,9 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 
 		/**
 		 * Triggers click event on hidden files input field.
-		 * @memberof uploadCtrl
-		 * @function openFileDialog
-		 * @param event {Object} click event on parent html element
+		 * @ngdoc method
+		 * @name uploadCtrl#openFileDialog
+		 * @param event {Object} Click event on parent html element
 		 */
 		$scope.openFileDialog = function(event) {
 			$timeout(function() {
@@ -289,9 +301,9 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 
 		/**
 		 * Process tag after it has been added.
-		 * @memberof uploadCtrl
-		 * @function onTagAdded
-		 * @param tag {Object} reference to tag object
+		 * @ngdoc method
+		 * @name uploadCtrl#onTagAdded
+		 * @param tag {Object} Reference to tag object
 		 */
 		$scope.onTagAdded = function(tag) {
 			tag.text = tag.text.toLowerCase();
@@ -299,10 +311,10 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 
 		/**
 		 * Query all tags that contain the search term.
-		 * @memberof uploadCtrl
-		 * @function getTags
-		 * @param query {string} search term
-		 * @returns {Array} array of tags
+		 * @ngdoc method
+		 * @name uploadCtrl#getTags
+		 * @param query {string} Search term
+		 * @returns {Array} Array of tags
 		 */
 		$scope.getTags = function(query) {
 			return neo4jRequest.searchTags($stateParams.project, query).then(function(response) {
@@ -326,8 +338,8 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 
 		/**
 		 * Closes the modal and destroys the controller instance.
-		 * @memberof uploadCtrl
-		 * @function close
+		 * @ngdoc method
+		 * @name uploadCtrl#close
 		 */
 		$scope.close = function () {
 			this.$hide();

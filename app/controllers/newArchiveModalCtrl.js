@@ -1,21 +1,41 @@
-angular.module('dokuvisApp').controller('newArchiveModalCtrl', ['$scope', '$state', 'Archive', 'Utilities', '$translatePartialLoader',
-	/**
-     * This controller handles the modal to enter a new archive to the system.
-     * @memberof dokuvisApp
-     * @ngdoc controller
-     * @name newArchiveModalCtrl
-     * @author Brakebein
-     * @param $scope {$scope} controller scope
-     * @param $state {$state} ui.router state
-     * @param Archive {Archive} $resource Archive
-     * @param Utilities {Utilities} Utilities
-     * @param $translatePartialLoader {$translatePartialLoader} service to load translations
-     */
-    function($scope, $state, Archive, Utilities, $translatePartialLoader) {
+/**
+ * This controller handles the modal to enter a new archive to the system.
+ * @ngdoc controller
+ * @name newArchiveModalCtrl
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout $timeout
+ * @requires Archive
+ * @requires Utilities
+ * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translatePartialLoader $translatePartialLoader
+ */
+angular.module('dokuvisApp').controller('newArchiveModalCtrl', ['$scope', '$state', '$timeout', 'Archive', 'Utilities', '$translatePartialLoader',
+    function ($scope, $state, $timeout, Archive, Utilities, $translatePartialLoader) {
 
         $translatePartialLoader.addPart('archive');
 
+		/**
+         * Title translation id
+         * @ngdoc property
+         * @name newArchiveModalCtrl#title
+         * @type {string}
+         */
         $scope.title = 'archive_modal_title';
+		/**
+         * Model for input fields
+         * ```
+         * {
+         *   institution: 'string',
+         *   institutionAbbr: 'string',
+         *   collection: 'string'
+         * }
+         * ```
+         * @ngdoc property
+         * @name newArchiveModalCtrl#archive
+         * @type {Object}
+         */
         $scope.archive = {
             institution: '',
             institutionAbbr: '',
@@ -23,9 +43,9 @@ angular.module('dokuvisApp').controller('newArchiveModalCtrl', ['$scope', '$stat
         };
 
         /**
-         * Saves the input data by either creating new (or updating) nodes
-         * @memberof newArchiveModalCtrl
-         * @function save
+         * Saves the input data by either creating new or updating nodes.
+         * @ngdoc method
+         * @name newArchiveModalCtrl#save
          */
         $scope.save = function() {
 
@@ -51,9 +71,9 @@ angular.module('dokuvisApp').controller('newArchiveModalCtrl', ['$scope', '$stat
         };
 
         /**
-         * Closes the modal and destroys the scope
-         * @memberof newArchiveModalCtrl
-         * @function close
+         * Closes the modal and destroys the scope.
+         * @ngdoc method
+         * @name newArchiveModalCtrl#close
          */
         $scope.close = function () {
             this.$hide();

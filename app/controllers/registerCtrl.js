@@ -1,13 +1,33 @@
+/**
+ * Controller for register view.
+ * @ngdoc controller
+ * @name registerCtrl
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$window $window
+ * @requires UserAuthFactory
+ * @requires AuthenticationFactory
+ * @requires Utilities
+ */
 angular.module('dokuvisApp').controller('registerCtrl', ['$scope', '$state', '$window', 'UserAuthFactory', 'AuthenticationFactory', 'Utilities',
-	/**
-	 * Controller for register view.
-	 * @memberof dokuvisApp
-	 * @ngdoc controller
-	 * @name registerCtrl
-	 * @author Brakebein
-	 */
-	function($scope, $state, $window, UserAuthFactory, AuthenticationFactory, Utilities) {
+	function ($scope, $state, $window, UserAuthFactory, AuthenticationFactory, Utilities) {
 
+		/**
+		 * Model for input fields
+		 * ```
+		 * {
+		 *   email: 'string',
+		 *   name: 'string',
+		 *   password1: 'string',
+		 *   password2: 'string'
+		 * }
+		 * ```
+		 * @ngdoc property
+		 * @name registerCtrl#userRegister
+		 * @type {Object}
+		 */
 		$scope.userRegister = {
 			email: '',
 			name: '',
@@ -16,9 +36,9 @@ angular.module('dokuvisApp').controller('registerCtrl', ['$scope', '$state', '$w
 		};
 
 		/**
-		 * Register action.
-		 * @memberof registerCtrl
-		 * @method register
+		 * Register form submit action.
+		 * @ngdoc method
+		 * @name registerCtrl#register
 		 */
 		$scope.register = function() {
 			var email = $scope.userRegister.email,
