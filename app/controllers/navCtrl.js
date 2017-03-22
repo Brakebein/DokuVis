@@ -1,13 +1,27 @@
+/**
+ * Controller for the navbar (visible at start page and project list page).
+ * @ngdoc controller
+ * @name navCtrl
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$window $window
+ * @requires UserAuthFactory
+ * @requires AuthenticationFactory
+ * @requires Utilities
+ */
 angular.module('dokuvisApp').controller('navCtrl', ['$scope', '$state', '$window', 'UserAuthFactory', 'AuthenticationFactory', 'Utilities',
-	/**
-	 * Controller for the navbar (visible at start page and project list page).
-	 * @memberof dokuvisApp
-	 * @ngdoc controller
-	 * @name navCtrl
-	 * @author Brakebein
-	 */
-	function($scope, $state, $window, UserAuthFactory, AuthenticationFactory, Utilities) {
+	function ($scope, $state, $window, UserAuthFactory, AuthenticationFactory, Utilities) {
 
+		/**
+		 * Model for user credentials from `<input>` fields
+		 * 
+		 * `{ email: 'string', password: 'string' }`
+		 * @ngdoc property
+		 * @name navCtrl#user
+		 * @type {Object}
+		 */
 		$scope.user = {
 			email: '',
 			password: ''
@@ -15,8 +29,8 @@ angular.module('dokuvisApp').controller('navCtrl', ['$scope', '$state', '$window
 
 		/**
 		 * Login action.
-		 * @memberof navCtrl
-		 * @method login
+		 * @ngdoc method
+		 * @name navCtrl#login
 		 */
 		$scope.login = function() {
 			var email = $scope.user.email,
@@ -46,8 +60,8 @@ angular.module('dokuvisApp').controller('navCtrl', ['$scope', '$state', '$window
 
 		/**
 		 * Logout action.
-		 * @memberof navCtrl
-		 * @method logout
+		 * @ngdoc method
+		 * @name navCtrl#logout
 		 */
 		$scope.logout = function() {
 			UserAuthFactory.logout();

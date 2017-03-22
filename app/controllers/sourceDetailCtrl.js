@@ -1,11 +1,11 @@
+/**
+ * Controller for the modal to display detailed information about sources.
+ * @ngdoc controller
+ * @name sourceDetailCtrl
+ * @module dokuvisApp
+ * @author Brakebein
+ */
 angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$http', 'Utilities', 'Source', 'Comment', '$timeout', '$translatePartialLoader',
-	/**
-	 * Controller for the modal to display detailed information about sources.
-	 * @memberof dokuvisApp
-	 * @ngdoc controller
-	 * @name sourceDetailCtrl
-	 * @author Brakebein
-	 */
 	function($scope, $state, $stateParams, $previousState, $http, Utilities, Source, Comment, $timeout, $translatePartialLoader) {
 		
 		console.log('sourceDetailCtrl init');

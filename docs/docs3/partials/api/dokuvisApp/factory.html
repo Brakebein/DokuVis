@@ -1,0 +1,126 @@
+
+<h1>Factory components in <code>dokuvisApp</code></h1>
+
+
+
+<div class="component-breakdown">
+  <div>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/AuthenticationFactory">AuthenticationFactory</a></td>
+        <td><p>Service responsible for checking the user status.<br/>
+From tutorial: <a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/UserAuthFactory">UserAuthFactory</a></td>
+        <td><p>Service responsible for contacting the login endpoint and validating the user (and logging out the user).<br/>
+From tutorial: <a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/TokenInterceptor">TokenInterceptor</a></td>
+        <td><p>Service responsible for sending in the access token and the key along with each request to the server.<br/>
+From tutorial: <a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/Archive">Archive</a></td>
+        <td><p>$resource for archives.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/Category">Category</a></td>
+        <td><p>$resource for Category. A category can have multiple attributes (<a href="api/dokuvisApp/factory/CategoryAttribute">CategoryAttribute</a>), which can be assigned to models.<br/>
+API url: <code>api/auth/project/:project/category/:id</code></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/CategoryAttribute">CategoryAttribute</a></td>
+        <td><p>$resource for CategoryAttribute, that can be assigned to models. Usually in combination with <a href="api/dokuvisApp/factory/Category">Category</a>.<br/>
+API url: <code>api/auth/project/:project/category/:cid/attribute/:aid</code></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/Comment">Comment</a></td>
+        <td><p>$resource for comments.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/ConfirmService">ConfirmService</a></td>
+        <td><p>Service providing a dialog with two buttons to confirm or abort an action.</p>
+<pre><code>// default values
+alertDefaults = {
+    backdrop: &#39;static&#39;,
+    templateUrl: &#39;partials/alerts/confirmAlert.html&#39;,
+    show: true
+};
+alertOptions = {
+    abortButtonText: &#39;Abbrechen&#39;,
+    actionButtonText: &#39;OK&#39;,
+    headerText: &#39;Fortfahren?&#39;,
+    bodyText: &#39;Sind Sie sicher?&#39;,
+    type: &#39;warning&#39;
+};
+</code></pre>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/Project">Project</a></td>
+        <td><p>$resource for project related tasks.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/ProjInfo">ProjInfo</a></td>
+        <td><p>$resource for ProjInfo.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/Source">Source</a></td>
+        <td><p>$resource for sources/documents.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/Subproject">Subproject</a></td>
+        <td><p>$http methods for subproject related tasks</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/Uploader">Uploader</a></td>
+        <td><p>This factory creates an instance of <code>FileUploader</code> (<a href="https://github.com/nervgh/angular-file-upload">angular-file-upload</a>), so it can be used in multiple controllers. Authentication headers are set for uploading.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/Utilities">Utilities</a></td>
+        <td><p>This factory provides some helpful functions.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/webglContext">webglContext</a></td>
+        <td><p>This service initializes standard objects and materials for the 3D viewport and holds all mesh/geometry instances. So the 3D content is kept in the memory, even if the viewport (respectively webglView directive) gets destroyed, and doesn&#39;t need to be reloaded when the user returns to the 3D viewport. Materials etc. are also globally availlable via <code>THREE.DokuVisTray</code>.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+</div>
+

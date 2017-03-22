@@ -1,37 +1,43 @@
-angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q', '$translate',
-	/**
-	 * Service providing a dialog with two buttons to confirm or abort an action
-	 * ```
-	 * // default values
-	 * alertDefaults = {
-	 *     backdrop: 'static',
-	 *     templateUrl: 'partials/alerts/confirmAlert.html',
-	 *     show: true
-	 * };
-	 * alertOptions = {
-	 *     abortButtonText: 'Abbrechen',
-	 *     actionButtonText: 'OK',
-	 *     headerText: 'Fortfahren?',
-	 *     bodyText: 'Sind Sie sicher?',
-	 *     type: 'warning'
-	 * };
-	 * ```
-	 * @memberof dokuvisApp
-	 * @ngdoc service
-	 * @name ConfirmService
-	 * @param $alert {$alert} ngStrap alert dialog service
-	 * @param $q {$q} Angular promise service
-	 * @param $translate {$translate} $translate service
-	 * @example
-	 * ConfirmService.showAlert({
-	 *     headerText: 'Projekt löschen',
-	 *     bodyText: 'Soll das Projekt wirklich gelöscht werden?'
-	 * }).then(function () {
-	 *     // do something, if confirm button has been pressed
-	 * }, function () {
-	 *     // do something, if abort button has been pressed
-	 * });
-	 */
+/**
+ * Service providing a dialog with two buttons to confirm or abort an action.
+ * ```
+ * // default values
+ * alertDefaults = {
+ *     backdrop: 'static',
+ *     templateUrl: 'partials/alerts/confirmAlert.html',
+ *     show: true
+ * };
+ * alertOptions = {
+ *     abortButtonText: 'Abbrechen',
+ *     actionButtonText: 'OK',
+ *     headerText: 'Fortfahren?',
+ *     bodyText: 'Sind Sie sicher?',
+ *     type: 'warning'
+ * };
+ * ```
+ * @ngdoc factory
+ * @name ConfirmService
+ * @module dokuvisApp
+ * @requires http://mgcrea.github.io/angular-strap/#/alerts $alert
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$q $q
+ * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translate $translate
+ * 
+ * @param customAlertOptions {Object} Custom text and captions
+ * @param customAlertDefaults {Object=} Custom templateUrl etc.
+ * @returns {Promise} Resolves, if action has been confirmed, or rejects, if aborted
+ * @example
+ * ```
+ * ConfirmService({
+ *     headerText: 'Projekt löschen',
+ *     bodyText: 'Soll das Projekt wirklich gelöscht werden?'
+ * }).then(function () {
+ *     // do something, if confirm button has been pressed
+ * }, function () {
+ *     // do something, if abort button has been pressed
+ * });
+ * ```
+ */
+angular.module('dokuvisApp').factory('ConfirmService', ['$alert', '$q', '$translate',
 	function ($alert, $q, $translate) {
 
 		var alertDefaults = {
@@ -48,22 +54,10 @@ angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q', '$transl
 			type: 'warning'
 		};
 
+		// TODO: translate text when factory is called
 		$translate('abort').then(function (abort) {
 			alertOptions.abortButtonText = abort;
 		});
-
-		/**
-		 * Triggers the alert/dialog to show
-		 * @memberof ConfirmService
-		 * @function showAlert
-		 * @param customAlertOptions {Object} custom text and captions
-		 * @param [customAlertDefaults] {Object} Optional: custom templateUrl etc.
-		 * @returns {Promise} Resolves, if action has been confirmed, rejects, if aborted
-		 */
-		this.showAlert = function (customAlertOptions, customAlertDefaults) {
-			if(!customAlertDefaults) customAlertDefaults = {};
-			return show(customAlertOptions, customAlertDefaults);
-		};
 
 		function show(customAlertOptions, customAlertDefaults) {
 			var tempAlertDefaults = {};
@@ -90,6 +84,11 @@ angular.module('dokuvisApp').service('ConfirmService', ['$alert', '$q', '$transl
 			$alert(tempAlertDefaults);
 
 			return deferred.promise;
+		}
+
+		return function (customAlertOptions, customAlertDefaults) {
+			if(!customAlertDefaults) customAlertDefaults = {};
+			return show(customAlertOptions, customAlertDefaults);
 		}
 
 	}]);

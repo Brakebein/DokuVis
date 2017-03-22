@@ -1,8 +1,18 @@
+/**
+ * Translates mousewheel event into horizontal scroll movement.
+ * 
+ * @ngdoc directive
+ * @name horizontalScroll
+ * @module dokuvisApp
+ * @author Brakebein
+ * @restrict A
+ * @param horizontalScroll {boolean}
+ */
 angular.module('dokuvisApp').directive('horizontalScroll',
 	function() {
 		return {
 			restrict: 'A',
-			link: function(scope, element, attr) {
+			link: function(scope, element) {
 				function mousewheelHorizontalScroll(event) {
 					var delta = event.originalEvent.wheelDelta || -event.originalEvent.detail*40 || 0;
 					var sl = element.scrollLeft();

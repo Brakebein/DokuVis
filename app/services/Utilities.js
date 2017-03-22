@@ -1,13 +1,12 @@
+/**
+ * This factory provides some helpful functions.
+ * @ngdoc factory
+ * @name Utilities
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires http://mgcrea.github.io/angular-strap/#/alerts $alert
+ */
 angular.module('dokuvisApp').factory('Utilities',
-	/**
-	 * This factory provides some helpful functions.
-	 * @memberof dokuvisApp
-	 * @ngdoc service
-	 * @name Utilities
-	 * @author Brakebein
-	 * @param $alert {$alert} ngStrap alert service
-	 * @returns {Object} functions
-	 */
 	function($alert) {
 		
 		var f = {};
@@ -49,20 +48,20 @@ angular.module('dokuvisApp').factory('Utilities',
 		};
 
 		/**
-		 * Generate unique short id (using timestamp)
-		 * @memberof Utilities
-		 * @function getUniqueId
-		 * @returns {string} short id
+		 * Generate unique short id (using timestamp).
+		 * @ngdoc method
+		 * @name Utilities#getUniqueId
+		 * @returns {string} Short id
 		 */
 		f.getUniqueId = function() {
 			return new f.Base62().encode(new Date().getTime());
 		};
 
 		/**
-		 * Sleep function - application on hold
-		 * @memberof Utilities
-		 * @function sleep
-		 * @param milliseconds {number} milliseconds
+		 * Sleep function - application on hold.
+		 * @ngdoc method 
+		 * @name Utilities#sleep
+		 * @param milliseconds {number} Milliseconds
 		 */
 		f.sleep = function(milliseconds) {
 			var start = new Date().getTime();
@@ -74,14 +73,14 @@ angular.module('dokuvisApp').factory('Utilities',
 		};
 
 		/**
-		 * Wait until condition is met
-		 * @memberof Utilities
-		 * @function waitfor
-		 * @param test {function} function that returns a value
-		 * @param expectedValue {string|number|boolean} value of the test function we are waiting for
-		 * @param msec {number} delay between the calls to test
-		 * @param params {Object} parameters to be passed to the callback function
-		 * @param callback {function} function to execute when the condition is met
+		 * Wait until condition is met.
+		 * @ngdoc method 
+		 * @name Utilities#waitfor
+		 * @param test {function} Function that returns a value
+		 * @param expectedValue {string|number|boolean} Value of the test function we are waiting for
+		 * @param msec {number} Delay between the calls to test
+		 * @param params {Object} Parameters to be passed to the callback function
+		 * @param callback {function} Function to execute when the condition is met
 		 */
 		 f.waitfor = function(test, expectedValue, msec, params, callback) {
 			// check if condition met. if not, re-check later
@@ -96,8 +95,12 @@ angular.module('dokuvisApp').factory('Utilities',
 		};
 		
 		/**
-		  * extracts data from neo4j response object
-		  * if return values are nodes
+		 * Extracts data from neo4j response object, if return values are nodes.
+		 * @ngdoc method
+		 * @name Utilities#extractNeo4jData
+		 * @param data {Object}
+		 * @returns {Array}
+		 * @deprecated
 		*/
 		f.extractNeo4jData = function(data) {
 			var results = [];
@@ -117,8 +120,14 @@ angular.module('dokuvisApp').factory('Utilities',
 		};
 		
 		/**
-		  * extracts data from neo4j response object
-		  * if return values are normal values or objects
+		 * extracts data from neo4j response object
+		 * if return values are normal values or objects
+		 * @ngdoc method
+		 * @name Utilities#cleanNeo4jData
+		 * @param data {Object}
+		 * @param selected {boolean}
+		 * @returns {Array}
+		 * @deprecated
 		*/
 		f.cleanNeo4jData = function(data, selected) {
 			selected = selected || false;
@@ -152,8 +161,13 @@ angular.module('dokuvisApp').factory('Utilities',
 		};
 		
 		/**
-		  * extracts array data from neo4j response object
-		  * (e.g. for getting a list of tags etc.)
+		 * extracts array data from neo4j response object
+		 * (e.g. for getting a list of tags etc.)
+		 * @ngdoc method
+		 * @name Utilities#extractArrayFromNeo4jData
+		 * @param data {Object}
+		 * @returns {Array}
+		 * @deprecated
 		*/
 		f.extractArrayFromNeo4jData = function(data) {
 			var results = [];
@@ -163,7 +177,20 @@ angular.module('dokuvisApp').factory('Utilities',
 			return results;
 		};
 		
-		// createHierarchy(data, ['file', 'obj'])
+		/**
+		 * Create hierarchy of node results.
+		 * @ngdoc method
+		 * @name Utilities#createHierarchy
+		 * @param data {Object}
+		 * @param props {string[]}
+		 * @param isNode {boolean}
+		 * @returns {Array}
+		 * @deprecated
+		 * @example
+		 * ```js
+		 * createHierarchy(data, ['file', 'obj']);
+		 * ```
+		 */
 		f.createHierarchy = function(data, props, isNode) {
 			var results = [];
 			for(var i=0, l=data.data.length; i<l; i++) {
@@ -214,10 +241,10 @@ angular.module('dokuvisApp').factory('Utilities',
 
 		// Alerts
 		/**
-		 * Shows a danger alert for 5 seconds
-		 * @memberof Utilities
-		 * @function dangerAlert
-		 * @param {string} message
+		 * Shows a danger alert for 5 seconds.
+		 * @ngdoc method
+		 * @name Utilities#dangerAlert
+		 * @param message {string} Message to show
 		 */
 		f.dangerAlert = function(message) {
 			$alert({
@@ -229,12 +256,12 @@ angular.module('dokuvisApp').factory('Utilities',
 
 		// Exceptions
 		/**
-		 * Shows a danger alert
-		 * @memberof Utilities
-		 * @function throwException
-		 * @param title {string} title of the alert
-		 * @param message {string} message to show
-		 * @param data {*} addtional data to be shown within the console
+		 * Shows a danger alert.
+		 * @ngdoc method
+		 * @name Utilities#throwException
+		 * @param title {string} Title of the alert
+		 * @param message {string} Message to show
+		 * @param data {*} Addtional data to be shown within the console
 		 */
 		f.throwException = function(title, message, data) {
 			$alert({
@@ -246,11 +273,11 @@ angular.module('dokuvisApp').factory('Utilities',
 			console.error(title+': '+message, data, "\n"+(new Error).stack.split("\n")[2]);
 		};
 		/**
-		 * Shows a danger alert titled with `Neo4jException`
-		 * @memberof Utilities
-		 * @function throwNeo4jException
-		 * @param message {string} message to show
-		 * @param data {*} addtional data to be shown within the console
+		 * Shows a danger alert titled with `Neo4jException`.
+		 * @ngdoc method
+		 * @name Utilities#throwNeo4jException
+		 * @param message {string} Message to show
+		 * @param data {*} Addtional data to be shown within the console
 		 */
 		f.throwNeo4jException = function(message, data) {
 			$alert({
@@ -262,11 +289,11 @@ angular.module('dokuvisApp').factory('Utilities',
 			console.error('Neo4jException: '+message, data);
 		};
 		/**
-		 * Shows a danger alert titled with `API Exception`
-		 * @memberof Utilities
-		 * @function throwApiException
-		 * @param message {string} message to show
-		 * @param data {*} addtional data to be shown within the console
+		 * Shows a danger alert titled with `API Exception`.
+		 * @ngdoc method
+		 * @name Utilities#throwApiException
+		 * @param message {string} Message to show
+		 * @param data {*} Addtional data to be shown within the console
 		 */
 		f.throwApiException = function(message, data) {
 			$alert({

@@ -1,0 +1,175 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">rampSlider</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+    <li>
+      - directive in module <a href="api/dokuvisApp">dokuvisApp</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>A slider visualized as a box with a color ramp as background.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ng/service/$document">$document</a></li>
+  </ul>
+  
+
+  
+  <h2>Directive Info</h2>
+  <ul>
+    
+    <li>This directive executes at priority level 0.</li>
+    
+  </ul>
+
+  
+  <h2 id="usage">Usage</h2>
+  <div class="usage">
+  
+    <ul>
+    
+      <li>as element:
+      
+      <pre><code>&lt;ramp-slider&#10;    ng-model=&quot;number&quot;&#10;    [ng-change=&quot;expression&quot;]&#10;    [rs-color=&quot;string&quot;]&#10;    [rs-color-end=&quot;string&quot;]&gt;&#10;  ...&#10;&lt;/ramp-slider&gt;</code></pre>
+      </li>
+    <li>as attribute:
+        <pre><code>&lt;ANY&#10;  ramp-slider&#10;  ng-model=&quot;number&quot;&#10;  [ng-change=&quot;expression&quot;]&#10;  [rs-color=&quot;string&quot;]&#10;  [rs-color-end=&quot;string&quot;]&gt;&#10;...&#10;&lt;/ANY&gt;</code></pre>
+      </li>
+    
+  </div>
+  
+<section class="api-section">
+  <h3>Arguments</h3>
+
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        rampSlider
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-boolean"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" _target="blank">Boolean</a></span>
+      </td>
+      <td>
+        
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        ngModel
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-number"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" _target="blank">Number</a></span>
+      </td>
+      <td>
+        <p>Value the directive is bound to [0..1]</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        ng-change
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
+        <span class="label type-hint type-hint-expression"><a href="expression">expression</a></span>
+      </td>
+      <td>
+        <p>Expression to be evaluated after the value has changed</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        rs-color
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Left (or base) color as hexadecimal color value</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        rs-color-end
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Right color as hexadecimal color value</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+</section>
+  
+  
+
+
+  
+  <h2 id="example">Example</h2><pre><code class="lang-html">&lt;div ramp-slider
+    ng-model=&quot;opacity&quot;
+    ng-change=&quot;setOpacity()&quot;
+    rs-color=&quot;#ddd&quot;
+    rs-color-end=&quot;#bbb&quot; &gt;
+&lt;/div&gt;
+</code></pre>
+
+</div>
+
+

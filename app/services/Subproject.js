@@ -1,11 +1,15 @@
+/**
+ * $http methods for subproject related tasks
+ * @ngdoc factory
+ * @name Subproject
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
+ * @requires API
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires Utilities
+ */
 angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateParams', 'Utilities',
-	/**
-	 * $http methods for subproject related tasks
-	 * @memberof dokuvisApp
-	 * @ngdoc service
-	 * @name Subproject
-	 * @author Brakebein
-	 */
 	function($resource, API, $stateParams, Utilities) {
 
 		return $resource(API + 'auth/project/:project/subproject/:id', {
@@ -19,8 +23,9 @@ angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateP
 			 * ```
 			 * Subproject.save({ id: <id> }).$promise.then(...);
 			 * ```
-			 * @memberof Subproject
-			 * @method get
+			 * @ngdoc method
+			 * @name Subproject#get
+			 * @param id {Object} Object with subproject id
 			 */
 			get: {
 				method: 'GET',
@@ -34,8 +39,9 @@ angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateP
 			 *   description: <string>  // (optional)
 			 * }).$promise.then(...);
 			 * ```
-			 * @memberof Subproject
-			 * @method save
+			 * @ngdoc method
+			 * @name Subproject#save
+			 * @param data {Object} Object with data
 			 */
 			save: {
 				method: 'POST',
@@ -48,8 +54,8 @@ angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateP
 			 * ```
 			 * subproject.$update().then(...);
 			 * ```
-			 * @memberof Subproject
-			 * @method update
+			 * @ngdoc method
+			 * @name Subproject#$update
 			 */
 			update: { method: 'PUT' }
 		});
@@ -59,8 +65,8 @@ angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateP
 		 * ```
 		 * Subproject.query().$promise.then(...);
 		 * ```
-		 * @memberof Subproject
-		 * @method query
+		 * @ngdoc method
+		 * @name Subproject#query
 		 */
 		
 	}]);

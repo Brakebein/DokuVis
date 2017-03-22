@@ -1,0 +1,840 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">Utilities</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+  
+
+    <li>
+      - factory in module <a href="api/dokuvisApp">dokuvisApp</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>This factory provides some helpful functions.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="http://mgcrea.github.io/angular-strap/#/alerts">$alert</a></li>
+  </ul>
+  
+
+  
+<h2>Methods</h2>
+<ul class="methods">
+  <li id="getUniqueId">
+    <h3 class="">
+      <span class="title"><p><code>getUniqueId();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Generate unique short id (using timestamp).</p>
+</div>
+
+    
+
+    
+    
+    
+    <h4>Returns</h4>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span></td>
+    <td><p>Short id</p>
+</td>
+  </tr>
+</table>
+    
+
+    
+  </li>
+  
+  <li id="sleep">
+    <h3 class="">
+      <span class="title"><p><code>sleep(milliseconds);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Sleep function - application on hold.</p>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        milliseconds
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-number"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" _target="blank">Number</a></span>
+      </td>
+      <td>
+        <p>Milliseconds</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="waitfor">
+    <h3 class="">
+      <span class="title"><p><code>waitfor(test, expectedValue, msec, params, callback);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Wait until condition is met.</p>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        test
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-function"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" _target="blank">function()</a></span>
+      </td>
+      <td>
+        <p>Function that returns a value</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        expectedValue
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span><span class="label type-hint type-hint-number"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" _target="blank">Number</a></span><span class="label type-hint type-hint-boolean"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" _target="blank">Boolean</a></span>
+      </td>
+      <td>
+        <p>Value of the test function we are waiting for</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        msec
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-number"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" _target="blank">Number</a></span>
+      </td>
+      <td>
+        <p>Delay between the calls to test</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        params
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Parameters to be passed to the callback function</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        callback
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-function"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" _target="blank">function()</a></span>
+      </td>
+      <td>
+        <p>Function to execute when the condition is met</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="extractNeo4jData">
+    <h3 class="member-deprecated">
+      <span class="title"><p><code>extractNeo4jData(data);</code></p>
+
+</span>
+      
+      
+  <span class="label label-hint hint-deprecated">
+    Deprecated 
+  </span>
+  
+    </h3>
+    <div><p>Extracts data from neo4j response object, if return values are nodes.</p>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+    <h4>Returns</h4>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-array"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" _target="blank">Array</a></span></td>
+    <td></td>
+  </tr>
+</table>
+    
+
+    
+  </li>
+  
+  <li id="cleanNeo4jData">
+    <h3 class="member-deprecated">
+      <span class="title"><p><code>cleanNeo4jData(data, selected);</code></p>
+
+</span>
+      
+      
+  <span class="label label-hint hint-deprecated">
+    Deprecated 
+  </span>
+  
+    </h3>
+    <div><p>extracts data from neo4j response object
+if return values are normal values or objects</p>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        selected
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-boolean"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" _target="blank">Boolean</a></span>
+      </td>
+      <td>
+        
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+    <h4>Returns</h4>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-array"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" _target="blank">Array</a></span></td>
+    <td></td>
+  </tr>
+</table>
+    
+
+    
+  </li>
+  
+  <li id="extractArrayFromNeo4jData">
+    <h3 class="member-deprecated">
+      <span class="title"><p><code>extractArrayFromNeo4jData(data);</code></p>
+
+</span>
+      
+      
+  <span class="label label-hint hint-deprecated">
+    Deprecated 
+  </span>
+  
+    </h3>
+    <div><p>extracts array data from neo4j response object
+(e.g. for getting a list of tags etc.)</p>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+    <h4>Returns</h4>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-array"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" _target="blank">Array</a></span></td>
+    <td></td>
+  </tr>
+</table>
+    
+
+    
+  </li>
+  
+  <li id="createHierarchy">
+    <h3 class="member-deprecated">
+      <span class="title"><p><code>createHierarchy(data, props, isNode);</code></p>
+
+</span>
+      
+      
+  <span class="label label-hint hint-deprecated">
+    Deprecated 
+  </span>
+  
+    </h3>
+    <div><p>Create hierarchy of node results.</p>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        props
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">Array.&lt;String&gt;</a></span>
+      </td>
+      <td>
+        
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        isNode
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-boolean"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" _target="blank">Boolean</a></span>
+      </td>
+      <td>
+        
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+    <h4>Returns</h4>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-array"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" _target="blank">Array</a></span></td>
+    <td></td>
+  </tr>
+</table>
+    
+
+    
+  </li>
+  
+  <li id="dangerAlert">
+    <h3 class="">
+      <span class="title"><p><code>dangerAlert(message);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Shows a danger alert for 5 seconds.</p>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        message
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Message to show</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="throwException">
+    <h3 class="">
+      <span class="title"><p><code>throwException(title, message, data);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Shows a danger alert.</p>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        title
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Title of the alert</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        message
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Message to show</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="*">*</a></span>
+      </td>
+      <td>
+        <p>Addtional data to be shown within the console</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="throwNeo4jException">
+    <h3 class="">
+      <span class="title"><p><code>throwNeo4jException(message, data);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Shows a danger alert titled with <code>Neo4jException</code>.</p>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        message
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Message to show</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="*">*</a></span>
+      </td>
+      <td>
+        <p>Addtional data to be shown within the console</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="throwApiException">
+    <h3 class="">
+      <span class="title"><p><code>throwApiException(message, data);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Shows a danger alert titled with <code>API Exception</code>.</p>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        message
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Message to show</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="*">*</a></span>
+      </td>
+      <td>
+        <p>Addtional data to be shown within the console</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  </ul>
+
+  
+</div>
+
+

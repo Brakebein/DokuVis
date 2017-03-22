@@ -1,37 +1,45 @@
+/**
+ * Controller of the Project Home view, organizing subprojects and project/subproject information.
+ * @ngdoc controller
+ * @name projHomeCtrl
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires neo4jRequest
+ * @requires Utilities
+ * @requires Project
+ * @requires Subproject
+ * @requires ProjInfo
+ * @requires ConfirmService
+ * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translatePartialLoader $translatePartialLoader
+ */
 angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams', 'neo4jRequest', 'Utilities', 'Project', 'Subproject', 'ProjInfo', 'ConfirmService', '$translatePartialLoader',
-	/**
-	 * Controller of the Project Home view, organizing subprojects and project/subproject information
-	 * @memberof dokuvisApp
-	 * @ngdoc controller
-	 * @name projHomeCtrl
-	 * @author Brakebein
-	 * @param $scope {$scope} controller scope
-	 * @param $stateParams {$stateParams} ui.router stateParams
-	 * @param neo4jRequest {neo4jRequest} neo4jRequest DEPRECATED
-	 * @param Utilities {Utilities} Utilities
-	 * @param Project {Project} Project http
-	 * @param Subproject {Subproject} Subproject http
-	 * @param ProjInfo {ProjInfo} ProjInfo $resource
-	 * @param ConfirmService {ConfirmService} confirm dialog
-	 * @param $translatePartialLoader {$translatePartialLoader} $translate addPart
-	 */
-	function($scope, $stateParams, neo4jRequest, Utilities, Project, Subproject, ProjInfo, ConfirmService, $translatePartialLoader) {
+	function ($scope, $stateParams, neo4jRequest, Utilities, Project, Subproject, ProjInfo, ConfirmService, $translatePartialLoader) {
 
 		$translatePartialLoader.addPart('projects');
 
+		/**
+		 * Indicates, if the current state is in subproject or master project.
+		 * @ngdoc property
+		 * @name projHomeCtrl#isMaster
+		 * @type {boolean}
+		 */
 		$scope.isMaster = $stateParams.subproject === 'master';
 
 		/**
 		 * Object containing project infos
-		 * @var {Object} projInfo
-		 * @memberof projHomeCtrl
+		 * @ngdoc property
+		 * @name projHomeCtrl#projInfo
+		 * @type {Object}
 		 */
 		$scope.projInfo = {};
-		
+
 		/**
 		 * Array of available subprojects
-		 * @var {Array} subprojects
-		 * @memberof projHomeCtrl
+		 * @ngdoc property
+		 * @name projHomeCtrl#subprojects
+		 * @type {Array}
 		 */
 		$scope.subprojects = [];
 
@@ -60,13 +68,6 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 			}, function (err) {
 				Utilities.throwApiException('on Subproject.get()', err);
 			});
-			// Subproject.get($stateParams.subproject).then(function (response) {
-			// 	$scope.projInfo.name = response.data[0].name;
-			// 	$scope.projInfo.description = response.data[0].desc;
-			// 	console.log(response);
-			// }, function (err) {
-			// 	Utilities.throwApiException('on Subproject.get()', err);
-			// });
 		}
 
 		function querySubprojects() {
@@ -76,16 +77,16 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 			}, function (err) {
 				Utilities.throwApiException('on Subproject.query()', err);
 			});
-			// Subproject.getAll().then(function (response) {
-			// 	$scope.subprojects = response.data;
-			// 	console.log($scope.subprojects);
-			// }, function (err) {
-			// 	Utilities.throwApiException('on Subproject.getAll()', err);
-			// });
 		}
 
+		/**
+		 * Removes the given ProjInfo item.
+		 * @ngdoc method
+		 * @name projHomeCtrl#removeProjInfo
+		 * @param note {Object} ProjInfo Resource object
+		 */
 		$scope.removeProjInfo = function(note) {
-			ConfirmService.showAlert({
+			ConfirmService({
 				headerText: 'Info löschen',
 				bodyText: 'Soll die Info gelöscht werden?'
 			}).then(function () {
@@ -98,6 +99,13 @@ angular.module('dokuvisApp').controller('projHomeCtrl', ['$scope', '$stateParams
 			});
 		};
 
+		/**
+		 * Swap the order of a ProjInfo object with another one.
+		 * @ngdoc method
+		 * @name projHomeCtrl#swapInfoOrder
+		 * @param oldIndex {number} Current index of ProjInfo item
+		 * @param newIndex {number} New index of ProjInfo item
+		 */
 		$scope.swapInfoOrder = function(oldIndex, newIndex) {
 			ProjInfo.swap({
 				from: $scope.filteredInfos[oldIndex].id,

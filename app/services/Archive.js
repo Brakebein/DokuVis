@@ -1,11 +1,15 @@
+/**
+ * $resource for archives.
+ * @ngdoc factory
+ * @name Archive
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
+ * @requires API
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires Utilities
+ */
 angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$stateParams', 'Utilities',
-	/**
-	 * $resource for archives.
-	 * @memberof dokuvisApp
-	 * @ngdoc service
-	 * @name Archive
-	 * @author Brakebein
-	 */
 	function($resource, API, $stateParams, Utilities) {
 		
 		return $resource(API + 'auth/project/:project/archive', {
@@ -22,8 +26,9 @@ angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$statePara
 			 *   coll: <string>  // collection name
 			 * }).$promise.then(...);
 			 * ```
-			 * @memberof Archive
-			 * @method save
+			 * @ngdoc method
+			 * @name Archive#save
+			 * @param data {Object} Object with data
 			 */
 			save: {
 				method: 'POST',
@@ -38,8 +43,8 @@ angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$statePara
 		 * ```
 		 * Archive.query().$promise.then(...);
 		 * ```
-		 * @memberof Archive
-		 * @method query
+		 * @ngdoc method
+		 * @name Archive#query
 		 */
 
 		// TODO: #Archive update, delete

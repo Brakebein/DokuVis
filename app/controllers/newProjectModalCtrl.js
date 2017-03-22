@@ -1,29 +1,47 @@
+/**
+ * Modal controller for creating or editing projects.
+ * @ngdoc controller
+ * @name newProjectModalCtrl
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout $timeout
+ * @requires Utilities
+ * @requires Project
+ */
 angular.module('dokuvisApp').controller('newProjectModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'Utilities', 'Project',
-	/**
-	 * Modal controller for creating or editing projects
-	 * @memberof dokuvisApp
-	 * @ngdoc controller
-	 * @name newProjectModalCtrl
-	 * @author Brakebein
-	 * @param $scope {$scope} controller scope
-	 * @param $state {$state} ui.router state
-	 * @param $stateParams {$stateParams} ui.router stateParams
-	 * @param $timeout {$timeout} Angular timeout
-	 * @param Utilities {Utilities} Utilities
-	 * @param Project {Project} Project http
-	 */
 	function ($scope, $state, $stateParams, $timeout, Utilities, Project) {
 
 		var prj = $stateParams.prj;
 
+		/**
+		 * Title translation id
+		 * @ngdoc property
+		 * @name newProjectModalCtrl#title
+		 * @type {string}
+		 */
 		$scope.title = prj ? 'project_edit' : 'project_new';
+		/**
+		 * Model for name input field
+		 * @ngdoc property
+		 * @name newProjectModalCtrl#name
+		 * @type {string}
+		 */
 		$scope.name = prj ? prj.name : '';
+		/**
+		 * Model for description input field
+		 * @ngdoc property
+		 * @name newProjectModalCtrl#desc
+		 * @type {string}
+		 */
 		$scope.desc = prj ? prj.description : '';
 
 		/**
-		 * Saves input data by either creating a new project or updating database entries
-		 * @memberof newProjectModalCtrl
-		 * @function save
+		 * Saves input data by either creating a new project or updating database entries.
+		 * @ngdoc method
+		 * @name newProjectModalCtrl#save
 		 */
 		$scope.save = function () {
 			if(!$scope.name.length) {
@@ -50,22 +68,22 @@ angular.module('dokuvisApp').controller('newProjectModalCtrl', ['$scope', '$stat
 			}
 		};
 
-		$scope.$on('$stateChangeSuccess', function () {
-			$timeout(function () {
-				$scope.$hide();
-				$scope.$destroy();
-			});
-		});
-
 		/**
-		 * Closes the modal and destroys the scope
-		 * @memberof newProjectModalCtrl
-		 * @function close
+		 * Closes the modal and destroys the scope.
+		 * @ngdoc method
+		 * @name newProjectModalCtrl#close
 		 */
 		$scope.close = function () {
 			this.$hide();
 			this.$destroy();
 			$state.go('^');
 		};
+
+		$scope.$on('$stateChangeSuccess', function () {
+			$timeout(function () {
+				$scope.$hide();
+				$scope.$destroy();
+			});
+		});
 		
 	}]);

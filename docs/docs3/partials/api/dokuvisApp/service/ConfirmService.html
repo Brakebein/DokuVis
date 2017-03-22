@@ -1,0 +1,65 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">ConfirmService</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+  
+
+    <li>
+      - service in module <a href="api/dokuvisApp">dokuvisApp</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>Service providing a dialog with two buttons to confirm or abort an action.</p>
+<pre><code>// default values
+alertDefaults = {
+    backdrop: &#39;static&#39;,
+    templateUrl: &#39;partials/alerts/confirmAlert.html&#39;,
+    show: true
+};
+alertOptions = {
+    abortButtonText: &#39;Abbrechen&#39;,
+    actionButtonText: &#39;OK&#39;,
+    headerText: &#39;Fortfahren?&#39;,
+    bodyText: &#39;Sind Sie sicher?&#39;,
+    type: &#39;warning&#39;
+};
+</code></pre>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="http://mgcrea.github.io/angular-strap/#/alerts">$alert</a></li><li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/service/$q">$q</a></li><li><a href="https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translate">$translate</a></li>
+  </ul>
+  
+
+  
+
+  
+  <h2 id="example">Example</h2><p>ConfirmService.showAlert({
+    headerText: &#39;Projekt löschen&#39;,
+    bodyText: &#39;Soll das Projekt wirklich gelöscht werden?&#39;
+}).then(function () {
+    // do something, if confirm button has been pressed
+}, function () {
+    // do something, if abort button has been pressed
+});</p>
+
+</div>
+
+

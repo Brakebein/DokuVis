@@ -7,6 +7,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-usemin');
 	grunt.loadNpmTasks('grunt-wiredep');
 	grunt.loadNpmTasks('grunt-jsdoc');
+	grunt.loadNpmTasks('dgeni-alive');
 	
 	// Project configuration
 	grunt.initConfig({
@@ -55,6 +56,24 @@ module.exports = function (grunt) {
 					template: 'node_modules/jsdoc-baseline',
 					private: true
 				}
+			}
+		},
+
+		'dgeni-alive':  {
+			options: {
+				packages: [
+					'dgeni-packages/jsdoc',
+					'dgeni-packages/ngdoc'
+				]
+			},
+			api: {
+				title: 'DokuVis Docs',
+				expand: false,
+				dest: 'docs/docs3/',
+				src: [
+					'app/**/*.js',
+					'docs/docs3/content/api/*.ngdoc'
+				]
 			}
 		}
 	});

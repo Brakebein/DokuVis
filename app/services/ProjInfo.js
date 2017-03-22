@@ -1,11 +1,15 @@
+/**
+ * $resource for ProjInfo.
+ * @ngdoc factory
+ * @name ProjInfo
+ * @module dokuvisApp
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
+ * @requires API
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires Utilities
+ */
 angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$stateParams', 'Utilities',
-	/**
-	 * $resource for ProjInfo
-	 * @memberof dokuvisApp
-	 * @ngdoc service
-	 * @name ProjInfo
-	 * @author Brakebein
-	 */
 	function ($resource, API, $stateParams, Utilities) {
 
 		return $resource(API + 'auth/project/:project/:subproject/projinfo/:id', {
@@ -22,8 +26,9 @@ angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$statePar
 			 * ```
 			 * ProjInfo.save({ info: <string> }).$promise.then(...);
 			 * ```
-			 * @memberof ProjInfo
-			 * @method save
+			 * @ngdoc method
+			 * @name ProjInfo#save
+			 * @param data {Object} Object with data
 			 */
 			save: {
 				method: 'POST',
@@ -36,8 +41,8 @@ angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$statePar
 			 * ```
 			 * info.$update().then(...);
 			 * ```
-			 * @memberof ProjInfo
-			 * @method update
+			 * @ngdoc method
+			 * @name ProjInfo#$update
 			 */
 			update: { method: 'PUT' },
 			/**
@@ -48,8 +53,9 @@ angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$statePar
 			 *   to: <id>
 			 * }).$promise.then(...);
 			 * ```
-			 * @memberof ProjInfo
-			 * @method swap
+			 * @ngdoc method
+			 * @name ProjInfo#swap
+			 * @param data {Object} Object with data
 			 */
 			swap: { method: 'PUT' }
 		});
@@ -59,8 +65,17 @@ angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$statePar
 		 * ```
 		 * ProjInfo.query().$promise.then(...);
 		 * ```
-		 * @memberof ProjInfo
-		 * @method query
+		 * @ngdoc method
+		 * @name ProjInfo#query
+		 */
+
+		/**
+		 * Delete the item.
+		 * ```
+		 * info.$delete().then(...);
+		 * ```
+		 * @ngdoc method
+		 * @name ProjInfo#$delete
 		 */
 		
 	}]);
