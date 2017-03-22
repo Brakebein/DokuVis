@@ -1,3 +1,27 @@
+/**
+ * Controller for main explorer view.
+ * @ngdoc controller
+ * @name explorerCtrl
+ * @module dokuvisApp
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout $timeout
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$sce $sce
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$q $q
+ * @requires APIRequest
+ * @requires neo4jRequest
+ * @requires https://github.com/nervgh/angular-file-upload FileUploader
+ * @requires Uploader
+ * @requires Utilities
+ * @requires webglInterface
+ * @requires http://mgcrea.github.io/angular-strap/#/modals $modalProvider
+ * @requires Source
+ * @requires Model
+ * @requires Comment
+ * @requires Category
+ * 
+ */
 angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'FileUploader', 'Uploader', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model', 'Comment', 'Category',
 	function($scope, $state, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, FileUploader, Uploader, Utilities, webglInterface, $modal, Source, Model, Comment, Category) {
 
@@ -185,8 +209,12 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		// 		show: true 
 		// 	});
 		// };
-				
-		// close modal
+
+		/**
+		 * close modal
+		 * @param update
+		 * @deprecated
+		 */
 		$scope.closeModal = function(update) {
 			if(update === 'source')
 				$scope.queryDocuments();
@@ -199,13 +227,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			$scope.overlayParams.url = '';
 			$scope.sourcesUploader.clearQueue();
 		};
-		$scope.updateList = function(type) {
-			if(type == 'source')
-				$scope.queryDocuments();
-			if(type == 'screenshot')
-				$scope.getScreenshots();
-		};
-
 		/**
 		 * get all sources/documents
 		 */

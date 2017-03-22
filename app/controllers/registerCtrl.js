@@ -9,10 +9,11 @@
  * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$window $window
  * @requires UserAuthFactory
  * @requires AuthenticationFactory
+ * @requires https://github.com/mikemclin/angular-acl AclService
  * @requires Utilities
  */
-angular.module('dokuvisApp').controller('registerCtrl', ['$scope', '$state', '$window', 'UserAuthFactory', 'AuthenticationFactory', 'Utilities',
-	function ($scope, $state, $window, UserAuthFactory, AuthenticationFactory, Utilities) {
+angular.module('dokuvisApp').controller('registerCtrl', ['$scope', '$state', '$window', 'UserAuthFactory', 'AuthenticationFactory', 'AclService', 'Utilities',
+	function ($scope, $state, $window, UserAuthFactory, AuthenticationFactory, AclService, Utilities) {
 
 		/**
 		 * Model for input fields

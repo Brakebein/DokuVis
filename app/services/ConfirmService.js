@@ -54,6 +54,7 @@ angular.module('dokuvisApp').factory('ConfirmService', ['$alert', '$q', '$transl
 			type: 'warning'
 		};
 
+		// TODO: translate text when factory is called
 		$translate('abort').then(function (abort) {
 			alertOptions.abortButtonText = abort;
 		});
