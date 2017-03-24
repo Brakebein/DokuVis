@@ -196,6 +196,21 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					selection: []
 				}
 			})
+			.state('project.explorer.model', {
+				url: '/model',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/modelModal.html',
+						controller: 'modelModalCtrl',
+						show: true
+					});
+				}],
+				abstract: true
+			})
+			.state('project.explorer.model.id', {
+				url: '/:modelId'
+			})
 			.state('project.explorer.upload', {
 				url: '/upload',
 				onEnter: ['$modal', function ($modal) {

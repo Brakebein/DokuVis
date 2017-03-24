@@ -23,18 +23,27 @@
 
 	.smBtn
 		flex: 0 0 $navButtonHeight
-		padding: 7px
+		height: $navButtonHeight
+		padding: 5px 4px
 		transition: border 0.3s, color 0.3s, background-color 0.3s
 
 		&:hover, &.active
 			cursor: pointer
 			color: $navFontColorHover
+			path
+				fill: $navFontColorHover
 		&:hover
 			background-color: #444
 		&.active
 			background-color: rgba($dvPrimaryColor, 0.5)
 		i, span
 			font-size: 20px
+		svg
+			width: 25px
+			height: 25px
+		path
+			fill: $navFontColor
+			transition: fill 0.3s
 
 	.smSpace
 		flex: 1 1 $navButtonHeight

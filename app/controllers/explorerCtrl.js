@@ -494,10 +494,11 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 		
 		$scope.logModels = function() {
-			console.log($scope.hierarchList);
-			console.log($scope.layerList);
+			console.log(webglInterface.hierarchList);
+			console.log(webglInterface.layerList);
 		};
-		
+
+		// deprecated
 		$scope.callDirFunc = {};
 		
 		//ein- und ausklappen des unteren Containers // DEPRECATED ?

@@ -48,6 +48,55 @@ var models = {
 		
 	},
 
+	get: function (req, res) {
+		var prj = req.params.id;
+
+		var q = 'MATCH (obj:E73:'+prj+' {content: {e73id}})-[:P1]->(file:E75), \
+			(obj)<-[:P106]-(:E36)-[:P138]->(e22) \
+			OPTIONAL MATCH (e22)-[:P2]->(attr:E55)-[:P127]->(cat:E55)-[:P127]->(:E55 {content:"category"}) \
+			RETURN obj, file, collect({catId: cat.content, catValue: cat.value, attrId: attr.content, attrValue: attr.value, attrColor: attr.color}) AS categories';
+		
+		var params = {
+			e73id: req.params.modelId
+		};
+		
+		neo4j.transaction(q, params)
+			.then(function (response) {
+				if(response.errors.length) { utils.error.neo4j(res, response, '#models.get'); return; }
+				var data = neo4j.extractTransactionData(response.results[0]);
+				neo4j.removeEmptyArrays(data, 'categories', 'catId');
+				res.json(data[0]);
+			})
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
+	},
+	
+	update: function (req, res) {
+		var prj = req.params.id;
+		
+		var q = 'MATCH (obj:E73:'+prj+' {content: {e73id}})\
+			SET obj += {props}\
+			RETURN obj';
+		
+		var params = {
+			e73id: req.params.modelId,
+			props: {
+				name: req.body.obj.name,
+				unit: req.body.obj.unit
+			}
+		};
+		
+		neo4j.transaction(q, params)
+			.then(function (response) {
+				if(response.errors.length) {utils.error.neo4j(res, response, '#models.update'); return; }
+				res.json(response);
+			})
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
+	},
+
 	insert: function (req, res) {
 		var prj = req.params.id;
 		var subprj = req.params.subprj;
