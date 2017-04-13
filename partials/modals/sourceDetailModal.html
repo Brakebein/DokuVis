@@ -10,8 +10,8 @@
 	<div class="modal-body sourceDetail" ng-class="{vertical: horizontalImage}">
 	
 		<div ng-if="!horizontalImage" class="imageVDiv">
-			<div>
-			<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="data/{{item.file.path + (item.file.display || item.file.name)}}"/>
+			<div image-viewer="'data/'+item.file.path + (item.file.display || item.file.name)">
+			<!--<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="data/{{item.file.path + (item.file.display || item.file.name)}}"/>-->
 			<div ng-if="item.type == 'text' && !textEdit" class="displayText" sync-scroll="vertical-scroll">
 				<div class="vertical-scroll text"
 					 ng-mouseover="highlight($event)">

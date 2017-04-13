@@ -45,7 +45,7 @@
 		opacity: 0.3
 		&:hover
 			border: 1px solid #fff
-	&.active
+	&:active, &.active
 		background-color: #555
 		border-right: 1px solid #ddd
 		border-bottom: 1px solid #ddd
@@ -60,6 +60,8 @@
 
 	&:first-of-type
 		border: none
+	&.ctrlGroup-text
+		padding: 3px 4px
 
 	input
 		//font-size: 12px;*/

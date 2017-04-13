@@ -448,15 +448,23 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			});
 		};
 
+
+		///// SPATIALIZE IMAGE
+
+		/**
+		 * Open spatialize modal
+		 * @param obj
+		 */
 		$scope.spatializeImage = function (obj) {
 			console.log(obj);
-			webglInterface.callFunc.openSpatializeImage(obj);
+			//webglInterface.callFunc.openSpatializeImage(obj);
+			$state.go('.spatialize', { source: obj });
 		};
 
 		$scope.loadImage = function (source) {
 			Source.getSpatial({ id: source.eid, type: 'picture' }).$promise.then(function (result) {
 				result.spatial.source = source;
-				webglInterface.callFunc.loadSpatializeImage(result.spatial);
+				webglInterface.callFunc['main'].loadSpatializeImage(result.spatial);
 			}, function (err) {
 				Utilities.throwApiException('on Source.getSpatial()', err);
 			});
@@ -661,8 +669,13 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			
 			console.log($scope.coords);
 		};
-		
-		// Kategorien
+
+
+		///// CATEGORIES
+
+		/**
+		 * Query categories
+		 */
 		function getAllCategories() {
 			Category.query().$promise.then(function (result) {
 				var cats = result;
@@ -681,8 +694,11 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				Utilities.throwApiException('on getAllCategories()', err);
 			});
 		}
-		
-		// weise neue Kategorie zu
+
+		/**
+		 * Assign new categorie to selection
+		 * @param c
+		 */
 		$scope.updateCategoryAttr = function(c) {
 			if(c.selected === -1) return;
 			
@@ -709,8 +725,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				Utilities.throwApiException('on assignCategoryToObjects()', err);
 			});
 		};
-		
-		// zeige Kategoriezuweisung an je nach Auswahl der Objekte
+
+		/**
+		 * Watch selected and show assigned categories of the objects
+		 */
 		$scope.$watch('wi.selected', function(newValue) {
 			if(newValue.length) {
 				for(var i=0; i<newValue.length; i++) {
@@ -741,6 +759,12 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}
 		}, true);
 
+
+		/**
+		 * @deprecated
+		 * @param list
+		 * @returns {Array}
+		 */
 		$scope.toRepeatArray = function (list) {
 			var array = [];
 			angular.forEach(list, function (val) {

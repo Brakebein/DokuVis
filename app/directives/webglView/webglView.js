@@ -4,7 +4,8 @@
  * @name webglView
  * @module dokuvisApp
  * @requires $stateParams
- * @requires $timeout
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$window $window
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout $timeout
  * @requires webglContext
  * @requires webglInterface
  * @requires $rootScope
@@ -15,27 +16,73 @@
  * @requires Utilities
  * @requires Comment
  * @requires ConfirmService
- * @restrict AE
- * @param webglView {boolean}
+ * @requires SpatializeInterface
+ * @restrict A
+ * @scope
+ * @param webglView {string} Id/name that is used for internal bindings (important, if there are multiple active `webglView` directives)
+ * @param navToolbar {Array=} Activate navigation toolbar on top of the viewport. Array elements define which features will be available, e.g. `'focus'`, `'move'`, `'shading'`, `'camera'`, and more to come. 
+ * @param axis {boolean=} Activate world axis in the left-bottom corner of the viewport
+ * @param optionToolbar {boolean=} Activate extende options
+ * @param spatialize {boolean=} Activate spatialize feature, e.g. setting markers on 3D model
+ * @example
+ * ```
+ * <div webgl="main"
+ *      nav-toolbar="['focus', 'move', 'camera']"
+ *      axis>
+ * </div>
+ * ```
  */
-angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', 'debounce',
-	function($stateParams, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService, debounce) {
+angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', 'debounce', 'SpatializeInterface',
+	function($stateParams, $window, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService, debounce, SpatializeInterface) {
 		
-		function link(scope, element) {
+		function link(scope, element, attrs) {
+
+			console.log(scope, attrs);
 			
+			var cfId = attrs.webglView || 0;
+			webglInterface.callFunc[cfId] = {};
+			SpatializeInterface.callFunc[cfId] = {};
+
+			// activate features and huds
+			scope.hud = {
+				navigation: 'navToolbar' in attrs,
+				axis: 'axis' in attrs,
+				focus: false,
+				move: false,
+				shading: false,
+				camera: false,
+				options: 'optionToolbar' in attrs,
+				spatialize: 'spatialize' in attrs
+			};
+
+			angular.forEach(scope.navToolbar, function (value) {
+				scope.hud[value] = true;
+			});
+
+			//scope.spatialize = 'spatialize' in attrs;
+
+			//scope.$applyAsync();
+
 			//scope.wi = webglInterface;
 			scope.viewportSettings = webglInterface.viewportSettings;
 			scope.vPanel = webglInterface.vPanel;
 			scope.vizSettings = webglInterface.vizSettings;
 			scope.snapshot = webglInterface.snapshot;
-			scope.spatialize = webglInterface.spatialize;
+			//scope.spatialize = webglInterface.spatialize;
 			scope.$applyAsync();
 
+
+			scope.unsafeSettings = {};
+			scope.unsafeSettings.opacity = 50;
+			scope.unsafeSettings.edges = true;
+			scope.unsafeSettings.autoTransparent = false;
+
 			// Konstante maximale Sichtweite
-			var FAR = 1400;
-			
+			var NEAR = webglContext.defaults.NEAR;
+			var FAR = webglContext.defaults.FAR;
+
 			/* globale Variablen */
-			// allgemein 
+			// general
 			var SCREEN_WIDTH, SCREEN_HEIGHT;
 			var canvas;
 			var renderer, scene, controls, stats;
@@ -110,7 +157,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			
 			var isSelecting = false;
 			var isPinning = false;
-			
+			var isMarking = false;
+
+			var currentMarker;
+
+
 			// Übernahme aus webglContext
 			var objects = webglContext.objects;
 			var plans = webglInterface.plans;
@@ -119,26 +170,37 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			var materials = webglContext.materials;
 			
 			// Initialisierung des Ganzen
-			init();
+			$timeout(function () {
+				init();
+			});
 			function init() {
 			
 				// Auslesen von Höhe und Breite des Fensters
 				// element.height(element.parent().height() - element.position().top - 2*parseInt(element.css('border-top-width'),10));
-				// SCREEN_WIDTH = element.width();
-				// SCREEN_HEIGHT = element.height();
-				// console.log('viewport size: ' + SCREEN_WIDTH + ' ' + SCREEN_HEIGHT);
-				
+				SCREEN_WIDTH = element.width();
+				SCREEN_HEIGHT = element.height();
+				console.log('viewport size: ', SCREEN_WIDTH, SCREEN_HEIGHT);
 				
 				// Camera
-				camera = webglContext.camera;
+				camera = new THREE.CombinedCamera(SCREEN_WIDTH, SCREEN_HEIGHT, 35, NEAR, FAR, NEAR, FAR);
+				camera.position.set(-100, 60, 100);
 				
 				// Scene
 				scene = webglContext.scene;
+
+				canvas = element.find('canvas');
 				
 				// Renderer
-				renderer = webglContext.renderer;
-				canvas = renderer.domElement;
-				element.append(canvas);
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					alpha: false,
+					preserveDrawingBuffer: true,
+					canvas: canvas.get(0)
+				});
+				renderer.setClearColor(0x666666, 1);
+				renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+				element.append(renderer.domElement);
+				//canvas = angular.element(renderer.domElement);
 				
 				// Stats
 				if(webglContext.stats) {
@@ -148,34 +210,31 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					//element.append( stats.domElement );
 				}
 				
-				// MouseHandler für Viewport
-				addMouseHandler();
-				
-				// Controls (für Navigation)
-				controls = webglContext.controls;
+				// Controls (for navigation)
+				controls = new THREE.OrbitControls(camera, renderer.domElement);
+				controls.zoomSpeed = 1.0;
+				camera.target = controls.center;
 				controls.addEventListener('change', animate);
 				
 				// Axis helper
-				axisRenderer = webglContext.axisRenderer;
-				axisScene = webglContext.axisScene;
-				axisCamera = webglContext.axisCamera;
-				
-				var axisElement = element.find('#axis');
-				axisRenderer.setSize(axisElement.width(), axisElement.height());
-				axisElement.append(axisRenderer.domElement);
-				
-				axisCamera.left = axisElement.width()/-2;
-				axisCamera.right = axisElement.width()/2;
-				axisCamera.top = axisElement.height()/2;
-				axisCamera.bottom = axisElement.height()/-2;
-				axisCamera.near = 1;
-				axisCamera.far = 100;
-				axisCamera.updateProjectionMatrix();
+				if(scope.hud.axis) {
+					var axisElement = element.find('#axis');
+					var aeWidth = axisElement.width(),
+						aeHeight = axisElement.height();
+
+					axisRenderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+					axisRenderer.setSize(aeWidth, aeHeight);
+					axisElement.append(axisRenderer.domElement);
+
+					axisCamera = new THREE.OrthographicCamera(-aeWidth / 2, aeWidth / 2, aeHeight / 2, -aeHeight / 2, 1, 100);
+					axisCamera.up = camera.up;
+					axisScene = webglContext.axisScene;
+				}
 				
 				// Light
 				dlight = webglContext.directionalLight;
 
-				// Ladebalken
+				// loading progress bar
 				var manager = new THREE.LoadingManager();
 				manager.onProgress = function ( item, loaded, total ) {
 					scope.loading.visible = true;
@@ -193,13 +252,31 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 							animate();
 						}, 2000);
 					}
-					scope.$apply();
+					scope.$applyAsync();
 					animate();
 				};
 				
-				objloader = new THREE.OBJMTLLoader(manager);
+				// objloader = new THREE.OBJMTLLoader(manager);
 				ctmloader = new THREE.CTMLoader(manager);
-				
+
+
+				// bind event listeners
+				canvas.on('mousedown', mousedown);
+				canvas.on('mousemove', mousemove);
+				canvas.on('mouseup', mouseup);
+				canvas.on('mousewheel', mousewheel);
+				//$(canvas).bind('MozMousePixelScroll', mousewheel); // firefox
+				canvas.on('DOMMouseScroll', mousewheel); // firefox
+
+				canvas.on('contextmenu', function(event) {
+					event.preventDefault();
+				});
+
+				var windowElement = angular.element($window);
+				windowElement.on('keydown', keydown);
+				windowElement.on('keyup', keyup);
+				windowElement.on('resize', onWindowResize);
+
 				
 				// Postprocessing
 				//postprocessing.sampleRatio = 2;
@@ -245,10 +322,10 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 
 				// neu
 				//var renderTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH, SCREEN_HEIGHT, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat});
-				var composer = new THREE.EffectComposer(renderer);
-				composer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-				var renderPass = new THREE.RenderPass(scene, camera);
-				composer.addPass(renderPass);
+				// var composer = new THREE.EffectComposer(renderer);
+				// composer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+				// var renderPass = new THREE.RenderPass(scene, camera);
+				// composer.addPass(renderPass);
 
 				// var maskPass = new THREE.MaskPass(scene, camera);
 				// composer.addPass(maskPass);
@@ -257,12 +334,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				// sobelPass.uniforms['aspect'].value.set(SCREEN_WIDTH, SCREEN_HEIGHT);
 				// composer.addPass(sobelPass);
 
-				var copyPass = new THREE.ShaderPass(THREE.CopyShader);
-				copyPass.renderToScreen = true;
-				composer.addPass(copyPass);
-
-				postprocessing.composer = composer;
-				console.log(composer);
+				// var copyPass = new THREE.ShaderPass(THREE.CopyShader);
+				// copyPass.renderToScreen = true;
+				// composer.addPass(copyPass);
+				//
+				// postprocessing.composer = composer;
+				// console.log(composer);
 
 				/*objloader.load('data/steinmetzzeichen/Steinmetzzeichen_auswahl.obj', 'data/steinmetzzeichen/Steinmetzzeichen_auswahl.mtl', loadMasonMarkHandler);
 				*/
@@ -279,7 +356,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				var planemat = new THREE.MeshBasicMaterial( {color: 0xffff00, opacity: 0.25, transparent: true, side: THREE.DoubleSide, depthTest: true, depthWrite: false});
 				plane = new THREE.Mesh(planegeo, planemat);
 				
-				var pedges = new THREE.EdgesHelper(plane.clone(), '#dd8888');
+				//var pedges = new THREE.EdgesHelper(plane.clone(), '#dd8888');
 				
 				//plane.add(pedges);
 				
@@ -291,7 +368,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				//plane.rotateOnAxis(new THREE.Vector3(0,1,0), 0.7 * Math.PI);
 				//plane.rotateOnAxis(new THREE.Vector3(1,0,0), 0.5 * Math.PI);
 				//plane.geometry.computeBoundingBox();
-				plane.add(pedges);
+				//plane.add(pedges);
 				//scene.add(plane);
 				console.log(plane);
 				
@@ -299,7 +376,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				
 				
 				$timeout(function() {
-					resizeViewport();
+					//resizeViewport();
 				});
 				
 				animate();
@@ -348,7 +425,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 				
 				TWEEN.update();
-				controls.update();
+				if(controls) controls.update();
 				
 				// Steinmetzzeichen zeigen immer zur Kamera
 				// for(var key in marks) {
@@ -359,12 +436,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				// }
 				
 				// position light depending on camera
-				dlight.position.set(4,4,4);
-				var lmat = new THREE.Matrix4().makeRotationFromQuaternion(camera.quaternion);
-				dlight.position.applyMatrix4(lmat);
+				if(dlight) {
+					dlight.position.set(4, 4, 4);
+					var lmat = new THREE.Matrix4().makeRotationFromQuaternion(camera.quaternion);
+					dlight.position.applyMatrix4(lmat);
+				}
 				
 				// set transperancy depending on camera
-				if(scope.unsafeSettings.autoTransparent) {
+				if(scope.unsafeSettings && scope.unsafeSettings.autoTransparent) {
 					var lookV = new THREE.Vector3().subVectors(camera.position, controls.center).normalize();
 					var newOpacity = Math.pow( Math.abs(lookV.x) + Math.abs(lookV.y) + Math.abs(lookV.z), 2) / 5;
 					for(var key in objects) {
@@ -373,9 +452,16 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						}
 					}
 				}
+
+				// update markers lookAt
+				if(scope.hud.spatialize && SpatializeInterface.markers3D.length) {
+					for(var i=0, l=SpatializeInterface.markers3D.length; i<l; i++) {
+						SpatializeInterface.markers3D[i].object.lookAt(camera.position);
+					}
+				}
 				
 				// update of axis helper
-				if(camPerspective) {
+				if(camPerspective && axisCamera) {
 					axisCamera.position.copy(camera.position);
 					axisCamera.position.sub(controls.center);
 					axisCamera.position.setLength(50);
@@ -390,7 +476,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			 * render calls
 			 */
 			function render() {
-				axisRenderer.render(axisScene, axisCamera);
+				if(axisRenderer) axisRenderer.render(axisScene, axisCamera);
 				
 				// if(renderSSAO) {
 				// 	// do postprocessing
@@ -403,7 +489,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				// 	renderer.render(scene, camera);
 				// }
 
-				renderer.render(scene, camera);
+				if(renderer) renderer.render(scene, camera);
 				//postprocessing.composer.render();
 			}
 
@@ -483,6 +569,27 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						scope.$apply();
 					}
 				});
+			}
+
+			/**
+			 * Raycasting mouse coords and return first object/intersection
+			 * @param mouse {THREE.Vector2} Mouse viewport coords
+			 * @param testObjects {Array} Array of objects to be testet
+			 * @param recursive {boolean=} If true, also check descendants
+			 * @returns {Object|null} First object that was hit by the ray
+			 */
+			function raycast(mouse, testObjects, recursive) {
+				recursive = recursive || false;
+
+				var direction = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera).sub(camera.position).normalize();
+				var raycaster = new THREE.Raycaster(camera.position, direction);
+
+				var intersects = raycaster.intersectObjects(testObjects, recursive);
+
+				if(intersects.length)
+					return intersects[0];
+				else
+					return null;
 			}
 
 			/**
@@ -880,7 +987,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			}
 
 			// watch für die Einstellungen für Unsicheres Wissen
-			scope.$watch('unsafeSettings', function(value) {
+			scope.setUnsafe = function(value) {
 				//console.log('watch unsafe', value);
 				//if(/^-?[\d.]+(?:e-?\d+)?$/.test(value))
 				if(typeof materials['defaultUnsafeMat'] == 'undefined') return;
@@ -900,30 +1007,20 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 				}
 				animate();
-			}, true);
+			};
 			
-			/*scope.$watch('viewportSettings.ssao', function(value) {
-				switch(value) {
-					case 'ssao': renderSSAO = true; break;
-					default: renderSSAO = false; break;
-				}
-			});
-			*/
-			
-			// watch ssao settings
-			$rootScope.$watch(function() {
-				return webglInterface.viewportSettings.ssao;
-			}, function(value) {
+			// set ssao settings
+			scope.setSSAO = function(value) {
 				console.log('watchssao', value);
 				switch(value) {
 					case 'ssao': renderSSAO = true; break;
 					default: renderSSAO = false; break;
 				}
 				animate();
-			});
+			};
 			
-			// watch edges settings
-			scope.$watch('vizSettings.edges', function(value) {
+			// set edges settings
+			scope.toggleEdges = function(value) {
 				for(var key in objects) {
 					var obj = objects[key];
 					if(obj.visible && obj.edges) {
@@ -932,8 +1029,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 				}
 				animate();
-			});
-			scope.$watch('vizSettings.edgesOpacity', function(value) {
+			};
+			scope.setEdgesOpacity = function(value) {
 				console.log(value);
 				if(!materials['edges']) return;
 				if(value == 100) {
@@ -947,9 +1044,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					materials['edgesSelectionMat'].opacity = value/100;
 				}
 				animate();
-			});
-			
-			//scope.$watch('viewportSettings.shading', function(value) {
+			};
+
+			/**
+			 * set shading mode
+			 * @param value
+			 */
 			scope.setShading = function(value) {
 				console.log('set shading', value);
 				if(!scene) return;
@@ -1070,8 +1170,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				}
 				animate();
 			};
-			
-			//scope.$watch('viewportSettings.camera', function(value) {
+
+			/**
+			 * set camera mode
+			 * @param value
+			 */
 			scope.setCamera = function(value) {
 				console.log('set camera', value);
 				if(!scene) return;
@@ -1225,6 +1328,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 
 			/**
 			 * transform mouse coordinates to viewport coordinates
+			 * @deprecated
 			 * @param ox {Number} x coordinate
 			 * @param oy {Number} y coordinate
 			 * @returns {THREE.Vector2} viewport coordinates
@@ -1235,6 +1339,19 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				mouse.y = - (oy / SCREEN_HEIGHT) * 2 + 1;
 				
 				return mouse;
+			}
+
+			function mouseInputToViewportCoords(event) {
+				var mouse = new THREE.Vector2();
+				mouse.x = (event.offsetX / SCREEN_WIDTH) * 2 - 1;
+				mouse.y = - (event.offsetY / SCREEN_HEIGHT) * 2 + 1;
+				return mouse;
+			}
+
+			function viewportCoordsToScreenXY(coords) {
+				var left = SCREEN_WIDTH * (coords.x + 1) / 2;
+				var top = SCREEN_HEIGHT * (-coords.y + 1) / 2;
+				return new THREE.Vector2(left, top);
 			}
 
 			/**
@@ -1248,13 +1365,16 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				//$(canvas).bind('mouseup', mouseup);
 				
 				//mouseDownCoord = new THREE.Vector2(event.clientX, event.clientY);
-				mouseDownCoord = new THREE.Vector2(event.offsetX, event.offsetY);
+				// mouseDownCoord = new THREE.Vector2(event.offsetX, event.offsetY);
+				mouseDownCoord = mouseInputToViewportCoords(event);
 				
 				if(scope.navigation.select || isPinning) {
 				
-					if(event.button === 0 && event.altKey && !isPanningView && webglInterface.viewportSettings.cameraSel === 'Perspective') {
+					if(event.button === 0 && event.altKey && !isPanningView && camera.inPerspectiveMode) {
 						if(activeGizmo) activeGizmo = false;
-						element.addClass('cursor_orbit');
+						canvas.addClass('cursor_orbit');
+						//setTemporalNavigationMode('rotate');
+						//scope.$apply();
 						isRotatingView = true;
 						controls.onMouseDown(event.originalEvent);
 					}
@@ -1264,7 +1384,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						// controls.onMouseDown(event.originalEvent);
 					// }
 					else if(event.button === 1 && !isRotatingView) {
-						element.addClass('cursor_pan');
+						canvas.addClass('cursor_pan');
 						isPanningView = true;
 						controls.onMouseDown(event.originalEvent);
 					}
@@ -1300,6 +1420,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				event.preventDefault();
 				//if(isMouseDown)
 				//	console.log(event);
+				var mouse = mouseInputToViewportCoords(event);
 				
 				if(isMouseDown) {
 					// transform gizmo
@@ -1311,12 +1432,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 							
 							var mv = new THREE.Vector3(movementX*0.1, -movementY*0.1, 0);
 							gizmo.transformObject(mv, camera);
-							setGizmoCoords('move', true);
+							//setGizmoCoords('move', true);
 						}
 						else if(gizmo instanceof DV3D.GizmoRotate) {
-							var mouse = mouseInputToViewport(event);
+							//var mouse = mouseInputToViewport(event);
 							gizmo.transformObject(mouse, camera);
-							setGizmoCoords('rotate', true);
+							//setGizmoCoords('rotate', true);
 						}
 						isSliceMoving = true;
 					}
@@ -1340,23 +1461,24 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 					// area selection
 					else if(event.button === 0 && scope.navigation.select){
-						if(mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
+						if(mouseDownCoord.equals(mouse)) return;
+						var mouseDownScreen = viewportCoordsToScreenXY(mouseDownCoord);
 						var css = {};
-						if(event.offsetX - mouseDownCoord.x > 0) {
-							css.left = mouseDownCoord.x;
-							css.width = event.offsetX - mouseDownCoord.x;
+						if(mouse.x > mouseDownCoord.x) {
+							css.left = mouseDownScreen.x;
+							css.width = event.offsetX - mouseDownScreen.x;
 						}
 						else {
 							css.left = event.offsetX;
-							css.width = mouseDownCoord.x - event.offsetX;
+							css.width = mouseDownScreen.x - event.offsetX;
 						}
-						if(event.offsetY - mouseDownCoord.y > 0) {
-							css.top = mouseDownCoord.y;
-							css.height = event.offsetY - mouseDownCoord.y;
+						if(mouse.y < mouseDownCoord.y) {
+							css.top = mouseDownScreen.y;
+							css.height = event.offsetY - mouseDownScreen.y;
 						}
 						else {
 							css.top = event.offsetY;
-							css.height = mouseDownCoord.y - event.offsetY;
+							css.height = mouseDownScreen.y - event.offsetY;
 						}
 						
 						if(isSelecting) {
@@ -1370,17 +1492,17 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						}
 					}
 				}
-				
+
 				else {
 					// check if mouse hits gizmo
 					if(gizmo) {
-						var mouse = mouseInputToViewport(event);
+						//var mouse = mouseInputToViewport(event);
 						//var mouse = mouseOffsetToViewport(event);
 						activeGizmo = gizmo.checkMouseHit(mouse.x, mouse.y, camera);
 					}
 					// measureTool routine
 					else if(measureTool) {
-						var mouse = mouseInputToViewport(event);
+						//var mouse = mouseInputToViewport(event);
 						
 						var testObjects = [];
 						for(var key in objects) {
@@ -1392,7 +1514,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					}
 					// pinning
 					else if(isPinning && pin) {
-						var mouse = mouseInputToViewport(event);
+						//var mouse = mouseInputToViewport(event);
 						var testObjects = [];
 						for(var key in objects) {
 							if(objects[key].visible)
@@ -1400,6 +1522,19 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						}
 						var obj = pin.mousehit(mouse.x, mouse.y, camera, testObjects);
 						highlightObject(obj);
+					}
+					// marking
+					else if(isMarking) {
+						//var mouse = mouseInputToViewportCoords(event);
+						var testObjects = [];
+						for(var key in objects) {
+							if(objects[key].visible)
+								testObjects.push(objects[key].mesh);
+						}
+						var intersection = raycast(mouse, testObjects);
+						if(intersection) currentMarker.position.copy(intersection.point);
+						currentMarker.lookAt(camera.position);
+						animate();
 					}
 				}
 				
@@ -1410,17 +1545,16 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			 * @param event
              */
 			function mouseup(event) {
-				//controls.onMouseUp(event.originalEvent);
-				//$(canvas).unbind('mousemove', mousemove);
 				isMouseDown = false;
-				//$(canvas).unbind('mouseup', mouseup);
 				
 				if(isSliced && isSliceMoving) {
 					restoreWorld();
 					sliceWorld();
 				}
 				isSliceMoving = false;
-				
+
+				var mouse = mouseInputToViewportCoords(event);
+
 				//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
 				
 				// area selection
@@ -1430,14 +1564,14 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					
 					var mStart, mEnd;
 					
-					if (event.offsetX - mouseDownCoord.x > 0 && event.offsetY - mouseDownCoord.y > 0 ||
-						event.offsetX - mouseDownCoord.x < 0 && event.offsetY - mouseDownCoord.y < 0) {
-						mStart = mouseOffsetToViewport(mouseDownCoord.x, mouseDownCoord.y);
-						mEnd = mouseOffsetToViewport(event.offsetX, event.offsetY);
+					if (mouse.x > mouseDownCoord.x && mouse.y < mouseDownCoord.y ||
+						mouse.x < mouseDownCoord.x && mouse.y > mouseDownCoord.y) {
+						mStart = mouseDownCoord;
+						mEnd = mouse;
 					}
 					else {
-						mStart = mouseOffsetToViewport(mouseDownCoord.x, event.offsetY);
-						mEnd = mouseOffsetToViewport(event.offsetX, mouseDownCoord.y);
+						mStart = new THREE.Vector2(mouseDownCoord.x, mouse.y);
+						mEnd = new THREE.Vector2(mouse.x, mouseDownCoord.y);
 					}
 					
 					selectArea(mStart, mEnd, event.ctrlKey);
@@ -1455,15 +1589,16 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				else if(event.button === 0 && !isPanningView) {
 					if(isRotatingView) {
 						isRotatingView = false;
-						element.removeClass('cursor_orbit');
+						canvas.removeClass('cursor_orbit');
 						controls.onMouseUp(event.originalEvent);
 						return;
 					}
 					//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
-					if(!mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
-					
+					// if(!mouseDownCoord.equals(new THREE.Vector2(event.offsetX, event.offsetY))) return;
+					if(!mouseDownCoord.equals(mouse)) return;
+
 					if(measureTool) {
-						var mouse = mouseInputToViewport(event);
+						//var mouse = mouseInputToViewport(event);
 						
 						var testObjects = [];
 						for(var key in objects) {
@@ -1488,9 +1623,21 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 						scope.setNavigationMode('select');
 						scope.$applyAsync();
 					}
+					else if(isMarking) {
+						currentMarker.setNumber(SpatializeInterface.markers3D.length + 1);
+						SpatializeInterface.markers3D.push({
+							object: currentMarker,
+							x: currentMarker.position.x,
+							y: currentMarker.position.y,
+							z: currentMarker.position.z
+						});
+						isMarking = false;
+						currentMarker = null;
+						scope.$applyAsync();
+					}
 					// selection
 					else {
-						var mouse = mouseOffsetToViewport(event.offsetX, event.offsetY);
+						//var mouse = mouseOffsetToViewport(event.offsetX, event.offsetY);
 						selectRay(mouse, event.ctrlKey);
 						animate();
 					}
@@ -1507,13 +1654,13 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				else if(event.button === 1 && !isRotatingView) {
 					if(isPanningView) {
 						isPanningView = false;
-						element.removeClass('cursor_pan');
+						canvas.removeClass('cursor_pan');
 						controls.onMouseUp(event.originalEvent);
 					}
 				}
 				else if(event.button === 2) {
 					scope.setNavigationMode('select');
-					scope.$apply();
+					scope.$applyAsync();
 
 					
 					//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
@@ -1530,7 +1677,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
              */
 			function mousewheel(event) {
 				event.preventDefault();
-				if(camPerspective) {
+
+				if(camera.inPerspectiveMode) {
 					controls.onMouseWheel(event.originalEvent);
 				}
 				else {
@@ -1567,7 +1715,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			 * @param event
 			 */
 			function keyup(event) {
-				//console.log('keyup', event);
+				//console.log('keyup', event.keyCode);
 				if(['INPUT', 'TEXTAREA'].indexOf(event.target.tagName) !== -1) return;
 
 				switch(event.keyCode) {
@@ -1577,15 +1725,17 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					case 84: scope.setCamera('Top'); break;			// T
 				}
 			}
-			
-			
+
+			/**
+			 * window resize EventHandler
+			 */
 			function onWindowResize() {
 				resizeViewport();
 			}
 			
 			function resizeViewport() {
 				
-				element.height(element.parent().height() - element.position().top - 2*parseInt(element.css('border-top-width'),10));
+				//element.height(element.parent().height() - element.position().top - 2*parseInt(element.css('border-top-width'),10));
 				SCREEN_WIDTH = element.width();
 				SCREEN_HEIGHT = element.height();
 				
@@ -1599,7 +1749,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 				
 				//postprocessing.composer.setSize(SCREEN_WIDTH * postprocessing.sampleRatio, SCREEN_HEIGHT * postprocessing.sampleRatio);
-				postprocessing.composer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+				//postprocessing.composer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 				//postprocessing.depthTarget.setSize(SCREEN_WIDTH * postprocessing.sampleRatio, SCREEN_HEIGHT * postprocessing.sampleRatio);
 				// postprocessing.depthTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH * postprocessing.sampleRatio, SCREEN_HEIGHT * postprocessing.sampleRatio, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat});
@@ -1608,27 +1758,6 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				// postprocessing.composer.passes[1].uniforms['tDepth'].value = postprocessing.depthTarget;
 
 				animate();
-			}
-			
-			function addMouseHandler() {
-				$(canvas).bind('mousedown', mousedown);
-				$(canvas).bind('mousemove', mousemove);
-				$(canvas).bind('mouseup', mouseup);
-				$(canvas).bind('mousewheel', mousewheel);
-				//$(canvas).bind('MozMousePixelScroll', mousewheel); // firefox
-				$(canvas).bind('DOMMouseScroll', mousewheel); // firefox
-				$(window).bind('keydown', keydown);
-				$(window).bind('keyup', keyup);
-				$(window).bind('resize', onWindowResize);
-				
-				$(canvas).bind('contextmenu', function(event) {
-					event.preventDefault();
-				});
-				
-				// var pinLayer = element.find('.pinLayer');
-				// $(pinLayer).bind('mousemove', mousemoveOnPinLayer);
-				// $(pinLayer).bind('mouseup', mouseupOnPinLayer);
-				// console.log(pinLayer);
 			}
 			
 			scope.mousemoveOnPinLayer = function (event) {
@@ -1777,8 +1906,30 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				};
 			};
 
+			
 			///// SPATIALIZE IMAGE
 
+			function startMarking() {
+				currentMarker = new DV3D.TorusMarker(0.5);
+				currentMarker.addEventListener('change', animate);
+				scene.add(currentMarker);
+				isMarking = true;
+			}
+			
+			function clearMarkers() {
+				angular.forEach(SpatializeInterface.markers3D, function (marker) {
+					scene.remove(marker.object);
+					marker.object.dispose();
+				});
+				SpatializeInterface.markers3D.splice(0, SpatializeInterface.markers3D.length);
+				render();
+				scope.$applyAsync();
+			}
+
+			/**
+			 * @deprecated
+			 * @param img
+			 */
 			webglInterface.callFunc.openSpatializeImage = function (img) {
 				scope.spatialize.active = true;
 				scope.spatialize.source = img;
@@ -1786,12 +1937,18 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				scope.spatialize.fov = camera.fov;
 			};
 
+			/**
+			 * @deprecated
+			 */
 			scope.abortSpatializeImage = function () {
 				scope.spatialize.active = false;
 				scope.spatialize.source = null;
 				scope.spatialize.fov = 35;
 			};
 
+			/**
+			 * @deprecated
+			 */
 			scope.saveSpatializeImage = function () {
 				scope.spatialize.source.matrix = camera.matrixWorld.toArray(); 
 				scope.spatialize.source.fov = parseInt(camera.fov); 
@@ -1805,6 +1962,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				});
 			};
 
+			/**
+			 * @deprecated
+			 */
 			scope.changeFOV = function () {
 				camera.fov = scope.spatialize.fov;
 				camera.updateProjectionMatrix();
@@ -1814,16 +1974,64 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			/**
 			 * Loads spatialized image into the scene.
 			 * @param img
+			 * @param replace If true and the image exists, image will be reloaded. If false, loading will be skipped. 
 			 */
-			webglInterface.callFunc.loadSpatializeImage = function (img) {
-				if(spatialImages.getByName(img.content)) return;
+			function loadSpatializeImage(img, replace) {
+				var oldImg = spatialImages.getByName(img.content);
+				
+				if(oldImg && replace) {
+					spatialImages.remove(oldImg);
+					scene.remove(oldImg.object);
+					oldImg.object.dispose();
+				}
+				else if(oldImg && !replace)
+					return $q.reject('Already loaded');
 
-				var imagepane = new DV3D.ImagePane('data/' + img.path + img.map, img.fov, 10);
+				console.log(img);
+				var defer = $q.defer();
+
+				// var imagepane = new DV3D.ImagePane('data/' + img.path + img.map, img.fov, 10, 0, 0);
+				var imagepane = new DV3D.ImagePane('data/' + img.path + img.map, {
+					ck: img.ck,
+					offset: img.offset
+				}, 10);
 				imagepane.onComplete = function () {
 					animate();
+					defer.resolve(entry);
 				};
-				var m = new THREE.Matrix4().fromArray(img.matrix);
-				imagepane.applyMatrix(m);
+
+				if(img.content === 'spatial_e31_pUHojvu_001_Foto_Sempersynagoge_frontal_Bildindex.jpguuzh') {
+					// var t = new THREE.Vector3(-17.1933882556237, 8.9275666620915, -108.8334119635676)
+					var matrix = new THREE.Matrix4();
+					matrix.set(-0.991897944533968, 0.008821377859359, -0.126379869703684, -17.1933882556237,
+								0.021874329907168, -0.997559247974068, -0.069825111273152, 8.9275666620915,
+								0.125139847052815, 0.069265648586247, -0.989521390556754, -108.8334119635676,
+								0, 0, 0, 1);
+					// matrix.set(-0.991897944533968, 0.021874329907168, 0.125139847052815, -17.1933882556237,
+					// 			0.008821377859359, -0.997559247974068, 0.069265648586247, 8.9275666620915,
+					// 			-0.126379869703684, -0.069825111273152, -0.989521390556754, -108.8334119635676,
+					// 			0, 0, 0, 1);
+					//var sm = new THREE.Matrix4().makeScale(-1,-1,-1);
+					// matrix.multiply(sm);
+					//imagepane.pyramid.geo
+					var euler = new THREE.Euler().setFromRotationMatrix(matrix);
+					console.log('matrix', matrix);
+					console.log('img.matrix', img.matrix);
+					console.log('rotation', euler);
+					imagepane.applyMatrix(matrix);
+					imagepane.fov = 28;
+				}
+				else {
+					var m = new THREE.Matrix4().fromArray(img.matrix);
+					// var m = new THREE.Matrix4().set(
+					// 	img.matrix[0], img.matrix[1], img.matrix[2], img.matrix[12],
+					// 	img.matrix[4], img.matrix[5], img.matrix[6], img.matrix[13],
+					// 	img.matrix[8], img.matrix[9], img.matrix[10], img.matrix[14],
+					// 	img.matrix[3], img.matrix[7], img.matrix[11], img.matrix[15]
+					// );
+					imagepane.applyMatrix(m);
+				}
+
 				scene.add(imagepane);
 				
 				imagepane.name = img.content;
@@ -1834,14 +2042,17 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 				imagepane.entry = entry;
 				spatialImages.add(entry);
 				console.log('ImagePane', imagepane);
-			};
+
+				return defer.promise;
+			}
+			webglInterface.callFunc[cfId].loadSpatializeImage = loadSpatializeImage;
 
 			/**
 			 * Sets camera to position and angle of the image pane object.<br/>
 			 * Called form webglInterface ImageEntry.
 			 * @param obj
 			 */
-			webglInterface.callFunc.setImageView = function (obj) {
+			function setImageView(obj) {
 				var end =  new THREE.Vector3(0,0,-100);
 				end.applyQuaternion(obj.quaternion);
 				end.add(obj.position);
@@ -1870,7 +2081,19 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 					.start();
 
 				enableAnimationRequest();
-			};
+			}
+			webglInterface.callFunc[cfId].setImageView = setImageView;
+
+			if(scope.hud.spatialize) {
+				SpatializeInterface.callFunc[cfId].loadSpatializeImage = loadSpatializeImage;
+				SpatializeInterface.callFunc[cfId].setImageView = setImageView;
+				scope.spatialize = {
+					markers: SpatializeInterface.markers3D
+				};
+				scope.startMarking = startMarking;
+				scope.clearMarkers = clearMarkers;
+			}
+
 
 			///// PLANS
 
@@ -2095,6 +2318,15 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 
 				animate();
 			};
+
+			function setTemporalNavigationMode(mode) {
+				scope.navigation.select = false;
+				scope.navigation.rotate = false;
+				scope.navigation.pan = false;
+				scope.navigation.zoom = false;
+				if(mode)
+					scope.navigation[mode] = true;
+			}
 
 			/**
 			 * detect intersections between plan and objects
@@ -2907,20 +3139,34 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$timeout',
 			scope.$on('$destroy', function() {
 				setSelected(null, false, true);
 				if(scope.snapshot.active) scope.abortSnapshot();
+
+				if(scope.spatialize)
+					clearMarkers();
+
+				// unbind functions from callFunc
+				delete SpatializeInterface.callFunc[cfId];
+
+				// unbind event listeners
+				var windowElement = angular.element($window);
+				windowElement.off('keydown', keydown);
+				windowElement.off('keyup', keyup);
+				windowElement.off('resize', onWindowResize);
+				
 				console.log('destroy webgl directive');
 			});
 		}
 		
 		return {
-			restrict: 'AE',
+			restrict: 'A',
 			replace: false,
 			transclude: true,
 			templateUrl: 'app/directives/webglView/webglView.html',
 			scope: {
+				navToolbar: '=',
 				unsafeSettings: '=',
 				callFunc: '=',
 				gizmoCoords: '=',
-				navigation: '=',
+				//navigation: '=',
 				screenshotCallback: '='
 			},
 			link: link

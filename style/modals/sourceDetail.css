@@ -59,6 +59,9 @@
       .sourceDetail .infoHDiv > .details > .comment-section {
         flex: 0 0 400px;
         overflow-y: auto; }
+  .sourceDetail [image-viewer] {
+    border: 1px solid #333;
+    background: radial-gradient(circle, #c4c4c4, #727272); }
   .sourceDetail .primaryIdenticator {
     position: absolute;
     width: 24px;
