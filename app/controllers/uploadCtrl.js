@@ -65,7 +65,7 @@ angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$sta
 				name: 'modelFilter',
 				fn: function(item) {
 					var type = '|' + item.name.slice(item.name.lastIndexOf('.') + 1) + '|';
-					return '|dae|DAE|obj|'.indexOf(type) !== -1;
+					return '|dae|DAE|obj|zip|'.indexOf(type) !== -1;
 				}
 			});
 		}

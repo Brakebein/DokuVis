@@ -36,6 +36,7 @@ var ctmlloader = new CTMLoader();
 
 var effects = {},
 	materials = {},
+	images = {},
 	nodes = [],
 	geoIds = [],
 	geometryFiles = {},
@@ -138,6 +139,10 @@ function parseDAE() {
 	xml.on('updateElement: material', function (material) {
 		materials[material.$.id] = material;
 	});
+	
+	xml.on('updateElement: image', function (image) {
+		images[image.$.id] = image.init_from.split(/[\/\\]/).pop();
+	});
 
 	xml.collect('node');
 	xml.on('endElement: visual_scene', function (scene) {
@@ -200,7 +205,7 @@ function finalize() {
 		prepareNodes(nodes, null)
 
 	}).then(function () {
-		process.send({ nodes: nodes, axis: upAxis, unit: unit });
+		process.send({ nodes: nodes, axis: upAxis, unit: unit, images: images });
 		process.exit();
 	})
 	.catch(function (err) {
@@ -315,12 +320,20 @@ function prepareNodes(nodes, parentid) {
 					id: n.instance_geometry.bind_material.technique_common.instance_material.$.target.substring(1)
 				};
 				n.material.name = materials[n.material.id].$.name;
+				
 				var effect = effects[materials[n.material.id].instance_effect.$.url.substring(1)];
-				var color;
-				if(effect.phong) color = effect.phong.diffuse.color instanceof Object ? effect.phong.diffuse.color.$text.split(/\s+/) : effect.phong.diffuse.color.split(/\s+/);
-				else if(effect.lambert) color = effect.lambert.diffuse.color instanceof Object ? effect.lambert.diffuse.color.$text.split(/\s+/) : effect.lambert.diffuse.color.split(/\s+/);
-				else if(effect.blinn) color = effect.blinn.diffuse.color instanceof Object ? effect.blinn.diffuse.color.$text.split(/\s+/) : effect.blinn.diffuse.color.split(/\s+/);
-				n.material.color = [ +color[0], +color[1], +color[2], +color[3] ];
+				var shading = effect.phong || effect.blinn || effect.lambert;
+				
+				if(shading.diffuse.color) {
+					var color = shading.diffuse.color instanceof Object ? shading.diffuse.color.$text.split(/\s+/) : shading.diffuse.color.split(/\s+/);
+					n.material.color = [ +color[0], +color[1], +color[2], +color[3] ];
+				}
+				else if(shading.diffuse.texture) {
+					n.material.map = images[shading.diffuse.texture.$.texture];
+				}
+				if(shading.transparent && shading.transparent.texture) {
+					n.material.alphaMap = images[shading.transparent.texture.$.texture];
+				}
 			}
 
 			delete n.instance_geometry;

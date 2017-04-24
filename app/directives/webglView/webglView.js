@@ -102,7 +102,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			var selected = [], highlighted = [];
 			var pins = [];
 			
-			var objloader, ctmloader;
+			var objloader, ctmloader, textureLoader;
 			scope.loading = { item: '', loaded: 0, total: 0, percent: 100, visible: false };
 			
 			var plane;
@@ -258,7 +258,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				
 				// objloader = new THREE.OBJMTLLoader(manager);
 				ctmloader = new THREE.CTMLoader(manager);
-
+				textureLoader = new THREE.TextureLoader();
 
 				// bind event listeners
 				canvas.on('mousedown', mousedown);
@@ -2531,7 +2531,23 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 					obj.geometry = geo;
 
 					//var mesh;
-					if(info.materialId) {
+					if(child.material) {
+						var material = new THREE.MeshLambertMaterial();
+						material.name = child.material.id;
+						if(child.material.diffuse instanceof Array)
+							material.color = new THREE.Color(child.material.diffuse[0], child.material.diffuse[1], child.material.diffuse[2]);
+						else
+							material.map = textureLoader.load('data/' + child.material.path + child.material.diffuse);
+						if(child.material.alpha) {
+							material.alphaMap = textureLoader.load('data/' + child.material.path + child.material.alpha);
+							material.transparent = true;
+						}
+						material.side = THREE.DoubleSide;
+
+						obj.material = material;
+						console.log(material);
+					}
+					else if(info.materialId) {
 						var material = new THREE.MeshLambertMaterial();
 						//material.color = new THREE.Color(Math.pow(info.materialColor[0], 1/2.2), Math.pow(info.materialColor[1], 1/2.2), Math.pow(info.materialColor[2], 1/2.2));
 						material.color = new THREE.Color(info.materialColor[0], info.materialColor[1], info.materialColor[2]);

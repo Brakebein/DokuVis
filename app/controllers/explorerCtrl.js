@@ -425,8 +425,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 
 		$scope.loadModelsWithChildren = function() {
 			Model.getModels().then(function(response) {
-				console.log(response.data);
-				var root = Utilities.createHierarchy(response.data, ['file','obj','categories'], true)[0];
+				//console.log(response.data);
+				//var root = Utilities.createHierarchy(response.data, ['file','obj','material','categories'], true)[0];
+				
+				var root = response.data[0];
 				console.log(root);
 				
 				function getNodes(nodes, parent, promise) {
