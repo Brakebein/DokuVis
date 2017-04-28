@@ -1,7 +1,8 @@
+const shortid = require('shortid');
 const utils = require('../utils');
 const neo4j = require('../neo4j-request');
 
-var archive = {
+module.exports = {
 
 	query: function (req, res) {
 		var prj = req.params.id;
@@ -21,10 +22,10 @@ var archive = {
 	},
 	
 	create: function (req, res) {
-		if(!req.body.tid) { utils.abort.missingData(res, 'body.tid'); return; }
+		if(!req.body.name) { utils.abort.missingData(res, 'body.name'); return; }
 		
 		var prj = req.params.id;
-		var tid = req.body.tid;
+		var tid = shortid.generate();
 
 		// TODO: #archive.create: Abfrage nochmal überprüfen
 		var q = 'MERGE (e40:E40:'+prj+')-[:P131]->(e82:E82:'+prj+' {value: {e82value}}) \
@@ -59,5 +60,3 @@ var archive = {
 	// TODO: #archive: edit, delete
 
 };
-
-module.exports = archive;

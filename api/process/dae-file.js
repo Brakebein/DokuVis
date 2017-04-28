@@ -12,6 +12,13 @@ const THREE = require('../modules/three');
 const CTMLoader = require('../modules/CTMLoader');
 
 const log4js = require('log4js');
+log4js.configure({
+	appenders: [{
+		type: 'stdout'
+	}, {
+		type: 'file', filename: 'logs/dae-process.log'
+	}]
+});
 const logger = log4js.getLogger('DAE PROCESS');
 log4js.replaceConsole(logger);
 

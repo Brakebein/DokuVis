@@ -8,16 +8,9 @@ $wordRectBorder:	1px solid red
 	padding: 15px
 	display: flex
 	flex-direction: row
-
-	&.vertical
-		flex-direction: column
-
 	
-	.imageVDiv
+	.imageDiv, .textDiv
 		flex: 1 1 auto
-	.imageHDiv
-		flex: 0 0 auto
-	.imageVDiv, .imageHDiv
 		position: relative
 		&>div
 			position: absolute
@@ -30,7 +23,7 @@ $wordRectBorder:	1px solid red
 			max-height: 100%
 			border: $imageBorder
 
-	.infoVDiv
+	.infoDiv
 		flex: 0 0 (100% - $imageVWidth)
 		padding-left: 20px
 		display: flex
@@ -44,39 +37,6 @@ $wordRectBorder:	1px solid red
 		&>.details
 			flex: 1 1 auto
 			overflow-y: auto
-
-	.infoHDiv
-		flex: 1 1 auto
-		padding-top: 20px
-		display: flex
-		flex-direction: column
-		
-		&>.title-section
-			flex: 0 0 auto
-			position: relative
-
-		&>.details
-			flex: 1 1 auto
-			display: flex
-
-			&>.info-section
-				flex: 1 1 auto
-				overflow-y: auto
-				display: flex
-				flex-wrap: wrap
-				align-content: flex-start
-
-				&>div
-					flex: 1 1 200px
-					padding: 0 20px 20px 0
-					&.large
-						flex: 1 1 auto
-						max-width: 400px
-						min-width: 200px
-
-			&>.comment-section
-				flex: 0 0 400px
-				overflow-y: auto
 
 	[image-viewer]
 		border: $imageBorder

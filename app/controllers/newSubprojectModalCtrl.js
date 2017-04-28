@@ -53,7 +53,6 @@ angular.module('dokuvisApp').controller('newSubprojectModalCtrl', ['$scope', '$s
 				sub.name = $scope.name;
 				sub.desc = $scope.desc;
 				sub.$update().then(function () {
-					//console.log('subproject changed');
 					$scope.close();
 				}, function (err) {
 					Utilities.throwApiException('on Subproject.update()', err);
@@ -61,7 +60,6 @@ angular.module('dokuvisApp').controller('newSubprojectModalCtrl', ['$scope', '$s
 			}
 			else {
 				Subproject.save({ name: $scope.name, desc: $scope.desc }).$promise.then(function () {
-					//console.log('subproject created');
 					$scope.close();
 				}, function (err) {
 					Utilities.throwApiException('on Subproject.create()', err);

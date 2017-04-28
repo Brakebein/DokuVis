@@ -11,3 +11,5 @@
 /bower_components
 /node_modules
 /dist
+/api/logs/
+/api/config.js

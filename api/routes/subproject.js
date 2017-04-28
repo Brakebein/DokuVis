@@ -1,5 +1,6 @@
-var utils = require('../utils');
-var neo4j = require('../neo4j-request');
+const shortid = require('shortid');
+const utils = require('../utils');
+const neo4j = require('../neo4j-request');
 
 module.exports = {
 
@@ -48,9 +49,10 @@ module.exports = {
 	},
 
 	create: function (req, res) {
-		if(!req.body.tid) { utils.abort.missingData(res, 'body.tid'); return; }
+		if(!req.body.name) { utils.abort.missingData(res, 'body.name'); return; }
 
 		var prj = req.params.id;
+		var tid = shortid.generate();
 
 		var q = 'MATCH (master:E7:'+prj+' {content: {master}})-[:P15]->(e22m:E22), \
 			(tsubp:E55:'+prj+' {content: "subproject"}), (tpdesc:E55:'+prj+' {content: "projDesc"}) \
@@ -63,13 +65,13 @@ module.exports = {
 
 		var params = {
 			master: prj,
-			subproj: 'sub' + req.body.tid,
+			subproj: 'sub' + tid,
 			title: {
-				content: 'e35_sub' + req.body.tid,
+				content: 'e35_sub' + tid,
 				value: req.body.name
 			},
 			desc: {
-				content: 'e62_sub' + req.body.tid,
+				content: 'e62_sub' + tid,
 				value: req.body.desc
 			}
 		};
@@ -82,8 +84,6 @@ module.exports = {
 				utils.error.neo4j(res, err, '#cypher');
 			});
 	},
-
-	
 
 	update: function (req, res) {
 		var prj = req.params.id;

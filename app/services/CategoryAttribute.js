@@ -8,10 +8,9 @@
  * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
  * @requires API
  * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
- * @requires Utilities
  */
-angular.module('dokuvisApp').factory('CategoryAttribute', ['$resource', 'API', '$stateParams', 'Utilities',
-	function ($resource, API, $stateParams, Utilities) {
+angular.module('dokuvisApp').factory('CategoryAttribute', ['$resource', 'API', '$stateParams',
+	function ($resource, API, $stateParams) {
 		
 		return $resource(API + 'auth/project/:project/category/:cid/attribute/:aid', {
 			project: function () {
@@ -20,25 +19,6 @@ angular.module('dokuvisApp').factory('CategoryAttribute', ['$resource', 'API', '
 			cid: '@cid',
 			aid: '@id'
 		}, {
-			/**
-			 * Saves a new attribute.
-			 * ```
-			 * CategoryAttribute.save({
-			 *   cid: <id>        // id of the category, the attribute should be part of
-			 *   value: <string>  // name of the new attribute
-			 *   color: <string>  // hexadecimal, e.g. '#ffdd44'
-			 * }).$promise.then(...);
-			 * ```
-			 * @ngdoc method
-			 * @name CategoryAttribute#save
-			 * @param data {Object} Object with data
-			 */
-			save: {
-				method: 'POST',
-				transformRequest: function (data) {
-					return angular.toJson(angular.extend(data, { id: Utilities.getUniqueId() + '_categoryAttr' }));
-				}
-			},
 			/**
 			 * Saves changes to the name.
 			 * ```
@@ -49,6 +29,20 @@ angular.module('dokuvisApp').factory('CategoryAttribute', ['$resource', 'API', '
 			 */
 			update: { method: 'PUT' }
 		});
+
+		/**
+		 * Saves a new attribute.
+		 * ```
+		 * CategoryAttribute.save({
+			 *   cid: <id>        // id of the category, the attribute should be part of
+			 *   value: <string>  // name of the new attribute
+			 *   color: <string>  // hexadecimal, e.g. '#ffdd44'
+			 * }).$promise.then(...);
+		 * ```
+		 * @ngdoc method
+		 * @name CategoryAttribute#save
+		 * @param data {Object} Object with data
+		 */
 
 		/**
 		 * Deletes this attribute.
