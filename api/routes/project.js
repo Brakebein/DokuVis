@@ -1,5 +1,6 @@
 const fs = require('fs-extra-promise');
 const Promise = require('bluebird');
+const shortid = require('shortid');
 const config = require('../config');
 const utils = require('../utils');
 const mysql = require('../mysql-request');
@@ -44,12 +45,11 @@ module.exports = {
 	},
 	
 	create: function (req, res) {
-		if(!req.body.proj) { utils.abort.missingData(res, 'body.proj'); return; }
 		if(!req.body.name) { utils.abort.missingData(res, 'body.name'); return; }
 
 		var user = req.headers['x-key'];
 		var userName = '';
-		var prj = req.body.proj;
+		var prj = 'Proj_' + shortid.generate();
 		var pProj = config.path.data + '/' + prj;
 
 		var connection;

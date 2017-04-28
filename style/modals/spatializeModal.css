@@ -1,0 +1,17 @@
+.spatializeModal .split-screen {
+  position: absolute;
+  top: 15px;
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  display: flex; }
+  .spatializeModal .split-screen .scene, .spatializeModal .split-screen .image {
+    flex: 0 0 50%; }
+  .spatializeModal .split-screen .scene {
+    background-color: #555; }
+  .spatializeModal .split-screen .image {
+    background-color: #00cc00;
+    overflow: hidden;
+    position: relative; }
+
+/*# sourceMappingURL=spatializeModal.css.map */

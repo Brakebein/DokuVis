@@ -1,6 +1,7 @@
-var config = require('../config');
-var utils = require('../utils');
-var neo4j = require('../neo4j-request');
+const shortid = require('shortid');
+const config = require('../config');
+const utils = require('../utils');
+const neo4j = require('../neo4j-request');
 
 module.exports = {
 
@@ -27,7 +28,7 @@ module.exports = {
 	
 	// allgemeine Info hinzufügen
 	create: function (req, res) {
-		if(!req.body.tid) { utils.abort.missingData(res, 'body.tid'); return; }
+		if(!req.body.info) { utils.abort.missingData(res, 'body.info'); return; }
 
 		var user = req.headers['x-key']; // TODO: user verknüpfen (via E33 Linguistic Object)
 		var prj = req.params.id;
@@ -40,7 +41,7 @@ module.exports = {
 				RETURN n';
 		var params = {
 			subproj: sub === 'master' ? prj : sub,
-			content: req.body.tid,
+			content: shortid.generate() + '_' + sub,
 			value: req.body.info
 		};
 		

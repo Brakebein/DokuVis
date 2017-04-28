@@ -65,10 +65,12 @@ router.put('/auth/project/:id/:subprj/projinfo', projinfo.swap);
 
 // models
 router.get('/auth/project/:id/:subprj/models', models.getTree);
+router.get('/auth/project/:id/model/:modelId', models.get);
+router.put('/auth/project/:id/model/:modelId', models.update);
 router.post('/auth/project/:id/:subprj/models', models.insert);
 router.post('/auth/project/:id/:subprj/assignCategory', models.assignCategory);
 router.get('/auth/project/:id/:subprj/model/:modelId/connect', models.getConnections);
-router.post('/auth/project/:id/:subprj/model/upload', mUpload.any(), upload.model);
+router.post('/auth/project/:id/:subprj/model/upload', mUpload.any(), upload);
 
 // categories
 var category = require('./category');

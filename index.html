@@ -153,13 +153,13 @@
 	
 	<!-- three.js -->
 	<!-- build:js webgl.js -->
-	<script type="text/javascript" src="lib/threejs/three-r73.min.js"></script>
+	<script type="text/javascript" src="lib/threejs/three-r84.min.js"></script>
 	<script type="text/javascript" src="lib/threejs/Projector.js"></script>
 	<script type="text/javascript" src="lib/threejs/CanvasRenderer.js"></script>
 	<script type="text/javascript" src="lib/threejs/OrbitControls.js"></script>
 	<script type="text/javascript" src="lib/threejs/CombinedCamera.js"></script>
-	<script type="text/javascript" src="lib/threejs/OBJMTLLoader.js"></script>
-	<script type="text/javascript" src="lib/threejs/MTLLoader.js"></script>
+	<!--<script type="text/javascript" src="lib/threejs/OBJMTLLoader.js"></script>-->
+	<!--<script type="text/javascript" src="lib/threejs/MTLLoader.js"></script>-->
 	<script type="text/javascript" src="lib/threejs/OBJExporter.js"></script>
 	<script type="text/javascript" src="lib/threejs/ctm/lzma.js"></script>
 	<script type="text/javascript" src="lib/threejs/ctm/ctm.js"></script>
@@ -184,6 +184,8 @@
 	<script type="text/javascript" src="lib/dv3d/ImagePane.js"></script>
 	<script type="text/javascript" src="lib/dv3d/Collection.js"></script>
 	<script type="text/javascript" src="lib/dv3d/Entry.js"></script>
+	<script type="text/javascript" src="lib/dv3d/SphereMarker.js"></script>
+	<script type="text/javascript" src="lib/dv3d/TorusMarker.js"></script>
 	<!-- endbuild -->
 
 	<script type="text/javascript" src="lib/FileSaver.js"></script>
@@ -218,6 +220,7 @@
 	<script type="text/javascript" src="app/services/Uploader.js"></script>
 	<script type="text/javascript" src="app/services/ConfirmService.js"></script>
 	<script type="text/javascript" src="app/services/TypeaheadRequest.js"></script>
+	<script type="text/javascript" src="app/services/SpatializeInterface.js"></script>
 
 	<!-- directives -->
 	<script type="text/javascript" src="app/directives/webglView/webglView.js"></script>
@@ -225,6 +228,7 @@
 	<script type="text/javascript" src="app/directives/graphSearch/graphSearch.js"></script>
 	<script type="text/javascript" src="app/directives/ngThumb.js"></script>
 	<script type="text/javascript" src="app/directives/rampSlider.js"></script>
+	<script type="text/javascript" src="app/directives/imageViewer/imageViewer.js"></script>
 
 	<!-- controllers -->
 	<script type="text/javascript" src="app/controllers/homeCtrl.js"></script>
@@ -247,6 +251,8 @@
 	<script type="text/javascript" src="app/controllers/newSubprojectModalCtrl.js"></script>
 	<script type="text/javascript" src="app/controllers/newProjInfoModalCtrl.js"></script>
 	<script type="text/javascript" src="app/controllers/staffeditModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/modelModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/spatializeModalCtrl.js"></script>
 	<!-- endbuild -->
 
 </body>

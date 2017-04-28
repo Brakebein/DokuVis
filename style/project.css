@@ -17,17 +17,26 @@
     cursor: pointer; }
   .sideNav .smBtn {
     flex: 0 0 35px;
-    padding: 7px;
+    height: 35px;
+    padding: 5px 4px;
     transition: border 0.3s, color 0.3s, background-color 0.3s; }
     .sideNav .smBtn:hover, .sideNav .smBtn.active {
       cursor: pointer;
       color: #ddd; }
+      .sideNav .smBtn:hover path, .sideNav .smBtn.active path {
+        fill: #ddd; }
     .sideNav .smBtn:hover {
       background-color: #444; }
     .sideNav .smBtn.active {
       background-color: rgba(252, 78, 42, 0.5); }
     .sideNav .smBtn i, .sideNav .smBtn span {
       font-size: 20px; }
+    .sideNav .smBtn svg {
+      width: 25px;
+      height: 25px; }
+    .sideNav .smBtn path {
+      fill: #999;
+      transition: fill 0.3s; }
   .sideNav .smSpace {
     flex: 1 1 35px; }
   .sideNav.sideNav-left {

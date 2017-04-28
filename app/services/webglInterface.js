@@ -97,7 +97,7 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			wi.layerLists = [];
 			wi.layers = [];
 			wi.hierarchList = [];
-			wi.plans = [];
+			//wi.plans = [];
 		};
 		
 		wi.ObjectEntry = function(item) {

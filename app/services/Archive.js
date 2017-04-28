@@ -7,34 +7,13 @@
  * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
  * @requires API
  * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
- * @requires Utilities
  */
-angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$stateParams', 'Utilities',
-	function($resource, API, $stateParams, Utilities) {
+angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$stateParams',
+	function($resource, API, $stateParams) {
 		
 		return $resource(API + 'auth/project/:project/archive', {
 			project: function () {
 				return $stateParams.project;
-			}
-		}, {
-			/**
-			 * Save a new arvhive.
-			 * ```
-			 * Archive.save({
-			 *   name: <string>  // archive name
-			 *   abbr: <string>  // abbreviation (optional)
-			 *   coll: <string>  // collection name
-			 * }).$promise.then(...);
-			 * ```
-			 * @ngdoc method
-			 * @name Archive#save
-			 * @param data {Object} Object with data
-			 */
-			save: {
-				method: 'POST',
-				transformRequest: function (data) {
-					return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() }));
-				}
 			}
 		});
 
@@ -47,6 +26,20 @@ angular.module('dokuvisApp').factory('Archive', ['$resource', 'API', '$statePara
 		 * @name Archive#query
 		 */
 
+		/**
+		 * Save a new arvhive.
+		 * ```
+		 * Archive.save({
+			 *   name: <string>  // archive name
+			 *   abbr: <string>  // abbreviation (optional)
+			 *   coll: <string>  // collection name
+			 * }).$promise.then(...);
+		 * ```
+		 * @ngdoc method
+		 * @name Archive#save
+		 * @param data {Object} Object with data
+		 */
+		
 		// TODO: #Archive update, delete
 
 	}]);

@@ -35,7 +35,7 @@
     opacity: 0.3; }
     .ctrlBtn[disabled]:hover {
       border: 1px solid #fff; }
-  .ctrlBtn.active {
+  .ctrlBtn:active, .ctrlBtn.active {
     background-color: #555;
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
@@ -49,6 +49,8 @@
   border-left: 1px solid #999; }
   .ctrlGroup:first-of-type {
     border: none; }
+  .ctrlGroup.ctrlGroup-text {
+    padding: 3px 4px; }
   .ctrlGroup input {
     margin: 2px 0;
     padding: 0;

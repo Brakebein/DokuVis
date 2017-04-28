@@ -7,12 +7,14 @@
 		<h4 class="modal-title" ng-bind="title"></h4>
 	</div>
 	
-	<div class="modal-body sourceDetail" ng-class="{vertical: horizontalImage}">
+	<div class="modal-body sourceDetail">
 	
-		<div ng-if="!horizontalImage" class="imageVDiv">
-			<div>
-			<img ng-if="item.type == 'picture' || item.type == 'plan'" ng-src="data/{{item.file.path + (item.file.display || item.file.name)}}"/>
-			<div ng-if="item.type == 'text' && !textEdit" class="displayText" sync-scroll="vertical-scroll">
+		<div class="imageDiv" ng-if="item.type !== 'text'">
+			<div image-viewer="'data/' + item.file.path + (item.file.display || item.file.name)"></div>
+		</div>
+
+		<div class="textDiv" ng-if="item.type === 'text'">
+			<div ng-show="!textEdit" class="displayText" sync-scroll="vertical-scroll">
 				<div class="vertical-scroll text"
 					 ng-mouseover="highlight($event)">
 					<div ng-include="'data/' + item.file.path + item.file.display[pageNr] + '.hocr'"></div>
@@ -22,15 +24,11 @@
 					<div id="wordRect"></div>
 				</div>
 			</div>
-			
-			<div ng-if="item.type == 'text' && textEdit" text-angular ta-toolbar="[['h3','p','quote'],['bold','italics','underline','ul','ol'],['undo','redo'],['html','insertLink']]" ng-model="editorInput"></div>
-			</div>
-		</div>
-		<div ng-if="horizontalImage" class="imageHDiv">
-			<img ng-src="data/{{item.file.path + (item.file.display || item.file.name)}}"/>
+
+			<div ng-show="textEdit" text-angular ta-toolbar="[['h3','p','quote'],['bold','italics','underline','ul','ol'],['undo','redo'],['html','insertLink']]" ng-model="editorInput"></div>
 		</div>
 
-		<div ng-class="horizontalImage ? 'infoHDiv' : 'infoVDiv'">
+		<div class="infoDiv">
 
 			<div class="title-section">
 				<div class="primaryIdenticator" title="Primärquelle" ng-show="item.primary"><div></div></div>

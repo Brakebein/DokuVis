@@ -1,7 +1,16 @@
+const config = require('./config');
 const mysql = require('./mysql-request');
 const Promise = require('bluebird');
+const exec = require('child-process-promise').execFile;
 const log4js = require('log4js');
 
+log4js.configure({
+	appenders: [{
+		type: 'stdout'
+	}, {
+		type: 'file', filename: 'logs/api.log'
+	}]
+});
 var logger = log4js.getLogger('API');
 log4js.replaceConsole(logger);
 
@@ -54,6 +63,15 @@ var utils = {
 			if (add) message += ' | ' + add;
 			console.warn(message);
 			res.status(510);
+			res.json({
+				message: message
+			});
+		},
+		unsupportedFile: function (res, add) {
+			var message = 'Unsupported file format';
+			if (add) message += ' | ' + add;
+			console.warn(message);
+			res.status(415);
 			res.json({
 				message: message
 			});
@@ -113,6 +131,44 @@ utils.checkPermission = function (req, res, role) {
 			return Promise.reject();
 		}
 	});
+};
+
+utils.resizeToNearestPowerOf2 = function (path, filename) {
+	var outputname = filename.split('.').shift() + '_';
+
+	return exec(config.exec.ImagickIdentify, [path + filename])
+		.then(function (result) {
+			var matches = result.stdout.match(/\s(\d+)x(\d+)\s/);
+
+			var width = +matches[1],
+				height = +matches[2],
+				w = 256,
+				h = 256;
+
+			while(w < width && w < 2048) {
+				w *= 2;
+			}
+			while(h < height && h < 2048) {
+				h *= 2;
+			}
+
+			outputname += w + 'x' + h + '.jpg';
+
+			return exec(config.exec.ImagickConvert, [
+				path + filename,
+				'-resize', w + 'x' + h + '!',
+				path + outputname
+			]);
+		})
+		.then(function () {
+			return Promise.resolve(outputname);
+		})
+		.catch(function (err) {
+			return Promise.reject({
+				code: 'IMAGEMAGICK',
+				err: err
+			});
+		});
 };
 	
 module.exports = utils;

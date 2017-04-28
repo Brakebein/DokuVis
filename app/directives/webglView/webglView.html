@@ -1,21 +1,22 @@
 <!-- Achsen-Viewport -->
-<div id="axis"></div>
+<div id="axis" ng-if="hud.axis"></div>
 <!-- Ladebalken und Ladeinfo -->
 <div class="loadprogressitem fadeLoadprogress ng-hide" ng-show="loading.visible">{{loading.item}} &ndash; {{loading.loaded}} / {{loading.total}}</div>
 <div class="loadprogressbar fadeLoadprogress ng-hide" ng-show="loading.visible" ng-style="{ width: loading.percent + '%' }"></div>
 
-<div class="spatialize" ng-if="spatialize.active" ng-include="'partials/spatialize.html'"></div>
+<!-- spatialize feature -->
+<div class="spatialize" ng-if="hud.spatialize" ng-include="'partials/spatialize.html'"></div>
 
 <!-- Kontrollleiste -->
-<div class="vpNaviContainer" ng-hide="snapshot.active">
+<div class="vpNaviContainer" ng-if="hud.navigation" ng-hide="snapshot.active">
 	<!-- Buttons - auf Objekt fokusieren -->
-	<div class="ctrlGroup">
-		<button title="Focus All" class="ctrlBtn" ng-class="(activeBtn == 'zoom_all') ? 'active' : ''" ng-click="focusAll()" ng-mousedown="activeBtn = 'zoom_all'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_all_w.png"/></button>
-		<button title="Focus Selection" class="ctrlBtn" ng-class="(activeBtn == 'zoom_sel') ? 'active' : ''"  ng-click="focusSelected()" ng-mousedown="activeBtn = 'zoom_sel'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><img src="img/icons/zoom_sel_w.png"/></button>
+	<div class="ctrlGroup" ng-show="hud.focus">
+		<button title="Focus All" class="ctrlBtn" ng-click="focusAll()"><img src="img/icons/zoom_all_w.png"/></button>
+		<button title="Focus Selection" class="ctrlBtn" ng-click="focusSelected()"><img src="img/icons/zoom_sel_w.png"/></button>
 	</div>
 	
 	<!-- Buttons - navigieren -->
-	<div class="ctrlGroup">
+	<div class="ctrlGroup" ng-show="hud.move">
 		<button title="Auswahl-Werkzeug" class="ctrlBtn" ng-class="{ active: navigation.select }" ng-click="setNavigationMode('select')"><img src="img/icons/cursor80_w.svg" width="24"/></button>
 		<button title="Ansicht drehen" class="ctrlBtn" ng-class="{ active: navigation.rotate }" ng-click="setNavigationMode('rotate')"><img src="img/icons/orbit_w.svg" width="24"/></button>
 		<button title="Ansicht verschieben" class="ctrlBtn" ng-class="{ active: navigation.pan }" ng-click="setNavigationMode('pan')"><img src="img/icons/move_w.svg" width="24"/></button>
@@ -24,8 +25,8 @@
 	
 	<!-- Dropdown-Liste Rendermode und Kamera -->
 	<div class="ctrlGroup form-inline">
-		<select class="form-control input-sm" ng-options="s for s in viewportSettings.shading" ng-model="viewportSettings.shadingSel" ng-change="setShading(viewportSettings.shadingSel)"></select>
-		<select class="form-control input-sm" ng-options="c for c in viewportSettings.camera" ng-model="viewportSettings.cameraSel" ng-change="setCamera(viewportSettings.cameraSel)"></select>
+		<select class="form-control input-sm" ng-show="hud.shading" ng-options="s for s in viewportSettings.shading" ng-model="viewportSettings.shadingSel" ng-change="setShading(viewportSettings.shadingSel)"></select>
+		<select class="form-control input-sm" ng-show="hud.camera" ng-options="c for c in viewportSettings.camera" ng-model="viewportSettings.cameraSel" ng-change="setCamera(viewportSettings.cameraSel)"></select>
 	</div>
 
 	<div class="ctrlGroup">
@@ -46,11 +47,12 @@
 </div>
 
 <!-- Erweiterte Optionen im Viewport -->
-<div ng-include="'partials/enhanced_options.html'" class="vpPanelContainer" ng-hide="snapshot.active" ng-class="{ expand: vPanel.expand }" bs-collapse ng-model="vPanel.activeTab"></div>
+<div ng-if="hud.options" ng-include="'partials/enhanced_options.html'" class="vpPanelContainer" ng-hide="snapshot.active" ng-class="{ expand: vPanel.expand }" bs-collapse ng-model="vPanel.activeTab"></div>
 <!--<div ng-include="'partials/enhanced_options_horizontal.html'" class="vpPanelContainerHorizontal"></div>-->
 
 <div class="ng-hide" legend="activeCategory" ng-show="activeCategory"></div>
 
 <div class="snapshot" ng-if="snapshot.active" ng-include="'partials/snapshot.html'"></div>
 
+<canvas ng-class="{'cursor_orbit': navigation.rotate, 'cursor_pan': navigation.pan, 'cursor_zoom': navigation.zoom}"></canvas>
 

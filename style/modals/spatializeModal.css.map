@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAGC,8BAAa;EACZ,QAAQ,EAAE,QAAQ;EAClB,GAAG,ECiBc,IAAI;EDhBrB,MAAM,ECgBW,IAAI;EDfrB,IAAI,ECea,IAAI;EDdrB,KAAK,ECcY,IAAI;EDbrB,OAAO,EAAE,IAAI;EAEb,4EAAc;IACb,IAAI,EAAE,OAAO;EAEd,qCAAM;IACL,gBAAgB,EAAE,IAAI;EAEvB,qCAAM;IACL,gBAAgB,EAAE,OAAO;IACzB,QAAQ,EAAE,MAAM;IAChB,QAAQ,EAAE,QAAQ",
+"sources": ["spatializeModal.sass","../variables.sass"],
+"names": [],
+"file": "spatializeModal.css"
+}

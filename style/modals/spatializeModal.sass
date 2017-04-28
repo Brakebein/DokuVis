@@ -1,0 +1,22 @@
+@import "../variables"
+
+.spatializeModal
+	.split-screen
+		position: absolute
+		top: $modalBodyPadding
+		bottom: $modalBodyPadding
+		left: $modalBodyPadding
+		right: $modalBodyPadding
+		display: flex
+
+		.scene, .image
+			flex: 0 0 50%
+
+		.scene
+			background-color: #555
+
+		.image
+			background-color: #00cc00
+			overflow: hidden
+			position: relative
+

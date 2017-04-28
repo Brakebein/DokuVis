@@ -1,6 +1,7 @@
-var config = require('../config');
-var utils = require('../utils');
-var neo4j = require('../neo4j-request');
+const shortid = require('shortid');
+const config = require('../config');
+const utils = require('../utils');
+const neo4j = require('../neo4j-request');
 
 module.exports = {
 	
@@ -36,7 +37,6 @@ module.exports = {
 	},
 	
 	create: function(req, res) {
-		if(!req.body.id) { utils.abort.missingData(res, 'body.id'); return; }
 		if(!req.body.value) { utils.abort.missingData(res, 'body.value'); return; }
 		
 		var prj = req.params.id;
@@ -46,7 +46,7 @@ module.exports = {
 			RETURN c';
 		var params = {
 			newValues: {
-				content: req.body.id,
+				content: shortid.generate() + '_category',
 				value: req.body.value
 			}
 		};
@@ -106,7 +106,6 @@ module.exports = {
 	},
 	
 	createAttr: function(req, res) {
-		if(!req.body.id) { utils.abort.missingData(res, 'body.id'); return; }
 		if(!req.body.value) { utils.abort.missingData(res, 'body.value'); return; }
 		
 		var prj = req.params.id;
@@ -117,7 +116,7 @@ module.exports = {
 		var params = {
 			cid: req.params.cid,
 			newValues: {
-				content: req.body.id,
+				content: shortid.generate() + '_categoryAttr',
 				value: req.body.value,
 				color: req.body.color
 			}

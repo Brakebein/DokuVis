@@ -24,13 +24,17 @@
 	</div>-->
 	
 	<!-- 3D-Viewport -->
-	<div id="webglViewport" ng-class="{cursor_orbit: navigation.rotate, cursor_pan: navigation.pan, cursor_zoom: navigation.zoom}"
-		webgl-view
-		unsafe-settings="unsafeSettings"
-		call-func="callDirFunc"
-		gizmo-Coords="coords"
-		navigation="navigation"
-		screenshot-callback="receiveScreenshot">
+	<div id="webglViewport"
+		 webgl-view="main"
+		 nav-toolbar="['focus','move','shading','camera']"
+		 axis
+		 option-toolbar>
+		<!--ng-class="{cursor_orbit: navigation.rotate, cursor_pan: navigation.pan, cursor_zoom: navigation.zoom}"-->
+		<!--unsafe-settings="unsafeSettings"-->
+		<!--call-func="callDirFunc"-->
+		<!--gizmo-Coords="coords"-->
+		<!--navigation="navigation"-->
+		<!--screenshot-callback="receiveScreenshot">-->
 		
 		
 		
@@ -157,7 +161,7 @@
 						<div class="ctrlGroup">
 							<div class="dvSlider-container dvSlider-slim">
 								Size
-								<input class="dvSlider dvSlider-dark" type="range" style="width:100px" min="5" max="50" step="0.5" ng-model="wi.spatialImages.scale" ng-change="wi.spatialImages.setScale()"/>
+								<input class="dvSlider dvSlider-dark" type="range" style="width:100px" min="-10" max="10" step="0.5" ng-model="wi.spatialImages.scale" ng-change="wi.spatialImages.setScale()"/>
 								{{ wi.spatialImages.scale | number: 1 }}
 							</div>
 						</div>
@@ -176,7 +180,8 @@
 					<div class="expand"></div>
 					<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
 					<div class="opacity" ramp-slider ng-model="data.opacity" ng-change="data.setOpacity()" rs-color="#ddd" rs-color-end="#bbb"></div>
-					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="data.setImageView()"></span>
+					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="wi.callFunc['main'].setImageView(data.object)"></span>
+					<span class="fa fa-camera" title="Update spatial" ng-click="spatializeImage(data.source)"></span>
 				</div>
 
 		</div>
@@ -455,6 +460,10 @@
 		<button ng-click="openIndexEdit()">index modal</button>
 		
 		<button ng-click="resizerValue = 800">resizerAnim</button>
+
+		<button ng-click="logModels()">log models</button>
+
+		<button ui-sref="project.explorer.spatialize">spatialModal</button>
 	</div>
 	
 	
@@ -476,9 +485,6 @@
 	<p>
 	<!--<button ng-click="loadModelsWithChildren()">Load ModelsWChildren</button>-->
 	</p>
-
-	<!--<button ng-click="logModels()">log models</button>-->
-	<!-- <button ng-click="openInsertForm('model')">upload 3D model</button> -->
 	
 
 	

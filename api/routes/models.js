@@ -17,20 +17,21 @@ var models = {
 		
 		q += ' WITH c';
 		q += ' MATCH (p:E22:'+prj+')-[:P46]->(c)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)';
+		q += ' OPTIONAL MATCH (cobj)-[:P2]->(cmat:E57)';
 		q += ' OPTIONAL MATCH (c)-[:P2]->(attr:E55)-[:P127]->(cat:E55)-[:P127]->(tcat)';
-		q += ' WITH p, c, cobj, cfile, collect({catId: cat.content, catValue: cat.value, attrId: attr.content, attrValue: attr.value}) AS categories';
+		q += ' WITH p, c, cobj, cfile, cmat, collect({catId: cat.content, catValue: cat.value, attrId: attr.content, attrValue: attr.value}) AS categories';
 		
-		q += ' RETURN {parent: p} AS parent, collect({child: c, obj: cobj, file: cfile, categories: {data: categories}}) AS children';
+		q += ' RETURN p AS parent, collect({content: c.content, obj: cobj, file: cfile, material: cmat, categories: categories}) AS children';
 		var params = {
 			esub: 'e22_root_'+subprj
 		};
 		
-		neo4j.cypher(q, params)
+		neo4j.transaction(q, params)
 			.then(function(response) {
 				if(response.exception) { utils.error.neo4j(res, response, '#models.getTree'); return; }
 				// null objekte rausfiltern und assoziatives Array für Kategorien
 				//console.log(response.data);
-				for(var i=0; i<response.data.length; i++) {
+				/*for(var i=0; i<response.data.length; i++) {
 					for(var j=0; j<response.data[i][1].length; j++) {
 						var catObj = {};
 						for(var k=0; k<response.data[i][1][j].categories.data.length; k++) {
@@ -40,12 +41,64 @@ var models = {
 						}
 						response.data[i][1][j].categories.data = catObj;
 					}
-				}
-				res.json(response);
+				}*/
+				var data = neo4j.extractTransactionData(response.results[0]);
+				neo4j.removeEmptyArrays(data, 'categories', 'catId');
+				res.json(neo4j.createHierarchy(data));
+				//res.json(data);
 			}).catch(function(err) {
 				utils.error.neo4j(res, err, '#cypher');
 			});		
 		
+	},
+
+	get: function (req, res) {
+		var prj = req.params.id;
+
+		var q = 'MATCH (obj:E73:'+prj+' {content: {e73id}})-[:P1]->(file:E75), \
+			(obj)<-[:P106]-(:E36)-[:P138]->(e22) \
+			OPTIONAL MATCH (e22)-[:P2]->(attr:E55)-[:P127]->(cat:E55)-[:P127]->(:E55 {content:"category"}) \
+			RETURN obj, file, collect({catId: cat.content, catValue: cat.value, attrId: attr.content, attrValue: attr.value, attrColor: attr.color}) AS categories';
+		
+		var params = {
+			e73id: req.params.modelId
+		};
+		
+		neo4j.transaction(q, params)
+			.then(function (response) {
+				if(response.errors.length) { utils.error.neo4j(res, response, '#models.get'); return; }
+				var data = neo4j.extractTransactionData(response.results[0]);
+				neo4j.removeEmptyArrays(data, 'categories', 'catId');
+				res.json(data[0]);
+			})
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
+	},
+	
+	update: function (req, res) {
+		var prj = req.params.id;
+		
+		var q = 'MATCH (obj:E73:'+prj+' {content: {e73id}})\
+			SET obj += {props}\
+			RETURN obj';
+		
+		var params = {
+			e73id: req.params.modelId,
+			props: {
+				name: req.body.obj.name,
+				unit: req.body.obj.unit
+			}
+		};
+		
+		neo4j.transaction(q, params)
+			.then(function (response) {
+				if(response.errors.length) {utils.error.neo4j(res, response, '#models.update'); return; }
+				res.json(response);
+			})
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
 	},
 
 	insert: function (req, res) {

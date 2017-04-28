@@ -8,7 +8,6 @@
 angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$http', 'Utilities', 'Source', 'Comment', '$timeout', '$translatePartialLoader',
 	function($scope, $state, $stateParams, $previousState, $http, Utilities, Source, Comment, $timeout, $translatePartialLoader) {
 		
-		console.log('sourceDetailCtrl init');
 		$translatePartialLoader.addPart('source');
 		$previousState.memo('modalInvoker');
 		$scope.switchable = $state.includes('project.explorer');
@@ -63,8 +62,8 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		/**
 		 * Load next (or previous, if negative) item. `incr` is relative to the current item.
 		 * So `2` will load the next but one, `-1` will load the previous one.
-		 * @memberof sourceDetailCtrl
-		 * @function nextItem
+		 * @ngdoc method
+		 * @memberof sourceDetailCtrl#nextIten
 		 * @param incr {Number} number of steps to move (usually `1`)
 		 */
 		$scope.nextItem = function(incr) {
@@ -143,8 +142,8 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 
 		/**
 		 * Save a new comment about the current item.
-		 * @memberof sourceDetailCtrl
-		 * @function postComment
+		 * @ngdoc method
+		 * @memberof sourceDetailCtrl#postComment
 		 */
 		$scope.postComment = function() {
 			if($scope.newCommentInput.length < 1) return;
@@ -166,8 +165,8 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 
 		/**
 		 * Save a new comment of type `answer`.
-		 * @memberof sourceDetailCtrl
-		 * @function postAnswer
+		 * @ngdoc method
+		 * @memberof sourceDetailCtrl#postAnswer
 		 * @param comment {Object} parent comment
 		 */
 		$scope.postAnswer = function(comment) {
@@ -190,9 +189,9 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 
 
 		/**
-		 * Closes and destroys this modal and change to GraphSearch state.
-		 * @memberof sourceDetailCtrl
-		 * @function enterGraph
+		 * Closes and destroys this modal and changes to GraphSearch state.
+		 * @ngdoc method
+		 * @memberof sourceDetailCtrl#enterGraph
 		 * @param id {Number} GraphSearch start Id
 		 */
 		$scope.enterGraph = function (id) {
@@ -210,11 +209,11 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 					$scope.close();
 				});
 		});
-
+		
 		/**
-		 * Closes the modal and destroys the controller instance.
-		 * @memberof sourceDetailCtrl
-		 * @function close
+		 * Closes the modal and destroys the controller instance/scope.
+		 * @ngdoc method
+		 * @name sourceDetailCtrl#close
 		 */
 		$scope.close = function () {
 			this.$hide();

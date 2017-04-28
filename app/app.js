@@ -196,6 +196,21 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					selection: []
 				}
 			})
+			.state('project.explorer.model', {
+				url: '/model',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/modelModal.html',
+						controller: 'modelModalCtrl',
+						show: true
+					});
+				}],
+				abstract: true
+			})
+			.state('project.explorer.model.id', {
+				url: '/:modelId'
+			})
 			.state('project.explorer.upload', {
 				url: '/upload',
 				onEnter: ['$modal', function ($modal) {
@@ -236,6 +251,33 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 						show: true
 					})
 				}]
+			})
+			.state('project.explorer.spatialize', {
+				url: '/spatialize',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalXLargeTpl.html',
+						contentTemplate: 'partials/modals/spatializeModal.html',
+						controller: 'spatializeModalCtrl',
+						show: true
+					})
+				}],
+				css: 'style/modals/spatializeModal.css',
+				params: {
+					source: null
+				},
+				resolve: {
+					check: ['$q', '$state', '$stateParams', '$timeout', function ($q, $state, $stateParams, $timeout) {
+						if($stateParams.source)
+							return $q.resolve();
+						else {
+							$timeout(function () {
+								$state.go('project.explorer', $stateParams);
+							});
+							return $q.reject();
+						}
+					}]
+				}
 			})
 			.state('project.tasks', {
 				url: '/tasks',

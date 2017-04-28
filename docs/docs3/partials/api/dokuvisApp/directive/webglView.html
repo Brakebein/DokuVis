@@ -28,14 +28,14 @@
   
   <h2 id="dependencies">Dependencies</h2>
   <ul>
-    <li><a href="$stateParams">$stateParams</a></li><li><a href="$timeout">$timeout</a></li><li><a href="api/dokuvisApp/factory/webglContext">webglContext</a></li><li><a href="webglInterface">webglInterface</a></li><li><a href="$rootScope">$rootScope</a></li><li><a href="phpRequest">phpRequest</a></li><li><a href="neo4jRequest">neo4jRequest</a></li><li><a href="$http">$http</a></li><li><a href="$q">$q</a></li><li><a href="api/dokuvisApp/factory/Utilities">Utilities</a></li><li><a href="api/dokuvisApp/factory/Comment">Comment</a></li><li><a href="api/dokuvisApp/factory/ConfirmService">ConfirmService</a></li>
+    <li><a href="$stateParams">$stateParams</a></li><li><a href="$timeout">$timeout</a></li><li><a href="api/dokuvisApp/factory/webglContext">webglContext</a></li><li><a href="webglInterface">webglInterface</a></li><li><a href="$rootScope">$rootScope</a></li><li><a href="phpRequest">phpRequest</a></li><li><a href="neo4jRequest">neo4jRequest</a></li><li><a href="$http">$http</a></li><li><a href="$q">$q</a></li><li><a href="api/dokuvisApp/factory/Utilities">Utilities</a></li><li><a href="api/dokuvisApp/factory/Comment">Comment</a></li><li><a href="api/dokuvisApp/factory/ConfirmService">ConfirmService</a></li><li><a href="api/dokuvisApp/factory/SpatializeInterface">SpatializeInterface</a></li>
   </ul>
   
 
   
   <h2>Directive Info</h2>
   <ul>
-    
+    <li>This directive creates new scope.</li>
     <li>This directive executes at priority level 0.</li>
     
   </ul>
@@ -45,13 +45,8 @@
   <div class="usage">
   
     <ul>
-    
-      <li>as element:
-      
-      <pre><code>&lt;webgl-view&gt;&#10;  ...&#10;&lt;/webgl-view&gt;</code></pre>
-      </li>
     <li>as attribute:
-        <pre><code>&lt;ANY&#10;  webgl-view&gt;&#10;...&#10;&lt;/ANY&gt;</code></pre>
+        <pre><code>&lt;ANY&#10;  webgl-view=&quot;string&quot;&#10;  [nav-toolbar=&quot;Array&quot;]&#10;  [axis]&#10;  [spatialize]&gt;&#10;...&#10;&lt;/ANY&gt;</code></pre>
       </li>
     
   </div>
@@ -76,10 +71,62 @@
         
       </td>
       <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Id/name that is used to call functions inside from outside (important, if there are multiple active <code>webglView</code> directives)</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        navToolbar
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
+        <span class="label type-hint type-hint-array"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" _target="blank">Array</a></span>
+      </td>
+      <td>
+        <p>Activate navigation toolbar on top of the viewport. Array elements define which features will be available, e.g. <code>&#39;select&#39;</code>, <code>&#39;move&#39;</code>, <code>&#39;shading&#39;</code>, <code>&#39;camera&#39;</code>, and more to come.</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        axis
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
         <span class="label type-hint type-hint-boolean"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" _target="blank">Boolean</a></span>
       </td>
       <td>
+        <p>Activate world axis in the left-bottom corner of the viewport</p>
+
         
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        spatialize
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
+        <span class="label type-hint type-hint-boolean"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" _target="blank">Boolean</a></span>
+      </td>
+      <td>
+        <p>Activate spatialize feature, e.g. setting markers on 3D model</p>
+
         
         
       </td>
@@ -94,6 +141,12 @@
 
 
   
+  <h2 id="example">Example</h2><pre><code>&lt;div webgl=&quot;main&quot;
+     nav-toolbar=&quot;[&#39;select&#39;, &#39;move&#39;, &#39;camera&#39;]&quot;
+     axis&gt;
+&lt;/div&gt;
+</code></pre>
+
 </div>
 
 

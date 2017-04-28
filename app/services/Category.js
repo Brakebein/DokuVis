@@ -8,11 +8,10 @@
  * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
  * @requires API
  * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
- * @requires Utilities
  * @requires CategoryAttribute
  */
-angular.module('dokuvisApp').factory('Category', ['$resource', 'API', '$stateParams', 'Utilities', 'CategoryAttribute',
-	function ($resource, API, $stateParams, Utilities, CategoryAttribute) {
+angular.module('dokuvisApp').factory('Category', ['$resource', 'API', '$stateParams', 'CategoryAttribute',
+	function ($resource, API, $stateParams, CategoryAttribute) {
 		
 		function setAttributeResource(json) {
 			var data = angular.fromJson(json);
@@ -47,23 +46,6 @@ angular.module('dokuvisApp').factory('Category', ['$resource', 'API', '$statePar
 				transformResponse: setAttributeResource
 			},
 			/**
-			 * Create a new (empty) category.
-			 * ```
-			 * Category.save({
-			 *   value: <string>  // name of the new category
-			 * }).$promise.then(...);
-			 * ```
-			 * @ngdoc method
-			 * @name Category#save
-			 * @param data {Object} Object with data
-			 */
-			save: {
-				method: 'POST',
-				transformRequest: function (data) {
-					return angular.toJson(angular.extend(data, { id: Utilities.getUniqueId() + '_category' }));
-				}
-			},
-			/**
 			 * Saves changes to the name and the color.
 			 * ```
 			 * category.$update().then(...);
@@ -74,6 +56,18 @@ angular.module('dokuvisApp').factory('Category', ['$resource', 'API', '$statePar
 			update: { method: 'PUT' }
 		});
 
+		/**
+		 * Create a new (empty) category.
+		 * ```
+		 * Category.save({
+			 *   value: <string>  // name of the new category
+			 * }).$promise.then(...);
+		 * ```
+		 * @ngdoc method
+		 * @name Category#save
+		 * @param data {Object} Object with data
+		 */
+		
 		/**
 		 * Deletes this category and its attributes.
 		 * ```

@@ -18,29 +18,29 @@ angular.module('dokuvisApp').factory('webglContext',
 		var initWidth = 800, initHeight = 600;
 
 		// Camera
-		var camera = new THREE.CombinedCamera(initWidth, initHeight, 35, NEAR, FAR, NEAR, FAR);
-		camera.position.set(-100, 60, 100);
+		// var camera = new THREE.CombinedCamera(initWidth, initHeight, 35, NEAR, FAR, NEAR, FAR);
+		// camera.position.set(-100, 60, 100);
 
 		// Scene
 		var scene = new THREE.Scene();
-		scene.add(camera);
+		//scene.add(camera);
 		scene.fog = new THREE.Fog(backgroundColor, FAR-100, FAR);
 
 		// Grid
 		scene.add(new THREE.GridHelper(100, 10));
 
 		// Renderer
-		var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
-		renderer.setClearColor(backgroundColor, 1);
-		renderer.setSize(initWidth, initHeight);
+		// var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
+		// renderer.setClearColor(backgroundColor, 1);
+		// renderer.setSize(initWidth, initHeight);
 
 		// Stats
 		// var stats = new Stats();
 
 		// Controls
-		var controls = new THREE.OrbitControls(camera, renderer.domElement);
-		controls.zoomSpeed = 1.0;
-		camera.target = controls.center;
+		// var controls = new THREE.OrbitControls(camera, renderer.domElement);
+		// controls.zoomSpeed = 1.0;
+		// camera.target = controls.center;
 
 		// Light
 		scene.add(new THREE.AmbientLight(0x888888));
@@ -49,9 +49,9 @@ angular.module('dokuvisApp').factory('webglContext',
 		scene.add(directionalLight);
 
 		// Axis helper
-		var axisRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-		var axisCamera = new THREE.OrthographicCamera(-30, 30, 30, -30, 1, 100);
-		axisCamera.up = camera.up;
+		// var axisRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+		// var axisCamera = new THREE.OrthographicCamera(-30, 30, 30, -30, 1, 100);
+		// //axisCamera.up = camera.up;
 		var axisScene = new THREE.Scene();
 		axisScene.add( new THREE.AxisHelper(30) );
 
@@ -162,24 +162,39 @@ angular.module('dokuvisApp').factory('webglContext',
 		materials['sliceLineMat'] = new THREE.LineBasicMaterial({color: 0xff0000, name: 'sliceLineMat'});
 		materials['sliceMultiMat_debug'] = [new THREE.MeshLambertMaterial({color: 0xdd4444}),new THREE.MeshLambertMaterial({color: 0x44dd44}),new THREE.MeshLambertMaterial({color: 0x4444dd}),new THREE.MeshLambertMaterial({color: 0x44dddd})];
 
+		// font
+		var fontLoader = new THREE.FontLoader(),
+			fonts = {};
+		fontLoader.load('fonts/helvetiker_bold.typeface.js', function (font) {
+			fonts['HelvetikerBold'] = font;
+		});
 
 		THREE.DokuVisTray = {
-			
-			selectionColor: selectionColor,
-			defaultEdgeColor: defaultEdgeColor,
 
-			camera: camera,
+			defaults: {
+				NEAR: 1,
+				FAR: 1400,
+				initWidth: 800,
+				initHeight: 600,
+				backgroundColor: backgroundColor,
+				selectionColor: selectionColor,
+				edgeColor: defaultEdgeColor
+			},
+
+			// camera: camera,
 			scene: scene,
-			renderer: renderer,
-			controls: controls,
+			// renderer: renderer,
+			// controls: controls,
 			directionalLight: directionalLight,
 
-			axisRenderer: axisRenderer,
-			axisCamera: axisCamera,
+			// axisRenderer: axisRenderer,
+			// axisCamera: axisCamera,
 			axisScene: axisScene,
 
 			geometries: geometries,
 			materials: materials,
+			
+			fonts: fonts,
 
 			objects: {},
 			plans: {},

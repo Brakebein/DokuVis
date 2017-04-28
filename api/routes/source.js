@@ -2,8 +2,9 @@ const config = require('../config');
 const utils = require('../utils');
 const fs = require('fs-extra-promise');
 const neo4j = require('../neo4j-request');
-const exec = require('child-process-promise').exec;
+const exec = require('child-process-promise').execFile;
 const Promise = require('bluebird');
+const THREE = require('../modules/three');
 
 var source = {
 	
@@ -147,7 +148,7 @@ var source = {
 		}
 		
 		// process image
-		var path = config.path.data + '/'  + prj + '/' + req.body.sourceType + 's/';
+		var path = config.path.data + '/' + prj + '/' + req.body.sourceType + 's/';
 		var filename = req.file.filename;
 		var filenameThumb = '_thumbs/t_' + filename.slice(0, filename.lastIndexOf(".")) + '.jpg';
 		var filenamePreview = filename.slice(0, filename.lastIndexOf(".")) + '_1024.jpg';
@@ -155,12 +156,18 @@ var source = {
 		// move/rename file
 		fs.renameAsync(req.file.path, path + filename)
 			.then(function () {
+				// image size
+				return exec(config.exec.ImagickIdentify, [path + filename]);
+			})
+			.then(function (result) {
+				console.debug(result.stdout);
+
 				// thumbnail
-				return exec(config.exec.ImagickConvert + ' ' + path + filename + ' -resize "160x90^" -gravity center -extent 160x90 ' + path + filenameThumb);
+				return exec(config.exec.ImagickConvert, [path + filename, '-resize "160x90^"', '-gravity center', '-extent 160x90', path + filenameThumb]);
 			})
 			.then(function () {
 				// downsample preview image
-				return exec(config.exec.ImagickConvert + ' ' + path + filename + ' -resize "1024x1024>" ' + path + filenamePreview);
+				return exec(config.exec.ImagickConvert, [path + filename, '-resize "1024x1024>"', path + filenamePreview]);
 			})
 			.catch(function (err) {
 				utils.error.server(res, err, '#source.create fs/exec ' + path + filename);
@@ -359,28 +366,61 @@ var source = {
 		var prj = req.params.id;
 
 		// TODO: convert image to 1024x1024 map
-
-		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36) \
-			MERGE (e36)-[:P106]->(e73:E73:'+prj+' {content: {e73id}}) \
-			ON CREATE SET e73 += {e73value} \
-			RETURN e73';
-
-		var params = {
-			sourceId: req.params.sourceId,
-			e73id: 'spatial_' + req.params.sourceId,
-			e73value: {
-				path: req.body.file.path,
-				map: req.body.file.display,
-				matrix: req.body.matrix,
-				fov: req.body.fov
-			}
-		};
 		
-		neo4j.transaction(q, params)
+		console.debug(req.body.file.name);
+		var tmpFile = config.path.tmp + '/' + req.body.file.name + '_coords.txt';
+		
+		fs.writeFileAsync(tmpFile, req.body.dlt)
+			.then(function () {
+				return exec(config.exec.DLT, [tmpFile]);
+			})
+			.catch(function (err) {
+				utils.error.server(res, err, '#source.setSpatial fs/exec ' + tmpFile);
+				fs.unlinkSync(tmpFile);
+			})
+			.then(function (result) {
+				console.debug(result.stdout);
+				fs.unlinkSync(tmpFile);
+
+				var lines = result.stdout.split("\n");
+
+				var ck = parseFloat(lines[1]) / 1000;
+				var offset = new THREE.Vector2(parseFloat(lines[3]) / 1000, parseFloat(lines[4]) / 1000);
+
+				var position = new THREE.Vector3(parseFloat(lines[6]), parseFloat(lines[7]), parseFloat(lines[8]));
+				var r1 = lines[10].trim().split(/\s+/),
+					r2 = lines[11].trim().split(/\s+/),
+					r3 = lines[12].trim().split(/\s+/);
+
+				var matrix = new THREE.Matrix4();
+				matrix.set( parseFloat(r1[0]), parseFloat(r1[1]), parseFloat(r1[2]), position.x,
+							parseFloat(r2[0]), parseFloat(r2[1]), parseFloat(r2[2]), position.y,
+							parseFloat(r3[0]), parseFloat(r3[1]), parseFloat(r3[2]), position.z,
+							0, 0, 0, 1);
+				
+				var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36) \
+					MERGE (e36)-[:P106]->(e73:E73:'+prj+' {content: {e73id}}) \
+					SET e73 += {e73value} \
+					RETURN e73 AS spatial';
+		
+				var params = {
+					sourceId: req.params.sourceId,
+					e73id: 'spatial_' + req.params.sourceId,
+					e73value: {
+						path: req.body.file.path,
+						map: req.body.file.display,
+						matrix: matrix.toArray(),
+						offset: offset.toArray(),
+						ck: ck
+					}
+				};
+
+				return neo4j.transaction(q, params);
+			})
 			.then(function (response) {
 				if(response.errors.length) { utils.error.neo4j(res, response, '#source.setSpatial'); return; }
-				// res.json(neo4j.extractTransactionData(response.results[0])[0]);
-				res.send();
+				res.json(neo4j.extractTransactionData(response.results[0])[0]);
+				//res.send();
 			})
 			.catch(function (err) {
 				utils.error.neo4j(res, err, '#cypher');

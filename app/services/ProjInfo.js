@@ -7,10 +7,9 @@
  * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
  * @requires API
  * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
- * @requires Utilities
  */
-angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$stateParams', 'Utilities',
-	function ($resource, API, $stateParams, Utilities) {
+angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$stateParams',
+	function ($resource, API, $stateParams) {
 
 		return $resource(API + 'auth/project/:project/:subproject/projinfo/:id', {
 			project: function () {
@@ -21,21 +20,6 @@ angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$statePar
 			},
 			id: '@id'
 		}, {
-			/**
-			 * Save a new info item.
-			 * ```
-			 * ProjInfo.save({ info: <string> }).$promise.then(...);
-			 * ```
-			 * @ngdoc method
-			 * @name ProjInfo#save
-			 * @param data {Object} Object with data
-			 */
-			save: {
-				method: 'POST',
-				transformRequest: function (data) {
-					return angular.toJson(angular.extend(data, { tid: Utilities.getUniqueId() + '_' + $stateParams.subproject }));
-				}
-			},
 			/**
 			 * Save any changes to name or description.
 			 * ```
@@ -69,6 +53,16 @@ angular.module('dokuvisApp').factory('ProjInfo', ['$resource', 'API', '$statePar
 		 * @name ProjInfo#query
 		 */
 
+		/**
+		 * Save a new info item.
+		 * ```
+		 * ProjInfo.save({ info: <string> }).$promise.then(...);
+		 * ```
+		 * @ngdoc method
+		 * @name ProjInfo#save
+		 * @param data {Object} Object with data
+		 */
+		
 		/**
 		 * Delete the item.
 		 * ```

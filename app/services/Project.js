@@ -6,32 +6,13 @@
  * @author Brakebein
  * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource/service/$resource $resource
  * @requires API
- * @requires Utilities
  */
-angular.module('dokuvisApp').factory('Project', ['$resource', 'API', 'Utilities',
-	function ($resource, API, Utilities) {
+angular.module('dokuvisApp').factory('Project', ['$resource', 'API',
+	function ($resource, API) {
 		
 		return $resource(API + 'auth/project/:id', {
 			id: '@proj'
 		}, {
-			/**
-			 * Creates a new project.
-			 * ```
-			 * Project.save({
-			 *   name: <string>,
-			 *   description: <string>  // (optional)
-			 * }).$promise.then(...);
-			 * ```
-			 * @ngdoc method
-			 * @name Project#save
-			 * @param data {Object} Object with data
-			 */
-			save: {
-				method: 'POST',
-				transformRequest: function (data) {
-					return angular.toJson(angular.extend(data, { proj: 'Proj_' + Utilities.getUniqueId() }));
-				}
-			},
 			/**
 			 * Saves any changes to name or description.
 			 * ```
@@ -63,6 +44,19 @@ angular.module('dokuvisApp').factory('Project', ['$resource', 'API', 'Utilities'
 		 * @ngdoc method
 		 * @name Project#get
 		 * @param id {Object} Object with project id
+		 */
+
+		/**
+		 * Creates a new project.
+		 * ```
+		 * Project.save({
+			 *   name: <string>,
+			 *   description: <string>  // (optional)
+			 * }).$promise.then(...);
+		 * ```
+		 * @ngdoc method
+		 * @name Project#save
+		 * @param data {Object} Object with data
 		 */
 
 		/**
