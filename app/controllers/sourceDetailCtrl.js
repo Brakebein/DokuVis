@@ -22,7 +22,10 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 				console.log(data);
 				if(data) {
 					$scope.item = data;
-					prepareItem();
+
+					$scope.pageNr = 0;
+					$scope.comments = [];
+					loadComments();
 				}
 				else
 					$scope.close();
@@ -31,24 +34,6 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 			});
 		}
 		loadSource($stateParams.sourceId);
-
-		function prepareItem() {
-			if($scope.item.type == 'picture' || $scope.item.type == 'plan') {
-				var img = new Image();
-				img.onload = function() {
-					$scope.horizontalImage = this.width/this.height > 2;
-					$scope.$apply();
-				};
-				img.src = 'data/'+$scope.item.file.path+ ($scope.item.file.display || $scope.item.file.name);
-			}
-			else {
-				$scope.horizontalImage = false;
-				$scope.pageNr = 0;
-			}
-
-			$scope.comments = [];
-			loadComments();
-		}
 
 		function loadComments() {
 			Comment.queryTarget({ targetId: $scope.item.eid }).$promise.then(function (result) {
