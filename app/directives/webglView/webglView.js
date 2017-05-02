@@ -264,9 +264,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				canvas.on('mousedown', mousedown);
 				canvas.on('mousemove', mousemove);
 				canvas.on('mouseup', mouseup);
-				canvas.on('mousewheel', mousewheel);
+				canvas.on('wheel', mousewheel);
 				//$(canvas).bind('MozMousePixelScroll', mousewheel); // firefox
-				canvas.on('DOMMouseScroll', mousewheel); // firefox
+				//canvas.on('DOMMouseScroll', mousewheel); // firefox
 
 				canvas.on('contextmenu', function(event) {
 					event.preventDefault();
@@ -1682,7 +1682,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 					controls.onMouseWheel(event.originalEvent);
 				}
 				else {
-					var delta = event.originalEvent.wheelDelta || -event.originalEvent.detail*40 || 0;
+					// TODO: orthocam zoom mousewheel
+					var delta = - event.originalEvent.deltaY || event.originalEvent.wheelDelta || 0;
 					//console.log(delta);
 					var ar = SCREEN_WIDTH/SCREEN_HEIGHT;
 					var zoomSpeed = 0.05;

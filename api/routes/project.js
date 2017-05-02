@@ -6,6 +6,8 @@ const utils = require('../utils');
 const mysql = require('../mysql-request');
 const neo4j = require('../neo4j-request');
 
+shortid.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$');
+
 module.exports = {
 	
 	query: function (req, res) {
@@ -92,7 +94,7 @@ module.exports = {
 			console.log(prj+': folders created');
 			return Promise.resolve();
 		}).catch(function(err) {
-			if(err) utils.error.server(res, err, '#file system create');
+			if(err) utils.error.server(res, err, '#file system create on ' + prj);
 			return Promise.reject();
 			
 		}).then(function() {
@@ -100,7 +102,7 @@ module.exports = {
 			return neo4j.cypher('CREATE CONSTRAINT ON (p:'+prj+') ASSERT p.content IS UNIQUE');
 		}).then(function(response) {
 			if(response.exception) {
-				utils.error.neo4j(res, response, '#projects.create constraint');
+				utils.error.neo4j(res, response, '#projects.create constraint on ' + prj);
 				return Promise.reject();
 			}
 			console.log(prj+': constraint created');
@@ -177,13 +179,13 @@ module.exports = {
 			return neo4j.cypher(query, params);
 		}).then(function(response) {
 			if(response.exception) {
-				utils.error.neo4j(res, response, '#projects.create nodes');
+				utils.error.neo4j(res, response, '#projects.create nodes on ' + prj);
 				return Promise.reject();
 			}
 			console.log(prj+': nodes created');
 			return Promise.resolve();
 		}).catch(function(err) {
-			if(err) utils.error.neo4j(res, err, '#projects.create');
+			if(err) utils.error.neo4j(res, err, '#projects.create on ' + prj);
 			return Promise.reject();
 			
 		}).then(function() {
@@ -210,7 +212,7 @@ module.exports = {
 			if(err) {
 				connection.rollback();
 				mysql.releaseConnection(connection);
-				utils.error.mysql(res, err, '#projects.create');
+				utils.error.mysql(res, err, '#projects.create on ' + prj);
 			}
 		});
 		

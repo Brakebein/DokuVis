@@ -14,12 +14,14 @@ angular.module('dokuvisApp').directive('horizontalScroll',
 			restrict: 'A',
 			link: function(scope, element) {
 				function mousewheelHorizontalScroll(event) {
-					var delta = event.originalEvent.wheelDelta || -event.originalEvent.detail*40 || 0;
+					var delta =  - event.originalEvent.deltaY || event.originalEvent.wheelDelta || 0;
 					var sl = element.scrollLeft();
-					element.scrollLeft(sl -= delta);
+					if (delta > 0)
+						element.scrollLeft(sl - 100);
+					else if (delta < 0)
+						element.scrollLeft(sl + 100);
 				}
-				element.bind('mousewheel', mousewheelHorizontalScroll);
-				element.bind('DOMMouseScroll', mousewheelHorizontalScroll); // firefox
+				element.on('wheel', mousewheelHorizontalScroll);
 			}
 		};
 	});

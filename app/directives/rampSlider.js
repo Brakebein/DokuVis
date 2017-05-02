@@ -41,24 +41,24 @@ angular.module('dokuvisApp').directive('rampSlider', ['$document',
 
 				element.on('mousedown', function(event) {
 					event.preventDefault();
-					$document.bind('mousemove', jQuery.throttle(100, rampSliderMousemove) );
-					$document.bind('mouseup', rampSliderMouseup);
+					$document.on('mousemove', jQuery.throttle(100, rampSliderMousemove) );
+					$document.on('mouseup', rampSliderMouseup);
 				});
 
 				function rampSliderMousemove(event) {
 					applyChange(event);
 				}
 
-				function rampSliderMouseup() {
+				function rampSliderMouseup(event) {
 					applyChange(event);
-					$document.unbind('mousemove', rampSliderMousemove);
-					$document.unbind('mouseup', rampSliderMouseup);
+					$document.off('mousemove', rampSliderMousemove);
+					$document.off('mouseup', rampSliderMouseup);
 				}
 
 				function applyChange(event) {
 					scope.rsModel = parseFloat(((event.pageX - element.offset().left) / element[0].offsetWidth ).toFixed(2));
-					if(scope.rsModel > 0.9) scope.rsModel = 1.0;
-					else if(scope.rsModel < 0.1) scope.rsModel = 0.0;
+					if (scope.rsModel > 0.9) scope.rsModel = 1.0;
+					else if (scope.rsModel < 0.1) scope.rsModel = 0.0;
 
 					ngModelCtrl.$setViewValue(scope.rsModel);
 				}
