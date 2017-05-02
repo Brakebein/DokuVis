@@ -1,8 +1,8 @@
-var config = require('../config');
-var utils = require('../utils');
-var neo4j = require('../neo4j-request');
-var mysql = require('../mysql-request');
-var Promise = require('bluebird');
+const config = require('../config');
+const utils = require('../utils');
+const neo4j = require('../neo4j-request');
+const mysql = require('../mysql-request');
+const Promise = require('bluebird');
 
 module.exports = {
 	
@@ -64,7 +64,7 @@ module.exports = {
 			if(err) utils.error.neo4j(res, err, '#staff.create');
 			return Promise.reject();
 		}).then(function () {
-			return pool.getConnection();
+			return mysql.getConnection();
 		}).then(function (conn) {
 			connection = conn;
 			return connection.beginTransaction();
@@ -86,7 +86,7 @@ module.exports = {
 			res.json({ message: message, status: 'SUCCESS' });
 		}).catch(function (err) {
 			if(err) {
-				mysql.rollback();
+				connection.rollback();
 				utils.error.mysql(res, err, err);
 			}
 		});
