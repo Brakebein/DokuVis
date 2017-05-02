@@ -79,7 +79,7 @@ module.exports = {
 		}).then(function () {
 			return connection.commit();
 		}).then(function () {
-			return connection.release();
+			return mysql.releaseConnection(connection);
 		}).then(function () {
 			var message = 'User {' + user + '} joined project {' + prj + '} as {' + role + '}';
 			console.log(message);
