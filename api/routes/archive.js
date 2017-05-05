@@ -11,13 +11,12 @@ module.exports = {
 			(e78)-[:P52]->(:E40)-[:P131]->(e82:E82) \
 			RETURN e78.content AS collection, e41.value AS collectionName, e82.value AS institutionName, e82.abbr AS institutionAbbr, id(e78) AS collectionId';
 
-		neo4j.transaction(q)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#archive.getAll'); return; }
-				res.json(neo4j.extractTransactionData(response.results[0]));
+		neo4j.readTransaction(q)
+			.then(function(result) {
+				res.json(result);
 			})
 			.catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+				utils.error.neo4j(res, err, '#archive.query');
 			});
 	},
 	

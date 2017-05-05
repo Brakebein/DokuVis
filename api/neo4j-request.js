@@ -1,8 +1,118 @@
-var request = require('request-promise');
-var config = require('./config');
+const config = require('./config');
+const Promise = require('bluebird');
+const request = require('request-promise');
+const neo4j = require('neo4j-driver').v1;
+
+const driver = neo4j.driver(config.neo4j.uriBolt, neo4j.auth.basic(config.neo4j.user, config.neo4j.password));
+
+driver.onError = function (err) {
+	console.error('Neo4j driver instantiation failed', err);
+};
+
+process.on('exit', function () {
+	driver.close();
+});
+
+
+function readTransaction(query, params) {
+	var session = driver.session();
+
+	return session.readTransaction(function (tx) {
+
+		return tx.run( query, params || {} );
+
+	}).then(function (result) {
+
+		session.close();
+		return extractBoltRecords(result.records);
+
+	}).catch(function (err) {
+
+		session.close();
+		return Promise.reject(err);
+
+	});
+}
+
+function writeTransaction(query, params) {
+	var session = driver.session();
+
+	return session.writeTransaction(function (tx) {
+
+		return tx.run( query, params || {} );
+
+	}).then(function (result) {
+
+		session.close();
+		return extractBoltRecords(result.records);
+
+	}).catch(function (err) {
+
+		session.close();
+		return Promise.reject(err);
+
+	});
+}
+
+function extractBoltRecords (data) {
+	if (!data) return [];
+	if (!Array.isArray(data)) return data;
+
+	return data.map(function (record) {
+		var obj = record.toObject();
+		for (var key in obj) {
+			obj[key] = convertValues(obj[key]);
+		}
+		return obj;
+	});
+}
+
+function convertValues(value) {
+	// neo4j integers
+	if (neo4j.isInt(value) && neo4j.integer.inSafeRange(value))
+		return value.toInt();
+
+	// neo4j Node object
+	if (value instanceof neo4j.types.Node) {
+		value = value.properties;
+	}
+
+	// recursive
+	if (Array.isArray(value)) {
+		return value.map(function (v) {
+			return convertValues(v);
+		});
+	}
+	if (typeof value === 'object') {
+		for (var key in value) {
+			value[key] = convertValues(value[key]);
+		}
+	}
+
+	return value;
+}
+
+function getHierarchyElement(node, content) {
+	if (node.content === content) return node;
+	for (var i=0; i<node.children.length; i++) {
+		var obj = getHierarchyElement(node.children[i], content);
+		if (obj !== undefined) return obj;
+	}
+	return undefined;
+}
+
 
 module.exports = {
-	
+
+	session: function () {
+		return driver.session();
+	},
+
+	/**
+	 * @deprecated
+	 * @param statement
+	 * @param parameters
+	 */
 	transaction: function (statement, parameters) {
 		var params = parameters || {};
 		return request({
@@ -33,7 +143,12 @@ module.exports = {
 			json: true
 		});
 	},
-	
+
+	/**
+	 * @deprecated
+	 * @param query
+	 * @param params
+	 */
 	cypher: function (query, params) {
 		return request({
 			method: 'POST',
@@ -49,6 +164,11 @@ module.exports = {
 			json: true
 		});
 	},
+
+	readTransaction: readTransaction,
+	writeTransaction: writeTransaction,
+
+	extractBoltRecords: extractBoltRecords,
 	
 	extractTransactionData: function (data) {
 		if (!data) return [];
@@ -122,12 +242,3 @@ module.exports = {
 	}
 	
 };
-
-function getHierarchyElement(node, content) {
-	if (node.content === content) return node;
-	for (var i=0; i<node.children.length; i++) {
-		var obj = getHierarchyElement(node.children[i], content);
-		if (obj !== undefined) return obj;
-	}
-	return undefined;
-}

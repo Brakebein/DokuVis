@@ -20,7 +20,7 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		function loadSource(id) {
 			Source.get({ id: id }).$promise.then(function (data) {
 				console.log(data);
-				if(data) {
+				if(data.eid) {
 					$scope.item = data;
 
 					$scope.pageNr = 0;
@@ -48,7 +48,7 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		 * Load next (or previous, if negative) item. `incr` is relative to the current item.
 		 * So `2` will load the next but one, `-1` will load the previous one.
 		 * @ngdoc method
-		 * @memberof sourceDetailCtrl#nextIten
+		 * @name sourceDetailCtrl#nextIten
 		 * @param incr {Number} number of steps to move (usually `1`)
 		 */
 		$scope.nextItem = function(incr) {
@@ -128,7 +128,7 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		/**
 		 * Save a new comment about the current item.
 		 * @ngdoc method
-		 * @memberof sourceDetailCtrl#postComment
+		 * @name sourceDetailCtrl#postComment
 		 */
 		$scope.postComment = function() {
 			if($scope.newCommentInput.length < 1) return;
@@ -151,7 +151,7 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		/**
 		 * Save a new comment of type `answer`.
 		 * @ngdoc method
-		 * @memberof sourceDetailCtrl#postAnswer
+		 * @name sourceDetailCtrl#postAnswer
 		 * @param comment {Object} parent comment
 		 */
 		$scope.postAnswer = function(comment) {
@@ -176,7 +176,7 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		/**
 		 * Closes and destroys this modal and changes to GraphSearch state.
 		 * @ngdoc method
-		 * @memberof sourceDetailCtrl#enterGraph
+		 * @name sourceDetailCtrl#enterGraph
 		 * @param id {Number} GraphSearch start Id
 		 */
 		$scope.enterGraph = function (id) {

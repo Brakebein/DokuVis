@@ -6,11 +6,12 @@ const exec = require('child-process-promise').execFile;
 const Promise = require('bluebird');
 const THREE = require('../modules/three');
 
-var source = {
+module.exports = {
 	
 	query: function (req, res) {
 		var prj = req.params.id;
 		var subprj = req.params.subprj;
+
 		var q = 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}), \
 			(e31)<-[:P15]-(:E7 {content:{subprj}}), \
 			(e31)-[:P102]->(title:E35), \
@@ -50,24 +51,24 @@ var source = {
 				tags, \
 				count(ce33) AS commentLength, \
 				{id: user.content, name: userName.value, date: upDate.value} AS user';
+
 		var params = {
 			subprj: subprj === 'master' ? prj : subprj
 		};
-		
-		//neo4j.cypher(q, params)
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#source.getAll'); return; }
-				res.json(neo4j.extractTransactionData(response.results[0]));
+
+		neo4j.readTransaction(q, params)
+			.then(function (result) {
+				res.json(result);
 			})
-			.catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#source.query');
 			});
 	},
 
 	get: function (req, res) {
 		var prj = req.params.id;
 		var subprj = req.params.subprj;
+
 		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}), \
 			(e31)-[:P102]->(title:E35), \
 			(e31)-[:P1]->(file:E75), \
@@ -105,23 +106,21 @@ var source = {
 				tags, \
 				count(ce33) AS commentLength, \
 				{id: user.content, name: userName.value, date: upDate.value} AS user';
+
 		var params = {
 			subprj: subprj === 'master' ? prj : subprj,
 			sourceId: req.params.sourceId
 		};
 
-		//neo4j.cypher(q, params)
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#source.get'); return; }
-				var rows = neo4j.extractTransactionData(response.results[0]);
-				if(rows.length)
-					res.json(rows[0]);
+		neo4j.readTransaction(q, params)
+			.then(function (result) {
+				if (result.length)
+					res.json(result[0]);
 				else
 					res.json(null);
 			})
-			.catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#source.get')
 			});
 	},
 	
@@ -194,10 +193,10 @@ var source = {
 						(e31)<-[:P94]-(e65:E65:'+prj+' {content: {e65id}}), \
 						(e31)<-[:P128]-(e84:E84:'+prj+' {content: {e84id}})';
 
-				if(req.body.sourceType == 'plan' || req.body.sourceType == 'picture') {
+				if(req.body.sourceType === 'plan' || req.body.sourceType === 'picture') {
 					q += ' CREATE (e31)-[:P70]->(e36:E36:'+prj+' {content: {e36id}})';
 				}
-				if(req.body.sourceType == 'text') {
+				if(req.body.sourceType === 'text') {
 					q += ' CREATE (e31)-[:P70]->(e33:E33:'+prj+' {content: {e33id}}) \
 						MERGE (e56:E56:'+prj+' {content: {language}}) \
 						CREATE (e33)-[:P72]->(e56)';
@@ -455,5 +454,3 @@ var source = {
 	}
 	
 };
-
-module.exports = source; 

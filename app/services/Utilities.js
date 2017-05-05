@@ -296,13 +296,15 @@ angular.module('dokuvisApp').factory('Utilities',
 		 * @param data {*} Addtional data to be shown within the console
 		 */
 		f.throwApiException = function(message, data) {
+			if (data.status === 403)
+				message = 'Access denied ' + message + ' (' + data.statusText + ' ' + data.status + ')';
 			$alert({
 				title: 'API Exception:',
 				content: message,
 				type: 'danger',
 				duration: 5
 			});
-			console.error('API Exception: '+message, data, "\n"+(new Error).stack.split("\n")[2]);
+			console.error('API Exception: ' + message, data, "\n" + (new Error).stack.split("\n")[2]);
 		};
 		
 		return f;
