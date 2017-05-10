@@ -20,6 +20,11 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "href": "api/dokuvisApp/controller/categoryEditModalCtrl"
               },
               {
+                "name": "configCtrl",
+                "type": "controller",
+                "href": "api/dokuvisApp/controller/configCtrl"
+              },
+              {
                 "name": "explorerCtrl",
                 "type": "controller",
                 "href": "api/dokuvisApp/controller/explorerCtrl"

@@ -1,12 +1,13 @@
-var config = require('../config');
-var utils = require('../utils');
-var neo4j = require('../neo4j-request');
+const config = require('../config');
+const utils = require('../utils');
+const neo4j = require('../neo4j-request');
 
-var models = {
+module.exports = {
 	
-	getTree: function (req, res) {
+	queryTree: function (req, res) {
 		var prj = req.params.id;
 		var subprj = req.params.subprj;
+
 		var q = 'MATCH (root:E22:'+prj+' {content:{esub}}), (tsp:E55:'+prj+' {content:"subproject"}), (tcat:E55:'+prj+' {content:"category"}),';
 		q += ' path = (root)-[:P46*]->(c:E22)';
 		if(subprj === 'master')
@@ -22,34 +23,19 @@ var models = {
 		q += ' WITH p, c, cobj, cfile, cmat, collect({catId: cat.content, catValue: cat.value, attrId: attr.content, attrValue: attr.value}) AS categories';
 		
 		q += ' RETURN p AS parent, collect({content: c.content, obj: cobj, file: cfile, material: cmat, categories: categories}) AS children';
+
 		var params = {
 			esub: 'e22_root_'+subprj
 		};
-		
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.exception) { utils.error.neo4j(res, response, '#models.getTree'); return; }
-				// null objekte rausfiltern und assoziatives Array für Kategorien
-				//console.log(response.data);
-				/*for(var i=0; i<response.data.length; i++) {
-					for(var j=0; j<response.data[i][1].length; j++) {
-						var catObj = {};
-						for(var k=0; k<response.data[i][1][j].categories.data.length; k++) {
-							if(!response.data[i][1][j].categories.data[k].catId) break;
-							var cat = response.data[i][1][j].categories.data[k];
-							catObj[cat.catId] = cat;
-						}
-						response.data[i][1][j].categories.data = catObj;
-					}
-				}*/
-				var data = neo4j.extractTransactionData(response.results[0]);
+
+		neo4j.readTransaction(q, params)
+			.then(function (data) {
 				neo4j.removeEmptyArrays(data, 'categories', 'catId');
 				res.json(neo4j.createHierarchy(data));
-				//res.json(data);
-			}).catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
-			});		
-		
+			})
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#models.queryTree');
+			});
 	},
 
 	get: function (req, res) {
@@ -205,5 +191,3 @@ var models = {
 	}
 	
 };
-
-module.exports = models;

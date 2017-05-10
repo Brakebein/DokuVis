@@ -7,8 +7,11 @@
  * @ngdoc module
  * @name dokuvisApp
  * @module dokuvisApp
- * @requires ui.router
- * @requires ngResource
+ * @requires https://ui-router.github.io/ ui.router
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource ngResource
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngSanitize ngSanitize
+ * @requires http://mgcrea.github.io/angular-strap/ AngularStrap
+ * @requires https://github.com/nervgh/angular-file-upload angularFileUpload
  */
 
 var dokuvisApp = angular.module('dokuvisApp', [
@@ -480,7 +483,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				//return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
 				return Subproject.get({ id: $stateParams.subproject }).$promise.then(function (result) {
 
-					//console.log('after', response);
+					console.log('after', result);
 					// if(!response.data.length) {
 					if(!result) {
 						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });

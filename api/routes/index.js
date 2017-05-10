@@ -20,6 +20,8 @@ var storage = multer.diskStorage({
 });
 var mUpload = multer({ storage: storage });
 
+const can = require('../middlewares/checkPermission');
+
 // index
 var auth = require('./auth');
 //var user = require('./user');
@@ -64,7 +66,7 @@ router.delete('/auth/project/:id/:subprj/projinfo/:piId', projinfo.delete);
 router.put('/auth/project/:id/:subprj/projinfo', projinfo.swap);
 
 // models
-router.get('/auth/project/:id/:subprj/models', models.getTree);
+router.get('/auth/project/:id/:subprj/models', models.queryTree);
 router.get('/auth/project/:id/model/:modelId', models.get);
 router.put('/auth/project/:id/model/:modelId', models.update);
 router.post('/auth/project/:id/:subprj/models', models.insert);
@@ -114,8 +116,8 @@ router.post('/auth/project/:id/archive', archive.create);
 
 // staff
 var staff = require('./staff');
-router.get('/auth/project/:id/staff', staff.query);
-router.post('/auth/project/:id/staff', staff.create);
+router.get('/auth/project/:id/staff', can('admin'), staff.query);
+router.post('/auth/project/:id/staff', can('admin'), staff.create);
 router.get('/roles', staff.queryRoles);
 
 var typeahead = require('./typeahead');

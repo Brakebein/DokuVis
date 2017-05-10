@@ -18,9 +18,8 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 
 		$translatePartialLoader.addPart('projects');
 
-		// Initialisierung von Variablen
 		/**
-		 * Array of all available projects
+		 * Array of all available projects.
 		 * @ngdoc property
 		 * @name projectlistCtrl#projects
 		 * @type {Array}
