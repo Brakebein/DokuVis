@@ -163,7 +163,7 @@ module.exports = {
 			  + '(tpproj:E55:'+prj+' {content:"projectPerson"}), \
 				(tphist:E55:'+prj+' {content:"historicPerson"}), '
 				// user
-			  + '(user:E21:'+prj+' {content:"e21_"+{userEmail}}), \
+			  + '(user:E21:'+prj+' {content:{userEmail}}), \
 				(username:E82:'+prj+' {content:"e82_"+{userEmail}, value: {userName}}), \
 				(user)-[:P2]->(tpproj), \
 				(user)-[:P131]->(username)'

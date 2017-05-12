@@ -245,7 +245,7 @@ module.exports = {
 
 				var params = {
 					subprj: req.params.subprj === 'master' ? prj : req.params.subprj,
-					user: 'e21_' + req.headers['x-key'],
+					user: req.headers['x-key'],
 					e31id: 'e31_' + filename,
 					sourceType: req.body.sourceType,
 					e75file: {

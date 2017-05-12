@@ -117,8 +117,14 @@ router.post('/auth/project/:id/archive', archive.create);
 // staff
 var staff = require('./staff');
 router.get('/auth/project/:id/staff', can('admin'), staff.query);
+router.get('/auth/project/:id/staff/:userId', can('admin'), staff.get);
 router.post('/auth/project/:id/staff', can('admin'), staff.create);
 router.get('/roles', staff.queryRoles);
+
+//tasks
+var task = require('./task');
+router.get('/auth/project/:id/task', staff.query);
+router.post('/auth/project/:id/task', staff.create);
 
 var typeahead = require('./typeahead');
 router.get('/auth/project/:id/typeahead/:label/:prop/:from', typeahead.query);

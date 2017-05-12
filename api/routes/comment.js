@@ -224,7 +224,7 @@ module.exports = {
 
 			var params = {
 				targets: targets,
-				user: 'e21_' + req.headers['x-key'],
+				user: req.headers['x-key'],
 				type: cType,
 				e33id: 'e33_' + req.body.tid + '_comment',
 				e62content: {

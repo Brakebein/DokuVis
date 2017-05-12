@@ -12,11 +12,34 @@ module.exports = {
 			INNER JOIN user_project_role ON p.pid = project_id \
 			INNER JOIN roles ON roles.id = role_id \
 			INNER JOIN users ON users.id = user_id \
-			AND p.proj_tstamp = ?';
+			AND p.proj_tstamp = ? \
+			AND LOWER(users.name) REGEXP ?';
 
-		mysql.query(sql, [req.params.id])
+		var search = '.*.*';
+		if (req.query.search)
+			search = '.*' + req.query.search.toLowerCase() + '.*';
+
+		mysql.query(sql, [req.params.id, search])
 			.then(function (rows) {
 				res.json(rows);
+			})
+			.catch(function(err) {
+				if (err) utils.error.mysql(res, err, '#staff.query');
+			});
+	},
+
+	get: function (req, res) {
+		var sql = '\
+		SELECT p.name, email, users.name, role FROM projects p \
+		INNER JOIN user_project_role ON p.pid = project_id \
+		INNER JOIN roles ON roles.id = role_id \
+		INNER JOIN users ON users.id = user_id \
+		AND p.proj_tstamp = ? \
+		AND users.email = ?';
+
+		mysql.query(sql, [req.params.id, req.params.userId])
+			.then(function (rows) {
+				res.json(rows[0]);
 			})
 			.catch(function(err) {
 				if (err) utils.error.mysql(res, err, '#staff.query');
@@ -54,7 +77,7 @@ module.exports = {
 			// create nodes in graph database
 			.then(function (username) {
 				var q = 'MATCH (tpproj:E55:' + prj + ' {content:"projectPerson"}) \
-					CREATE (user:E21:' + prj + ' {content:"e21_"+{userEmail}}), \
+					CREATE (user:E21:' + prj + ' {content:{userEmail}}), \
 					(username:E82:' + prj + ' {content:"e82_"+{userEmail}, value: {userName}}), \
 					(user)-[:P2]->(tpproj), \
 					(user)-[:P131]->(username)';

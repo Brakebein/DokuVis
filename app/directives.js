@@ -148,7 +148,23 @@ angular.module('dokuvisApp').directive('resizer',
 					}
 					console.log(event);
 				});
-				
+
+				function init() {
+					if(attrs.resizer =='vertical') {
+						var x = $(attrs.resizerRight).css('left');
+						element.css({
+							left: x
+						});
+						$(attrs.resizerLeft).css({
+							width: x
+						});
+						$(attrs.resizerRight).css({
+							left: x
+						});
+					}
+				}
+				init();
+
 				function rMousemove(event) {
 					if(attrs.resizer == 'vertical') {
 						// handle vertical resizer

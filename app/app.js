@@ -38,18 +38,17 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'pw.canvas-painter',
 	'gantt',
 	'gantt.table',
-	'gantt.movable',
-	'gantt.tooltips',
-	'gantt.labels',
-	'gantt.sortable',
-	'gantt.drawtask',
-	'gantt.bounds',
-	'gantt.progress',
 	'gantt.tree',
 	'gantt.groups',
+	'gantt.movable',
+	'gantt.tooltips',
+	'gantt.sortable',
+	'gantt.drawtask',
+	'gantt.progress',
+
 	'gantt.overlap',
 	'gantt.resizeSensor',
-	'ang-drag-drop',
+	// 'ang-drag-drop',
 	'mm.acl',
 	'pascalprecht.translate'
 ]);
@@ -287,6 +286,17 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				templateUrl: 'partials/tasks.html',
 				controller: 'tasksCtrl',
 				css: 'style/tasks.css'
+			})
+			.state('project.tasks.detail', {
+				url: '/:taskId',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/taskModal.html',
+						controller: 'taskModalCtrl',
+						show: true
+					})
+				}]
 			})
 			.state('project.graph', {
 				url: '/graph',

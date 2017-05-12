@@ -12,7 +12,7 @@ app.all('/*', function(req, res, next) {
 	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELELTE,OPTIONS');
 	// set custom headers for CORS
 	res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key');
-	if(req.method == 'OPTIONS') {
+	if(req.method === 'OPTIONS') {
 		res.status(200).end();
 	}
 	else {
@@ -47,13 +47,18 @@ const server = app.listen(app.get('port'), function() {
 server.timeout = 600000; // 10 minutes
 
 
-// catch ctrl+c event and exit normally
+// properly shutdown server
+process.on('exit', function () {
+	server.close();
+});
+
+// catch ctrl+c event and exit properly
 process.on('SIGINT', function () {
 	console.log('Shutdown...');
 	process.exit();
 });
 
-// catch uncaught exception and exit normally
+// catch uncaught exception and exit properly
 process.on('uncaughtException', function (err) {
 	console.error('Uncaught Exception', err);
 	process.exit();

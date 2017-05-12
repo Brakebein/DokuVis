@@ -11,6 +11,9 @@
 	<link rel="stylesheet" href="bower_components/bootstrap-additions/dist/bootstrap-additions.css" />
 	<link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
 	<link rel="stylesheet" href="bower_components/textAngular/dist/textAngular.css" />
+	<link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt.css" />
+	<link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt-plugins.css" />
+	<link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.css" />
 	<!-- endbower -->
 
 	<!--<link href="style/bootstrap.css" rel="stylesheet">-->
@@ -20,9 +23,9 @@
 	<link href="style/angular-resizable.css" rel="stylesheet">
 	<link href="style/angular-motion.min.css" rel="stylesheet" />
 	<link href="style/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
-	<link href="style/angular-gantt.css" rel="stylesheet" />
-	<link href="style/angular-gantt-plugins.css" rel="stylesheet" />
-	<link href="style/angular-ui-tree.min.css" rel="stylesheet" >
+	<!--<link href="style/angular-gantt.css" rel="stylesheet" />-->
+	<!--<link href="style/angular-gantt-plugins.css" rel="stylesheet" />-->
+	<!--<link href="style/angular-ui-tree.min.css" rel="stylesheet" >-->
 	<!--<link href="style/xeditable.css" rel="stylesheet">--
 	<link href="style/textAngular.css" rel="stylesheet">-->
 	<link href="style/ng-tags-input.min.css" rel="stylesheet">
@@ -92,6 +95,12 @@
 	<script src="bower_components/angular-resource/angular-resource.js"></script>
 	<script src="bower_components/angular-translate/angular-translate.js"></script>
 	<script src="bower_components/angular-translate-loader-partial/angular-translate-loader-partial.js"></script>
+	<script src="bower_components/angular-gantt/assets/angular-gantt.js"></script>
+	<script src="bower_components/angular-gantt/assets/angular-gantt-plugins.js"></script>
+	<script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+	<script src="bower_components/angular-native-dragdrop/draganddrop.js"></script>
+	<script src="bower_components/jquery-ui/jquery-ui.js"></script>
+	<script src="bower_components/angular-dragdrop/src/angular-dragdrop.js"></script>
 	<!-- endbower -->
 	<!-- endbuild -->
 
@@ -100,8 +109,6 @@
 	<script type="text/javascript" src="lib/jquery/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="lib/jquery/jquery.ba-throttle-debounce.min.js"></script>
 	<script type="text/javascript" src="lib/jquery/jquery.mCustomScrollbar.concat.min.js"></script>
-
-	<!--<script type="text/javascript" src="lib/moment-with-locales.min.js"></script>-->
 
 	<!-- angular -->
 	<!--<script type="text/javascript" src="lib/angular/angular.min.js"></script>-->
@@ -126,19 +133,19 @@
 	<!--<script type="text/javascript" src="lib/angular/autocomplete.js"></script>--
 	<script type="text/javascript" src="lib/angular/angular-utils.js"></script>
 	<!--<script type="text/javascript" src="lib/angular/angular-debounce.js"></script>-->
-	<script type="text/javascript" src="lib/angular/angular-gantt.js"></script>
-	<script type="text/javascript" src="lib/angular/angular-gantt-plugins.js"></script>
+	<!--<script type="text/javascript" src="lib/angular/angular-gantt.js"></script>-->
+	<!--<script type="text/javascript" src="lib/angular/angular-gantt-plugins.js"></script>-->
 	
 	<!--<script type="text/javascript" src="lib/angular/angular-moment.js"></script>-->
-	<script type="text/javascript" src="lib/angular/angular-ui-tree.min.js"></script>
+	<!--<script type="text/javascript" src="lib/angular/angular-ui-tree.min.js"></script>-->
 	<!--<script type="text/javascript" src="lib/angular/angular-strap.js"></script>
 	<script type="text/javascript" src="lib/angular/angular-strap.tpl.min.js"></script>-->
 	<!--<script type="text/javascript" src="lib/angular/angular-dragdrop.js"></script>-->
-	<script type="text/javascript" src="lib/angular/angular-dragdrop.min.js"></script>
+	<!--<script type="text/javascript" src="lib/angular/angular-dragdrop.min.js"></script>-->
 	<!--<script type="text/javascript" src="lib/angular/textAngular-rangy.min.js"></script>
 	<script type="text/javascript" src="lib/angular/textAngular-sanitize.min.js"></script>
 	<script type="text/javascript" src="lib/angular/textAngular.min.js"></script>-->
-	<script type="text/javascript" src="lib/angular/draganddrop.js"></script>
+	<!--<script type="text/javascript" src="lib/angular/draganddrop.js"></script>-->
 	<!--<script type="text/javascript" src="lib/angular/ng-tags-input.min.js"></script>-->
 	
 	<!--<script type="text/javascript" src="lib/jquery/jquery.minicolors.min.js"></script>
@@ -221,6 +228,7 @@
 	<script type="text/javascript" src="app/services/ConfirmService.js"></script>
 	<script type="text/javascript" src="app/services/TypeaheadRequest.js"></script>
 	<script type="text/javascript" src="app/services/SpatializeInterface.js"></script>
+	<script type="text/javascript" src="app/services/Task.js"></script>
 
 	<!-- directives -->
 	<script type="text/javascript" src="app/directives/webglView/webglView.js"></script>
@@ -253,6 +261,7 @@
 	<script type="text/javascript" src="app/controllers/staffeditModalCtrl.js"></script>
 	<script type="text/javascript" src="app/controllers/modelModalCtrl.js"></script>
 	<script type="text/javascript" src="app/controllers/spatializeModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/taskModalCtrl.js"></script>
 	<!-- endbuild -->
 
 </body>

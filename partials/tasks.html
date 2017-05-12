@@ -1,175 +1,105 @@
-<div class="tasksLeft">
-	
-	<div class = "overview">      
-		<!-- <button ng-click="resizerValue = 800">resizerAnim</button> -->
-		<h2 id = "title" >Projektübersicht {{recentPrjName}}</h2>
-		
-		<div class = "col-md-2" id = "search">
+<div class="tasks-main">
+
+	<div>
+		<div class="search col-md-2">
 			<div class="form-group">
-				<!-- <div class="input-group" > -->								    
-					<input type="text" class="form-control"  ng-model="options.filterRow" bs-tooltip="tooltip[6]" placement="left" placeholder="Nach Aufgaben suchen">
-					<!-- <div class="input-group-addon"><span class="fa fa-search"></span></div>
-				</div> -->
+				<input class="form-control" type="text" placeholder="Nach Aufgaben suchen" ng-model="options.filterRow" bs-tooltip="tooltip[6]" placement="left"/>
 			</div>
 		</div>
-		
+
+		<h2>Aufgaben</h2>
+		<hr/>
 	</div>
-	<hr/>
-	
-	
-	<div class = "optionsHeader">
-		
-			<div class = "col-md-2" id= "add">
-				<div class="input-group" >
-						<button ng-if = "sortby == 'staff'" class="btn btn-info btn-md gradient" ng-click = "openStaff()" bs-tooltip="tooltip[1]"> 
-						<span class="fa fa-plus"></span>
-						</button>		
 
-						<button ng-if = "sortby == 'task'" class="btn btn-info btn-md" ng-click = "openTask()" bs-tooltip="tooltip[1]"> 
-						<span class="fa fa-plus"></span>
-						</button>		
-						
-				</div>
-			</div>
+	<div class="tasks-controls">
 
-			<div class = "col-md-2" id= "order">
-				<button ng-if = "sortby == 'staff'" type="button" bs-tooltip="tooltip[2]" class="btn btn-info btn-md gradient" ng-click="changeOrder()"><span class="glyphicon glyphicon-sort"></span></button>
-				<button ng-if = "sortby == 'task'" type="button" bs-tooltip="tooltip[3]" class="btn btn-info btn-md gradient" ng-click="changeOrder()"><span class="glyphicon glyphicon-sort"></span></button>
-			</div>
-		
-			 <div class = "col-md-2" id= "subprj">
-				<div class="input-group" >
-					<button ng-if = "subproject == 'master'" class="btn btn-info btn-md gradient" ng-click = "showSubprj()" bs-tooltip="tooltip[11]"> 
-					<span class="fa fa-folder-open"></span>
-					</button>	
-				</div>
-			</div> 
-		
-			<div class = "col-md-2" id= "from">
-				<div class="form-group" >
-					<div class="input-group" >
-		      			<!-- <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dt" is-open="popup1.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
-						  <span class="input-group-btn">
-							<button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
-						  </span> -->
-						
-						 <div class="input-group">
-							<span class="input-group-btn">
-								<label class="btn btn-default" for="fromDate">
-								<i class="fa fa-angle-left"></i></label>
-							</span>
-							<input id="fromDate" name="fromDate" class="form-control" ng-model="options.fromDate" data-autoclose="1" bs-tooltip="tooltip[4]" bs-datepicker type="text" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" data-date-format="dd.MM.yy">
-							
-						</div>
-												
-						<!--  <span class="input-group-btn">
-							<button class="btn btn-secondary" type="button" bs-tooltip="tooltip[4]" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1"  bs-datepicker data-autoclose=false><</button>
-						  </span>
-							<input type="text" class="form-control" bs-tooltip="tooltip[4]" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1"  bs-datepicker data-autoclose=true data-date-format="dd.MM.yy"> -->
-					</div>
-				</div>
-			</div>
+		<div class="tasks-ctrl">
+			<button ng-show="sortby == 'staff'" class="btn btn-info btn-md gradient" ng-click="openStaff()" bs-tooltip="tooltip[1]">
+				<i class="fa fa-plus"></i> Add Staff
+			</button>
+			<button ng-show="sortby == 'task'" class="btn btn-info btn-md" ui-sref=".detail({taskId: 'new'})" bs-tooltip="tooltip[1]">
+				<i class="fa fa-plus"></i> Add Task
+			</button>
+		</div>
+
+		<div class="tasks-ctrl">
+			<button ng-show="sortby == 'staff'" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[2]" ng-click="changeOrder()">
+				<i class="glyphicon glyphicon-sort"></i> Sort by staff
+			</button>
+			<button ng-show="sortby == 'task'" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[3]" ng-click="changeOrder()">
+				<i class="glyphicon glyphicon-sort"></i> Sort by tasks
+			</button>
+		</div>
+
+		<div class="tasks-ctrl" >
+			<button ng-show="subproject == 'master'" class="btn btn-info btn-md gradient" ng-click="showSubprj()" bs-tooltip="tooltip[11]">
+				<i class="fa fa-folder-open"></i>
+			</button>
+		</div>
+
+		 <div class="tasks-ctrl input-group">
+			<span class="input-group-btn">
+				<label class="btn btn-default" for="fromDate">
+					<i class="fa fa-angle-left"></i>
+				</label>
+			</span>
+			<input id="fromDate" name="fromDate" class="form-control" ng-model="options.fromDate" data-autoclose="1" bs-tooltip="tooltip[4]" bs-datepicker type="text" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" data-date-format="dd.MM.yy" />
+		</div>
+
+		<div class="tasks-ctrl input-group">
+			<input type="number" bs-tooltip="tooltip[5]" style="width: 5em" ng-model="options.zoom" step="0.1" min="0.1" max="5" class= "form-control"/>
+		</div>
 			
-<!-- 			<div class = "col-md-1" id = "zoom">
-				<div class="input-group">
-					<input type="number" bs-tooltip="tooltip[5]" style="width: 5em" ng-model="options.zoom" step="0.1" min="0.1" max="5" class= "form-control"/>
-					<span class="input-group-addon"><span class="fa fa-search-plus"></span></span>
-				</div>
-			</div> -->
-			
-			
-			<div class = "col-md-2" id = "to">
-				<div class="form-group" >
-					<div class='input-group'>
-				    		<input id="toDate" name="toDate" type="text"  class="form-control" bs-tooltip="tooltip[4]" placement="left" ng-model="options.toDate" min-date="{{options.fromDate}}" data-date-format="dd.MM.yy" start-week="1" bs-datepicker data-autoclose=true>
-				        	<span class="input-group-btn">
-								<label class="btn btn-default" for="toDate">
-								<i class="fa fa-angle-right"></i></label>
-							</span>
-				    </div>
-				</div>
-			</div>			
-		
-	  </div>
+		<div class="tasks-ctrl input-group">
+			<input id="toDate" name="toDate" type="text"  class="form-control" bs-tooltip="tooltip[4]" placement="left" ng-model="options.toDate" min-date="{{options.fromDate}}" data-date-format="dd.MM.yy" start-week="1" bs-datepicker data-autoclose=true>
+			<span class="input-group-btn">
+				<label class="btn btn-default" for="toDate">
+					<i class="fa fa-angle-right"></i>
+				</label>
+			</span>
+		</div>
+
+	</div>
 					
 
-	<div class = "container-fluid" data-drop="true" jqyoui-droppable="{multiple:true, onDrop: 'addNewStaffToGantt'}">
-			<div gantt 
-				 data= "options.useData"
-				 filter-task="{'name': options.filterTask}"
-		         filter-row="{'name': options.filterRow}"
-		         column-width="getColumnWidth(options.width, options.scale, options.zoom)"
-				 auto-expand="options.autoExpand"
-				 allow-side-resizing = "true"
-				 from-date = "options.fromDate"
-		         to-date = "options.toDate"
-		         sort-mode="options.sortMode"
-		         view-scale="options.scale"
-		         max-height="500"
-		         task-out-of-range="truncate"
-		         auto-expand="both" 
-		         expand-to-fit= "true"
-		         task-content = "options.taskContent"
-             	 row-content = "options.rowContent"
-             	 side-width = "min-width"
-             	 api="options.api">
-			 <gantt-tree enabled="true"
-		                  header-content="options.treeHeaderContent"
-		                  keep-ancestor-on-filter-row="false">
-		      </gantt-tree>
-		      
-			  <gantt-table enabled = "true" 
-			  				columns="options.columns"
-						 headers="options.columnsHeaders"
-						 classes="options.columnsClasses"
-						 formatters="options.columnsFormatters"
-						 contents="options.columnsContents"
-						 header-contents="options.columnsHeaderContents">
-			  </gantt-table>
-			  			
-		      
-		       <gantt-groups enabled = "true" display="promote">
-		       </gantt-groups>
-			  
-			  <gantt-bounds></gantt-bounds>
-		      <gantt-sortable enabled ="true"></gantt-sortable>
-			  <gantt-movable allow-row-switching="false"></gantt-movable>
-			  <gantt-tooltips content = "options.contentTooltips"></gantt-tooltips>
-			 
-			  <gantt-overlap></gantt-overlap>
-			  <gantt-resize-sensor></gantt-resize-sensor> 
-			</div>
+	<div class="tasks-container" data-drop="true" jqyoui-droppable="{multiple:true, onDrop: 'addNewStaffToGantt'}">
+		<div gantt
+			 options="config.gantt"
+			 data="data"
+			 filter-task="{'name': options.filterTask}"
+			 filter-row="{'name': options.filterRow}"
+			 api="registerApi">
+
+			<gantt-tree header-content="config.tree.header"
+						keep-ancestor-on-filter-row="true">
+			</gantt-tree>
+
+			<gantt-table columns="config.table.columns"
+						 headers="config.table.headers"
+						 header-contents="config.table.headerContents"
+						 formatters="config.table.formatters">
+			</gantt-table>
+
+			<gantt-groups display="overview"></gantt-groups>
+
+			<gantt-tooltips content="config.tooltips.content"></gantt-tooltips>
+
+			<gantt-sortable enabled ="true"></gantt-sortable>
+			<gantt-movable allow-row-switching="false"></gantt-movable>
+			<!--<gantt-overlap></gantt-overlap>-->
+			<!--<gantt-resize-sensor></gantt-resize-sensor>-->
+		</div>
 		<hr/>
 	</div>
 	
-	<div class = "optionsFooter">
-		<!-- <div class = "row">
-			<div class = "col-md-2" > 
-				<div class="input-group" >
-					<button ng-if = "sortby == 'staff'" class="btn btn-info btn-md" ng-click = "openStaff()" > 
-					<span class="fa fa-user-plus"></span> Mitarbeiter hinzufügen
-					</button>		
+	<div class="optionsFooter"></div>
 
-					<button ng-if = "sortby == 'task'" class="btn btn-info btn-md" ng-click = "openTask()" > 
-					<span class="fa fa-user-plus"></span> Aufgabe hinzufügen
-					</button>		
-					
-				</div>	
-			</div>
-			
-				
-			<button type="button" class="btn btn-default" ng-click="sortByTasks()"><span class="glyphicon glyphicon-sort"></span> Nach Aufgaben sortieren</button>		
-			<button type="button" class="btn btn-default" ng-click="sortByStaff()"><span class="glyphicon glyphicon-sort"></span> Nach Mitarbeitern sortieren</button>
-		</div> -->
-	</div>
 </div>
 
 
-<div class="tasksRight">	
+<div class="tasks-side sidePanel">
 
-	
-
-	<div class="sidePanelSidemenu sideNav sideNav-right">
+	<div class="sideNav sideNav-right">
 	
 		<div ng-hide = "views.activeSide != 'staff'" title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
 			<i class="glyphicon glyphicon-user"></i>
@@ -185,156 +115,54 @@
 			<i class="glyphicon glyphicon-paperclip"></i>
 		</div>
 		
-		
 	</div>
-	<!-- <p>projektid bei addNewStaff, getAllStaff und removeStaff anpassen!!</p> -->
 	
-	
-	<div ng-if="views.activeSide == 'staff'" class="sideContainer">
-		
-		
-		
+	<div ng-show="views.activeSide === 'staff'" class="sideContainer">
+
 		<div class="sideHeader">
-			
-			<div class= "closeAside">
-				<div class="input-group"  >
-					<button type="button" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[12]"  placement="left" ng-click="closeAside()">
-					<span class="fa fa-times" id="close"></span>
-					</button>
-				</div>
-			</div>
-		
-			<h4>Mitarbeiter zum Projekt einladen</h4>
-			
+			<h4>Übersicht Mitarbeiter</h4>
 			<hr/>
-			
 		</div>
 		
 		<div class="sideContent">
-				<!-- <span ng-if="staff.length < 1" >Keine Mitarbeiter vorhanden</span> -->
-				<table class="table table-striped"> 
-				
-				
+			<table class="table table-striped">
 				<thead>
 					<tr>
-						<th width="15">Name</th>
-						<th width="15">E-Mail</th>
-						<th width="15">Rolle</th>
-						<th width="15"></th>
-						
+						<th>Name</th>
+						<th>E-Mail</th>
+						<th>Rolle</th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr ng-repeat="s in staff" >
-						<td><a data-drag="true" ng-model="staff" style ="font-size: 15px; text-decoration: underline; cursor: move;" buttons = "no" e-style="width: 6em" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep', onStart: 'getIndex($index)'}" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" href="#" editable-text ="s.name" h searchsave = "updateName($data,s.sid)" >{{s.name}}</a></td>
-						<td><a href="#" editable-text ="s.email" style ="font-size: 13px" buttons = "no" e-style="width: 6em" onbeforesave = "updateMail($data,s.sid)">{{s.email}}</a></td>
-						<td style ="font-size: 13px">{{s.role}}</td>
-						<td><div class="input-group" >
-							<button type="button"  class="btn btn-info btn-md gradient" bs-tooltip="tooltip[8]" placement= "bottom" ng-click=removeStaff(s.sid,s.rid)>
-							<span class="fa fa-trash"></span>
-							</button>
-						</div></td>
-					</tr>
-					
-					<tr>
-						<td><input type="text" class="form-control" style="width: 6em;"  ng-model="newStaff.name" placeholder="Name"></td>
-						<td><input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" ></td>
-						<td><select type="text" class="form-control" style="width: 6em" ng-model="newStaff.role">
-							<option value="" disabled='' selected=''>Rolle</option>
-							<option ng-repeat= "r in roles" value="{{r.rid}}">{{r.role}}</option> 
-						</select></td>
-						<td><div class = "col-md-2" >
-							<div class="input-group" >
-								<button class="btn btn-info btn-md gradient" bs-tooltip="tooltip[13]" placement= "bottom" ng-click="addNewStaffToProject()">
-								<span class="glyphicon glyphicon-plus"></span>
-								</button>	
-							</div>
-						</div> </td>
-						
+						<td><span data-drag="true"
+								  ng-model="staff"
+								  jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep', onStart: 'getIndex($index)'}"
+								  data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" >
+							{{s.name}}</span>
+						</td>
+						<td>{{s.email}}</td>
+						<td>{{s.role}}</td>
+						<td></td>
 					</tr>
 				</tbody>
-				</table>
-			
-		<!-- <div class="panel-group" data-start-collapsed="true" bs-collapse>
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a href=""  bs-collapse-toggle>Hinzufügen</a>
-                                </h4>
-                            </div>
-                           
-                            <div class="panel-collapse" bs-collapse-target>
-                                <div class="panel-body">
-										<div class="form-inline">
-											
-												<div class="form-group text-center">
-											   		<label class="control-label">Name</label><br>
-													<input type="text" class="form-control" style="width: 8em" ng-model="newStaff.name" placeholder="Name">
-												</div>
-										
-											<div class="form-group text-center">
-											   		<label class="control-label">E-Mail</label><br>
-													<input type="text" class="form-control" style="width: 6em" ng-model="newStaff.mail" placeholder="E-Mail" >
-												</div>
+			</table>
 
-												<div class="form-group text-center">
-											   		<label class="control-label">Rolle</label><br>
-													<select type="text" class="form-control" style="width: 6em" ng-model="newStaff.role">
-														<option value="" disabled='' selected=''>Rolle</option>
-														<option ng-repeat= "r in roles" value="{{r.rid}}">{{r.role}}</option> 
-														<option value = "Modellierer">Modellierer</option>
-														<option value = "Historiker">Historiker</option>
-														<option value = "Projektleiter">Projektleiter</option>
-													</select>
-												</div>
-										
-											
-											
-												<div class="form-group text-center">
-											   		<label class="control-label">Hinzufügen</label><br>
-													<button class="btn btn-primary" ng-click="addNewStaffToProject()" >Hinzufügen</button>
-												</div>
-												
-												<div class = "col-md-2" >
-													<div class="input-group" >
-														<button class="btn btn-primary" ng-click="addNewStaffToProject()">
-														<span class="fa fa-plus"></span>
-														</button>	
-													</div>
-												</div> 
-																					
-												
-												</div>
-											
-										</div>
-									</div>
-								</div>
-							</div> -->
-				
+			<p>Weitere Personen können über die <a href="#" ui-sref="project.config">Konfigurationsseite</a> dem Projekt hinzugefügt werden.</p>
 		</div>
 		
 		<div class="sideFooter">
-		
-		
-			
 		</div>
+
 	</div>	
 	
 	
 	<div ng-if="views.activeSide == 'comments'" class="sideContainer">
 		
 		<div class="sideHeader">
-			<div class= "closeAside">
-				<div class="input-group"  >
-					<button type="button" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[12]" placement="left" ng-click="closeAside()">
-					<span class="fa fa-times" id="close"></span>
-					</button>
-				</div>
-			</div>
-			
 			<h4>Kommentare zu {{taskNameForComment}}</h4>
 			<hr/>
-			
 		</div>
 		
 		<div class="sideContent">
@@ -504,9 +332,6 @@
 	 
 </div>	
 
-<div class="resizer-vTask" resizer="vertical" resizer-width="6" resizer-left=".tasksLeft" resizer-left-min="780" resizer-right=".tasksRight" resizer-right-min="0" resizer-anim="resizerValue"></div>
+<!--<div class="resizer-vTask" resizer="vertical" resizer-width="6" resizer-left=".tasksLeft" resizer-left-min="780" resizer-right=".tasksRight" resizer-right-min="0" resizer-anim="resizerValue"></div>-->
 
-
-	
-			
-		
+<div class="resizer-v" resizer="vertical" resizer-left=".tasks-main" resizer-left-min="780" resizer-right=".tasks-side" resizer-right-min="380" resizer-end="wi.callFunc.resize"></div>

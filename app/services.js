@@ -1085,43 +1085,7 @@ angular.module('dokuvisApp').factory('mysqlRequest',
 				pid: pid
 			});
 		};
-		
-		requests.updateName = function(name,id) {
-			return $http.post('php/mysql/updateName.php', {
-				name: name,
-				sid: id
-				
-			});
-			
-		};
-		
-		/* requests.updateSurname = function(surname,id) {
-			return $http.post('php/mysql/updateSurname.php', {
-				surname: surname,
-				sid: id,
-				
-			});
-			
-		};
-		 */
-		requests.updateMail = function(mail,id) {
-			return $http.post('php/mysql/updateMail.php', {
-				email: mail,
-				sid: id
-				
-			});
-			
-		};
-		
-		requests.updateRole = function(role,id) {
-			return $http.post('php/mysql/updateRame.php', {
-				role: role,
-				sid: id
-				
-			});
-			
-		};
-		
+
 		
 		requests.removeStaff = function(staffId,roleId,pid) {
 			return $http.post('php/mysql/removeStaff.php', {

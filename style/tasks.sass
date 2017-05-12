@@ -1,0 +1,336 @@
+@import "variables"
+
+.tasks-main
+	position: absolute
+	left: 0
+	width: 70%
+	height: 100%
+	padding: 10px
+
+	.search
+		float: right
+
+	.tasks-controls
+		padding-bottom: 20px
+		display: flex
+		//justify-content: space-around
+
+		.tasks-ctrl
+			flex: 0 0 auto
+			padding: 0 20px
+			&.input-group
+				max-width: 200px
+
+	.tasks-container
+
+.tasks-side
+	position: absolute
+	left: 70%
+	right: 0
+	height: 100%
+
+
+//.sidePanelSidemenu
+//	flex: 0 0 36px
+//	order: 2
+//	width: 36px
+//	///*height: 100%;
+//	//right: 100%;*/
+//	color: #999
+//	background-color: #333
+//	border-left: 1px solid #000
+//
+//.sidePanelSidemenu .smBtn
+//	height: 35px
+//	border-left: 2px solid rgba(252,78,42,0.5)
+//	padding: 7px
+//	transition: border-left-color 0.3s, color 0.3s, background-color 0.3s
+//
+//.sidePanelSidemenu .smBtn:hover
+//	border-left-color: rgba(252,78,42,1.0)
+//	background-color: #444
+//	cursor: pointer
+//	color: #ddd
+//
+//.sidePanelSidemenu .smBtn.active
+//	border-left-color: rgba(252,78,42,1.0)
+//	background-color: rgba(252,78,42,0.5)
+//	cursor: pointer
+//	color: #ddd
+//
+//.sidePanelSidemenu .smBtn span
+//	font-size: 20px
+
+
+
+//.sideContainer
+//	flex: 1
+//	order: 1
+//	/*height: 100%;*/
+//	//left: 0;
+//	//right: 35px
+//	display: flex
+//	flex-direction: column
+//	/*height: 600px;*/
+//	/*padding: 0 20px;*/
+//	overflow: hidden
+//
+//
+//.sideContainer .sideHeader
+//	//background-color: red;
+//	flex: 0 0 auto
+//	width: 100%
+//	margin-bottom: 5px
+//	margin-left: 10px
+//
+//.sideContainer .sideHeader .closeAside
+//	position: relative
+//	right: -88%
+//
+//.sideContainer .sideContent
+//	flex: 1 1 auto
+//	width: 100%
+//	margin-left: 5px
+//	overflow-y: auto
+//	font-size: 8pt
+//
+//.sideContainer .sideContent .comments
+//	flex: 1 1 auto
+//	width: 100%
+//	margin-top: 10px
+//	margin-left: 0px
+//	overflow-y: auto
+//	font-size: 10pt
+//
+//.sideContainer .sideContent .desc
+//	margin: 5px
+//	font-size: 15px
+//
+//.sideContainer .sideFooter
+//	flex: 0 0 auto
+//	width: 100%
+//	padding-left: 5px
+//	padding-bottom: 20px
+
+.fa-flag#colHead
+	opacity: 1
+
+.fa-flag#colHead:hover
+	cursor: pointer
+
+.fa-flag#highPriority
+	color: red
+	opacity: 0.5
+	-webkit-text-stroke-width: 0.5px
+	-webkit-text-stroke-color: black
+
+.fa-flag#mediumPriority
+	color: #ffbe37
+	opacity: 0.5
+	-webkit-text-stroke-width: 0.5px
+	-webkit-text-stroke-color: black
+
+
+.fa-flag#lowPriority
+	color: yellow
+	opacity: 0.5
+	-webkit-text-stroke-width: 0.5px
+	-webkit-text-stroke-color: black
+
+.fa-flag#highPriority:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+.fa-flag#mediumPriority:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+.fa-flag#lowPriority:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+.fa-exclamation
+	opacity: 0.75
+
+
+.fa-exclamation:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+
+.fa-exclamation#colHead
+	opacity: 1
+
+
+.fa-exclamation#colHead:hover
+	cursor: pointer
+
+
+.fa-exclamation#highPriority
+	color: red
+	opacity: 0.75
+	-webkit-text-stroke-width: 0.5px
+	-webkit-text-stroke-color: black
+
+.fa-exclamation#mediumPriority
+	color: #ffbe37
+	opacity: 0.75
+	-webkit-text-stroke-width: 0.5px
+	-webkit-text-stroke-color: black
+
+
+.fa-exclamation#lowPriority
+	color: yellow
+	opacity: 0.75
+	-webkit-text-stroke-width: 0.5px
+	-webkit-text-stroke-color: black
+
+
+.fa-exclamation#highPriority:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+.fa-exclamation#mediumPriority:hover
+	cursor: pointer
+	opacity: 1.0
+
+.fa-exclamation#lowPriority:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+.fa-times#row
+	opacity: 0.5
+
+
+.fa-times#row:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+.fa-times#close
+	opacity: 1
+
+
+.fa-comment-o
+	opacity: 0.5
+
+
+.fa-comment-o:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+.fa-comments-o
+	opacity: 0.5
+
+
+.fa-comments-o:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+.glyphicon-ok#colHead
+	opacity: 1
+
+.glyphicon-ok#colHead:hover
+	cursor: pointer
+
+
+.glyphicon-ok#row
+	opacity: 0.5
+
+
+.glyphicon-ok#row:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+.glyphicon-trash#colHead
+	opacity: 1
+
+.glyphicon-trash#row
+	opacity: 0.5
+
+
+.glyphicon-trash#row:hover
+	cursor: pointer
+	opacity: 1.0
+
+
+.glyphicon-file
+	opacity: 0.5
+
+.glyphicon-file:hover
+	cursor: pointer
+	opacity: 1
+
+
+
+.odd
+	color: black
+
+.even
+	color: black
+
+.gantt-row-label .gantt-label-text
+	& > span
+		cursor: pointer
+		&:hover
+			color: $dvPrimaryColor
+		&.project
+			font-weight: bold
+
+	.row-btn
+		cursor: pointer
+		opacity: 0.5
+		&:hover
+			opacity: 1
+
+.gantt-task-content
+	.task-btn
+		cursor: pointer
+		opacity: 0
+
+	&:hover .task-btn
+		opacity: 0.5
+		&:hover
+			opacity: 1
+
+.screenshotItem
+	padding: 4px
+	margin-bottom: 20px
+	border: 1px solid #ddd
+	border-radius: 4px
+/* background-color: rgba(252,78,42,0.05); */
+
+
+.buffer
+	padding-top: 2px
+	margin: 20px
+
+.bufferModal
+	padding-top: 2px
+	margin-top: 10px
+
+
+
+//.odd
+//	/* padding-right: 2px;
+//	margin-bottom: 10px;
+//	border: 1px solid #ddd;
+//	border-radius: 4px; */
+///* background-color: rgba(252,78,42,0.05); */
+//
+//.even
+//	/* padding-left: 2px;
+//	margin-bottom: 10px;
+//	border: 1px solid #ddd;
+//	border-radius: 4px; */
+///* background-color: rgba(252,78,42,0.05); */
+

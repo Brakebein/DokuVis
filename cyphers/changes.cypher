@@ -74,3 +74,8 @@ return n
 match (n {content:"sourceInsertion"})
 set n.content = "sourceUpload"
 return n
+
+// change user id to blank email
+match (n:E21)-[:P2]->(:E55 {content:"projectPerson"})
+set n.content = replace(n.content, "e21_", "")
+return n
