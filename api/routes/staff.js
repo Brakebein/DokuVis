@@ -24,7 +24,7 @@ module.exports = {
 				res.json(rows);
 			})
 			.catch(function(err) {
-				if (err) utils.error.mysql(res, err, '#staff.query');
+				utils.error.mysql(res, err, '#staff.query');
 			});
 	},
 
@@ -42,13 +42,13 @@ module.exports = {
 				res.json(rows[0]);
 			})
 			.catch(function(err) {
-				if (err) utils.error.mysql(res, err, '#staff.query');
+				utils.error.mysql(res, err, '#staff.query');
 			});
 	},
 	
 	create: function (req, res) {
-		if (!req.body.user) { utils.abort.missingData(res, 'body.user'); return; }
-		if (!req.body.role) { utils.abort.missingData(res, 'body.role'); return; }
+		if (!req.body.user) { utils.abort.missingData(res, '#staff.create body.user'); return; }
+		if (!req.body.role) { utils.abort.missingData(res, '#staff.create body.role'); return; }
 
 		var prj = req.params.id,
 			user = req.body.user,
@@ -161,8 +161,7 @@ module.exports = {
 				res.json(roles);
 			})
 			.catch(function (err) {
-				if (err)
-					utils.error.mysql(res, err, '#staff.queryRoles');
+				utils.error.mysql(res, err, '#staff.queryRoles');
 			});
 	}
 	

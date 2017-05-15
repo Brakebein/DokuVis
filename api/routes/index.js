@@ -123,8 +123,8 @@ router.get('/roles', staff.queryRoles);
 
 //tasks
 var task = require('./task');
-router.get('/auth/project/:id/task', staff.query);
-router.post('/auth/project/:id/task', staff.create);
+router.get('/auth/project/:id/task', task.query);
+router.post('/auth/project/:id/task', task.create);
 
 var typeahead = require('./typeahead');
 router.get('/auth/project/:id/typeahead/:label/:prop/:from', typeahead.query);

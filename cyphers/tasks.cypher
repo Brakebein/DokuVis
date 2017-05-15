@@ -13,11 +13,13 @@ create (task:E7 {content: {taskId}}),
        (task)-[:P4]->(:E52 {content: {e52id}})-[:P81]->(:E61 {timeContent}),
        (task)-[:P94]->(e65:E65 {content: "e65id"}),
        (e65)-[:P14]->(user),
-       (e65)-[:P4]->(:E52 {content: "e52id"})-[:P82]->(:E61 {dateContent}),
-       (task)-[:P14]->(editors)
+       (e65)-[:P4]->(:E52 {content: "e52id"})-[:P82]->(:E61 {dateContent})
+foreach (editor in case when editors is not null then [editors] else [] end |
+  create (task)-[:P14]->(editor)
+)
 
 //query tasks
-MATCH (task:E7)-[:P2]->(:E55 {content: "task"}),
+MATCH (task:E7)-[:P2]->(ttask:E55 {content: "task"}),
       (task)-[:P102]->(title:E35),
       (task)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "taskDesc"}),
       (task)-[:P4]->(:E52)-[:P81]->(time:E61),
@@ -29,5 +31,6 @@ RETURN task.content AS id,
        desc.value AS description,
        time.value AS from, time.until AS to,
        parent.content AS parent,
+       ttask.content AS type,
        collect({id: editor.content, name: editor.name}) AS editors,
        {id: user.content, name: userName.value, date: date.value} AS user

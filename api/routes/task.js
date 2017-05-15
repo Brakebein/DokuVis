@@ -29,14 +29,17 @@ module.exports = {
 			(task)-[:P4]->(:E52:`+prj+` {content: {timeId}})-[:P81]->(time:E61:`+prj+` {timeContent}),
 			(task)-[:P94]->(e65:E65:`+prj+` {content: {e65id}}),
 			(e65)-[:P14]->(user),
-			(e65)-[:P4]->(:E52:`+prj+` {content: {e52id}})-[:P82]->(date:E61:`+prj+` {value: {date}),
-			(task)-[:P14]->(editor)
+			(e65)-[:P4]->(:E52:`+prj+` {content: {e52id}})-[:P82]->(date:E61:`+prj+` {value: {date}})
+		FOREACH (o IN CASE WHEN editor IS NOT NULL THEN [editor] ELSE [] END |
+			CREATE (task)-[:P14]->(editor)
+		)
 		RETURN task.content AS id,
        		title.value AS title,
        		desc.value AS description,
        		time.value AS from, time.until AS to,
        		parent.content AS parent,
-       		collect({id: editor.content, name: editor.name}) AS editors,
+       		ttask.content AS type,
+       		collect({id: editor.content, name: editorName.value}) AS editors,
        		{id: user.content, name: userName.value, date: date.value} AS user`;
 
 		var params = {
@@ -76,19 +79,21 @@ module.exports = {
 
 		//noinspection JSAnnotator
 		var q = `
-		MATCH (task:E7:`+prj+`)-[:P2]->(:E55 {content: "task"}),
+		MATCH (task:E7:`+prj+`)-[:P2]->(ttask:E55 {content: "task"}),
 			(task)-[:P102]->(title:E35),
     		(task)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "taskDesc"}),
       		(task)-[:P4]->(:E52)-[:P81]->(time:E61),
-      		(task)-[:P14]->(editor:E21)-[:P131]->(editorName:E82),
       		(task)-[:P94]->(e65:E65)-[:P14]->(user:E21)-[:P131]->(userName:E82),
-      		(e65)-[:P4]->(:E52)-[:P82]->(date:E61)
+      		(e65)-[:P4]->(:E52)-[:P82]->(date:E61),
+      		(task)<-[:P9]-(parent)
+      	OPTIONAL MATCH (task)-[:P14]->(editor:E21)-[:P131]->(editorName:E82)
 		RETURN task.content AS id,
        		title.value AS title,
        		desc.value AS description,
        		time.value AS from, time.until AS to,
        		parent.content AS parent,
-       		collect({id: editor.content, name: editor.name}) AS editors,
+       		ttask.content AS type,
+       		collect({id: editor.content, name: editorName.value}) AS editors,
        		{id: user.content, name: userName.value, date: date.value} AS user`;
 
 		neo4j.readTransaction(q)

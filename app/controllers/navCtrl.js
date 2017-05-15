@@ -36,8 +36,8 @@ angular.module('dokuvisApp').controller('navCtrl', ['$scope', '$state', '$window
 			var email = $scope.user.email,
 				password = $scope.user.password;
 
-			if(email.length === 0) { Utilities.dangerAlert('Ungültige Emailadresse!'); return; }
-			if(password.length === 0) { Utilities.dangerAlert('Ungültiges Passwort!'); return; }
+			if (email.length === 0) { Utilities.dangerAlert('Ungültige Emailadresse!'); return; }
+			if (password.length === 0) { Utilities.dangerAlert('Ungültiges Passwort!'); return; }
 
 			UserAuthFactory.login(email, password)
 				.then(function(response) {

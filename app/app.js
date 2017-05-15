@@ -296,7 +296,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 						controller: 'taskModalCtrl',
 						show: true
 					})
-				}]
+				}],
+				params: {
+					parent: null
+				}
 			})
 			.state('project.graph', {
 				url: '/graph',

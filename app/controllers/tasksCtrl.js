@@ -235,7 +235,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 						<i ng-switch-when="task" class="row-btn" ng-class="row.model.hasData ? \'fa fa-envelope\' : \'glyphicon glyphicon-file\'" ng-click="scope.openDescAndComments(row)"></i>\
 					</i>\
 					<span ng-class="row.model.type" ng-click="scope.openEditTaskForm(row)"> {{row.model.name}}</span>\
-					<i class="row-btn fa fa-plus" bs-tooltip="tooltip[1]" ng-click="scope.openNewTaskForm(row)"></i>',
+					<i class="row-btn fa fa-plus" bs-tooltip="tooltip[1]" ui-sref=".detail({taskId: \'new\', parent: {id: row.model.id, name: row.model.name}})"></i>',
 				taskContent: '{{task.model.name}} <i class="task-btn fa fa-pencil" ng-click="scope.openEditTaskForm(row)"></i>'
 			},
 			tree: {
@@ -357,6 +357,17 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 				});
 			});
 		};
+
+		function queryTasks() {
+			Task.query().$promise
+				.then(function (results) {
+					console.log(results);
+				})
+				.catch(function (err) {
+					Utilities.throwApiException('#Task.query', err);
+				});
+		}
+		queryTasks();
 
         //Funktionen für Gantt
 
