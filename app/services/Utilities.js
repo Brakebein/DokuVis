@@ -261,7 +261,7 @@ angular.module('dokuvisApp').factory('Utilities',
 		 * @name Utilities#throwException
 		 * @param title {string} Title of the alert
 		 * @param message {string} Message to show
-		 * @param data {*} Addtional data to be shown within the console
+		 * @param data {*=} Addtional data to be shown within the console
 		 */
 		f.throwException = function(title, message, data) {
 			$alert({

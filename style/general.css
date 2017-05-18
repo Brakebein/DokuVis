@@ -41,10 +41,10 @@ html, body {
       flex: 0 0 auto; }
     .modal-dialog.large > .modal-content > .modal-body, .modal-dialog.xlarge > .modal-content > .modal-body {
       flex: 1 1 auto; }
-    .modal-dialog.large > .modal-content > .modal-footer > .modal-metadata, .modal-dialog.xlarge > .modal-content > .modal-footer > .modal-metadata {
-      float: left;
-      text-align: left;
-      font-size: 12px; }
+.modal-dialog .modal-footer > .modal-metadata {
+  float: left;
+  text-align: left;
+  font-size: 12px; }
 
 .tooltip-inner {
   min-width: 100px; }

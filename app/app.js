@@ -109,8 +109,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/newProjectModal.html',
-						controller: 'newProjectModalCtrl',
+						contentTemplate: 'partials/modals/projectModal.html',
+						controller: 'projectModalCtrl',
 						show: true
 					})
 				}],
@@ -141,7 +141,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/newProjectModal.html',
+						contentTemplate: 'partials/modals/projectModal.html',
 						controller: 'newSubprojectModalCtrl',
 						show: true
 					});
@@ -341,8 +341,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/staffeditModal.html',
-						controller: 'staffeditModalCtrl',
+						contentTemplate: 'partials/modals/staffModal.html',
+						controller: 'staffModalCtrl',
 						show: true
 					});
 				}]

@@ -6,7 +6,7 @@
 
 	<div class="modal-body">
 
-		<div class="bs-callout bs-callout-default bs-callout-sm">
+		<div class="bs-callout bs-callout-default bs-callout-sm" ng-show="parentName || attachNote">
 			<span ng-show="parentName">Aufgabe wird als Unteraufgabe von <strong>{{ parentName }}</strong> erstellt.</span>
 			<span ng-show="attachNote">{{ attachNote }}</span>
 		</div>
@@ -26,6 +26,14 @@
 					<label for="taskTo"><i class="fa fa-calendar"></i> Bis</label>
 					<input type="text" class="form-control" id="taskTo" ng-model="task.to" bs-datepicker data-date-format="dd.MM.yyyy" data-model-date-format="yyyy-MM-dd" data-date-type="string" data-autoclose="true"/>
 				</div>
+				<div class="col-md-5 col-md-offset-1">
+					<label>Priorität</label>
+					<div class="btn-group">
+						<button class="btn btn-default task-priority-low" ng-class="{active: task.priority === 0}" ng-click="task.priority = 0">Niedrig</button>
+						<button class="btn btn-default task-priority-medium" ng-class="{active: task.priority === 1}" ng-click="task.priority = 1">Mittel</button>
+						<button class="btn btn-default task-priority-high" ng-class="{active: task.priority === 2}" ng-click="task.priority = 2">Hoch</button>
+					</div>
+				</div>
 			</div>
 
 			<div class="form-group">
@@ -44,6 +52,11 @@
 	</div>
 
 	<div class="modal-footer">
+		<div class="modal-metadata">
+			<span ng-show="task.created && task.created.id">created by {{task.created.name}} - {{task.created.date | amCalendar}}</span>
+			<span ng-show="task.modified && task.modified.id">created by {{task.created.name}} - {{task.created.date | amCalendar}}</span>
+		</div>
+
 		<button type="button" class="btn btn-primary" ng-click="save()">{{'save' | translate}}</button>
 		<button type="button" class="btn btn-default" ng-click="close()">{{'abort' | translate}}</button>
 	</div>

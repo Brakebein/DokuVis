@@ -45,11 +45,6 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "href": "api/dokuvisApp/controller/newProjInfoModalCtrl"
               },
               {
-                "name": "newProjectModalCtrl",
-                "type": "controller",
-                "href": "api/dokuvisApp/controller/newProjectModalCtrl"
-              },
-              {
                 "name": "newSubprojectModalCtrl",
                 "type": "controller",
                 "href": "api/dokuvisApp/controller/newSubprojectModalCtrl"
@@ -58,6 +53,11 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "name": "projHomeCtrl",
                 "type": "controller",
                 "href": "api/dokuvisApp/controller/projHomeCtrl"
+              },
+              {
+                "name": "projectModalCtrl",
+                "type": "controller",
+                "href": "api/dokuvisApp/controller/projectModalCtrl"
               },
               {
                 "name": "projectlistCtrl",

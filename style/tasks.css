@@ -195,4 +195,19 @@
   padding-top: 2px;
   margin-top: 10px; }
 
+.task-priority-low, .task-priority-low > .gantt-task-background {
+  background-color: #ffffb2; }
+  .task-priority-low.active, .task-priority-low:active, .task-priority-low:hover, .task-priority-low.active:hover, .task-priority-low:active:hover, .task-priority-low.active:focus, .task-priority-low:active:focus, .task-priority-low > .gantt-task-background.active, .task-priority-low > .gantt-task-background:active, .task-priority-low > .gantt-task-background:hover, .task-priority-low > .gantt-task-background.active:hover, .task-priority-low > .gantt-task-background:active:hover, .task-priority-low > .gantt-task-background.active:focus, .task-priority-low > .gantt-task-background:active:focus {
+    background-color: #ededa6; }
+
+.task-priority-medium, .task-priority-medium > .gantt-task-background {
+  background-color: #fecc5c; }
+  .task-priority-medium.active, .task-priority-medium:active, .task-priority-medium:hover, .task-priority-medium.active:hover, .task-priority-medium:active:hover, .task-priority-medium.active:focus, .task-priority-medium:active:focus, .task-priority-medium > .gantt-task-background.active, .task-priority-medium > .gantt-task-background:active, .task-priority-medium > .gantt-task-background:hover, .task-priority-medium > .gantt-task-background.active:hover, .task-priority-medium > .gantt-task-background:active:hover, .task-priority-medium > .gantt-task-background.active:focus, .task-priority-medium > .gantt-task-background:active:focus {
+    background-color: #ecbe56; }
+
+.task-priority-high, .task-priority-high > .gantt-task-background {
+  background-color: #fd8d3c; }
+  .task-priority-high.active, .task-priority-high:active, .task-priority-high:hover, .task-priority-high.active:hover, .task-priority-high:active:hover, .task-priority-high.active:focus, .task-priority-high:active:focus, .task-priority-high > .gantt-task-background.active, .task-priority-high > .gantt-task-background:active, .task-priority-high > .gantt-task-background:hover, .task-priority-high > .gantt-task-background.active:hover, .task-priority-high > .gantt-task-background:active:hover, .task-priority-high > .gantt-task-background.active:focus, .task-priority-high > .gantt-task-background:active:focus {
+    background-color: #eb8338; }
+
 /*# sourceMappingURL=tasks.css.map */

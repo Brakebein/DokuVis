@@ -3036,9 +3036,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				var objs = [objects[id].mesh];
 				var cc = [];
 				function collectChildren(children) {
-					for(var i=0; i<children.length; i++) {
+					for (var i=0; i<children.length; i++) {
 						collectChildren(children[i].children);
-						if(children[i].userData.type === 'object')
+						if (children[i].userData.type === 'object')
 							cc.push(children[i]);
 					}
 				}
@@ -3050,12 +3050,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			 * focus selected objects
 			 */
 			scope.focusSelected = function() {
-				if(selected.length === 0) return;
+				if (selected.length === 0) return;
 				var cc = [];
 				function collectChildren(children) {
-					for(var i=0; i<children.length; i++) {
+					for (var i=0; i<children.length; i++) {
 						collectChildren(children[i].children);
-						if(children[i].userData.type === 'object' || children[i].userData.type === 'plan')
+						if (children[i].userData.type === 'object' || children[i].userData.type === 'plan')
 							cc.push(children[i]);
 					}
 				}
@@ -3068,21 +3068,21 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			 */
 			scope.focusAll = function() {
 				var cc = [];
-				for(var key in objects) {
-					if(objects[key].mesh.userData.type === 'object') 
+				for (var key in objects) {
+					if (objects[key].mesh.userData.type === 'object')
 						cc.push(objects[key].mesh);
 				}
-				if(cc.length < 1) return;
+				if (cc.length < 1) return;
 				focusObjects(cc);
 			};
 			
 			function focusObjects(objs) {
 				// maximale BoundingBox
 				var xmin=0, xmax=0, ymin=0, ymax=0, zmin=0, zmax=0;
-				for(var i=0, l=objs.length; i<l; i++) {
+				for (var i=0, l=objs.length; i<l; i++) {
 					var omin = objs[i].geometry.boundingBox.min.clone().applyMatrix4(objs[i].matrixWorld);
 					var omax = objs[i].geometry.boundingBox.max.clone().applyMatrix4(objs[i].matrixWorld);
-					if(i == 0) {
+					if (i === 0) {
 						xmin = omin.x; ymin = omin.y; zmin = omin.z;
 						xmax = omax.x; ymax = omax.y; zmax = omax.z;
 					}
@@ -3116,7 +3116,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
              * @param {number} r - radius
              */
 			function computeFocusFromSphere(M, r) {
-				if(camera.inPerspectiveMode) {
+				if (camera.inPerspectiveMode) {
 					// vector from current center to cam-position
 					var s = new THREE.Vector3();
 					s.subVectors(camera.position, controls.center);
@@ -3144,20 +3144,20 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 					enableAnimationRequest();
 				}
 				else {
-					if(scope.viewportSettings.camera == 'top')
+					if (scope.viewportSettings.camera === 'top')
 						orthocam.position.set(M.x, 50, M.z);
-					else if(scope.camera == 'front')
+					else if (scope.camera === 'front')
 						orthocam.position.set(M.x, M.y, 50);
-					else if(scope.camera == 'left')
+					else if (scope.camera === 'left')
 						orthocam.position.set(-50, M.y, M.z);
 				}
 			}
 			
 			scope.$on('$destroy', function() {
 				setSelected(null, false, true);
-				if(scope.snapshot.active) scope.abortSnapshot();
+				if (scope.snapshot.active) scope.abortSnapshot();
 
-				if(scope.spatialize)
+				if (scope.spatialize)
 					clearMarkers();
 
 				// unbind functions from callFunc

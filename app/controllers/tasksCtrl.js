@@ -226,7 +226,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 				// filterRow: { name: '' },
 				// filterTask: { name: '' },
 				sideWidth: 'min-width',
-				sortMode: '',
+				sortMode: 'model.name',
 				taskOutOfRange: 'truncate',
 				viewScale: 'day',
 				rowContent: '\
@@ -236,7 +236,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 					</i>\
 					<span ng-class="row.model.type" ng-click="scope.openEditTaskForm(row)"> {{row.model.name}}</span>\
 					<i class="row-btn fa fa-plus" bs-tooltip="tooltip[1]" ui-sref=".detail({taskId: \'new\', parent: {id: row.model.id, name: row.model.name}})"></i>',
-				taskContent: '{{task.model.name}} <i class="task-btn fa fa-pencil" ng-click="scope.openEditTaskForm(row)"></i>'
+				taskContent: '{{task.model.name}} <i class="task-btn fa fa-pencil" ui-sref=".detail({taskId: task.model.id})"></i>'
 			},
 			tree: {
 				header: 'Projektstruktur'
@@ -348,26 +348,64 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 					console.log('data.on.change', newData, oldData);
 				});
 
-				api.tasks.on.moveEnd($scope, function (task) {
-					console.log('task moveEnd', task);
-				});
+				api.tasks.on.moveEnd($scope, onTaskDateChange);
 
-				api.tasks.on.resizeEnd($scope, function (task) {
-					console.log('task resizeEnd', task);
-				});
+				api.tasks.on.resizeEnd($scope, onTaskDateChange);
 			});
 		};
 
+		// get all tasks
 		function queryTasks() {
 			Task.query().$promise
 				.then(function (results) {
 					console.log(results);
+					var rows = processTasks(results);
+					console.log(rows);
+					$scope.data = rows;
 				})
 				.catch(function (err) {
 					Utilities.throwApiException('#Task.query', err);
 				});
 		}
-		queryTasks();
+
+		// transform db results into rows and tasks
+		function processTasks(data) {
+			return data.map(function (task) {
+				return {
+					id: task.id,
+					name: task.title,
+					parent: task.parent,
+					tasks: [{
+						id: task.id,
+						name: task.title,
+						from: task.from,
+						to: task.to,
+						data: {
+							type: task.type,
+							priority: task.priority,
+							editors: task.editors,
+							resource: task
+						},
+						classes: getTaskClass('priority', task.priority)
+					}]
+				};
+			});
+		}
+
+		// get specific class for task
+		function getTaskClass(type, value) {
+			if (type === 'priority') {
+				switch (value) {
+					case 1: return 'task-priority-medium';
+					case 2: return 'task-priority-high';
+					default: return 'task-priority-low';
+				}
+			}
+		}
+
+		function onTaskDateChange(task) {
+			console.log('task resized or moved', task);
+		}
 
         //Funktionen für Gantt
 
@@ -1724,7 +1762,14 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
         $scope.getPid();
         //console.log($scope.pid);
         //$scope.getAllSubprojects();
+		queryTasks();
 		queryStaff();
         $scope.fillDataObject('task');
         //$scope.getStaffFromGraph();
+
+		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
+			if (fromState.name === 'project.tasks.detail')
+				queryTasks();
+		});
+
     }]);

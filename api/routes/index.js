@@ -51,14 +51,14 @@ router.put('/auth/project/:id', project.update);
 router.delete('/auth/project/:id', project.delete);
 
 // subproject
-var subproject = require('./subproject');
+const subproject = require('./subproject');
 router.get('/auth/project/:id/subproject', subproject.query);
 router.post('/auth/project/:id/subproject', subproject.create);
 router.get('/auth/project/:id/subproject/:subId', subproject.get);
 router.put('/auth/project/:id/subproject/:subId', subproject.update);
 
 // project infos
-var projinfo = require('./projinfo');
+const projinfo = require('./projinfo');
 router.get('/auth/project/:id/:subprj/projinfo', projinfo.query);
 router.post('/auth/project/:id/:subprj/projinfo', projinfo.create);
 router.put('/auth/project/:id/:subprj/projinfo/:piId', projinfo.update);
@@ -75,7 +75,7 @@ router.get('/auth/project/:id/:subprj/model/:modelId/connect', models.getConnect
 router.post('/auth/project/:id/:subprj/model/upload', mUpload.any(), upload);
 
 // categories
-var category = require('./category');
+const category = require('./category');
 router.get('/auth/project/:id/category', category.query);
 router.post('/auth/project/:id/category', category.create);
 router.put('/auth/project/:id/category/:cid', category.update);
@@ -85,7 +85,7 @@ router.put('/auth/project/:id/category/:cid/attribute/:aid', category.updateAttr
 router.delete('/auth/project/:id/category/:cid/attribute/:aid', category.deleteAttr);
 
 // sources
-var source = require('./source');
+const source = require('./source');
 router.get('/auth/project/:id/:subprj/source', source.query);
 router.get('/auth/project/:id/:subprj/source/:sourceId', source.get);
 router.post('/auth/project/:id/:subprj/source', mUpload.single('uploadFile'), source.create);
@@ -95,7 +95,7 @@ router.put('/auth/project/:id/:subprj/source/:sourceId/:type/spatial', source.se
 router.get('/auth/project/:id/:subprj/source/:sourceId/:type/spatial', source.getSpatial);
 
 // comments
-var comment = require('./comment');
+const comment = require('./comment');
 router.get('/auth/project/:id/:subprj/comment', comment.query);
 router.post('/auth/project/:id/:subprj/comment', comment.create);
 router.get('/auth/project/:id/:subprj/comment/target/:targetId', comment.queryTarget);
@@ -110,23 +110,26 @@ router.get('/auth/project/:id/graph/:nodeId/e22', graph.getE22Name);
 router.get('/auth/project/:id/persons', person.query);
 
 // archives
-var archive = require('./archive');
+const archive = require('./archive');
 router.get('/auth/project/:id/archive', archive.query);
 router.post('/auth/project/:id/archive', archive.create);
 
 // staff
-var staff = require('./staff');
+const staff = require('./staff');
 router.get('/auth/project/:id/staff', can('admin'), staff.query);
 router.get('/auth/project/:id/staff/:userId', can('admin'), staff.get);
 router.post('/auth/project/:id/staff', can('admin'), staff.create);
 router.get('/roles', staff.queryRoles);
 
 //tasks
-var task = require('./task');
+const task = require('./task');
 router.get('/auth/project/:id/task', task.query);
 router.post('/auth/project/:id/task', task.create);
+router.get('/auth/project/:id/task/:tid', task.get);
+router.put('/auth/project/:id/task/:tid', task.update);
+router.delete('/auth/project/:id/task/:tid', task.delete);
 
-var typeahead = require('./typeahead');
+const typeahead = require('./typeahead');
 router.get('/auth/project/:id/typeahead/:label/:prop/:from', typeahead.query);
 
 module.exports = router;

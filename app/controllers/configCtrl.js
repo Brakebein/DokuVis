@@ -40,9 +40,9 @@ angular.module('dokuvisApp').controller('configCtrl', ['$scope', 'Staff', 'Utili
         // init
         queryStaff();
 
-        $scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
-            if(fromState.name === 'project.config.staffedit')
-                queryStaff();
+        // listening to events
+        $scope.$on('$staffUpdate', function () {
+            queryStaff();
         });
 
     }]);

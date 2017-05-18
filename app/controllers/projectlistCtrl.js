@@ -74,12 +74,12 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 			});
 		};
 		
-		// oninit Funktionsaufrufe
+		// init
 		queryProjects();
 
-		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
-			if(fromState.name === 'projectlist.project')
-				queryProjects();
+		// listening to events
+		$scope.$on('projectsUpdate', function () {
+			queryProjects();
 		});
 		
 	}]);

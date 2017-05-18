@@ -1,0 +1,195 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">projectModalCtrl</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+    <li>
+      - controller in module <a href="api/dokuvisApp">dokuvisApp</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>Modal controller for creating or editing projects.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope">$scope</a></li><li><a href="https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state">$state</a></li><li><a href="https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams">$stateParams</a></li><li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout">$timeout</a></li><li><a href="api/dokuvisApp/factory/Utilities">Utilities</a></li><li><a href="api/dokuvisApp/factory/Project">Project</a></li>
+  </ul>
+  
+
+  
+<h2>Methods</h2>
+<ul class="methods">
+  <li id="save">
+    <h3 class="">
+      <span class="title"><p><code>save();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Saves input data by either creating a new project or updating database entries.</p>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="close">
+    <h3 class="">
+      <span class="title"><p><code>close();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Closes the modal and destroys the scope.</p>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  </ul>
+<h2>Events</h2>
+<ul class="events">
+  <li id="projectsUpdate">
+    <h3 class="">
+      <span class="title"><code>projectsUpdate</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when a new project was created or an exiting one has been updated.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">$rootScope</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        object
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-project"><a href="api/dokuvisApp/factory/Project">Project</a></span>
+      </td>
+      <td>
+        <p>New or updated project entry.</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>$rootScope.$on(&#39;projectsUpdate&#39;, function (evt, object) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  </ul>
+
+<h2>Properties</h2>
+<ul class="properties">
+  <li id="title">
+    <h3 class="">
+      <span class="title"><code>title</code></span>
+      
+      
+  
+    </h3>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span></td>
+    <td><p>Title translation id</p>
+</td>
+  </tr>
+</table>
+  </li>
+  
+  <li id="name">
+    <h3 class="">
+      <span class="title"><code>name</code></span>
+      
+      
+  
+    </h3>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span></td>
+    <td><p>Model for name input field</p>
+</td>
+  </tr>
+</table>
+  </li>
+  
+  <li id="desc">
+    <h3 class="">
+      <span class="title"><code>desc</code></span>
+      
+      
+  
+    </h3>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span></td>
+    <td><p>Model for description input field</p>
+</td>
+  </tr>
+</table>
+  </li>
+  </ul>
+
+  
+</div>
+
+
