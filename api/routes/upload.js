@@ -28,12 +28,12 @@ module.exports = function (req, res) {
 		path: config.path.data + '/' + req.params.id + '/' + req.body.sourceType + 's/'
 	};
 
-	switch (mime.lookup(file.orginalname)) {
+	switch (mime.lookup(file.originalname)) {
 
 		case 'model/vnd.collada+xml':
 			processDae(file, params)
 				.then(function (result) {
-					return writeToDB(result, params);
+					return writeToDB(result, file, params);
 				})
 				.then(function (response) {
 					res.json(response);
@@ -55,7 +55,7 @@ module.exports = function (req, res) {
 		case 'application/zip':
 			processZip(file, params)
 				.then(function (result) {
-					return writeToDB(result, params);
+					return writeToDB(result, file, params);
 				})
 				.then(function (response) {
 					res.json(response);
@@ -78,7 +78,7 @@ module.exports = function (req, res) {
 			break;
 
 		default:
-			utils.abort.unsupportedFile(res, '#upload.model ' + mimetype);
+			utils.abort.unsupportedFile(res, '#upload.model ' + file.originalname);
 
 	}
 	
@@ -173,11 +173,11 @@ function processZip(file, params) {
 				Promise.each(imgUrls, function (value) {
 					return extractImage(zipObj, value, file, params)
 						.then(function (fnames) {
-							updateMapValues(response.nodes, fnames.oldName, fnames.newName);
-							return fs.renameAsync(file.destination + '/' + fnames.newName, path + 'maps/' + fnames.newName);
+							updateMapValues(result.nodes, fnames.oldName, fnames.newName);
+							return fs.renameAsync(file.destination + '/' + fnames.newName, params.path + 'maps/' + fnames.newName);
 						});
 				}).then(function () {
-					return fs.renameAsync(file.path, path + file.filename);
+					return fs.renameAsync(file.path, params.path + file.filename);
 				}).then(function () {
 					resolve(result);
 				}).catch(function (err) {
@@ -227,7 +227,7 @@ function updateMapValues(objs, oldName, newName) {
 	}
 }
 
-function writeToDB(data, p) {
+function writeToDB(data, file, p) {
 	var statements = [];
 
 	function prepareStatements(nodes) {
@@ -257,7 +257,7 @@ function writeToDB(data, p) {
 			q += ' RETURN e22.content';
 
 			var params = {
-				subprj: subprj,
+				subprj: p.subprj,
 				contentid: p.tid + '_' + utils.replace(n.id),
 				parentid: n.parentid ? 'e22_' + p.tid + '_' + utils.replace(n.parentid) : '',
 				e73content: {
@@ -275,7 +275,7 @@ function writeToDB(data, p) {
 				},
 				e75content: {
 					content: n.files ? n.files.ctm : file.filename,
-					path: p.prj + '/' + req.body.sourceType + 's/',
+					path: p.prj + '/models/',
 					edges: n.files ? n.files.edges : undefined,
 					type: file.filename.split('.').pop(),
 					original: file.filename,
@@ -288,7 +288,7 @@ function writeToDB(data, p) {
 					content: 'e57_' + p.tid + '_' + utils.replace(n.material.id),
 					id: n.material.id,
 					name: n.material.name,
-					path: p.prj + '/' + req.body.sourceType + 's/maps/',
+					path: p.prj + '/models/maps/',
 					diffuse: n.material.map || n.material.color,
 					alpha: n.material.alphaMap || null
 				};

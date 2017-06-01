@@ -459,8 +459,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		 */
 		$scope.spatializeImage = function (obj) {
 			console.log(obj);
-			//webglInterface.callFunc.openSpatializeImage(obj);
-			$state.go('.spatialize', { source: obj });
+			webglInterface.callFunc.openSpatializeImage(obj);
+			//$state.go('.spatialize', { source: obj });
 		};
 
 		$scope.loadImage = function (source) {

@@ -68,7 +68,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			scope.vPanel = webglInterface.vPanel;
 			scope.vizSettings = webglInterface.vizSettings;
 			scope.snapshot = webglInterface.snapshot;
-			//scope.spatialize = webglInterface.spatialize;
+			scope.spatialize = webglInterface.spatialize;
 			scope.$applyAsync();
 
 
@@ -1031,9 +1031,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				animate();
 			};
 			scope.setEdgesOpacity = function(value) {
+			//scope.$watch('vizSettings.edgesOpacity', function (value) {
+
 				console.log(value);
 				if(!materials['edges']) return;
-				if(value == 100) {
+				if(value === 100) {
 					materials['edgesMat'].transparent = false;
 					materials['edgesSelectionMat'].transparent = false;
 				}
@@ -1280,7 +1282,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
              * @param {number} value - opacity value
              */
 			function setOpacity(mesh, edges, value) {
-				if(value == 1.0) {
+				if(value === 1.0) {
 					if(selected.indexOf(mesh) === -1) {
 						mesh.material = materials[mesh.userData.originalMat];
 						if(edges) edges.material = materials['edgesMat'] ;
@@ -1951,16 +1953,29 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			 * @deprecated
 			 */
 			scope.saveSpatializeImage = function () {
-				scope.spatialize.source.matrix = camera.matrixWorld.toArray(); 
-				scope.spatialize.source.fov = parseInt(camera.fov); 
-				scope.spatialize.source.$spatialize().then(function (response) {
-					console.log('source.spatialize', response);
-					scope.spatialize.active = false;
-					scope.spatialize.source = null;
-					scope.spatialize.fov = 35;
-				}, function (err) {
-					Utilities.throwApiException('on Source.spatialize()', err);
-				});
+				// scope.spatialize.source.matrix = camera.matrixWorld.toArray();
+				// scope.spatialize.source.fov = parseInt(camera.fov);
+				// scope.spatialize.source.$spatialize().then(function (response) {
+				// 	console.log('source.spatialize', response);
+				// 	scope.spatialize.active = false;
+				// 	scope.spatialize.source = null;
+				// 	scope.spatialize.fov = 35;
+				// }, function (err) {
+				// 	Utilities.throwApiException('on Source.spatialize()', err);
+				// });
+				scope.spatialize.source.matrix = camera.matrixWorld.toArray();
+				scope.spatialize.source.offset = [0,0];
+				scope.spatialize.source.ck = 1 / Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * 0.5;
+				scope.spatialize.source.$spatialize({ method: 'manual' })
+					.then(function (response) {
+						console.log('source.spatialize', response);
+						scope.spatialize.active = false;
+						scope.spatialize.source = null;
+						scope.spatialize.fov = 35;
+					})
+					.catch(function (err) {
+						Utilities.throwApiException('#Source.spatialize', err);
+					});
 			};
 
 			/**
@@ -2546,6 +2561,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 						material.side = THREE.DoubleSide;
 
 						obj.material = material;
+						setObjectMaterial(obj, true, false, true);
 						console.log(material);
 					}
 					else if(info.materialId) {

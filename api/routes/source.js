@@ -162,11 +162,11 @@ module.exports = {
 				console.debug(result.stdout);
 
 				// thumbnail
-				return exec(config.exec.ImagickConvert, [path + filename, '-resize "160x90^"', '-gravity center', '-extent 160x90', path + filenameThumb]);
+				return exec(config.exec.ImagickConvert, [path + filename, '-resize', '160x90^', '-gravity', 'center', '-extent', '160x90', path + filenameThumb]);
 			})
 			.then(function () {
 				// downsample preview image
-				return exec(config.exec.ImagickConvert, [path + filename, '-resize "1024x1024>"', path + filenamePreview]);
+				return exec(config.exec.ImagickConvert, [path + filename, '-resize', '1024x1024>', path + filenamePreview]);
 			})
 			.catch(function (err) {
 				utils.error.server(res, err, '#source.create fs/exec ' + path + filename);
@@ -363,56 +363,81 @@ module.exports = {
 	
 	setSpatial: function (req, res) {
 		var prj = req.params.id;
-
+		var promise;
 		// TODO: convert image to 1024x1024 map
-		
-		console.debug(req.body.file.name);
-		var tmpFile = config.path.tmp + '/' + req.body.file.name + '_coords.txt';
-		
-		fs.writeFileAsync(tmpFile, req.body.dlt)
-			.then(function () {
-				return exec(config.exec.DLT, [tmpFile]);
-			})
-			.catch(function (err) {
-				utils.error.server(res, err, '#source.setSpatial fs/exec ' + tmpFile);
-				fs.unlinkSync(tmpFile);
-			})
-			.then(function (result) {
-				console.debug(result.stdout);
-				fs.unlinkSync(tmpFile);
 
-				var lines = result.stdout.split("\n");
+		if (req.query.method === 'DLT') {
+			console.debug('DLT method');
 
-				var ck = parseFloat(lines[1]) / 1000;
-				var offset = new THREE.Vector2(parseFloat(lines[3]) / 1000, parseFloat(lines[4]) / 1000);
+			console.debug(req.body.file.name);
+			var tmpFile = config.path.tmp + '/' + req.body.file.name + '_coords.txt';
 
-				var position = new THREE.Vector3(parseFloat(lines[6]), parseFloat(lines[7]), parseFloat(lines[8]));
-				var r1 = lines[10].trim().split(/\s+/),
-					r2 = lines[11].trim().split(/\s+/),
-					r3 = lines[12].trim().split(/\s+/);
+			promise = fs.writeFileAsync(tmpFile, req.body.dlt)
+				.then(function () {
+					return exec(config.exec.DLT, [tmpFile]);
+				})
+				.catch(function (err) {
+					utils.error.server(res, err, '#source.setSpatial fs/exec ' + tmpFile);
+					fs.unlinkSync(tmpFile);
+				})
+				.then(function (result) {
+					console.debug(result.stdout);
+					fs.unlinkSync(tmpFile);
 
-				var matrix = new THREE.Matrix4();
-				matrix.set( parseFloat(r1[0]), parseFloat(r1[1]), parseFloat(r1[2]), position.x,
-							parseFloat(r2[0]), parseFloat(r2[1]), parseFloat(r2[2]), position.y,
-							parseFloat(r3[0]), parseFloat(r3[1]), parseFloat(r3[2]), position.z,
-							0, 0, 0, 1);
-				
-				var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36) \
-					MERGE (e36)-[:P106]->(e73:E73:'+prj+' {content: {e73id}}) \
+					var lines = result.stdout.split("\n");
+
+					var ck = parseFloat(lines[1]) / 1000;
+					var offset = new THREE.Vector2(parseFloat(lines[3]) / 1000, parseFloat(lines[4]) / 1000);
+
+					var position = new THREE.Vector3(parseFloat(lines[6]), parseFloat(lines[7]), parseFloat(lines[8]));
+					var r1 = lines[10].trim().split(/\s+/),
+						r2 = lines[11].trim().split(/\s+/),
+						r3 = lines[12].trim().split(/\s+/);
+
+					var matrix = new THREE.Matrix4();
+					matrix.set(parseFloat(r1[0]), parseFloat(r1[1]), parseFloat(r1[2]), position.x,
+						parseFloat(r2[0]), parseFloat(r2[1]), parseFloat(r2[2]), position.y,
+						parseFloat(r3[0]), parseFloat(r3[1]), parseFloat(r3[2]), position.z,
+						0, 0, 0, 1);
+
+					return Promise.resolve({
+						sourceId: req.params.sourceId,
+						e73id: 'spatial_' + req.params.sourceId,
+						e73value: {
+							path: req.body.file.path,
+							map: req.body.file.display,
+							matrix: matrix.toArray(),
+							offset: offset.toArray(),
+							ck: ck
+						}
+					});
+				});
+		}
+		else if (req.query.method === 'manual') {
+			console.debug('manual method');
+
+			promise = Promise.resolve({
+				sourceId: req.params.sourceId,
+				e73id: 'spatial_' + req.params.sourceId,
+				e73value: {
+					path: req.body.file.path,
+					map: req.body.file.display,
+					matrix: req.body.matrix,
+					offset: req.body.offset,
+					ck: req.body.ck
+				}
+			});
+		}
+		else {
+			promise = Promise.reject('No method selected');
+		}
+
+		promise
+			.then(function (params) {
+				var q = 'MATCH (e31:E31:' + prj + ' {content: {sourceId}})-[:P70]->(e36:E36) \
+					MERGE (e36)-[:P106]->(e73:E73:' + prj + ' {content: {e73id}}) \
 					SET e73 += {e73value} \
 					RETURN e73 AS spatial';
-		
-				var params = {
-					sourceId: req.params.sourceId,
-					e73id: 'spatial_' + req.params.sourceId,
-					e73value: {
-						path: req.body.file.path,
-						map: req.body.file.display,
-						matrix: matrix.toArray(),
-						offset: offset.toArray(),
-						ck: ck
-					}
-				};
 
 				return neo4j.transaction(q, params);
 			})

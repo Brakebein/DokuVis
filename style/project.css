@@ -73,7 +73,7 @@
     width: 100%;
     padding: 0 20px;
     overflow-y: auto; }
-    .sideContainer .sideContent .smallFont {
+    .sideContainer .sideContent.smallFont {
       font-size: 8pt; }
   .sideContainer .sideFooter {
     flex: 0 0 auto;
