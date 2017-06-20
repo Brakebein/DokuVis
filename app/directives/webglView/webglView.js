@@ -1680,28 +1680,28 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			function mousewheel(event) {
 				event.preventDefault();
 
-				if(camera.inPerspectiveMode) {
+				//if (camera.inPerspectiveMode) {
 					controls.onMouseWheel(event.originalEvent);
-				}
-				else {
-					// TODO: orthocam zoom mousewheel
-					var delta = - event.originalEvent.deltaY || event.originalEvent.wheelDelta || 0;
-					//console.log(delta);
-					var ar = SCREEN_WIDTH/SCREEN_HEIGHT;
-					var zoomSpeed = 0.05;
-					var min = 10;
-					orthocam.left += delta*ar*zoomSpeed;
-					orthocam.right -= delta*ar*zoomSpeed;
-					orthocam.top -= delta*zoomSpeed;
-					orthocam.bottom += delta*zoomSpeed;
-					if(orthocam.right < min*ar || orthocam.top < min) {
-						orthocam.left = -min*ar;
-						orthocam.right = min*ar;
-						orthocam.top = min;
-						orthocam.bottom = -min;
-					}
-					orthocam.updateProjectionMatrix();
-				}
+				// }
+				// else {
+				// 	// TODO: orthocam zoom mousewheel
+				// 	var delta = - event.originalEvent.deltaY || event.originalEvent.wheelDelta || 0;
+				// 	//console.log(delta);
+				// 	var ar = SCREEN_WIDTH/SCREEN_HEIGHT;
+				// 	var zoomSpeed = 0.05;
+				// 	var min = 10;
+				// 	camera.left += delta*ar*zoomSpeed;
+				// 	camera.right -= delta*ar*zoomSpeed;
+				// 	camera.top -= delta*zoomSpeed;
+				// 	camera.bottom += delta*zoomSpeed;
+				// 	if (camera.right < min*ar || camera.top < min) {
+				// 		camera.left = -min*ar;
+				// 		camera.right = min*ar;
+				// 		camera.top = min;
+				// 		camera.bottom = -min;
+				// 	}
+				// 	camera.updateProjectionMatrix();
+				// }
 			}
 
 			/**
@@ -2148,7 +2148,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 
 				//console.log(pgeo);
 
-				var normal = new THREE.Vector3(pgeo.attributes.normal.array[0], pgeo.attributes.normal.array[1], pgeo.attributes.normal.array[2]);
+				var q = new THREE.Quaternion().setFromRotationMatrix(matWorld)
+				var normal = new THREE.Vector3(pgeo.attributes.normal.array[0], pgeo.attributes.normal.array[1], pgeo.attributes.normal.array[2]).applyQuaternionq(q);
 
 				var boundingBox = pgeo.boundingBox.clone().applyMatrix4(matWorld);
 
