@@ -457,10 +457,12 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		 * Open spatialize modal
 		 * @param obj
 		 */
-		$scope.spatializeImage = function (obj) {
+		$scope.spatializeImage = function (obj, type) {
 			console.log(obj);
-			webglInterface.callFunc.openSpatializeImage(obj);
-			//$state.go('.spatialize', { source: obj });
+			if (type === 'DLT')
+				$state.go('.spatialize', { source: obj });
+			else
+				webglInterface.callFunc.openSpatializeImage(obj);
 		};
 
 		$scope.loadImage = function (source) {
