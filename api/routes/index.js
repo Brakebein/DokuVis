@@ -37,7 +37,7 @@ router.post('/register', auth.register);
 
 
 // routes that can be only accessed by authenticated users
-router.get('/auth/checkJWT', auth.checkJWT);
+router.get('/auth/check', auth.checkJWT);
 
 router.post('/auth/cypher', project.cypher);
 

@@ -6,14 +6,11 @@
  * @author Brakebein
  * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
  * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
- * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$window $window
  * @requires UserAuthFactory
- * @requires AuthenticationFactory
- * @requires https://github.com/mikemclin/angular-acl AclService
  * @requires Utilities
  */
-angular.module('dokuvisApp').controller('registerCtrl', ['$scope', '$state', '$window', 'UserAuthFactory', 'AuthenticationFactory', 'AclService', 'Utilities',
-	function ($scope, $state, $window, UserAuthFactory, AuthenticationFactory, AclService, Utilities) {
+angular.module('dokuvisApp').controller('registerCtrl', ['$scope', '$state', 'UserAuthFactory', 'Utilities',
+	function ($scope, $state, UserAuthFactory, Utilities) {
 
 		/**
 		 * Model for input fields
@@ -53,21 +50,7 @@ angular.module('dokuvisApp').controller('registerCtrl', ['$scope', '$state', '$w
 			if (password1.length < 5) { Utilities.dangerAlert('Passwort hat nicht genügend Zeichen (mind. 6)!'); return; }
 
 			UserAuthFactory.register(email, username, password1)
-				.then(function(response) {
-					var data = response.data;
-					AuthenticationFactory.isLogged = true;
-					AuthenticationFactory.user = data.user.email;
-					AuthenticationFactory.userName = data.user.name;
-					//AuthenticationFactory.userRole = data.user.role;
-
-					$window.localStorage.token = data.token;
-					$window.localStorage.user = data.user.email;
-					$window.localStorage.userName = data.user.name;
-					//$window.localStorage.userRole = data.user.role;
-
-					AclService.flushRoles();
-					AclService.attachRole('member');
-
+				.then(function() {
 					$state.go('projectlist');
 				}, function(err) {
 					Utilities.throwException('Register', 'failed', err);

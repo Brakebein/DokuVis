@@ -84,24 +84,39 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 		
 		$urlRouterProvider.otherwise('/home');
 
+		var $delegate = $stateProvider.state;
+		$stateProvider.state = function (name, definition) {
+			if (!definition.resolve)
+				definition.resolve = {};
+			return $delegate.apply(this, arguments);
+		};
+
 		// states
 		$stateProvider
 			.state('home', {
 				url: '/home',
 				templateUrl: 'partials/home.html',
-				controller: 'homeCtrl'
+				controller: 'homeCtrl',
+				resolve: {
+					validate: ['$q', 'AuthenticationFactory', 'AclService', validate]
+				}
 			})
 			.state('register', {
 				url: '/register',
 				templateUrl: 'partials/register.html',
-				controller: 'registerCtrl'
+				controller: 'registerCtrl',
+				resolve: {
+					validate: ['$q', 'AuthenticationFactory', 'AclService', validate],
+					skipIfLogged: ['$state', '$q', '$timeout', 'AuthenticationFactory', skipIfLogged]
+				}
 			})
 			.state('projectlist', {
 				url: '/list',
 				templateUrl: 'partials/projects.html',
 				controller: 'projectlistCtrl',
 				resolve: {
-					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', 'AclService', authenticate]
+					validate: ['$q', 'AuthenticationFactory', 'AclService', validate],
+					authenticate: ['$state', '$q', '$timeout', 'AuthenticationFactory', authenticate]
 				}
 			})
 			.state('projectlist.project', {
@@ -124,7 +139,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				controller: 'projectCtrl',
 				css: 'style/project.css',
 				resolve: {
-					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', 'AclService', authenticate],
+					validate: ['$q', 'AuthenticationFactory', 'AclService', validate],
+					authenticate: ['$state', '$q', '$timeout', 'AuthenticationFactory', authenticate],
 					checkProject: ['$q', '$state', '$stateParams', '$rootScope', 'Project', 'AclService', checkProject],
 					checkSubproject: ['$q', '$state', '$stateParams', 'Subproject', checkSubproject]
 				},
@@ -348,6 +364,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				}]
 			});
 
+
+
 		// translate
 		$translateProvider
 			.useSanitizeValueStrategy('sanitize')
@@ -378,67 +396,62 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 		});
 
 		// resolver functions
-		/**
-		 * Resolve function to authenticate user / check, if user is logged in
-		 * @memberof config
-		 * @private
-		 * @param $q {$q} Angular promise service
-		 * @param $state {$state} ui.router state service
-		 * @param $window {$window} Angular window service
-		 * @param $timeout {timeout} Angular timeout
-		 * @param AuthenticationFactory {AuthenticationFactory} [AuthenticationFactory]{@link dokuvisApp.AuthenticationFactory.html}
-		 * @param UserAuthFactory {UserAuthFactory} [UserAuthFactory]{@link dokuvisApp.UserAuthFactory.html}
-		 * @param AclService {service} Access Control List service
-		 * @returns {Promise} Resolves, if user has been authenticated
-		 */
-		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory, AclService) {
 
-			if(AuthenticationFactory.isLogged) {
+		// check for valid token and user data
+		function validate($q, AuthenticationFactory, AclService) {
+			var defer = $q.defer();
 
-				return UserAuthFactory.checkJWT().then(function(response) {
-					console.log(response);
-					// check if user object exists else fetch it. this is incase of a page refresh
-					if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;
-					if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;
-					//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
-
+			console.log('check auth');
+			AuthenticationFactory.check()
+				.then(function () {
 					AclService.flushRoles();
 					AclService.attachRole('member');
-
-					return $q.when();
-				}, function(reason) {
+					defer.resolve();
+				})
+				.catch(function (reason) {
 					console.log(reason);
-					if(reason.status === 400) {
-						UserAuthFactory.logout();
-						$timeout(function() {
-							$state.go('home');
-						});
-						return $q.reject();
-					}
+					defer.resolve();
 				});
+
+			return defer.promise;
+		}
+
+		// no access, if user is not logged in
+		function authenticate($state, $q, $timeout, AuthenticationFactory) {
+			var defer = $q.defer();
+
+			if (AuthenticationFactory.isLogged) {
+				defer.resolve();
 			}
 			else {
-
-				$timeout(function() {
+				defer.reject();
+				$timeout(function () {
 					$state.go('home');
 				});
-				return $q.reject();
-
 			}
 
+			return defer.promise;
+		}
+
+		// if the user is already logged in, take him to the home page
+		function skipIfLogged($state, $q, $timeout, AuthenticationFactory) {
+			var defer = $q.defer();
+
+			if (!AuthenticationFactory.isLogged) {
+				defer.resolve();
+			}
+			else {
+				defer.reject();
+				$timeout(function () {
+					$state.go('home');
+				});
+			}
+
+			return defer.promise;
 		}
 
 		/**
 		 * Resolve function to check, if project exists
-		 * @memberof config
-		 * @private
-		 * @param $q {$q} Angular promise service
-		 * @param $state {$state} ui.router state service
-		 * @param $stateParams {$stateParams} ui.router state parameter
-		 * @param $rootScope {$rootScope} Angular rootScope
-		 * @param Project {Project} Project http
-		 * @param AclService {service} Access Control List service
-		 * @returns {Promise} Resolves, if project exists
 		 */
 		function checkProject($q, $state, $stateParams, $rootScope, Project, AclService) {
 
@@ -479,25 +492,13 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 
 		/**
 		 * Resolve function to check, if the subproject exists
-		 * @memberof config
-		 * @private
-		 * @param $q {$q} Angular promise service
-		 * @param $state {$state} ui.router state service
-		 * @param $stateParams {$stateParams} ui.router state parameter
-		 * @param Subproject {Subproject} Subproject http
-		 * @returns {Promise} A promise that will either be resolved or rejected, if the subproject couldn't be found (or an error occured)
 		 */
 		function checkSubproject($q, $state, $stateParams, Subproject) {
 
 			if($stateParams.subproject === 'master')
 				return $q.resolve();
 			else {
-				//console.log('before', $stateParams);
-				//return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
 				return Subproject.get({ id: $stateParams.subproject }).$promise.then(function (result) {
-
-					console.log('after', result);
-					// if(!response.data.length) {
 					if(!result) {
 						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });
 						return $q.reject();
@@ -505,7 +506,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 
 				}, function (err) {
 					console.error('API Exception on Subproject.check()', err);
-					//Utilities.throwApiException('on Subproject.check()', err);
 					return $q.reject();
 				});
 			}
@@ -516,7 +516,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 	}]);
 
 /**
- *
+ * Code execution after bootstrapping AngularJS.
  * @ngdoc object
  * @name run
  * @module dokuvisApp
@@ -532,8 +532,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
  */
 dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory', 'AclService', '$translate', 'amMoment', 'editableOptions', 'TypeaheadRequest',
 	function($rootScope, $state, $previousState, AuthenticationFactory, AclService, $translate, amMoment, editableOptions, TypeaheadRequest) {
-		// when the page refreshes, check if the user is already logged in
-		AuthenticationFactory.check();
 
 		// ACL data
 		var aclData = {
@@ -558,10 +556,6 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 			$rootScope.isLogged = AuthenticationFactory.isLogged;
 			$rootScope.userName = AuthenticationFactory.userName;
 			//$rootScope.role = AuthenticationFactory.userRole;
-			// if the user is already logged in, take him to the home page
-			if(AuthenticationFactory.isLogged && $state.is('register')) {
-				$state.go('home');
-			}
 		});
 
 		amMoment.changeLocale('de');
