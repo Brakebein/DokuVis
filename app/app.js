@@ -98,7 +98,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				templateUrl: 'partials/home.html',
 				controller: 'homeCtrl',
 				resolve: {
-					validate: ['$q', 'AuthenticationFactory', 'AclService', validate]
+					validate: ['ValidateResolve', function (ValidateResolve) {
+						return ValidateResolve();
+					}]
 				}
 			})
 			.state('register', {
@@ -106,8 +108,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				templateUrl: 'partials/register.html',
 				controller: 'registerCtrl',
 				resolve: {
-					validate: ['$q', 'AuthenticationFactory', 'AclService', validate],
-					skipIfLogged: ['$state', '$q', '$timeout', 'AuthenticationFactory', skipIfLogged]
+					skipIfLogged: ['SkipResolve', function (SkipResolve) {
+						return SkipResolve();
+					}]
 				}
 			})
 			.state('projectlist', {
@@ -115,8 +118,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				templateUrl: 'partials/projects.html',
 				controller: 'projectlistCtrl',
 				resolve: {
-					validate: ['$q', 'AuthenticationFactory', 'AclService', validate],
-					authenticate: ['$state', '$q', '$timeout', 'AuthenticationFactory', authenticate]
+					authenticate: ['AuthenticateResolve', function (AuthenticateResolve) {
+						return AuthenticateResolve();
+					}]
 				}
 			})
 			.state('projectlist.project', {
@@ -139,10 +143,15 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				controller: 'projectCtrl',
 				css: 'style/project.css',
 				resolve: {
-					validate: ['$q', 'AuthenticationFactory', 'AclService', validate],
-					authenticate: ['$state', '$q', '$timeout', 'AuthenticationFactory', authenticate],
-					checkProject: ['$q', '$state', '$stateParams', '$rootScope', 'Project', 'AclService', checkProject],
-					checkSubproject: ['$q', '$state', '$stateParams', 'Subproject', checkSubproject]
+					authenticate: ['AuthenticateResolve', function (AuthenticateResolve) {
+						return AuthenticateResolve();
+					}],
+					checkProject: ['$stateParams', 'ProjectResolve', function ($stateParams, ProjectResolve) {
+						return ProjectResolve($stateParams);
+					}],
+					checkSubproject: ['$stateParams', 'SubprojectResolve', function ($stateParams, SubprojectResolve) {
+						return SubprojectResolve($stateParams);
+					}]
 				},
 				abstract: true
 			})
@@ -395,123 +404,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			delay: {show: 500, hide: 100}
 		});
 
-		// resolver functions
-
-		// check for valid token and user data
-		function validate($q, AuthenticationFactory, AclService) {
-			var defer = $q.defer();
-
-			console.log('check auth');
-			AuthenticationFactory.check()
-				.then(function () {
-					AclService.flushRoles();
-					AclService.attachRole('member');
-					defer.resolve();
-				})
-				.catch(function (reason) {
-					console.log(reason);
-					defer.resolve();
-				});
-
-			return defer.promise;
-		}
-
-		// no access, if user is not logged in
-		function authenticate($state, $q, $timeout, AuthenticationFactory) {
-			var defer = $q.defer();
-
-			if (AuthenticationFactory.isLogged) {
-				defer.resolve();
-			}
-			else {
-				defer.reject();
-				$timeout(function () {
-					$state.go('home');
-				});
-			}
-
-			return defer.promise;
-		}
-
-		// if the user is already logged in, take him to the home page
-		function skipIfLogged($state, $q, $timeout, AuthenticationFactory) {
-			var defer = $q.defer();
-
-			if (!AuthenticationFactory.isLogged) {
-				defer.resolve();
-			}
-			else {
-				defer.reject();
-				$timeout(function () {
-					$state.go('home');
-				});
-			}
-
-			return defer.promise;
-		}
-
-		/**
-		 * Resolve function to check, if project exists
-		 */
-		function checkProject($q, $state, $stateParams, $rootScope, Project, AclService) {
-
-			return Project.get({ id: $stateParams.project }).$promise.then(function(result){
-
-				console.log(result, $stateParams);
-
-				if(result.status === 'NO ENTRY') {
-
-					$state.go('projectlist');
-					return $q.reject();
-
-				}
-
-				$rootScope.userRole = result.role;
-
-				AclService.attachRole('visitor');
-				if (result.role === 'superadmin') {
-					AclService.attachRole('superadmin');
-					AclService.attachRole('admin');
-					AclService.attachRole('historian');
-					AclService.attachRole('modeler');
-				}
-				else if(result.role === 'admin')
-					AclService.attachRole('admin');
-				else if(result.role === 'historian')
-					AclService.attachRole('historian');
-				else if(result.role === 'modeler')
-					AclService.attachRole('modeler');
-
-				console.log(AclService.getRoles());
-			}, function (err) {
-				console.error('API Exception on Project.get()', err);
-				return $q.reject();
-			});
-
-		}
-
-		/**
-		 * Resolve function to check, if the subproject exists
-		 */
-		function checkSubproject($q, $state, $stateParams, Subproject) {
-
-			if($stateParams.subproject === 'master')
-				return $q.resolve();
-			else {
-				return Subproject.get({ id: $stateParams.subproject }).$promise.then(function (result) {
-					if(!result) {
-						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });
-						return $q.reject();
-					}
-
-				}, function (err) {
-					console.error('API Exception on Subproject.check()', err);
-					return $q.reject();
-				});
-			}
-
-		}
-
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 
@@ -552,7 +444,7 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 			$translate.refresh();
 		});
 
-		$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+		$rootScope.$on('$stateChangeSuccess', function() {
 			$rootScope.isLogged = AuthenticationFactory.isLogged;
 			$rootScope.userName = AuthenticationFactory.userName;
 			//$rootScope.role = AuthenticationFactory.userRole;
@@ -576,7 +468,7 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 dokuvisApp.filter('filterEditor', function(){
 	return function(items, search) {
 		if(!search) return items;
-		return items.filter(function(element, index, array) {
+		return items.filter(function(element) {
 			return element.editors.indexOf(search) !== -1;
 		});
 	}

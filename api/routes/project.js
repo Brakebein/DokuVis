@@ -19,11 +19,13 @@ module.exports = {
 			INNER JOIN users ON users.id = user_id \
 			AND email = ?';
 		
-		mysql.query(sql, [email]).then(function(rows) {
-			res.json(rows);
-		}).catch(function(err) {
-			utils.error.mysql(res, err, '#projects.query');
-		});
+		mysql.query(sql, [email])
+			.then(function(rows) {
+				res.json(rows);
+			})
+			.catch(function(err) {
+				utils.error.mysql(res, err, '#projects.query');
+			});
 	},
 	
 	get: function (req, res) {
@@ -36,14 +38,16 @@ module.exports = {
 			AND email = ? \
 			AND proj_tstamp = ?';
 		
-		mysql.query(sql, [email, req.params.id]).then(function(rows) {
-			if(rows.length > 0)
-				res.json(rows[0]);
-			else
-				res.json({ status: 'NO ENTRY' });
-		}).catch(function(err) {
-			utils.error.mysql(res, err, '#projects.get');
-		});
+		mysql.query(sql, [email, req.params.id])
+			.then(function(rows) {
+				if(rows.length > 0)
+					res.json(rows[0]);
+				else
+					res.json({ status: 'NO_ENTRY' });
+			})
+			.catch(function(err) {
+				utils.error.mysql(res, err, '#projects.get');
+			});
 	},
 	
 	create: function (req, res) {

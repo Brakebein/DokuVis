@@ -119,6 +119,11 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "href": "api/dokuvisApp/factory/Archive"
               },
               {
+                "name": "AuthenticateResolve",
+                "type": "factory",
+                "href": "api/dokuvisApp/factory/AuthenticateResolve"
+              },
+              {
                 "name": "AuthenticationFactory",
                 "type": "factory",
                 "href": "api/dokuvisApp/factory/AuthenticationFactory"
@@ -154,6 +159,16 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "href": "api/dokuvisApp/factory/Project"
               },
               {
+                "name": "ProjectResolve",
+                "type": "factory",
+                "href": "api/dokuvisApp/factory/ProjectResolve"
+              },
+              {
+                "name": "SkipResolve",
+                "type": "factory",
+                "href": "api/dokuvisApp/factory/SkipResolve"
+              },
+              {
                 "name": "Source",
                 "type": "factory",
                 "href": "api/dokuvisApp/factory/Source"
@@ -167,6 +182,11 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "name": "Subproject",
                 "type": "factory",
                 "href": "api/dokuvisApp/factory/Subproject"
+              },
+              {
+                "name": "SubprojectResolve",
+                "type": "factory",
+                "href": "api/dokuvisApp/factory/SubprojectResolve"
               },
               {
                 "name": "TokenInterceptor",
@@ -187,6 +207,11 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "name": "Utilities",
                 "type": "factory",
                 "href": "api/dokuvisApp/factory/Utilities"
+              },
+              {
+                "name": "ValidateResolve",
+                "type": "factory",
+                "href": "api/dokuvisApp/factory/ValidateResolve"
               },
               {
                 "name": "webglContext",
