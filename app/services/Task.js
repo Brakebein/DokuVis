@@ -7,6 +7,20 @@ angular.module('dokuvisApp').factory('Task', ['$resource', 'API', '$stateParams'
 			},
 			id: '@id'
 		}, {
+			/**
+			 * Creates a new task.
+			 * ```
+			 * Task.save({
+			 *   title: <string>,
+			 *   description: <string>,
+			 *   from: <string>,        // formatted date, 'YYYY-MM-DDTHH:mm:ssZ'
+			 *   to: <string>,          // formatted date
+			 *   priority: <number>,    // (optional) defaults to 0
+			 *   editors: <Array>       // list of ids of editors
+			 *   parent: <id>           // id of parent task or subproject
+			 * }).$promise.then(...);
+			 * ```
+			 */
 			save: {
 				method: 'POST',
 				transformRequest: function (data) {

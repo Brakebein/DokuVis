@@ -43,15 +43,44 @@
 					<i class="fa fa-angle-left"></i>
 				</label>
 			</span>
-			<input id="fromDate" name="fromDate" class="form-control" ng-model="options.fromDate" data-autoclose="1" bs-tooltip="tooltip[4]" bs-datepicker type="text" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" data-date-format="dd.MM.yy" />
+			<input id="fromDate"
+				   name="fromDate"
+				   type="text"
+				   class="form-control"
+				   ng-model="config.date.from"
+				   ng-blur="updateViewScale()"
+				   bs-tooltip="tooltip[4]"
+				   bs-datepicker
+				   data-date-type="date"
+				   data-date-format="dd.MM.yy"
+				   data-max-date="{{config.date.to | amSubtract: '1':'w'}}"
+				   data-start-week="1"
+				   data-autoclose="1" />
 		</div>
 
 		<div class="tasks-ctrl input-group">
 			<input type="number" bs-tooltip="tooltip[5]" style="width: 5em" ng-model="options.zoom" step="0.1" min="0.1" max="5" class= "form-control"/>
 		</div>
+
+		<div class="tasks-ctrl input-group">
+			<select ng-model="config.date.viewScale" ng-options="item for item in ['day', 'week', 'month', 'quarter']"></select>
+		</div>
 			
 		<div class="tasks-ctrl input-group">
-			<input id="toDate" name="toDate" type="text"  class="form-control" bs-tooltip="tooltip[4]" placement="left" ng-model="options.toDate" min-date="{{options.fromDate}}" data-date-format="dd.MM.yy" start-week="1" bs-datepicker data-autoclose=true>
+			<input id="toDate"
+				   name="toDate"
+				   type="text"
+				   class="form-control"
+				   ng-model="config.date.to"
+				   ng-blur="updateViewScale()"
+				   bs-tooltip="tooltip[4]"
+				   bs-datepicker
+				   data-date-type="date"
+				   data-date-format="dd.MM.yy"
+				   data-min-date="{{config.date.from | amAdd: '1':'w'}}"
+				   data-start-week="1"
+				   data-placement="bottom-right"
+				   data-autoclose="1" />
 			<span class="input-group-btn">
 				<label class="btn btn-default" for="toDate">
 					<i class="fa fa-angle-right"></i>
@@ -66,6 +95,9 @@
 		<div gantt
 			 options="config.gantt"
 			 data="data"
+			 from-date="config.date.from"
+			 to-date="config.date.to"
+			 view-scale="config.date.viewScale"
 			 filter-task="{'name': options.filterTask}"
 			 filter-row="{'name': options.filterRow}"
 			 api="registerApi">

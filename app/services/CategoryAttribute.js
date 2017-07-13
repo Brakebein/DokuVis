@@ -34,8 +34,8 @@ angular.module('dokuvisApp').factory('CategoryAttribute', ['$resource', 'API', '
 		 * Saves a new attribute.
 		 * ```
 		 * CategoryAttribute.save({
-			 *   cid: <id>        // id of the category, the attribute should be part of
-			 *   value: <string>  // name of the new attribute
+			 *   cid: <id>,       // id of the category, the attribute should be part of
+			 *   value: <string>, // name of the new attribute
 			 *   color: <string>  // hexadecimal, e.g. '#ffdd44'
 			 * }).$promise.then(...);
 		 * ```

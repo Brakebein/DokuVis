@@ -171,19 +171,32 @@ module.exports = {
 		else if (req.body.priority === 2)
 			priority = 'priority_high';
 
+		var editors = [];
+		if (Array.isArray(req.body.editors) &&
+			req.body.editors[0]) {
+			if (typeof req.body.editors[0] === 'string')
+				editors = req.body.editors;
+			else
+				editors = req.body.editors.map(function (value) {
+					return value.email || value.id;
+				});
+		}
+
 		//noinspection JSAnnotator
 		var q = `
+		MATCH (ttp:E55:`+prj+` {content: "taskPriority"})<-[:P127]-(tprior:E55:`+prj+` {content: {priority}}),
+			(ttd:E55:`+prj+` {content: "taskDesc"})
+		WITH ttp, ttd, tprior
+		MATCH (mUser:E21:`+prj+` {content: {user}})-[:P131]->(mUserName:E82)
+		WITH ttp, ttd, tprior, mUser, mUserName
 		MATCH (task:E7:`+prj+` {content: {taskId}})-[:P2]->(ttask:E55 {content: "task"}),
-			(ttp:E55:`+prj+` {content: "taskPriority"}),
 			(task)-[:P102]->(title:E35),
-    		(task)-[:P3]->(desc:E62)-[:P3_1]->(:E55 {content: "taskDesc"}),
+    		(task)-[:P3]->(desc:E62)-[:P3_1]->(ttd),
       		(task)-[:P4]->(:E52)-[:P81]->(time:E61),
       		(task)<-[:P9]-(parent),
       		(task)-[rprior:P2]->(:E55)-[:P127]->(ttp),
-      		(tprior:E55:`+prj+` {content: {priority}})-[:P127]->(ttp),
       		(task)<-[:P94]-(e65:E65)-[:P14]->(cUser:E21)-[:P131]->(cUserName:E82),
-      		(e65)-[:P4]->(:E52)-[:P82]->(cDate:E61),
-      		(mUser:E21:`+prj+` {content: {user}})-[:P131]->(mUserName:E82)
+      		(e65)-[:P4]->(:E52)-[:P82]->(cDate:E61)
       		
       	OPTIONAL MATCH (task)-[reditor:P14]->(editorOld:E21)
       	OPTIONAL MATCH (editor:E21:`+prj+`)-[:P131]->(editorName:E82)
@@ -206,7 +219,7 @@ module.exports = {
       	)
 		RETURN task.content AS id,
        		title.value AS title,
-       		desc.value AS desc,
+       		desc.value AS description,
        		time.value AS from, time.until AS to,
        		parent.content AS parent,
        		ttask.content AS type,
@@ -222,7 +235,7 @@ module.exports = {
 			from: req.body.from,
 			until: req.body.to,
 			priority: priority,
-			editors: req.body.editors,
+			editors: editors,
 			e11id: 'e11_m_' + mId,
 			e52id: 'e52_m_' + mId,
 			mDate: req.body.date,
@@ -232,6 +245,9 @@ module.exports = {
 		neo4j.writeTransaction(q, params)
 			.then(function (result) {
 				res.json(neo4j.removeEmptyArrays(result, 'editors', 'id')[0]);
+				// var data = neo4j.removeEmptyArrays(result, 'editors', 'id')[0];
+				// console.debug(data);
+				// res.json(data);
 			})
 			.catch(function (err) {
 				utils.error.neo4j(res, err, '#task.update');

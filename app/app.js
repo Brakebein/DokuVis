@@ -55,6 +55,7 @@ var dokuvisApp = angular.module('dokuvisApp', [
 
 /**
  * Constant defining the base url to API. It is injectable like any other service.
+ *
  * @ngdoc object
  * @name API
  * @module dokuvisApp
@@ -63,6 +64,7 @@ dokuvisApp.constant('API', 'api/');
 	
 /**
  * Configures ui.router states, state resolve functions, and some defaults.
+ *
  * @ngdoc object
  * @name config
  * @module dokuvisApp
@@ -83,13 +85,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 		$httpProvider.interceptors.push('TokenInterceptor');
 		
 		$urlRouterProvider.otherwise('/home');
-
-		var $delegate = $stateProvider.state;
-		$stateProvider.state = function (name, definition) {
-			if (!definition.resolve)
-				definition.resolve = {};
-			return $delegate.apply(this, arguments);
-		};
 
 		// states
 		$stateProvider
@@ -121,7 +116,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					authenticate: ['AuthenticateResolve', function (AuthenticateResolve) {
 						return AuthenticateResolve();
 					}]
-				}
+				},
+				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
+					$translatePartialLoader.addPart('projects');
+				}]
 			})
 			.state('projectlist.project', {
 				url: '/project',
@@ -259,7 +257,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			})
 			.state('project.explorer.upload.type.archive', {
 				url: '/archive',
-				onEnter: ['$modal', function ($modal) {
+				onEnter: ['$modal', '$translatePartialLoader', function ($modal, $translatePartialLoader) {
+					$translatePartialLoader.addPart('archive');
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
 						contentTemplate: 'partials/modals/newArchiveModal.html',
@@ -374,7 +373,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			});
 
 
-
 		// translate
 		$translateProvider
 			.useSanitizeValueStrategy('sanitize')
@@ -388,9 +386,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				'en_*': 'en-US',
 				'de_*': 'de-DE'
 			});
-			//.determinePreferredLanguage();
+		//.determinePreferredLanguage();
 		$translatePartialLoaderProvider.addPart('general');
-		
+
 		// defaults
 		angular.extend($modalProvider.defaults, {
 			backdrop: 'static',
@@ -409,6 +407,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 
 /**
  * Code execution after bootstrapping AngularJS.
+ *
  * @ngdoc object
  * @name run
  * @module dokuvisApp
@@ -473,5 +472,17 @@ dokuvisApp.filter('filterEditor', function(){
 		});
 	}
 });
+
+dokuvisApp.filter('amJSDate', ['moment', function (moment) {
+	return function (input) {
+		console.log(input);
+		if (moment.isMoment(input))
+			return input.toDate();
+		else if (moment.isDate(input))
+			return input;
+		else
+			return moment(input).toDate();
+	}
+}]);
 
 })();

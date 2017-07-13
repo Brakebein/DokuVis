@@ -75,7 +75,7 @@ angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$
 
 			if (task) {
 				// update existing task
-				task.title = $scope.title;
+				task.title = $scope.task.title;
 				task.description = $scope.task.description;
 				task.from = moment($scope.task.from).format();
 				task.to = moment($scope.task.to).format();
@@ -91,7 +91,7 @@ angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$
 						$scope.close();
 					})
 					.catch(function (err) {
-						Utilities.throwException('#Taskupdate', err);
+						Utilities.throwException('#Task.update', err);
 					});
 			}
 			else {

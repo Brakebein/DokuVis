@@ -1,5 +1,6 @@
 /**
  * This controller handles the modal to enter a new archive to the system.
+ *
  * @ngdoc controller
  * @name newArchiveModalCtrl
  * @module dokuvisApp
@@ -9,12 +10,9 @@
  * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout $timeout
  * @requires Archive
  * @requires Utilities
- * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translatePartialLoader $translatePartialLoader
  */
-angular.module('dokuvisApp').controller('newArchiveModalCtrl', ['$scope', '$state', '$timeout', 'Archive', 'Utilities', '$translatePartialLoader',
-    function ($scope, $state, $timeout, Archive, Utilities, $translatePartialLoader) {
-
-        $translatePartialLoader.addPart('archive');
+angular.module('dokuvisApp').controller('newArchiveModalCtrl', ['$scope', '$state', '$timeout', 'Archive', 'Utilities',
+    function ($scope, $state, $timeout, Archive, Utilities) {
 
 		/**
          * Title translation id

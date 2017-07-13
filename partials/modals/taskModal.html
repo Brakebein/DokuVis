@@ -53,8 +53,8 @@
 
 	<div class="modal-footer">
 		<div class="modal-metadata">
-			<span ng-show="task.created && task.created.id">created by {{task.created.name}} - {{task.created.date | amCalendar}}</span>
-			<span ng-show="task.modified && task.modified.id">created by {{task.created.name}} - {{task.created.date | amCalendar}}</span>
+			<div ng-show="task.created && task.created.id">created by {{task.created.name}} - {{task.created.date | amCalendar}}</div>
+			<div ng-show="task.modified && task.modified.id">modified by {{task.modified.name}} - {{task.modified.date | amCalendar}}</div>
 		</div>
 
 		<button type="button" class="btn btn-primary" ng-click="save()">{{'save' | translate}}</button>

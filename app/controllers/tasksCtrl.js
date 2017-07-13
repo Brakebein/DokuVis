@@ -218,9 +218,16 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 		}];
 
 		$scope.config = {
+			date: {
+				from: moment().subtract(2, 'weeks'),
+				to: moment().add(2, 'weeks'),
+				viewScale: 'day'
+			},
 			gantt: {
 				allowSideResizing: true,
 				autoExpand: 'both',
+				currentDate: 'line',
+				currentDateValue: moment(),
 				daily: true,
 				expandToWidth: true,
 				// filterRow: { name: '' },
@@ -228,7 +235,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 				sideWidth: 'min-width',
 				sortMode: 'model.name',
 				taskOutOfRange: 'truncate',
-				viewScale: 'day',
+				// viewScale: 'day',
 				rowContent: '\
 					<i ng-switch="row.model.type">\
 						<i ng-switch-when="project" class="row-btn glyphicon glyphicon-folder-open" ng-click="scope.openDescAndComments"></i>\
@@ -263,6 +270,19 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 					'<small>{{task.isMilestone() === true && task.model.from.format("ll") || task.model.from.format("ll") + \' - \' + task.model.to.format("ll")}}</small>'
 			}
 		};
+
+		$scope.updateViewScale = function () {
+			var fromDate = moment($scope.config.date.from);
+			var toDate = moment($scope.config.date.to);
+			if (toDate.diff(fromDate, 'days') < 35)
+				$scope.config.date.viewScale = 'day';
+			else if (toDate.diff(fromDate, 'weeks') < 20)
+				$scope.config.date.viewScale = 'week';
+			else
+				$scope.config.date.viewScale = 'month';
+		};
+
+		console.log('config', $scope.config);
 
 		// Konfiguration der Tabelle
 		$scope.options = {
@@ -339,8 +359,11 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
             }
 		};
 
+		var apiGlobal;
+
 		// listen to events from angular gantt
 		$scope.registerApi = function (api) {
+			apiGlobal = api;
 			api.core.on.ready($scope, function () {
 				console.log(api);
 
@@ -404,8 +427,22 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 		}
 
 		function onTaskDateChange(task) {
-			console.log('task resized or moved', task);
+			console.log(task);
+			var taskResource = task.model.data.resource;
+			taskResource.from = moment(task.model.from).format();
+			taskResource.to = moment(task.model.to).format();
+			console.log(taskResource.from, taskResource.to);
+			console.log(taskResource);
+			taskResource.$update()
+				.catch(function (err) {
+					Utilities.throwApiException('#Task.update', err);
+				})
 		}
+
+		$scope.$on('tasksUpdate', function () {
+			console.log('event tasksUpdate');
+			queryTasks();
+		});
 
         //Funktionen für Gantt
 
@@ -1768,8 +1805,8 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
         //$scope.getStaffFromGraph();
 
 		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
-			if (fromState.name === 'project.tasks.detail')
-				queryTasks();
+			// if (fromState.name === 'project.tasks.detail')
+			// 	queryTasks();
 		});
 
     }]);
