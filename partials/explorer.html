@@ -42,9 +42,9 @@
 </div>
 
 <!-- Seitenspalte -->
-<div class="sidePanel">
+<div class="explorer-side sidePanel">
 
-	<div class="sidePanelSidemenu sideNav sideNav-right">
+	<div class="sideNav sideNav-right">
 	
 		<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide=='objlist'}" ng-click="views.activeSide = 'objlist'">
 			<span class="glyphicon glyphicon-list"></span>
@@ -181,7 +181,7 @@
 					<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
 					<div class="opacity" ramp-slider ng-model="data.opacity" ng-change="data.setOpacity()" rs-color="#ddd" rs-color-end="#bbb"></div>
 					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="wi.callFunc['main'].setImageView(data.object)"></span>
-					<span class="fa fa-camera" title="Update spatial" ng-click="spatializeImage(data.source)"></span>
+					<span class="fa fa-camera" title="Update spatial" ng-click="spatializeImage(data.source, 'DLT')"></span>
 				</div>
 
 		</div>

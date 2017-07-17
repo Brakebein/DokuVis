@@ -6,36 +6,82 @@
  * @name AuthenticationFactory
  * @module dokuvisApp
  * @requires https://docs.angularjs.org/api/ng/service/$window $window
+ * @requires https://docs.angularjs.org/api/ng/service/$http $http
+ * @requires https://docs.angularjs.org/api/ng/service/$q $q
+ * @requires API
  */
-angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
-	function($window) {
-		return {
-			/**
-			 * A variable stating, if user is logged in or not.
-			 * @ngdoc property
-			 * @name AuthenticationFactory#isLogged
-			 * @type {boolean} false
-			 */
-			isLogged: false,
+angular.module('dokuvisApp').service('AuthenticationFactory', ['$window', '$http', '$q', 'API',
+	function($window, $http, $q, API) {
 
-			/**
-			 * Check, if token and user are set in localstorage.
-			 * @ngdoc method
-			 * @name AuthenticationFactory#check
-			 * @returns {boolean} true, if logged in
-			 */
-			check: function() {
-				if($window.localStorage.token && $window.localStorage.user) {
-					this.isLogged = true;
-					return true;
-				}
-				else {
-					this.isLogged = false;
-					delete this.user;
-					return false;
-				}
+		var scope = this;
+
+		/**
+		 * A variable stating, if user is logged in or not.
+		 * @ngdoc property
+		 * @name AuthenticationFactory#isLogged
+		 * @type {boolean} false
+		 */
+		this.isLogged = false;
+
+		/**
+		 * Check, if token and user are set in localstorage and if token is valid.
+		 * @ngdoc method
+		 * @name AuthenticationFactory#check
+		 * @returns {Promise} Resolved, if token and user are set and token is still valid.
+		 */
+		this.check = function() {
+			if ($window.localStorage.token && $window.localStorage.user) {
+				return $http.get(API + 'auth/check')
+					.then(function () {
+						scope.set();
+						return $q.resolve();
+					})
+					.catch(function () {
+						scope.flush();
+						return $q.reject('Invalid token');
+					});
+			}
+			else {
+				this.flush();
+				return $q.reject('$window.localStorage not set');
 			}
 		};
+
+		/**
+		 * Set token and user data at $window.localStorage.
+		 * @ngdoc method
+		 * @name AuthenticationFactory#set
+		 * @param data {Object=} Object with token and user data
+		 */
+		this.set = function(data) {
+			if (data) {
+				$window.localStorage.token = data.token;
+				$window.localStorage.user = data.user.email;
+				$window.localStorage.userName = data.user.name;
+			}
+
+			if ($window.localStorage.token && $window.localStorage.user) {
+				this.isLogged = true;
+				this.user = $window.localStorage.user;
+				this.userName = $window.localStorage.userName;
+			}
+		};
+
+		/**
+		 * Unset token and user data at $window.localStorage.
+		 * @ngdoc method
+		 * @name AuthenticationFactory#flush
+		 */
+		this.flush = function() {
+			this.isLogged = false;
+			delete this.user;
+			delete this.userName;
+
+			delete $window.localStorage.token;
+			delete $window.localStorage.user;
+			delete $window.localStorage.userName;
+		};
+
 	}])
 
 /**
@@ -45,15 +91,13 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
  * @ngdoc factory
  * @name UserAuthFactory
  * @module dokuvisApp
- * @requires https://docs.angularjs.org/api/ng/service/$window $window
- * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
  * @requires https://docs.angularjs.org/api/ng/service/$http $http
  * @requires AuthenticationFactory
  * @requires API
  * @requires https://github.com/mikemclin/angular-acl AclService
  */
-.factory('UserAuthFactory', ['$window', '$state', '$http', 'AuthenticationFactory', 'API', 'AclService',
-	function($window, $state, $http, AuthenticationFactory, API, AclService) {
+.factory('UserAuthFactory', ['$http', 'AuthenticationFactory', 'API', 'AclService',
+	function($http, AuthenticationFactory, API, AclService) {
 		return {
 			/**
 			 * API HTTP POST request to login user.
@@ -67,7 +111,10 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 				return $http.post(API + 'login', {
 					email: email,
 					password: password
-				});
+				})
+					.then(function (response) {
+						AuthenticationFactory.set(response.data);
+					});
 			},
 			/**
 			 * Flush all relevant data to logout user.
@@ -76,20 +123,10 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 			 */
 			logout: function() {
 				if(AuthenticationFactory.isLogged) {
-					AuthenticationFactory.isLogged = false;
-					delete AuthenticationFactory.user;
-					delete AuthenticationFactory.userName;
-					//delete AuthenticationFactory.userRole;
-					
-					delete $window.localStorage.token;
-					delete $window.localStorage.user;
-					delete $window.localStorage.userName;
-					//delete $window.localStorage.userRole;
+					AuthenticationFactory.flush();
 					
 					AclService.flushRoles();
 					AclService.attachRole('guest');
-					
-					$state.go('home');
 				}
 			},
 			/**
@@ -106,16 +143,10 @@ angular.module('dokuvisApp').factory('AuthenticationFactory', ['$window',
 					email: email,
 					username: username,
 					password: password
-				});
-			},
-			/**
-			 * Check, if JWT (JavaScript Web Token) is valid.
-			 * @ngdoc method
-			 * @name UserAuthFactory#checkJWT
-			 * @returns {Promise} $http promise
-			 */
-			checkJWT: function() {
-				return $http.get(API + 'auth/checkJWT');
+				})
+					.then(function (response) {
+						AuthenticationFactory.set(response.data);
+					});
 			}
 		};
 	}])

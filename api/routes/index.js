@@ -20,6 +20,8 @@ var storage = multer.diskStorage({
 });
 var mUpload = multer({ storage: storage });
 
+const can = require('../middlewares/checkPermission');
+
 // index
 var auth = require('./auth');
 //var user = require('./user');
@@ -35,7 +37,7 @@ router.post('/register', auth.register);
 
 
 // routes that can be only accessed by authenticated users
-router.get('/auth/checkJWT', auth.checkJWT);
+router.get('/auth/check', auth.checkJWT);
 
 router.post('/auth/cypher', project.cypher);
 
@@ -49,14 +51,14 @@ router.put('/auth/project/:id', project.update);
 router.delete('/auth/project/:id', project.delete);
 
 // subproject
-var subproject = require('./subproject');
+const subproject = require('./subproject');
 router.get('/auth/project/:id/subproject', subproject.query);
 router.post('/auth/project/:id/subproject', subproject.create);
 router.get('/auth/project/:id/subproject/:subId', subproject.get);
 router.put('/auth/project/:id/subproject/:subId', subproject.update);
 
 // project infos
-var projinfo = require('./projinfo');
+const projinfo = require('./projinfo');
 router.get('/auth/project/:id/:subprj/projinfo', projinfo.query);
 router.post('/auth/project/:id/:subprj/projinfo', projinfo.create);
 router.put('/auth/project/:id/:subprj/projinfo/:piId', projinfo.update);
@@ -64,7 +66,7 @@ router.delete('/auth/project/:id/:subprj/projinfo/:piId', projinfo.delete);
 router.put('/auth/project/:id/:subprj/projinfo', projinfo.swap);
 
 // models
-router.get('/auth/project/:id/:subprj/models', models.getTree);
+router.get('/auth/project/:id/:subprj/models', models.queryTree);
 router.get('/auth/project/:id/model/:modelId', models.get);
 router.put('/auth/project/:id/model/:modelId', models.update);
 router.post('/auth/project/:id/:subprj/models', models.insert);
@@ -73,7 +75,7 @@ router.get('/auth/project/:id/:subprj/model/:modelId/connect', models.getConnect
 router.post('/auth/project/:id/:subprj/model/upload', mUpload.any(), upload);
 
 // categories
-var category = require('./category');
+const category = require('./category');
 router.get('/auth/project/:id/category', category.query);
 router.post('/auth/project/:id/category', category.create);
 router.put('/auth/project/:id/category/:cid', category.update);
@@ -83,7 +85,7 @@ router.put('/auth/project/:id/category/:cid/attribute/:aid', category.updateAttr
 router.delete('/auth/project/:id/category/:cid/attribute/:aid', category.deleteAttr);
 
 // sources
-var source = require('./source');
+const source = require('./source');
 router.get('/auth/project/:id/:subprj/source', source.query);
 router.get('/auth/project/:id/:subprj/source/:sourceId', source.get);
 router.post('/auth/project/:id/:subprj/source', mUpload.single('uploadFile'), source.create);
@@ -93,7 +95,7 @@ router.put('/auth/project/:id/:subprj/source/:sourceId/:type/spatial', source.se
 router.get('/auth/project/:id/:subprj/source/:sourceId/:type/spatial', source.getSpatial);
 
 // comments
-var comment = require('./comment');
+const comment = require('./comment');
 router.get('/auth/project/:id/:subprj/comment', comment.query);
 router.post('/auth/project/:id/:subprj/comment', comment.create);
 router.get('/auth/project/:id/:subprj/comment/target/:targetId', comment.queryTarget);
@@ -108,17 +110,26 @@ router.get('/auth/project/:id/graph/:nodeId/e22', graph.getE22Name);
 router.get('/auth/project/:id/persons', person.query);
 
 // archives
-var archive = require('./archive');
+const archive = require('./archive');
 router.get('/auth/project/:id/archive', archive.query);
 router.post('/auth/project/:id/archive', archive.create);
 
 // staff
-var staff = require('./staff');
-router.get('/auth/project/:id/staff', staff.query);
-router.post('/auth/project/:id/staff', staff.create);
+const staff = require('./staff');
+router.get('/auth/project/:id/staff', can('admin'), staff.query);
+router.get('/auth/project/:id/staff/:userId', can('admin'), staff.get);
+router.post('/auth/project/:id/staff', can('admin'), staff.create);
 router.get('/roles', staff.queryRoles);
 
-var typeahead = require('./typeahead');
+//tasks
+const task = require('./task');
+router.get('/auth/project/:id/task', task.query);
+router.post('/auth/project/:id/task', task.create);
+router.get('/auth/project/:id/task/:tid', task.get);
+router.put('/auth/project/:id/task/:tid', task.update);
+router.delete('/auth/project/:id/task/:tid', task.delete);
+
+const typeahead = require('./typeahead');
 router.get('/auth/project/:id/typeahead/:label/:prop/:from', typeahead.query);
 
 module.exports = router;

@@ -68,7 +68,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			scope.vPanel = webglInterface.vPanel;
 			scope.vizSettings = webglInterface.vizSettings;
 			scope.snapshot = webglInterface.snapshot;
-			//scope.spatialize = webglInterface.spatialize;
+			scope.spatialize = webglInterface.spatialize;
 			scope.$applyAsync();
 
 
@@ -1031,9 +1031,11 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				animate();
 			};
 			scope.setEdgesOpacity = function(value) {
+			//scope.$watch('vizSettings.edgesOpacity', function (value) {
+
 				console.log(value);
 				if(!materials['edges']) return;
-				if(value == 100) {
+				if(value === 100) {
 					materials['edgesMat'].transparent = false;
 					materials['edgesSelectionMat'].transparent = false;
 				}
@@ -1280,7 +1282,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
              * @param {number} value - opacity value
              */
 			function setOpacity(mesh, edges, value) {
-				if(value == 1.0) {
+				if(value === 1.0) {
 					if(selected.indexOf(mesh) === -1) {
 						mesh.material = materials[mesh.userData.originalMat];
 						if(edges) edges.material = materials['edgesMat'] ;
@@ -1678,28 +1680,28 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			function mousewheel(event) {
 				event.preventDefault();
 
-				if(camera.inPerspectiveMode) {
+				//if (camera.inPerspectiveMode) {
 					controls.onMouseWheel(event.originalEvent);
-				}
-				else {
-					// TODO: orthocam zoom mousewheel
-					var delta = - event.originalEvent.deltaY || event.originalEvent.wheelDelta || 0;
-					//console.log(delta);
-					var ar = SCREEN_WIDTH/SCREEN_HEIGHT;
-					var zoomSpeed = 0.05;
-					var min = 10;
-					orthocam.left += delta*ar*zoomSpeed;
-					orthocam.right -= delta*ar*zoomSpeed;
-					orthocam.top -= delta*zoomSpeed;
-					orthocam.bottom += delta*zoomSpeed;
-					if(orthocam.right < min*ar || orthocam.top < min) {
-						orthocam.left = -min*ar;
-						orthocam.right = min*ar;
-						orthocam.top = min;
-						orthocam.bottom = -min;
-					}
-					orthocam.updateProjectionMatrix();
-				}
+				// }
+				// else {
+				// 	// TODO: orthocam zoom mousewheel
+				// 	var delta = - event.originalEvent.deltaY || event.originalEvent.wheelDelta || 0;
+				// 	//console.log(delta);
+				// 	var ar = SCREEN_WIDTH/SCREEN_HEIGHT;
+				// 	var zoomSpeed = 0.05;
+				// 	var min = 10;
+				// 	camera.left += delta*ar*zoomSpeed;
+				// 	camera.right -= delta*ar*zoomSpeed;
+				// 	camera.top -= delta*zoomSpeed;
+				// 	camera.bottom += delta*zoomSpeed;
+				// 	if (camera.right < min*ar || camera.top < min) {
+				// 		camera.left = -min*ar;
+				// 		camera.right = min*ar;
+				// 		camera.top = min;
+				// 		camera.bottom = -min;
+				// 	}
+				// 	camera.updateProjectionMatrix();
+				// }
 			}
 
 			/**
@@ -1951,16 +1953,29 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			 * @deprecated
 			 */
 			scope.saveSpatializeImage = function () {
-				scope.spatialize.source.matrix = camera.matrixWorld.toArray(); 
-				scope.spatialize.source.fov = parseInt(camera.fov); 
-				scope.spatialize.source.$spatialize().then(function (response) {
-					console.log('source.spatialize', response);
-					scope.spatialize.active = false;
-					scope.spatialize.source = null;
-					scope.spatialize.fov = 35;
-				}, function (err) {
-					Utilities.throwApiException('on Source.spatialize()', err);
-				});
+				// scope.spatialize.source.matrix = camera.matrixWorld.toArray();
+				// scope.spatialize.source.fov = parseInt(camera.fov);
+				// scope.spatialize.source.$spatialize().then(function (response) {
+				// 	console.log('source.spatialize', response);
+				// 	scope.spatialize.active = false;
+				// 	scope.spatialize.source = null;
+				// 	scope.spatialize.fov = 35;
+				// }, function (err) {
+				// 	Utilities.throwApiException('on Source.spatialize()', err);
+				// });
+				scope.spatialize.source.matrix = camera.matrixWorld.toArray();
+				scope.spatialize.source.offset = [0,0];
+				scope.spatialize.source.ck = 1 / Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * 0.5;
+				scope.spatialize.source.$spatialize({ method: 'manual' })
+					.then(function (response) {
+						console.log('source.spatialize', response);
+						scope.spatialize.active = false;
+						scope.spatialize.source = null;
+						scope.spatialize.fov = 35;
+					})
+					.catch(function (err) {
+						Utilities.throwApiException('#Source.spatialize', err);
+					});
 			};
 
 			/**
@@ -2133,7 +2148,8 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 
 				//console.log(pgeo);
 
-				var normal = new THREE.Vector3(pgeo.attributes.normal.array[0], pgeo.attributes.normal.array[1], pgeo.attributes.normal.array[2]);
+				var q = new THREE.Quaternion().setFromRotationMatrix(matWorld)
+				var normal = new THREE.Vector3(pgeo.attributes.normal.array[0], pgeo.attributes.normal.array[1], pgeo.attributes.normal.array[2]).applyQuaternionq(q);
 
 				var boundingBox = pgeo.boundingBox.clone().applyMatrix4(matWorld);
 
@@ -2546,6 +2562,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 						material.side = THREE.DoubleSide;
 
 						obj.material = material;
+						setObjectMaterial(obj, true, false, true);
 						console.log(material);
 					}
 					else if(info.materialId) {
@@ -3036,9 +3053,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				var objs = [objects[id].mesh];
 				var cc = [];
 				function collectChildren(children) {
-					for(var i=0; i<children.length; i++) {
+					for (var i=0; i<children.length; i++) {
 						collectChildren(children[i].children);
-						if(children[i].userData.type === 'object')
+						if (children[i].userData.type === 'object')
 							cc.push(children[i]);
 					}
 				}
@@ -3050,12 +3067,12 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			 * focus selected objects
 			 */
 			scope.focusSelected = function() {
-				if(selected.length === 0) return;
+				if (selected.length === 0) return;
 				var cc = [];
 				function collectChildren(children) {
-					for(var i=0; i<children.length; i++) {
+					for (var i=0; i<children.length; i++) {
 						collectChildren(children[i].children);
-						if(children[i].userData.type === 'object' || children[i].userData.type === 'plan')
+						if (children[i].userData.type === 'object' || children[i].userData.type === 'plan')
 							cc.push(children[i]);
 					}
 				}
@@ -3068,21 +3085,21 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			 */
 			scope.focusAll = function() {
 				var cc = [];
-				for(var key in objects) {
-					if(objects[key].mesh.userData.type === 'object') 
+				for (var key in objects) {
+					if (objects[key].mesh.userData.type === 'object')
 						cc.push(objects[key].mesh);
 				}
-				if(cc.length < 1) return;
+				if (cc.length < 1) return;
 				focusObjects(cc);
 			};
 			
 			function focusObjects(objs) {
 				// maximale BoundingBox
 				var xmin=0, xmax=0, ymin=0, ymax=0, zmin=0, zmax=0;
-				for(var i=0, l=objs.length; i<l; i++) {
+				for (var i=0, l=objs.length; i<l; i++) {
 					var omin = objs[i].geometry.boundingBox.min.clone().applyMatrix4(objs[i].matrixWorld);
 					var omax = objs[i].geometry.boundingBox.max.clone().applyMatrix4(objs[i].matrixWorld);
-					if(i == 0) {
+					if (i === 0) {
 						xmin = omin.x; ymin = omin.y; zmin = omin.z;
 						xmax = omax.x; ymax = omax.y; zmax = omax.z;
 					}
@@ -3116,7 +3133,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
              * @param {number} r - radius
              */
 			function computeFocusFromSphere(M, r) {
-				if(camera.inPerspectiveMode) {
+				if (camera.inPerspectiveMode) {
 					// vector from current center to cam-position
 					var s = new THREE.Vector3();
 					s.subVectors(camera.position, controls.center);
@@ -3144,20 +3161,20 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 					enableAnimationRequest();
 				}
 				else {
-					if(scope.viewportSettings.camera == 'top')
+					if (scope.viewportSettings.camera === 'top')
 						orthocam.position.set(M.x, 50, M.z);
-					else if(scope.camera == 'front')
+					else if (scope.camera === 'front')
 						orthocam.position.set(M.x, M.y, 50);
-					else if(scope.camera == 'left')
+					else if (scope.camera === 'left')
 						orthocam.position.set(-50, M.y, M.z);
 				}
 			}
 			
 			scope.$on('$destroy', function() {
 				setSelected(null, false, true);
-				if(scope.snapshot.active) scope.abortSnapshot();
+				if (scope.snapshot.active) scope.abortSnapshot();
 
-				if(scope.spatialize)
+				if (scope.spatialize)
 					clearMarkers();
 
 				// unbind functions from callFunc

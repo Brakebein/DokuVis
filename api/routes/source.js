@@ -6,11 +6,12 @@ const exec = require('child-process-promise').execFile;
 const Promise = require('bluebird');
 const THREE = require('../modules/three');
 
-var source = {
+module.exports = {
 	
 	query: function (req, res) {
 		var prj = req.params.id;
 		var subprj = req.params.subprj;
+
 		var q = 'MATCH (e31:E31:'+prj+')-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}), \
 			(e31)<-[:P15]-(:E7 {content:{subprj}}), \
 			(e31)-[:P102]->(title:E35), \
@@ -50,24 +51,24 @@ var source = {
 				tags, \
 				count(ce33) AS commentLength, \
 				{id: user.content, name: userName.value, date: upDate.value} AS user';
+
 		var params = {
 			subprj: subprj === 'master' ? prj : subprj
 		};
-		
-		//neo4j.cypher(q, params)
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#source.getAll'); return; }
-				res.json(neo4j.extractTransactionData(response.results[0]));
+
+		neo4j.readTransaction(q, params)
+			.then(function (result) {
+				res.json(result);
 			})
-			.catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#source.query');
 			});
 	},
 
 	get: function (req, res) {
 		var prj = req.params.id;
 		var subprj = req.params.subprj;
+
 		var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P2]->(type:E55)-[:P127]->(:E55 {content:"sourceType"}), \
 			(e31)-[:P102]->(title:E35), \
 			(e31)-[:P1]->(file:E75), \
@@ -105,23 +106,21 @@ var source = {
 				tags, \
 				count(ce33) AS commentLength, \
 				{id: user.content, name: userName.value, date: upDate.value} AS user';
+
 		var params = {
 			subprj: subprj === 'master' ? prj : subprj,
 			sourceId: req.params.sourceId
 		};
 
-		//neo4j.cypher(q, params)
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#source.get'); return; }
-				var rows = neo4j.extractTransactionData(response.results[0]);
-				if(rows.length)
-					res.json(rows[0]);
+		neo4j.readTransaction(q, params)
+			.then(function (result) {
+				if (result.length)
+					res.json(result[0]);
 				else
 					res.json(null);
 			})
-			.catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#source.get')
 			});
 	},
 	
@@ -163,11 +162,11 @@ var source = {
 				console.debug(result.stdout);
 
 				// thumbnail
-				return exec(config.exec.ImagickConvert, [path + filename, '-resize "160x90^"', '-gravity center', '-extent 160x90', path + filenameThumb]);
+				return exec(config.exec.ImagickConvert, [path + filename, '-resize', '160x90^', '-gravity', 'center', '-extent', '160x90', path + filenameThumb]);
 			})
 			.then(function () {
 				// downsample preview image
-				return exec(config.exec.ImagickConvert, [path + filename, '-resize "1024x1024>"', path + filenamePreview]);
+				return exec(config.exec.ImagickConvert, [path + filename, '-resize', '1024x1024>', path + filenamePreview]);
 			})
 			.catch(function (err) {
 				utils.error.server(res, err, '#source.create fs/exec ' + path + filename);
@@ -194,10 +193,10 @@ var source = {
 						(e31)<-[:P94]-(e65:E65:'+prj+' {content: {e65id}}), \
 						(e31)<-[:P128]-(e84:E84:'+prj+' {content: {e84id}})';
 
-				if(req.body.sourceType == 'plan' || req.body.sourceType == 'picture') {
+				if(req.body.sourceType === 'plan' || req.body.sourceType === 'picture') {
 					q += ' CREATE (e31)-[:P70]->(e36:E36:'+prj+' {content: {e36id}})';
 				}
-				if(req.body.sourceType == 'text') {
+				if(req.body.sourceType === 'text') {
 					q += ' CREATE (e31)-[:P70]->(e33:E33:'+prj+' {content: {e33id}}) \
 						MERGE (e56:E56:'+prj+' {content: {language}}) \
 						CREATE (e33)-[:P72]->(e56)';
@@ -246,7 +245,7 @@ var source = {
 
 				var params = {
 					subprj: req.params.subprj === 'master' ? prj : req.params.subprj,
-					user: 'e21_' + req.headers['x-key'],
+					user: req.headers['x-key'],
 					e31id: 'e31_' + filename,
 					sourceType: req.body.sourceType,
 					e75file: {
@@ -364,56 +363,81 @@ var source = {
 	
 	setSpatial: function (req, res) {
 		var prj = req.params.id;
-
+		var promise;
 		// TODO: convert image to 1024x1024 map
-		
-		console.debug(req.body.file.name);
-		var tmpFile = config.path.tmp + '/' + req.body.file.name + '_coords.txt';
-		
-		fs.writeFileAsync(tmpFile, req.body.dlt)
-			.then(function () {
-				return exec(config.exec.DLT, [tmpFile]);
-			})
-			.catch(function (err) {
-				utils.error.server(res, err, '#source.setSpatial fs/exec ' + tmpFile);
-				fs.unlinkSync(tmpFile);
-			})
-			.then(function (result) {
-				console.debug(result.stdout);
-				fs.unlinkSync(tmpFile);
 
-				var lines = result.stdout.split("\n");
+		if (req.query.method === 'DLT') {
+			console.debug('DLT method');
 
-				var ck = parseFloat(lines[1]) / 1000;
-				var offset = new THREE.Vector2(parseFloat(lines[3]) / 1000, parseFloat(lines[4]) / 1000);
+			console.debug(req.body.file.name);
+			var tmpFile = config.path.tmp + '/' + req.body.file.name + '_coords.txt';
 
-				var position = new THREE.Vector3(parseFloat(lines[6]), parseFloat(lines[7]), parseFloat(lines[8]));
-				var r1 = lines[10].trim().split(/\s+/),
-					r2 = lines[11].trim().split(/\s+/),
-					r3 = lines[12].trim().split(/\s+/);
+			promise = fs.writeFileAsync(tmpFile, req.body.dlt)
+				.then(function () {
+					return exec(config.exec.DLT, [tmpFile]);
+				})
+				.catch(function (err) {
+					utils.error.server(res, err, '#source.setSpatial fs/exec ' + tmpFile);
+					fs.unlinkSync(tmpFile);
+				})
+				.then(function (result) {
+					console.debug(result.stdout);
+					fs.unlinkSync(tmpFile);
 
-				var matrix = new THREE.Matrix4();
-				matrix.set( parseFloat(r1[0]), parseFloat(r1[1]), parseFloat(r1[2]), position.x,
-							parseFloat(r2[0]), parseFloat(r2[1]), parseFloat(r2[2]), position.y,
-							parseFloat(r3[0]), parseFloat(r3[1]), parseFloat(r3[2]), position.z,
-							0, 0, 0, 1);
-				
-				var q = 'MATCH (e31:E31:'+prj+' {content: {sourceId}})-[:P70]->(e36:E36) \
-					MERGE (e36)-[:P106]->(e73:E73:'+prj+' {content: {e73id}}) \
+					var lines = result.stdout.split("\n");
+
+					var ck = parseFloat(lines[1]) / 1000;
+					var offset = new THREE.Vector2(parseFloat(lines[3]) / 1000, parseFloat(lines[4]) / 1000);
+
+					var position = new THREE.Vector3(parseFloat(lines[6]), parseFloat(lines[7]), parseFloat(lines[8]));
+					var r1 = lines[10].trim().split(/\s+/),
+						r2 = lines[11].trim().split(/\s+/),
+						r3 = lines[12].trim().split(/\s+/);
+
+					var matrix = new THREE.Matrix4();
+					matrix.set(parseFloat(r1[0]), parseFloat(r1[1]), parseFloat(r1[2]), position.x,
+						parseFloat(r2[0]), parseFloat(r2[1]), parseFloat(r2[2]), position.y,
+						parseFloat(r3[0]), parseFloat(r3[1]), parseFloat(r3[2]), position.z,
+						0, 0, 0, 1);
+
+					return Promise.resolve({
+						sourceId: req.params.sourceId,
+						e73id: 'spatial_' + req.params.sourceId,
+						e73value: {
+							path: req.body.file.path,
+							map: req.body.file.display,
+							matrix: matrix.toArray(),
+							offset: offset.toArray(),
+							ck: ck
+						}
+					});
+				});
+		}
+		else if (req.query.method === 'manual') {
+			console.debug('manual method');
+
+			promise = Promise.resolve({
+				sourceId: req.params.sourceId,
+				e73id: 'spatial_' + req.params.sourceId,
+				e73value: {
+					path: req.body.file.path,
+					map: req.body.file.display,
+					matrix: req.body.matrix,
+					offset: req.body.offset,
+					ck: req.body.ck
+				}
+			});
+		}
+		else {
+			promise = Promise.reject('No method selected');
+		}
+
+		promise
+			.then(function (params) {
+				var q = 'MATCH (e31:E31:' + prj + ' {content: {sourceId}})-[:P70]->(e36:E36) \
+					MERGE (e36)-[:P106]->(e73:E73:' + prj + ' {content: {e73id}}) \
 					SET e73 += {e73value} \
 					RETURN e73 AS spatial';
-		
-				var params = {
-					sourceId: req.params.sourceId,
-					e73id: 'spatial_' + req.params.sourceId,
-					e73value: {
-						path: req.body.file.path,
-						map: req.body.file.display,
-						matrix: matrix.toArray(),
-						offset: offset.toArray(),
-						ck: ck
-					}
-				};
 
 				return neo4j.transaction(q, params);
 			})
@@ -455,5 +479,3 @@ var source = {
 	}
 	
 };
-
-module.exports = source; 

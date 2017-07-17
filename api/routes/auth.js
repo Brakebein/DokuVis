@@ -11,7 +11,7 @@ var auth = {
 		var email = req.body.email || '';
 		var password = req.body.password || '';
 		
-		if(email == '' || password == '') {
+		if(email === '' || password === '') {
 			res.status(401);
 			res.json({
 				"status": 401,
@@ -44,7 +44,7 @@ var auth = {
 		
 		console.log('email: ' + email);
 		
-		if(email == '' || username == '' || password == '') {
+		if(email === '' || username === '' || password === '') {
 			res.status(401);
 			res.json({
 				"status": 401,
@@ -103,7 +103,7 @@ var auth = {
 	
 	checkJWT: function(req, res) {
 		res.status(200);
-		res.send();
+		res.send(null);
 	}
 	
 };

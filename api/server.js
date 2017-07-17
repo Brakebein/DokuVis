@@ -1,7 +1,7 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
 
-var app = express();
+const app = express();
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -12,7 +12,7 @@ app.all('/*', function(req, res, next) {
 	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELELTE,OPTIONS');
 	// set custom headers for CORS
 	res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key');
-	if(req.method == 'OPTIONS') {
+	if(req.method === 'OPTIONS') {
 		res.status(200).end();
 	}
 	else {
@@ -29,7 +29,7 @@ app.all('/auth/*', [require('./middlewares/validateRequest')]);
 app.use('/', require('./routes'));
 
 // if no route is matched by now, it must be 404
-app.use(function(req, res, next) {
+app.use(function(req, res) {
 	//var err = new Error('Not Found');
 	res.status = 404;
 	res.json({
@@ -41,7 +41,25 @@ app.use(function(req, res, next) {
 // start server
 app.set('port', process.env.PORT || 3000);
 
-var server = app.listen(app.get('port'), function() {
+const server = app.listen(app.get('port'), function() {
 	console.log('Express server listening on port ' + server.address().port);
 });
 server.timeout = 600000; // 10 minutes
+
+
+// properly shutdown server
+process.on('exit', function () {
+	server.close();
+});
+
+// catch ctrl+c event and exit properly
+process.on('SIGINT', function () {
+	console.log('Shutdown...');
+	process.exit();
+});
+
+// catch uncaught exception and exit properly
+process.on('uncaughtException', function (err) {
+	console.error('Uncaught Exception', err);
+	process.exit();
+});

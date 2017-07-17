@@ -9,7 +9,7 @@ angular.module('dokuvisApp').factory('webglContext',
 
 		// frustums
 		var NEAR = 1,
-			FAR = 1400;
+			FAR = 4000;
 		// colors
 		var backgroundColor = 0x666666,
 			selectionColor = 0xff4444,
@@ -172,8 +172,8 @@ angular.module('dokuvisApp').factory('webglContext',
 		THREE.DokuVisTray = {
 
 			defaults: {
-				NEAR: 1,
-				FAR: 1400,
+				NEAR: NEAR,
+				FAR: FAR,
 				initWidth: 800,
 				initHeight: 600,
 				backgroundColor: backgroundColor,

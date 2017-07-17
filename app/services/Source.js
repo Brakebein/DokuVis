@@ -8,9 +8,10 @@
  * @requires API
  * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
  * @requires Utilities
+ * @requires https://momentjs.com/ moment
  */
-angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParams', 'Utilities',
-	function($resource, API, $stateParams, Utilities) {
+angular.module('dokuvisApp').factory('Source', ['$resource', 'API', '$stateParams', 'Utilities', 'moment',
+	function($resource, API, $stateParams, Utilities, moment) {
 		
 		return $resource(API + 'auth/project/:project/:subproject/source/:id', {
 			project: function () {

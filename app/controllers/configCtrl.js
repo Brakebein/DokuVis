@@ -1,9 +1,26 @@
-angular.module('dokuvisApp').controller('configCtrl', ['$scope', '$stateParams', 'Staff', 'Utilities', '$translatePartialLoader',
-    function($scope, $stateParams, Staff, Utilities, $translatePartialLoader) {
+/**
+ * Controller for configuration view.
+ * @ngdoc controller
+ * @module dokuvisApp
+ * @name configCtrl
+ * @author Brakebein
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires Staff
+ * @requires Utilities
+ * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translatePartialLoader $translatePartialLoader
+ */
+angular.module('dokuvisApp').controller('configCtrl', ['$scope', 'Staff', 'Utilities', '$translatePartialLoader',
+    function($scope, Staff, Utilities, $translatePartialLoader) {
 
         $translatePartialLoader.addPart('config');
 
-        $scope.staff = [];
+		/**
+         * Array of all project participants.
+         * @ngdoc property
+         * @name configCtrl#staff
+		 * @type {Array}
+		 */
+		$scope.staff = [];
 
         function queryStaff() {
             Staff.query().$promise.then(function (result) {
@@ -23,9 +40,9 @@ angular.module('dokuvisApp').controller('configCtrl', ['$scope', '$stateParams',
         // init
         queryStaff();
 
-        $scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
-            if(fromState.name === 'project.config.staffedit')
-                queryStaff();
+        // listening to events
+        $scope.$on('$staffUpdate', function () {
+            queryStaff();
         });
 
     }]);

@@ -1,460 +1,213 @@
-.tasksLeft{
-	position: absolute;
-	left: 0;
-	width: 100%;
-	height: 100%;
-}
+.tasks-main {
+  position: absolute;
+  left: 0;
+  width: 70%;
+  height: 100%;
+  padding: 10px; }
+  .tasks-main .search {
+    float: right; }
+  .tasks-main .tasks-controls {
+    padding-bottom: 20px;
+    display: flex; }
+    .tasks-main .tasks-controls .tasks-ctrl {
+      flex: 0 0 auto;
+      padding: 0 20px; }
+      .tasks-main .tasks-controls .tasks-ctrl.input-group {
+        max-width: 200px; }
 
-.tasksLeft .ganttContainer{
-	position: absolute;
-	left: 1%;
-	width: 98%;
-}
+.tasks-side {
+  position: absolute;
+  left: 70%;
+  right: 0;
+  height: 100%; }
 
-.tasksRight {
-	position: absolute;
-	left:100%;
-	right: 0;
-	height: 100%;
-	display: flex;
-}
+.fa-flag#colHead {
+  opacity: 1; }
 
-.sidePanelSidemenu {
-	flex: 0 0 36px;
-	order: 2;
-	width: 36px;
-	/*height: 100%;
-	right: 100%;*/
-	color: #999;
-	background-color: #333;
-	border-left: 1px solid #000;
-}
+.fa-flag#colHead:hover {
+  cursor: pointer; }
 
-.sidePanelSidemenu .smBtn {
-	height: 35px;
-	border-left: 2px solid rgba(252,78,42,0.5);
-	padding: 7px;
-	transition: border-left-color 0.3s, color 0.3s, background-color 0.3s;
-}
-.sidePanelSidemenu .smBtn:hover {
-	border-left-color: rgba(252,78,42,1.0);
-	background-color: #444;
-	cursor: pointer;
-	color: #ddd;
-}
-.sidePanelSidemenu .smBtn.active {
-	border-left-color: rgba(252,78,42,1.0);
-	background-color: rgba(252,78,42,0.5);
-	cursor: pointer;
-	color: #ddd;
-}
-.sidePanelSidemenu .smBtn span {
-	font-size: 20px;
-}
+.fa-flag#highPriority {
+  color: red;
+  opacity: 0.5;
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: black; }
 
+.fa-flag#mediumPriority {
+  color: #ffbe37;
+  opacity: 0.5;
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: black; }
 
-.sideContainer {
-	flex: 1;
-	order: 1;
-	/*height: 100%;*/
-	/*left: 0;
-	right: 35px;*/
-	display: flex;
-	flex-direction: column;
-	/*height: 600px;*/
-	/*padding: 0 20px;*/
-	overflow: hidden;
-}
+.fa-flag#lowPriority {
+  color: yellow;
+  opacity: 0.5;
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: black; }
 
-.sideContainer .sideHeader {
-	/* background-color: red; */
-	flex: 0 0 auto;
-	width: 100%;
-	margin-bottom: 5px;
-	margin-left: 10px;
-}
+.fa-flag#highPriority:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-.sideContainer .sideHeader .closeAside{
-	position: relative;
-	right: -88%;
-}
+.fa-flag#mediumPriority:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-.sideContainer .sideContent {
-	flex: 1 1 auto;
-	width: 100%;
-	margin-left: 5px;
-	overflow-y: auto;
-	font-size: 8pt;
-}
+.fa-flag#lowPriority:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-.sideContainer .sideContent .comments{
-	flex: 1 1 auto;
-	width: 100%;
-	margin-top: 10px;
-	margin-left: 0px;
-	overflow-y: auto;
-	font-size: 10pt;
-}
+.fa-exclamation {
+  opacity: 0.75; }
 
-.sideContainer .sideContent .desc{
-	margin: 5px;
-	font-size: 15px;
-}
+.fa-exclamation:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-.sideContainer .sideFooter {
-	flex: 0 0 auto;
-	width: 100%;
-	padding-left: 5px;
-	padding-bottom: 20px;
-}
+.fa-exclamation#colHead {
+  opacity: 1; }
 
-.fa-flag#colHead{
-	opacity: 1;
-}
+.fa-exclamation#colHead:hover {
+  cursor: pointer; }
 
-.fa-flag#colHead:hover{
-	cursor:pointer;
-}
+.fa-exclamation#highPriority {
+  color: red;
+  opacity: 0.75;
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: black; }
 
-.fa-flag#highPriority{
-	color: red;
-	opacity: 0.5;
-	-webkit-text-stroke-width: 0.5px;
-    -webkit-text-stroke-color: black;
-}
+.fa-exclamation#mediumPriority {
+  color: #ffbe37;
+  opacity: 0.75;
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: black; }
 
-.fa-flag#mediumPriority{
-	color: #ffbe37;
-	opacity: 0.5;
-	-webkit-text-stroke-width: 0.5px;
-    -webkit-text-stroke-color: black;
-}
+.fa-exclamation#lowPriority {
+  color: yellow;
+  opacity: 0.75;
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: black; }
 
-.fa-flag#lowPriority{
-	color: yellow;
-	opacity: 0.5;
-	-webkit-text-stroke-width: 0.5px;
-    -webkit-text-stroke-color: black;
-}
+.fa-exclamation#highPriority:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-.fa-flag#highPriority:hover{
-	cursor: pointer;
-	opacity: 1.0;
+.fa-exclamation#mediumPriority:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-}
+.fa-exclamation#lowPriority:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-.fa-flag#mediumPriority:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
+.fa-times#row {
+  opacity: 0.5; }
 
-.fa-flag#lowPriority:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
+.fa-times#row:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-.fa-exclamation{
-	opacity: 0.75;
-}
+.fa-times#close {
+  opacity: 1; }
 
-.fa-exclamation:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
+.fa-comment-o {
+  opacity: 0.5; }
 
+.fa-comment-o:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-.fa-exclamation#colHead{
-	opacity: 1;
-}
+.fa-comments-o {
+  opacity: 0.5; }
 
-.fa-exclamation#colHead:hover{
-	cursor:pointer;
-}
+.fa-comments-o:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-.fa-exclamation#highPriority{
-	color: red;
-	opacity: 0.75;
-	-webkit-text-stroke-width: 0.5px;
-    -webkit-text-stroke-color: black;
-}
+.glyphicon-ok#colHead {
+  opacity: 1; }
 
-.fa-exclamation#mediumPriority{
-	color: #ffbe37;
-	opacity: 0.75;
-	-webkit-text-stroke-width: 0.5px;
-    -webkit-text-stroke-color: black;
-}
+.glyphicon-ok#colHead:hover {
+  cursor: pointer; }
 
-.fa-exclamation#lowPriority{
-	color: yellow;
-	opacity: 0.75;
-	-webkit-text-stroke-width: 0.5px;
-    -webkit-text-stroke-color: black;
-}
+.glyphicon-ok#row {
+  opacity: 0.5; }
 
-.fa-exclamation#highPriority:hover{
-	cursor: pointer;
-	opacity: 1.0;
+.glyphicon-ok#row:hover {
+  cursor: pointer;
+  opacity: 1; }
 
-}
+.glyphicon-trash#colHead {
+  opacity: 1; }
 
-.fa-exclamation#mediumPriority:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
+.glyphicon-trash#row {
+  opacity: 0.5; }
 
-.fa-exclamation#lowPriority:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
-
-.fa-plus#btn{
-	opacity: 1;
-}
-
-.fa-plus#row{
-	opacity: 0.5;
-}
-
-.fa-plus#row:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
-
-.fa-pencil{
-	opacity: 0.5;
-}
-
-.fa-times#row{
-	opacity: 0.5;
-}
-
-.fa-times#row:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
-
-.fa-times#close{
-	opacity: 1;
-}
-
-.fa-pencil:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
-
-.fa-comment-o{
-	opacity: 0.5;
-}
-
-.fa-comment-o:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
-
-.fa-comments-o{
-	opacity: 0.5;
-}
-
-.fa-comments-o:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
-
-.glyphicon-ok#colHead{
-	opacity: 1;
-}
-.glyphicon-ok#colHead:hover{
-	cursor: pointer;
-}
-
-.glyphicon-ok#row{
-	opacity: 0.5;
-}
-
-.glyphicon-ok#row:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
-
-.glyphicon-trash#colHead{
-	opacity: 1;
-}
-
-.glyphicon-trash#row{
-	opacity: 0.5;
-}
-
-.glyphicon-trash#row:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
+.glyphicon-trash#row:hover {
+  cursor: pointer;
+  opacity: 1; }
 
 .glyphicon-file {
-	opacity: 0.5;
-}
+  opacity: 0.5; }
+
 .glyphicon-file:hover {
-	cursor: pointer;
-	opacity: 1;
-}
-
-.glyphicon-folder-open{
-	cursor: pointer;
-	opacity: 0.5;
-}
-
-.glyphicon-folder-open:hover{
-	cursor: pointer;
-	opacity:1;
-}
-
-.fa-envelope{
-	color: red;
-	opacity: 0.5;
-}
-
-.fa-envelope:hover{
-	cursor: pointer;
-	opacity: 1.0;
-}
+  cursor: pointer;
+  opacity: 1; }
 
 .odd {
-  color: black;
-}
+  color: black; }
+
 .even {
-  color: black;
-}
+  color: black; }
 
-.tasksLeft .project{
-	height: 10px;
-	margin-left: 20px;
-}
+.gantt-row-label .gantt-label-text > span {
+  cursor: pointer; }
+  .gantt-row-label .gantt-label-text > span:hover {
+    color: #fc4e2a; }
+  .gantt-row-label .gantt-label-text > span.project {
+    font-weight: bold; }
+.gantt-row-label .gantt-label-text .row-btn {
+  cursor: pointer;
+  opacity: 0.5; }
+  .gantt-row-label .gantt-label-text .row-btn:hover {
+    opacity: 1; }
 
-.tasksLeft .overview{
-	height: 40px;
-	margin-left: 20px;
-}
-
-.tasksLeft .overview #title{
-	display:inline-block;
-	position: absolute;
-}
-
-.tasksLeft .overview #search{
-	display:inline-block;
-	padding-top: 20px;
-	position: absolute;
-	right: 0.5%;
-}
-
-.tasksLeft .optionsHeader{
-	height: 20px;
-	margin-bottom: 20px;
-}
-
-.tasksLeft .optionsHeader #add{
-	position: absolute;
-	left: 0.3%;
-}
-
-.tasksLeft .optionsHeader #order{
-	position: absolute;
-	left: 4%;
-}
-
-.tasksLeft .optionsHeader #subprj{
-	position: absolute;
-	left: 7.5%;
-}
-
-.tasksLeft .optionsHeader #from{
-	position: absolute;
-	left: 22.5%;
-}
-
-.tasksLeft .optionsHeader #to{
-	position: absolute;
-	right: 0.0%;
-	
-}
-
-.tasksLeft .optionsHeader #zoom{
-	position: absolute;
-	left: 50%;
-}
-
-.tasksLeft .optionsFooter{
-	height: 20px;
-	margin-top: 20px;
-}
-
-.tasksLeft .optionsFooter #staff{
-	position: absolute;
-	left: 0.5%;
-}
-
-.tasksLeft .containerGantt{
-	position: absolute;
-	left: 1%;
-	width: 95%;
-}
-
-.parent {
-	font-style: normal;
-	font-size: 15px;
-	font-weight: bold;
-}
-
-.parent:hover {
-	font-style: normal;
-	font-size: 15px;
-	font-weight: bold;
-	cursor: pointer;
-	font-style: oblique;
-}
-
-.child {
-	font-style: normal;
-	font-size: 15px;
-}
-
-.child:hover {
-	cursor: pointer;
-	font-style: oblique;
-}
+.gantt-task-content .task-btn {
+  cursor: pointer;
+  opacity: 0; }
+.gantt-task-content:hover .task-btn {
+  opacity: 0.5; }
+  .gantt-task-content:hover .task-btn:hover {
+    opacity: 1; }
 
 .screenshotItem {
-	padding: 4px;
-	margin-bottom: 20px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	/* background-color: rgba(252,78,42,0.05); */
-}
+  padding: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px; }
 
-.buffer{
-padding-top: 2px;
-margin: 20px;
-}
+/* background-color: rgba(252,78,42,0.05); */
+.buffer {
+  padding-top: 2px;
+  margin: 20px; }
 
-.bufferModal{
-padding-top: 2px;
-margin-top: 10px;
+.bufferModal {
+  padding-top: 2px;
+  margin-top: 10px; }
 
-}
+.task-priority-low, .task-priority-low > .gantt-task-background {
+  background-color: #ffffb2; }
+  .task-priority-low.active, .task-priority-low:active, .task-priority-low:hover, .task-priority-low.active:hover, .task-priority-low:active:hover, .task-priority-low.active:focus, .task-priority-low:active:focus, .task-priority-low > .gantt-task-background.active, .task-priority-low > .gantt-task-background:active, .task-priority-low > .gantt-task-background:hover, .task-priority-low > .gantt-task-background.active:hover, .task-priority-low > .gantt-task-background:active:hover, .task-priority-low > .gantt-task-background.active:focus, .task-priority-low > .gantt-task-background:active:focus {
+    background-color: #ededa6; }
 
+.task-priority-medium, .task-priority-medium > .gantt-task-background {
+  background-color: #fecc5c; }
+  .task-priority-medium.active, .task-priority-medium:active, .task-priority-medium:hover, .task-priority-medium.active:hover, .task-priority-medium:active:hover, .task-priority-medium.active:focus, .task-priority-medium:active:focus, .task-priority-medium > .gantt-task-background.active, .task-priority-medium > .gantt-task-background:active, .task-priority-medium > .gantt-task-background:hover, .task-priority-medium > .gantt-task-background.active:hover, .task-priority-medium > .gantt-task-background:active:hover, .task-priority-medium > .gantt-task-background.active:focus, .task-priority-medium > .gantt-task-background:active:focus {
+    background-color: #ecbe56; }
 
+.task-priority-high, .task-priority-high > .gantt-task-background {
+  background-color: #fd8d3c; }
+  .task-priority-high.active, .task-priority-high:active, .task-priority-high:hover, .task-priority-high.active:hover, .task-priority-high:active:hover, .task-priority-high.active:focus, .task-priority-high:active:focus, .task-priority-high > .gantt-task-background.active, .task-priority-high > .gantt-task-background:active, .task-priority-high > .gantt-task-background:hover, .task-priority-high > .gantt-task-background.active:hover, .task-priority-high > .gantt-task-background:active:hover, .task-priority-high > .gantt-task-background.active:focus, .task-priority-high > .gantt-task-background:active:focus {
+    background-color: #eb8338; }
 
-.odd {
-	/* padding-right: 2px;
-	margin-bottom: 10px;
-	border: 1px solid #ddd;
-	border-radius: 4px; */
-	/* background-color: rgba(252,78,42,0.05); */
-}
-.even {
-	/* padding-left: 2px;
-	margin-bottom: 10px;
-	border: 1px solid #ddd;
-	border-radius: 4px; */
-	/* background-color: rgba(252,78,42,0.05); */
-}
+/*# sourceMappingURL=tasks.css.map */

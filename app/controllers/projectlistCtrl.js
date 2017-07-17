@@ -1,5 +1,6 @@
 /**
  * Controller for view to list and organize all projects.
+ *
  * @ngdoc controller
  * @name projectlistCtrl
  * @module dokuvisApp
@@ -11,16 +12,12 @@
  * @requires Project
  * @requires ConfirmService
  * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translate $translate
- * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translatePartialLoader $translatePartialLoader
  */
-angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'Utilities', 'Project', 'ConfirmService', '$translate', '$translatePartialLoader',
-	function ($scope, $state, $window, Utilities, Project, ConfirmService, $translate, $translatePartialLoader) {
+angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', '$window', 'Utilities', 'Project', 'ConfirmService', '$translate',
+	function ($scope, $state, $window, Utilities, Project, ConfirmService, $translate) {
 
-		$translatePartialLoader.addPart('projects');
-
-		// Initialisierung von Variablen
 		/**
-		 * Array of all available projects
+		 * Array of all available projects.
 		 * @ngdoc property
 		 * @name projectlistCtrl#projects
 		 * @type {Array}
@@ -75,12 +72,12 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 			});
 		};
 		
-		// oninit Funktionsaufrufe
+		// init
 		queryProjects();
 
-		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
-			if(fromState.name === 'projectlist.project')
-				queryProjects();
+		// listening to events
+		$scope.$on('projectsUpdate', function () {
+			queryProjects();
 		});
 		
 	}]);

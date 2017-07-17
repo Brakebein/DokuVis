@@ -1,5 +1,5 @@
-angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$http', 'Utilities','$modal', 'ganttUtils', 'GanttObjectModel', 'ganttMouseOffset', 'ganttDebounce', 'moment',
-	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities, $modal,utils, ObjectModel, mouseOffset, debounce, moment) {
+angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '$timeout', '$sce', 'phpRequest', 'mysqlRequest', 'neo4jRequest', '$http', 'Utilities','$modal', 'ganttUtils', 'GanttObjectModel', 'ganttMouseOffset', 'ganttDebounce', 'moment', 'Staff', 'Task',
+	function($scope, $stateParams, $timeout, $sce, phpRequest, mysqlRequest, neo4jRequest, $http, Utilities, $modal,utils, ObjectModel, mouseOffset, debounce, moment, Staff, Task) {
 		console.log($stateParams);
 		$scope.project = $stateParams.project;
 		$scope.subproject = $stateParams.subproject;
@@ -14,20 +14,11 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 
 		/*Mitarbeiter*/
 		$scope.staffInGantt = [];
-		$scope.newStaff = new Object();
-		$scope.newStaff.sid = '';
-		$scope.newStaff.name = '';
-		$scope.newStaff.surname = '';
-		$scope.newStaff.mail = '';
-		$scope.newStaff.role = '';
-		$scope.newStaff.projects = '';
 		$scope.staffExists= false;
 
 		//Overlay
 		$scope.overlayParams = {url: '', params: {}};
 
-		/*alle Rollen*/
-		$scope.roles = [];
 
 		//löschen
 		$scope.removeFromGantt = [];
@@ -104,37 +95,198 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 		/*zweites Datenobjekt zum umsortieren*/
 		$scope.dataTask = [];
 
-		$scope.data = [		//hier werden alle Aufgaben gespeichert
-			{id: 1, name: 'Usabilitytest', isStaff: true, type: 'project', editors: ['Martin','Jonas'], 'groups': false, children: [], tasks: []},
+		//hier werden alle Aufgaben gespeichert
+		// row objects
+		$scope.data = [{
+			id: 1,
+			name: 'Usabilitytest',
+			isStaff: true,
+			type: 'project',
+			editors: ['Martin','Jonas'],
+			groups: false,
+			children: [],
+			tasks: []
+		}, {
+			id: 2,
+			name: 'Unterprojekt 1',
+			parent: 1,
+			type: 'project',
+			editors: ['Martin'],
+			isStaff: true,
+			groups: false,
+			children: [],
+			tasks: []
+		}, {
+			id: 9,
+			name: 'Aufgabe1',
+			isStaff: false,
+			type: 'task',
+			parent: 2,
+			editors: ['Martin'],
+			children: [],
+			status: 'zu bearbeiten',
+			priority: 1,
+			hasData: true,
+			tasks: [{name: 'Aufgabe1', color: '#F1C232', from: moment('2017-05-20'), to: moment('2017-06-25')}]
+		}, {
+			id: 10,
+			name: 'Aufgabe2',
+			isStaff: false,
+			type: 'task',
+			parent: 2,
+			editors: ['Martin'],
+			children: [],
+			status: 'erledigt',
+			priority: 3,
+			tasks: [{name: 'Aufgabe2', color: '#F1C232', from: moment('2017-05-20'), to: moment('2017-05-25')}]
+		}, {
+			id: 3,
+			name: 'Unterunterprojekt 1',
+			parent: 2,
+			type: 'project',
+			editors: ['Martin'],
+			groups: 'false',
+			isStaff: true,
+			children: []
+		}, {
+			id: 5,
+			name: 'Aufgabe3',
+			isStaff: false,
+			type: 'task',
+			parent: 3,
+			editors: ['Martin'],
+			status: 'zu bearbeiten',
+			priority: 3,
+			tasks: [{name: 'Aufgabe3', color: '#F1C232', from: moment('2017-05-20'), to: moment('2017-06-01')}]
+		}, {
+			id: 4,
+			name: 'Unterunterprojekt 2',
+			parent: 2,
+			type: 'project',
+			editors: ['Jonas','Martin'],
+			groups: 'false',
+			isStaff: true,
+			children: []
+		}, {id: 7,
+			name: 'Aufgabe4',
+			isStaff: false,
+			type: 'task',
+			parent: 4,
+			children: [],
+			status: 'erledigt',
+			priority: 2,
+			hasData: false,
+			editors: ['Jonas'],
+			data: [],
+			tasks: [{name: 'Aufgabe4', color: '#24ff6b', from: moment('2017-05-20'), to: moment('2017-06-15')}]
+		}, {
+			id: 6,
+			name: 'Unterprojekt 2',
+			type: 'project',
+			isStaff: true,
+			parent: 1,
+			children: [],
+			status: 'erledigt',
+			priority: 3,
+			hasData: false,
+			editors: ['Jonas','Martin'],
+			tasks: []
+		}, {
+			id: 8,
+			name: 'Aufgabe5',
+			isStaff: false,
+			parent: 6,
+			type: 'task',
+			children: [9],
+			status: 'erledigt',
+			priority: 2,
+			hasData: true,
+			editors: ['Jonas','Martin'],
+			tasks: []
+		}, {
+			id: 9,
+			name: 'Aufgabe6',
+			isStaff: false,
+			parent: '',
+			type: 'task',
+			children: [],
+			status: 'zu bearbeiten',
+			priority: 2,
+			hasData: false,
+			editors: ['Martin'],
+			tasks: [{name: 'Aufgabe6', color: '#F1C232', from: moment('2017-05-20'), to: moment('2017-06-25')}]
+		}];
 
-			{id: 2, name: 'Unterprojekt 1', parent: 1, type: 'project', editors: ['Martin'], isStaff: true,'groups': false, children: [], tasks: []},
+		$scope.config = {
+			date: {
+				from: moment().subtract(2, 'weeks'),
+				to: moment().add(2, 'weeks'),
+				viewScale: 'day'
+			},
+			gantt: {
+				allowSideResizing: true,
+				autoExpand: 'both',
+				currentDate: 'line',
+				currentDateValue: moment(),
+				daily: true,
+				expandToWidth: true,
+				// filterRow: { name: '' },
+				// filterTask: { name: '' },
+				sideWidth: 'min-width',
+				sortMode: 'model.name',
+				taskOutOfRange: 'truncate',
+				// viewScale: 'day',
+				rowContent: '\
+					<i ng-switch="row.model.type">\
+						<i ng-switch-when="project" class="row-btn glyphicon glyphicon-folder-open" ng-click="scope.openDescAndComments"></i>\
+						<i ng-switch-when="task" class="row-btn" ng-class="row.model.hasData ? \'fa fa-envelope\' : \'glyphicon glyphicon-file\'" ng-click="scope.openDescAndComments(row)"></i>\
+					</i>\
+					<span ng-class="row.model.type" ng-click="scope.openEditTaskForm(row)"> {{row.model.name}}</span>\
+					<i class="row-btn fa fa-plus" bs-tooltip="tooltip[1]" ui-sref=".detail({taskId: \'new\', parent: {id: row.model.id, name: row.model.name}})"></i>',
+				taskContent: '{{task.model.name}} <i class="task-btn fa fa-pencil" ui-sref=".detail({taskId: task.model.id})"></i>'
+			},
+			tree: {
+				header: 'Projektstruktur'
+			},
+			table: {
+				columns: ['model.editors'],
+				headers: { 'model.editors': 'Bearbeiter' },
+				headerContents: { 'model.editors': '<i class="fa fa-users"></i>' },
+				formatters: {
+					'model.editors': function (value) {
+						if (Array.isArray(value)) {
+							var merged = [];
+							for (var i = 0; i < value.length; i++)
+								merged.push(value[i]);
+							return merged.join(', ');
+						}
+						else
+							return value;
+					}
+				}
+			},
+			tooltips: {
+				content: '{{task.model.name}}</br>' +
+					'<small>{{task.isMilestone() === true && task.model.from.format("ll") || task.model.from.format("ll") + \' - \' + task.model.to.format("ll")}}</small>'
+			}
+		};
 
-			{id: 9, name: 'Aufgabe1', isStaff: false, type: 'task', parent: 2, editors: ['Martin'], children: [], status: 'zu bearbeiten',priority: 1,hasData: true, editors: [2], tasks: [{name: 'Aufgabe1', color: '#F1C232', from: '2016-4-20', to: '2016-5-25'}]},
+		$scope.updateViewScale = function () {
+			var fromDate = moment($scope.config.date.from);
+			var toDate = moment($scope.config.date.to);
+			if (toDate.diff(fromDate, 'days') < 35)
+				$scope.config.date.viewScale = 'day';
+			else if (toDate.diff(fromDate, 'weeks') < 20)
+				$scope.config.date.viewScale = 'week';
+			else
+				$scope.config.date.viewScale = 'month';
+		};
 
-			{id: 10, name: 'Aufgabe2',isStaff: false, type: 'task', parent: 2, editors: ['Martin'],children: [],  status: 'erledigt',priority: 3,  tasks: [{name: 'Aufgabe2', color: '#F1C232', from: '2016-4-20', to: '2016-4-25'}]},
-
-			{id: 3, name: 'Unterunterprojekt 1',parent: 2, type: 'project', editors: ['Martin'], groups: 'false', isStaff: true, children: []},
-
-			{id: 5, name: 'Aufgabe3', isStaff: false, type: 'task',  parent: 3, editors: ['Martin'], status: 'zu bearbeiten', priority: 3, tasks: [{name: 'Aufgabe3', color: '#F1C232', from: '2016-4-20', to: '2016-5-01'}]},
-
-			{id: 4, name: 'Unterunterprojekt 2',parent: 2, type: 'project', editors: ['Jonas','Martin'], groups: 'false', isStaff: true, children: []},
-
-			{id: 7,name: 'Aufgabe4', isStaff: false, type: 'task',  parent: 4, children: [], status: 'erledigt', priority: 2, hasData: false, editors: ['Jonas'],  data: [], tasks: [{name: 'Aufgabe4', color: '#24ff6b', from: '2016-4-20', to: '2016-5-15'}]},
-
-			{id: 6, name: 'Unterprojekt 2', type: 'project',  isStaff: true, parent: 1, children: [], groups: 'false', status: 'erledigt',priority: 3, hasData: false, editors: ['Jonas','Martin'], tasks: []},
-
-			{id: 8,name: 'Aufgabe5', isStaff: false, parent: 6, type: 'task', children: [9], status: 'erledigt',priority: 2, hasData: true, editors: ['Jonas','Martin'], tasks: []},
-
-			{id: 9, name: 'Aufgabe6', isStaff: false, parent: '', type: 'task', children: [], status: 'zu bearbeiten',priority: 2, hasData: false, editors: ['Martin'], tasks:[{name: 'Aufgabe6', color: '#F1C232', from: '2016-3-20', to: '2016-4-25'}]},
-
-		];
+		console.log('config', $scope.config);
 
 		// Konfiguration der Tabelle
 		$scope.options = {
 			useData: $scope.data,		// welches Datenobjekt
-			scale: 'day',				// Skalierung--> Tage, Wochen, Monate, Jahre
-			sortMode: undefined,		// Sortierun nach Priorität, Datum,...
-			sideMode: 'TreeTable', 		//
 			canDraw: function(event) {	//Möglichkeit zum Zeichnen von Aufgaben
 				var isLeftMouseButton = event.button === 0 || event.button === 1;
 				return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
@@ -146,27 +298,8 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 					color: '#AA8833' // Color of the task in HEX format (Optional).
 				};
 			},
-			draw: true,
-			daily: false,
-			fromDate: getFormattedDate(new Date()),
-			toDate: getFormattedDate(addDays(new Date(),30)),
-			currentDateValue: new Date(),
-			maxHeight: false,
-			width: false,
-			columns: [/* 'trash', 'model.priority','model.status',*/ 'model.editors' ], //Inhalt der Spalten, wird mit Eigenschaft der Aufgabe gefüllt
 			columnsHeaders: {'trash': 'Löschen', 'model.priority': 'Priorität',  'model.status': 'Status', 'model.editors': 'Bearbeiter', 'model.subprj' : 'Unterprojekt'}, // Beschriftung der Kopfzeile
-			columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to', 'model.status': 'gantt-column-status'}, // Zuweisen von CSS-Klassen zu Spalten, nicht genutzt
-			columnsFormatters: {	// dient zum Formatieren der angezeigten Werte in den Spalten, kann gneutzt werden, um Bearbeiter durch Icons zu ersetzten--> Funktion geht nicht richtig
-				/* 'model.editors': function(editors) {
-				 if(editors){
-				 for (i = 0; i < editors.length; i++) {
-				 console.log(editors[i].name);
-				 return  editors[i].name;
-				 }
-				 }
-				 }   */
-			},
-			treeHeaderContent: 'Projektstruktur', //Überschrift erste Spalte
+
 			columnsHeaderContents: { //Icons in Tabellenkopf
 				'model.editors': '<i class="fa fa-users"></i>',
 				'trash': '<i class="glyphicon glyphicon-trash" id="colHead"></i>',
@@ -181,21 +314,13 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 				//'edit': '<i  ng-hide ="row.model.isStaff" class="fa fa-pencil" id="row" bs-tooltip="tooltip[1]" ng-click="scope.openEditTaskForm(row)" > </i>',
 				'model.status': '<i bs-tooltip="tooltip[10]" ng-hide = "row.model.isStaff" ng-class="getValue() == 1 ? \'glyphicon glyphicon-ok\' : \'fa fa-exclamation\'" id= "row" ng-click="scope.changeStatus(row)"></i>',
 			},
-			autoExpand: 'none',
-			taskOutOfRange: 'truncate',
 			//Inhalt eines Eintrages in der Tabelle
 			rowContent: '	<!--<i ng-hide ="row.model.isStaff" ng-class="row.model.hasData == true ?  \'fa fa-comment-o\' : \'fa fa-comment-o\'" \
 				ng-click="scope.showAsideForComment(row)" bs-tooltip="tooltip[7]"> </i> -->\
 				<i ng-switch = "row.model.type" > <i ng-switch-when = \'project\' ng-class = "\'glyphicon glyphicon-folder-open\'" ng-click="scope.openDescAndComments(row)"></i><i ng-switch-when = \'task\' ng-class = "row.model.hasData == true ? \'fa fa-envelope\' : \'glyphicon glyphicon-file\'" ng-click="scope.openDescAndComments(row)"></i></i>\
 				<i ng-class = "row.model.isStaff == true ? \'parent\': \'child\'" ng-click = scope.openEditTaskForm(row)>{{row.model.name}}</i>\
 				<i class="fa fa-plus" id="row" bs-tooltip="tooltip[1]" ng-click="scope.openNewTaskForm(row)" ></i>',
-			taskContent: '{{task.model.name}}',  //Eintrag im Balken
 			zoom: 1.3,
-			contentTooltips: 'von: {{task.model.from.format("DD.MM")}}	 bis: {{task.model.to.format("DD.MM")}}', //Inhalt der Tooltips
-			allowSideResizing: true, //Möglichkeit, Seitenleiste zu verschieben
-			labelsEnabled: true,
-			currentDate: 'line',
-			groupDisplayMode: 'group',
 			filterTask: '', //durchsucht Taskmodel --> Balken rechts
 			filterRow: '', //durchsucht Rowmodel --> Tabelle links
 			api: function(api) { //Eventsteuerung
@@ -203,7 +328,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
                 $scope.api = api;
 
                 api.core.on.ready($scope, function(){
-                    api.core.on.ready($scope, logReadyEvent);
+                    //api.core.on.ready($scope, logReadyEvent);
 
                     api.data.on.remove($scope, addEventName('data.on.remove', logDataEvent)); //um Aufgaben zu löschen
 
@@ -233,6 +358,91 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 
             }
 		};
+
+		var apiGlobal;
+
+		// listen to events from angular gantt
+		$scope.registerApi = function (api) {
+			apiGlobal = api;
+			api.core.on.ready($scope, function () {
+				console.log(api);
+
+				api.data.on.change($scope, function (newData, oldData) {
+					console.log('data.on.change', newData, oldData);
+				});
+
+				api.tasks.on.moveEnd($scope, onTaskDateChange);
+
+				api.tasks.on.resizeEnd($scope, onTaskDateChange);
+			});
+		};
+
+		// get all tasks
+		function queryTasks() {
+			Task.query().$promise
+				.then(function (results) {
+					console.log(results);
+					var rows = processTasks(results);
+					console.log(rows);
+					$scope.data = rows;
+				})
+				.catch(function (err) {
+					Utilities.throwApiException('#Task.query', err);
+				});
+		}
+
+		// transform db results into rows and tasks
+		function processTasks(data) {
+			return data.map(function (task) {
+				return {
+					id: task.id,
+					name: task.title,
+					parent: task.parent,
+					tasks: [{
+						id: task.id,
+						name: task.title,
+						from: task.from,
+						to: task.to,
+						data: {
+							type: task.type,
+							priority: task.priority,
+							editors: task.editors,
+							resource: task
+						},
+						classes: getTaskClass('priority', task.priority)
+					}]
+				};
+			});
+		}
+
+		// get specific class for task
+		function getTaskClass(type, value) {
+			if (type === 'priority') {
+				switch (value) {
+					case 1: return 'task-priority-medium';
+					case 2: return 'task-priority-high';
+					default: return 'task-priority-low';
+				}
+			}
+		}
+
+		function onTaskDateChange(task) {
+			console.log(task);
+			var taskResource = task.model.data.resource;
+			taskResource.from = moment(task.model.from).format();
+			taskResource.to = moment(task.model.to).format();
+			console.log(taskResource.from, taskResource.to);
+			console.log(taskResource);
+			taskResource.$update()
+				.catch(function (err) {
+					Utilities.throwApiException('#Task.update', err);
+				})
+		}
+
+		$scope.$on('tasksUpdate', function () {
+			console.log('event tasksUpdate');
+			queryTasks();
+		});
 
         //Funktionen für Gantt
 
@@ -1458,10 +1668,6 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
 
         }
 
-        $scope.closeAside = function(){ //schließt Seitenmnü
-            $scope.resizerValue = $scope.resizerIn;
-        }
-
         $scope.showSubprj = function(){ // zeigt in Masteransicht die Unterprojekte zu den Aufgaben an
             if($scope.showSub == false){
                 $scope.options.columns.push('model.subprj');
@@ -1536,8 +1742,8 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
             mysqlRequest.getProjectEntry($stateParams.project).then(function(response) {
                 if(!response.data) { console.error('mysqlRequest failed on getProjectEntry()', response); return; }
                 $scope.pid = response.data.pid;
-                alert($scope.pid);
-                $scope.getAllStaff($scope.pid);
+                //alert($scope.pid);
+                //$scope.getAllStaff($scope.pid);
             });
         }
 
@@ -1550,63 +1756,13 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
             });
         };
 
-        $scope.removeStaff = function(staffId,roleId) {
-            mysqlRequest.removeStaff(staffId,roleId,$scope.pid).then(function(response){
-                if(response.data != 'SUCCESS') {
-                    console.error(response);
-                    return;
-                }
-                console.log('Mitarbeiter gelöscht');
-                $scope.getAllStaff($scope.pid);
-            });
-        };
-
-        $scope.addNewStaffToProject = function() {
-            var id = Utilities.getUniqueId();
-            alert($scope.pid);
-            mysqlRequest.addNewStaff(id, $scope.newStaff.name, $scope.newStaff.mail, $scope.newStaff.role,$scope.pid).then(function(response){
-                if(response.data != 'SUCCESS') {
-                    console.error(response);
-                    return;
-                }
-                $scope.getAllStaff($scope.pid);
-            });
-
-            $scope.newStaff.name = '';
-            $scope.newStaff.mail = '';
-            $scope.newStaff.role = '';
-
-            //$scope.resizerValue = $scope.resizerIn;
-        }
-
-        $scope.updateName = function(data,id) {
-            mysqlRequest.updateName(data,id).success(function(answer, status){
-                if(answer != 'SUCCESS') {
-                    console.error(answer);
-                    return;
-                }
-                $scope.getAllStaff();
-            });
-        }
-
-        $scope.updateMail = function(data,id) {
-            mysqlRequest.updateMail(data,id).success(function(answer, status){
-
-                if(answer != 'SUCCESS') {
-                    console.error(answer);
-                    return;
-                }
-                $scope.getAllStaff();
-            });
-        }
-
-        $scope.getAllRoles = function() {
-            mysqlRequest.getAllRoles().then(function(response){
-                if(!response.data) { console.error('mysqlRequest failed on getAllRoles()', response); return; }
-                $scope.roles = response.data;
-                //console.log($scope.roles);
-            });
-        }
+        function queryStaff() {
+			Staff.query().$promise.then(function (result) {
+				$scope.staff = result;
+			}, function (err) {
+				Utilities.throwApiException('on Staff.query()', err);
+			});
+		}
 
         var changeTask = function(eventName, task) {
             $.each($scope.options.useData,function(index){
@@ -1626,9 +1782,7 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
             $scope.api.groups.refresh();
         };
 
-        var logReadyEvent = function() {
-            // $log.info('[Event] core.on.ready');
-        };
+
         var logDataEvent = function(eventName) {
             // console.log('[Event] ' + eventName);
         };
@@ -1640,11 +1794,19 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope','$stateParams', '
             };
         };
 
+
         //initiiere alles
         $scope.getPid();
-        console.log($scope.pid);
-        $scope.getAllSubprojects();
-        $scope.getAllRoles();
+        //console.log($scope.pid);
+        //$scope.getAllSubprojects();
+		queryTasks();
+		queryStaff();
         $scope.fillDataObject('task');
         //$scope.getStaffFromGraph();
+
+		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
+			// if (fromState.name === 'project.tasks.detail')
+			// 	queryTasks();
+		});
+
     }]);

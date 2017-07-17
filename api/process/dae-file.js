@@ -44,6 +44,7 @@ var ctmlloader = new CTMLoader();
 var effects = {},
 	materials = {},
 	images = {},
+	newparams = {},
 	nodes = [],
 	geoIds = [],
 	geometryFiles = {},
@@ -149,6 +150,10 @@ function parseDAE() {
 	
 	xml.on('updateElement: image', function (image) {
 		images[image.$.id] = image.init_from.split(/[\/\\]/).pop();
+	});
+
+	xml.on('updateElement: newparam', function (newparam) {
+		newparams[newparam.$.sid] = newparam;
 	});
 
 	xml.collect('node');
@@ -285,7 +290,7 @@ function finalize() {
 
 function prepareNodes(nodes, parentid) {
 
-	for(var i=0; i<nodes.length; i++) {
+	for (var i=0; i<nodes.length; i++) {
 
 		var n = nodes[i];
 		n.id = n.$.id;
@@ -296,14 +301,14 @@ function prepareNodes(nodes, parentid) {
 		n.parentid = parentid;
 
 		//console.warn(n);
-		if(n.matrix instanceof Object)
+		if (n.matrix instanceof Object)
 			var m = n.matrix.$text.split(/\s+/);
 		else
 			m = n.matrix.split(/\s+/);
 		n.matrix = [ +m[0], +m[1], +m[2], +m[3], +m[4], +m[5], +m[6], +m[7], +m[8], +m[9], +m[10], +m[11], +m[12], +m[13], +m[14], +m[15] ];
 
 		// if pivot offset is represented in extra node
-		if(n.node && n.node[0] && (!n.node[0].$ || !n.node[0].$.id)) {
+		if (n.node && n.node[0] && (!n.node[0].$ || !n.node[0].$.id)) {
 			var pivot = n.node[0];
 			m = pivot.matrix.split(/\s+/);
 			var pivotMatrix = [ +m[0], +m[1], +m[2], +m[3], +m[4], +m[5], +m[6], +m[7], +m[8], +m[9], +m[10], +m[11], +m[12], +m[13], +m[14], +m[15] ];
@@ -316,7 +321,7 @@ function prepareNodes(nodes, parentid) {
 		}
 
 		// geometry
-		if(n.instance_geometry) {
+		if (n.instance_geometry) {
 			n.geometryUrl = n.instance_geometry.$.url.substring(1);
 			n.files = geometryFiles[utils.replace(n.geometryUrl)];
 			n.type = 'object';
@@ -331,25 +336,51 @@ function prepareNodes(nodes, parentid) {
 				var effect = effects[materials[n.material.id].instance_effect.$.url.substring(1)];
 				var shading = effect.phong || effect.blinn || effect.lambert;
 				
-				if(shading.diffuse.color) {
+				if (shading.diffuse.color) {
 					var color = shading.diffuse.color instanceof Object ? shading.diffuse.color.$text.split(/\s+/) : shading.diffuse.color.split(/\s+/);
 					n.material.color = [ +color[0], +color[1], +color[2], +color[3] ];
 				}
-				else if(shading.diffuse.texture) {
-					n.material.map = images[shading.diffuse.texture.$.texture];
+				else if (shading.diffuse.texture) {
+					var texId = shading.diffuse.texture.$.texture;
+					if (texId in images)
+						n.material.map = images[texId];
+					else {
+						while (!(texId in images)) {
+							if (!(texId in newparams)) break;
+							var np = newparams[texId];
+							if (np.sampler2D && np.sampler2D.source)
+								texId = np.sampler2D.source;
+							else if (np.surface && np.surface.init_from)
+								texId = np.surface.init_from;
+						}
+						n.material.map = images[texId];
+					}
 				}
-				if(shading.transparent && shading.transparent.texture) {
-					n.material.alphaMap = images[shading.transparent.texture.$.texture];
+				if (shading.transparent && shading.transparent.texture) {
+					texId = shading.transparent.texture.$.texture;
+					if (texId in images)
+						n.material.alphaMap = images[texId];
+					else {
+						while (!(texId in images)) {
+							if (!(texId in newparams)) break;
+							np = newparams[texId];
+							if (np.sampler2D && np.sampler2D.source)
+								texId = np.sampler2D.source;
+							else if (np.surface && np.surface.init_from)
+								texId = np.surface.init_from;
+						}
+						n.material.alphaMap = images[texId];
+					}
 				}
 			}
 
 			delete n.instance_geometry;
 		}
-		else if(n.instance_light) {
+		else if (n.instance_light) {
 			n.type = 'light';
 			continue;
 		}
-		else if(n.instance_camera) {
+		else if (n.instance_camera) {
 			n.type = 'camera';
 			continue;
 		}

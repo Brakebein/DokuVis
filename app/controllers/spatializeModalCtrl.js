@@ -12,7 +12,8 @@ angular.module('dokuvisApp').controller('spatializeModalCtrl', ['$scope', '$stat
 			
 			Source.spatialize({
 				id: $scope.source.eid,
-				type: $scope.source.type
+				type: $scope.source.type,
+				method: 'DLT'
 			}, $scope.source).$promise.then(function (response) {
 				console.log(response);
 				delete $scope.source.dlt;

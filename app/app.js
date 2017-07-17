@@ -7,8 +7,11 @@
  * @ngdoc module
  * @name dokuvisApp
  * @module dokuvisApp
- * @requires ui.router
- * @requires ngResource
+ * @requires https://ui-router.github.io/ ui.router
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource ngResource
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ngSanitize ngSanitize
+ * @requires http://mgcrea.github.io/angular-strap/ AngularStrap
+ * @requires https://github.com/nervgh/angular-file-upload angularFileUpload
  */
 
 var dokuvisApp = angular.module('dokuvisApp', [
@@ -35,24 +38,24 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'pw.canvas-painter',
 	'gantt',
 	'gantt.table',
-	'gantt.movable',
-	'gantt.tooltips',
-	'gantt.labels',
-	'gantt.sortable',
-	'gantt.drawtask',
-	'gantt.bounds',
-	'gantt.progress',
 	'gantt.tree',
 	'gantt.groups',
+	'gantt.movable',
+	'gantt.tooltips',
+	'gantt.sortable',
+	'gantt.drawtask',
+	'gantt.progress',
+
 	'gantt.overlap',
 	'gantt.resizeSensor',
-	'ang-drag-drop',
+	// 'ang-drag-drop',
 	'mm.acl',
 	'pascalprecht.translate'
 ]);
 
 /**
  * Constant defining the base url to API. It is injectable like any other service.
+ *
  * @ngdoc object
  * @name API
  * @module dokuvisApp
@@ -61,6 +64,7 @@ dokuvisApp.constant('API', 'api/');
 	
 /**
  * Configures ui.router states, state resolve functions, and some defaults.
+ *
  * @ngdoc object
  * @name config
  * @module dokuvisApp
@@ -87,28 +91,43 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			.state('home', {
 				url: '/home',
 				templateUrl: 'partials/home.html',
-				controller: 'homeCtrl'
+				controller: 'homeCtrl',
+				resolve: {
+					validate: ['ValidateResolve', function (ValidateResolve) {
+						return ValidateResolve();
+					}]
+				}
 			})
 			.state('register', {
 				url: '/register',
 				templateUrl: 'partials/register.html',
-				controller: 'registerCtrl'
+				controller: 'registerCtrl',
+				resolve: {
+					skipIfLogged: ['SkipResolve', function (SkipResolve) {
+						return SkipResolve();
+					}]
+				}
 			})
 			.state('projectlist', {
 				url: '/list',
 				templateUrl: 'partials/projects.html',
 				controller: 'projectlistCtrl',
 				resolve: {
-					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', 'AclService', authenticate]
-				}
+					authenticate: ['AuthenticateResolve', function (AuthenticateResolve) {
+						return AuthenticateResolve();
+					}]
+				},
+				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
+					$translatePartialLoader.addPart('projects');
+				}]
 			})
 			.state('projectlist.project', {
 				url: '/project',
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/newProjectModal.html',
-						controller: 'newProjectModalCtrl',
+						contentTemplate: 'partials/modals/projectModal.html',
+						controller: 'projectModalCtrl',
 						show: true
 					})
 				}],
@@ -122,9 +141,15 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				controller: 'projectCtrl',
 				css: 'style/project.css',
 				resolve: {
-					authenticate: ['$q', '$state', '$window', '$timeout', 'AuthenticationFactory', 'UserAuthFactory', 'AclService', authenticate],
-					checkProject: ['$q', '$state', '$stateParams', '$rootScope', 'Project', 'AclService', checkProject],
-					checkSubproject: ['$q', '$state', '$stateParams', 'Subproject', checkSubproject]
+					authenticate: ['AuthenticateResolve', function (AuthenticateResolve) {
+						return AuthenticateResolve();
+					}],
+					checkProject: ['$stateParams', 'ProjectResolve', function ($stateParams, ProjectResolve) {
+						return ProjectResolve($stateParams);
+					}],
+					checkSubproject: ['$stateParams', 'SubprojectResolve', function ($stateParams, SubprojectResolve) {
+						return SubprojectResolve($stateParams);
+					}]
 				},
 				abstract: true
 			})
@@ -139,7 +164,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/newProjectModal.html',
+						contentTemplate: 'partials/modals/projectModal.html',
 						controller: 'newSubprojectModalCtrl',
 						show: true
 					});
@@ -232,7 +257,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			})
 			.state('project.explorer.upload.type.archive', {
 				url: '/archive',
-				onEnter: ['$modal', function ($modal) {
+				onEnter: ['$modal', '$translatePartialLoader', function ($modal, $translatePartialLoader) {
+					$translatePartialLoader.addPart('archive');
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
 						contentTemplate: 'partials/modals/newArchiveModal.html',
@@ -285,6 +311,20 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				controller: 'tasksCtrl',
 				css: 'style/tasks.css'
 			})
+			.state('project.tasks.detail', {
+				url: '/:taskId',
+				onEnter: ['$modal', function ($modal) {
+					$modal({
+						templateUrl: 'partials/modals/_modalTpl.html',
+						contentTemplate: 'partials/modals/taskModal.html',
+						controller: 'taskModalCtrl',
+						show: true
+					})
+				}],
+				params: {
+					parent: null
+				}
+			})
 			.state('project.graph', {
 				url: '/graph',
 				templateUrl: 'partials/graph.html'
@@ -325,12 +365,13 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				onEnter: ['$modal', function ($modal) {
 					$modal({
 						templateUrl: 'partials/modals/_modalTpl.html',
-						contentTemplate: 'partials/modals/staffeditModal.html',
-						controller: 'staffeditModalCtrl',
+						contentTemplate: 'partials/modals/staffModal.html',
+						controller: 'staffModalCtrl',
 						show: true
 					});
 				}]
 			});
+
 
 		// translate
 		$translateProvider
@@ -345,9 +386,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				'en_*': 'en-US',
 				'de_*': 'de-DE'
 			});
-			//.determinePreferredLanguage();
+		//.determinePreferredLanguage();
 		$translatePartialLoaderProvider.addPart('general');
-		
+
 		// defaults
 		angular.extend($modalProvider.defaults, {
 			backdrop: 'static',
@@ -361,145 +402,11 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			delay: {show: 500, hide: 100}
 		});
 
-		// resolver functions
-		/**
-		 * Resolve function to authenticate user / check, if user is logged in
-		 * @memberof config
-		 * @private
-		 * @param $q {$q} Angular promise service
-		 * @param $state {$state} ui.router state service
-		 * @param $window {$window} Angular window service
-		 * @param $timeout {timeout} Angular timeout
-		 * @param AuthenticationFactory {AuthenticationFactory} [AuthenticationFactory]{@link dokuvisApp.AuthenticationFactory.html}
-		 * @param UserAuthFactory {UserAuthFactory} [UserAuthFactory]{@link dokuvisApp.UserAuthFactory.html}
-		 * @param AclService {service} Access Control List service
-		 * @returns {Promise} Resolves, if user has been authenticated
-		 */
-		function authenticate($q, $state, $window, $timeout, AuthenticationFactory, UserAuthFactory, AclService) {
-
-			if(AuthenticationFactory.isLogged) {
-
-				return UserAuthFactory.checkJWT().then(function(response) {
-					console.log(response);
-					// check if user object exists else fetch it. this is incase of a page refresh
-					if(!AuthenticationFactory.user) AuthenticationFactory.user = $window.localStorage.user;
-					if(!AuthenticationFactory.userName) AuthenticationFactory.userName = $window.localStorage.userName;
-					//if(!AuthenticationFactory.userRole) AuthenticationFactory.userRole = $window.localStorage.userRole;
-
-					AclService.flushRoles();
-					AclService.attachRole('member');
-
-					return $q.when();
-				}, function(reason) {
-					console.log(reason);
-					if(reason.status === 400) {
-						UserAuthFactory.logout();
-						$timeout(function() {
-							$state.go('home');
-						});
-						return $q.reject();
-					}
-				});
-			}
-			else {
-
-				$timeout(function() {
-					$state.go('home');
-				});
-				return $q.reject();
-
-			}
-
-		}
-
-		/**
-		 * Resolve function to check, if project exists
-		 * @memberof config
-		 * @private
-		 * @param $q {$q} Angular promise service
-		 * @param $state {$state} ui.router state service
-		 * @param $stateParams {$stateParams} ui.router state parameter
-		 * @param $rootScope {$rootScope} Angular rootScope
-		 * @param Project {Project} Project http
-		 * @param AclService {service} Access Control List service
-		 * @returns {Promise} Resolves, if project exists
-		 */
-		function checkProject($q, $state, $stateParams, $rootScope, Project, AclService) {
-
-			return Project.get({ id: $stateParams.project }).$promise.then(function(result){
-
-				console.log(result, $stateParams);
-
-				if(result.status === 'NO ENTRY') {
-
-					$state.go('projectlist');
-					return $q.reject();
-
-				}
-
-				$rootScope.userRole = result.role;
-
-				AclService.attachRole('visitor');
-				if (result.role === 'superadmin') {
-					AclService.attachRole('superadmin');
-					AclService.attachRole('admin');
-					AclService.attachRole('historian');
-					AclService.attachRole('modeler');
-				}
-				else if(result.role === 'admin')
-					AclService.attachRole('admin');
-				else if(result.role === 'historian')
-					AclService.attachRole('historian');
-				else if(result.role === 'modeler')
-					AclService.attachRole('modeler');
-
-				console.log(AclService.getRoles());
-			}, function (err) {
-				console.error('API Exception on Project.get()', err);
-				return $q.reject();
-			});
-
-		}
-
-		/**
-		 * Resolve function to check, if the subproject exists
-		 * @memberof config
-		 * @private
-		 * @param $q {$q} Angular promise service
-		 * @param $state {$state} ui.router state service
-		 * @param $stateParams {$stateParams} ui.router state parameter
-		 * @param Subproject {Subproject} Subproject http
-		 * @returns {Promise} A promise that will either be resolved or rejected, if the subproject couldn't be found (or an error occured)
-		 */
-		function checkSubproject($q, $state, $stateParams, Subproject) {
-
-			if($stateParams.subproject === 'master')
-				return $q.resolve();
-			else {
-				//console.log('before', $stateParams);
-				//return Subproject.check($stateParams.project, $stateParams.subproject).then(function (response) {
-				return Subproject.get({ id: $stateParams.subproject }).$promise.then(function (result) {
-
-					//console.log('after', response);
-					// if(!response.data.length) {
-					if(!result) {
-						$state.go('project.home', { project: $stateParams.project, subproject: 'master' });
-						return $q.reject();
-					}
-
-				}, function (err) {
-					console.error('API Exception on Subproject.check()', err);
-					//Utilities.throwApiException('on Subproject.check()', err);
-					return $q.reject();
-				});
-			}
-
-		}
-
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 
 /**
+ * Code execution after bootstrapping AngularJS.
  *
  * @ngdoc object
  * @name run
@@ -516,8 +423,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
  */
 dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory', 'AclService', '$translate', 'amMoment', 'editableOptions', 'TypeaheadRequest',
 	function($rootScope, $state, $previousState, AuthenticationFactory, AclService, $translate, amMoment, editableOptions, TypeaheadRequest) {
-		// when the page refreshes, check if the user is already logged in
-		AuthenticationFactory.check();
 
 		// ACL data
 		var aclData = {
@@ -538,14 +443,10 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 			$translate.refresh();
 		});
 
-		$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+		$rootScope.$on('$stateChangeSuccess', function() {
 			$rootScope.isLogged = AuthenticationFactory.isLogged;
 			$rootScope.userName = AuthenticationFactory.userName;
 			//$rootScope.role = AuthenticationFactory.userRole;
-			// if the user is already logged in, take him to the home page
-			if(AuthenticationFactory.isLogged && $state.is('register')) {
-				$state.go('home');
-			}
 		});
 
 		amMoment.changeLocale('de');
@@ -566,10 +467,22 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 dokuvisApp.filter('filterEditor', function(){
 	return function(items, search) {
 		if(!search) return items;
-		return items.filter(function(element, index, array) {
+		return items.filter(function(element) {
 			return element.editors.indexOf(search) !== -1;
 		});
 	}
 });
+
+dokuvisApp.filter('amJSDate', ['moment', function (moment) {
+	return function (input) {
+		console.log(input);
+		if (moment.isMoment(input))
+			return input.toDate();
+		else if (moment.isDate(input))
+			return input;
+		else
+			return moment(input).toDate();
+	}
+}]);
 
 })();

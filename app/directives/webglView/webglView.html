@@ -5,7 +5,8 @@
 <div class="loadprogressbar fadeLoadprogress ng-hide" ng-show="loading.visible" ng-style="{ width: loading.percent + '%' }"></div>
 
 <!-- spatialize feature -->
-<div class="spatialize" ng-if="hud.spatialize" ng-include="'partials/spatialize.html'"></div>
+<div class="spatialize" ng-if="hud.spatialize" ng-include="'partials/spatializeDLT.html'"></div>
+<div class="spatialize" ng-if="spatialize.active" ng-include="'partials/spatialize.html'"></div>
 
 <!-- Kontrollleiste -->
 <div class="vpNaviContainer" ng-if="hud.navigation" ng-hide="snapshot.active">

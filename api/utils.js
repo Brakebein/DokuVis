@@ -20,7 +20,7 @@ var utils = {
 		mysql: function (res, err, code) {
 			var message = 'MySQL failure';
 			if (code) message += ' ' + code;
-			console.error(message);
+			console.error(message, "\n", err);
 			res.status(500);
 			res.json({
 				message: message,
@@ -30,7 +30,7 @@ var utils = {
 		neo4j: function (res, err, code) {
 			var message = 'Neo4j failure';
 			if (code) message += ' ' + code;
-			console.error(message);
+			console.error(message, "\n", err);
 			res.status(500);
 			res.json({
 				message: message,
@@ -40,7 +40,7 @@ var utils = {
 		server: function (res, err, code) {
 			var message = 'server failure';
 			if (code) message += ' ' + code;
-			console.error(message);
+			console.error(message, "\n", err);
 			res.status(500);
 			res.json({
 				message: message,
@@ -96,7 +96,13 @@ var utils = {
 	}
 
 };
-	
+
+/**
+ * @deprecated
+ * @param req
+ * @param res
+ * @param role
+ */
 utils.checkPermission = function (req, res, role) {
 	var user = req.headers['x-key'] || '';
 	var prj = req.params.id;

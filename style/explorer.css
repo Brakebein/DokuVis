@@ -76,47 +76,11 @@
 .cursor_pan {
   cursor: url(../img/cursor/cursor_pan.gif), auto; }
 
-.sidePanel {
+.explorer-side {
   position: absolute;
   left: 66%;
   right: 0;
-  height: 100%;
-  display: flex; }
-
-.sidePanelSidemenu {
-  flex: 0 0 36px;
-  order: 2;
-  z-index: 50; }
-
-.sideCtrls {
-  height: 32px;
-  padding: 3px; }
-
-.sideContainer {
-  flex: 1;
-  order: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; }
-
-.sideContainer .sideHeader {
-  flex: 0 0 auto;
-  width: 100%;
-  padding: 20px; }
-
-.sideContainer .sideContent {
-  flex: 1 1 auto;
-  width: 100%;
-  padding: 0 20px;
-  overflow-y: auto; }
-
-.sideContainer .sideContent.smallFont {
-  font-size: 8pt; }
-
-.sideContainer .sideFooter {
-  flex: 0 0 auto;
-  width: 100%;
-  padding: 20px; }
+  height: 100%; }
 
 .listHeader {
   margin: 20px 0 5px; }

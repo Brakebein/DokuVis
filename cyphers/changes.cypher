@@ -74,3 +74,28 @@ return n
 match (n {content:"sourceInsertion"})
 set n.content = "sourceUpload"
 return n
+
+// change user id to blank email
+match (n:E21)-[:P2]->(:E55 {content:"projectPerson"})
+set n.content = replace(n.content, "e21_", "")
+return n
+
+// set priority values
+match (pl:E55 {content: "priority_low"}), (pm:E55 {content: "priority_medium"}), (ph:E55 {content: "priority_high"})
+set pl.value = 0,
+  pm.value = 1,
+  ph.value = 2
+return pl,pm,ph
+
+// set priority
+match (task:E7:Proj_q66NrRJ)-[:P2]->(:E55 {content: "task"}),
+      (tprior:E55:Proj_q66NrRJ {content: "priority_low"})
+create (task)-[:P2]->(tprior)
+return task, tprior
+
+// task P94 direction
+match (task:E7)-[:P2]->(:E55 {content: "task"}),
+      (task)-[r:P94]->(c:E65)
+create (task)<-[:P94]-(c)
+delete r
+return task,c
