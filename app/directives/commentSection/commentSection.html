@@ -1,0 +1,32 @@
+<p ng-hide="target" class="bs-callout bs-callout-danger bs-callout-sm">
+	<strong>Error:</strong> No target specified!
+</p>
+
+<div ng-show="target">
+	<div class="comment" ng-repeat="comment in comments | orderBy: 'date':true">
+		<div class="author-date text-right">{{comment.author}} - {{comment.date | amCalendar}}</div>
+		{{comment.value}}
+
+		<div class="answer-section">
+			<div class="answer" ng-repeat="answer in comment.answers | orderBy: 'date':false">
+				<div class="author-date text-right">{{answer.author}} - {{answer.date | amCalendar}}</div>
+				{{answer.value}}
+			</div>
+
+			<textarea ng-show="comment.answering" title="Comment input" class="form-control" data-ng-model="comment.newAnswerInput"></textarea>
+
+			<div class="actions text-right">
+				<a href="" ng-hide="comment.answering" ng-click="comment.answering = true">Antworten</a>
+				<a href="" ng-show="comment.answering" ng-click="postAnswer(comment)">Posten</a>
+				<a href="" ng-show="comment.answering" ng-click="comment.answering = false">Abbrechen</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div ng-show="target" class="post-section">
+	<textarea title="Answer input" class="form-control" data-ng-model="newCommentInput"></textarea>
+	<p class="text-right">
+		<button class="btn btn-primary btn-xs" ng-click="postComment()"><i class="fa fa-paper-plane"></i> Senden</button>
+	</p>
+</div>

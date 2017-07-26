@@ -72,8 +72,8 @@ API url: <code>api/auth/project/:project/category/:cid/attribute/:aid</code></p>
     </h3>
     <div><p>Saves a new attribute.</p>
 <pre><code>CategoryAttribute.save({
-  cid: &lt;id&gt;        // id of the category, the attribute should be part of
-  value: &lt;string&gt;  // name of the new attribute
+  cid: &lt;id&gt;,       // id of the category, the attribute should be part of
+  value: &lt;string&gt;, // name of the new attribute
   color: &lt;string&gt;  // hexadecimal, e.g. &#39;#ffdd44&#39;
 }).$promise.then(...);
 </code></pre>

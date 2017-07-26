@@ -86,7 +86,7 @@ angular.module('dokuvisApp').factory('Utilities',
 			// check if condition met. if not, re-check later
 			if (test() !== expectedValue) {
 				setTimeout(function() {
-					waitfor(test, expectedValue, msec, params, callback);
+					f.waitfor(test, expectedValue, msec, params, callback);
 				}, msec);
 				return;
 			}

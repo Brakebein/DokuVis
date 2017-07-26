@@ -90,30 +90,11 @@
 				</div>
 			</div>
 
-			<div class="comment-section">
+			<div>
 				<strong>{{'comments' | translate}}</strong>
-				<textarea class="form-control" ng-model="newCommentInput"></textarea>
-				<button class="btn btn-default btn-sm" ng-click="postComment()"><i class="fa fa-paper-plane"></i>Posten</button>
 
-				<div class="comment" ng-repeat="comment in comments | orderBy: 'date':true">
-					<div class="author-date">{{comment.author}} - {{comment.date | amCalendar}}</div>
-					{{comment.value}}
+				<comment-section target="item.eid" type="item.type"></comment-section>
 
-					<div class="answer" ng-repeat="answer in comment.answers | orderBy: 'date':false">
-						<div class="author-date">{{answer.author}} - {{answer.date | amCalendar}}</div>
-						{{answer.value}}
-					</div>
-
-					<div class="answerInput" ng-show="comment.answering">
-						<textarea class="form-control" ng-model="comment.newAnswerInput"></textarea>
-						<!--<i class="fa fa-paper-plane sendBtn" ng-click="postAnswer(comment)"></i>-->
-					</div>
-					<div class="actions">
-						<a href="" ng-show="!comment.answering" ng-click="comment.answering = true">Antworten</a>
-						<a href="" ng-show="comment.answering" ng-click="comment.answering = false">Abbrechen</a>
-						<a href="" ng-show="comment.answering" ng-click="postAnswer(comment)">Posten</a>
-					</div>
-				</div>
 			</div>
 			</div>
 		</div>

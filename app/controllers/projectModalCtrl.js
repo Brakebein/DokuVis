@@ -71,7 +71,7 @@ angular.module('dokuvisApp').controller('projectModalCtrl', ['$scope', '$state',
 		};
 
 		/**
-		 * Event that gets fired, when a new project was created or an exiting one has been updated.
+		 * Event that gets fired, when a new project has been created or an exiting one has been updated.
 		 * @ngdoc event
 		 * @name projectModalCtrl#projectsUpdate
 		 * @eventType broadcast on $rootScope

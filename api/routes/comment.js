@@ -1,9 +1,9 @@
-var utils = require('../utils');
-var config = require('../config');
-var Promise = require('bluebird');
-var neo4j = require('../neo4j-request');
-var fs = require('fs-extra-promise');
-var exec = require('child-process-promise').exec;
+const utils = require('../utils');
+const config = require('../config');
+const Promise = require('bluebird');
+const neo4j = require('../neo4j-request');
+const fs = require('fs-extra-promise');
+const exec = require('child-process-promise').exec;
 
 module.exports = {
 
@@ -39,15 +39,14 @@ module.exports = {
 			subproj: sub === 'master' ? prj : sub
 		};
 
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#comment.query'); return; }
-				var results = neo4j.extractTransactionData(response.results[0]);
+		neo4j.readTransaction(q, params)
+			.then(function(result) {
 				//res.json(neo4j.removeEmptyArrays(results, 'answers', 'id'));
-				res.json(results);
-			}).catch(function(err) {
-			utils.error.neo4j(res, err, '#cypher');
-		});
+				res.json(result);
+			})
+			.catch(function(err) {
+				utils.error.neo4j(res, err, '#cypher');
+			});
 	},
 
 	queryTarget: function (req, res) {
@@ -67,14 +66,13 @@ module.exports = {
 			id: req.params.targetId
 		};
 
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#comment.get'); return; }
-				var results = neo4j.extractTransactionData(response.results[0]);
-				res.json(neo4j.removeEmptyArrays(results, 'answers', 'id'));
-			}).catch(function(err) {
-			utils.error.neo4j(res, err, '#cypher');
-		});
+		neo4j.readTransaction(q, params)
+			.then(function(result) {
+				res.json(neo4j.removeEmptyArrays(result, 'answers', 'id'));
+			})
+			.catch(function(err) {
+				utils.error.neo4j(res, err, '#comment.get');
+			});
 	},
 	
 	create: function (req, res) {
@@ -249,7 +247,7 @@ module.exports = {
 			res.json(neo4j.extractTransactionData(response.results[0])[0]);
 			//res.json(response);
 		}).catch(function(err) {
-			utils.error.neo4j(res, err, '#cypher');
+			utils.error.neo4j(res, err, '#comment.create');
 		});
 	}
 

@@ -46,20 +46,20 @@
 
 	<div class="sideNav sideNav-right">
 	
-		<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide=='objlist'}" ng-click="views.activeSide = 'objlist'">
+		<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide === 'objlist'}" ng-click="views.activeSide = 'objlist'">
 			<span class="glyphicon glyphicon-list"></span>
 		</div>
-		<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide=='comments'}" ng-click="views.activeSide = 'comments'">
+		<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide === 'comments'}" ng-click="views.activeSide = 'comments'">
 			<span class="glyphicon glyphicon-comment"></span>
 		</div>
-		<div title="Eigenschaften" class="smBtn" ng-class="{'active': views.activeSide=='objproperties'}" ng-click="views.activeSide = 'objproperties'">
+		<div title="Eigenschaften" class="smBtn" ng-class="{'active': views.activeSide === 'objproperties'}" ng-click="views.activeSide = 'objproperties'">
 			<span class="glyphicon glyphicon-list-alt"></span>
 		</div>
 		
 	</div>
 	
 	<!--Objekthierarchie-->
-	<div ng-show="views.activeSide == 'objlist'" class="sideContainer">
+	<div ng-show="views.activeSide === 'objlist'" class="sideContainer">
 		
 		<div class="sideHeader">
 			<h4>3D-Szene</h4>
@@ -193,7 +193,7 @@
 	</div>
 
 	<!-- Screenshots und Kommentare -->
-	<div ng-show="views.activeSide == 'comments' && !wi.snapshot.active" class="sideContainer">
+	<div ng-show="views.activeSide === 'comments' && !wi.snapshot.active" class="sideContainer">
 		
 		<div class="sideHeader">
 			<h4>Screenshots & Kommentare</h4>
@@ -281,7 +281,7 @@
 		
 	</div>
 
-	<div class="sideContainer" ng-show="views.activeSide == 'comments' && wi.snapshot.active">
+	<div class="sideContainer" ng-show="views.activeSide === 'comments' && wi.snapshot.active">
 
 		<div class="sideHeader">
 			<h4>Neuer Modellkommentar</h4>
@@ -332,7 +332,7 @@
 	</div>
 	
 	<!-- Objekteigenschaften -->
-	<div ng-show="views.activeSide == 'objproperties'" class="sideContainer" ng-include="'partials/sideObjectProperties.html'"></div>
+	<div ng-show="views.activeSide === 'objproperties'" class="sideContainer" ng-include="'partials/sideObjectProperties.html'"></div>
 	
 
 </div>

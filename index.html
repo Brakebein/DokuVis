@@ -4,6 +4,8 @@
 	<title>MurEx</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8"/>
 
+	<!-- stylesheets -->
+
 	<!-- bower:css -->
 	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
@@ -15,26 +17,19 @@
 	<link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt-plugins.css" />
 	<link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.css" />
 	<link rel="stylesheet" href="bower_components/angular-motion/dist/angular-motion.css" />
+	<link rel="stylesheet" href="bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css" />
 	<!-- endbower -->
 
 	<!--<link href="style/bootstrap-submenu.css" rel="stylesheet">-->
 	<link href="style/angular-slider.css" rel="stylesheet">
-	<link href="style/angular-resizable.css" rel="stylesheet">
-	<link href="style/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
-	<!--<link href="style/angular-gantt.css" rel="stylesheet" />-->
-	<!--<link href="style/angular-gantt-plugins.css" rel="stylesheet" />-->
-	<!--<link href="style/angular-ui-tree.min.css" rel="stylesheet" >-->
-	<!--<link href="style/xeditable.css" rel="stylesheet">--
-	<link href="style/textAngular.css" rel="stylesheet">-->
 	<link href="style/ng-tags-input.min.css" rel="stylesheet">
-	<!--<link href="style/bootstrap-additions.css" rel="stylesheet">-->
-	<!--<link href="style/jquery.minicolors.css" rel="stylesheet">-->
 	
 	
 	<link href="app/directives/webglView/webglView.css" rel="stylesheet">
 	<link href="app/directives/legend/legend.css" rel="stylesheet">
 	<link href="app/directives/graphSearch/graphSearch.css" rel="stylesheet">
-	
+	<link href="app/directives/commentSection/commentSection.css" rel="stylesheet">
+
 	<link href="style/general.css" rel="stylesheet">
 	<!--<link href="style/explorer.css" rel="stylesheet">
 	<link href="style/panelContainer.css" rel="stylesheet">-->
@@ -76,7 +71,6 @@
 	<script src="bower_components/angular-moment/angular-moment.js"></script>
 	<script src="bower_components/ng-tags-input/ng-tags-input.js"></script>
 	<script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
-	<script src="bower_components/ng-debounce/angular-debounce.js"></script>
 	<script src="bower_components/angular-truncate/src/truncate.js"></script>
 	<script src="bower_components/rangy/rangy-core.js"></script>
 	<script src="bower_components/rangy/rangy-classapplier.js"></script>
@@ -96,46 +90,19 @@
 	<script src="bower_components/angular-gantt/assets/angular-gantt.js"></script>
 	<script src="bower_components/angular-gantt/assets/angular-gantt-plugins.js"></script>
 	<script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
-	<script src="bower_components/angular-native-dragdrop/draganddrop.js"></script>
-	<script src="bower_components/jquery-ui/jquery-ui.js"></script>
-	<script src="bower_components/angular-dragdrop/src/angular-dragdrop.js"></script>
+	<script src="bower_components/jquery-mousewheel/jquery.mousewheel.js"></script>
+	<script src="bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.js"></script>
+	<script src="bower_components/ng-scrollbars/dist/scrollbars.min.js"></script>
+	<script src="bower_components/jszip/dist/jszip.js"></script>
+	<script src="bower_components/jszip-utils/dist/jszip-utils.js"></script>
 	<!-- endbower -->
 	<!-- endbuild -->
 
-	<!--<script type="text/javascript" src="lib/jquery/jquery-2.0.3.js"></script>-->
-	<script type="text/javascript" src="lib/jquery/jquery.scrollTo.min.js"></script>
-	<script type="text/javascript" src="lib/jquery/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="lib/jquery/jquery.ba-throttle-debounce.min.js"></script>
-	<script type="text/javascript" src="lib/jquery/jquery.mCustomScrollbar.concat.min.js"></script>
+	<script type="text/javascript" src="lib/ng-debounce-throttle.js"></script>
 
-	<!-- angular -->
-	<!--<script type="text/javascript" src="lib/angular/angular-css.min.js"></script>-->
 	<!--<script type="text/javascript" src="lib/angular/scalyr.js"></script>-->
-
-	<script type="text/javascript" src="lib/angular/angular-load.js"></script>
-	<script type="text/javascript" src="lib/angular/scrollbars.min.js"></script>
 	<script type="text/javascript" src="lib/angular/angular-slider.js"></script>
-	<!--<script type="text/javascript" src="lib/angular/angular-canvas-painter.js"></script>-->
-	<!--<script type="text/javascript" src="lib/angular/autocomplete.js"></script>--
-	<script type="text/javascript" src="lib/angular/angular-utils.js"></script>
-	<!--<script type="text/javascript" src="lib/angular/angular-debounce.js"></script>-->
-	<!--<script type="text/javascript" src="lib/angular/angular-gantt.js"></script>-->
-	<!--<script type="text/javascript" src="lib/angular/angular-gantt-plugins.js"></script>-->
 
-	<!--<script type="text/javascript" src="lib/angular/angular-dragdrop.js"></script>-->
-	<!--<script type="text/javascript" src="lib/angular/angular-dragdrop.min.js"></script>-->
-	<!--<script type="text/javascript" src="lib/angular/draganddrop.js"></script>-->
-	
-	<!--<script type="text/javascript" src="lib/jquery/jquery.minicolors.min.js"></script>
-	<!--<script type="text/javascript" src="lib/angular/angular-minicolors.js"></script>-->
-
-	<!-- jszip -->
-	<script type="text/javascript" src="lib/jszip/jszip.min.js"></script>
-	<script type="text/javascript" src="lib/jszip/jszip-utils.min.js"></script>
-
-	<!-- d3.js -->
-	<!--<script type="text/javascript" src="lib/d3.min.js"></script>-->
-	
 	<!-- three.js -->
 	<!-- build:js webgl.js -->
 	<script type="text/javascript" src="lib/threejs/three-r84.min.js"></script>
@@ -172,8 +139,6 @@
 	<script type="text/javascript" src="lib/dv3d/SphereMarker.js"></script>
 	<script type="text/javascript" src="lib/dv3d/TorusMarker.js"></script>
 	<!-- endbuild -->
-
-	<script type="text/javascript" src="lib/FileSaver.js"></script>
 
 	<!-- build:js app.js -->
 	<script type="text/javascript" src="app/app.js"></script>
@@ -215,6 +180,7 @@
 	<script type="text/javascript" src="app/directives/ngThumb.js"></script>
 	<script type="text/javascript" src="app/directives/rampSlider.js"></script>
 	<script type="text/javascript" src="app/directives/imageViewer/imageViewer.js"></script>
+	<script type="text/javascript" src="app/directives/commentSection/commentSection.js"></script>
 
 	<!-- controllers -->
 	<script type="text/javascript" src="app/controllers/homeCtrl.js"></script>

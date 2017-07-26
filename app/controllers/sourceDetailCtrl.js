@@ -126,54 +126,6 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		};
 
 		/**
-		 * Save a new comment about the current item.
-		 * @ngdoc method
-		 * @name sourceDetailCtrl#postComment
-		 */
-		$scope.postComment = function() {
-			if($scope.newCommentInput.length < 1) return;
-			Comment.save({
-				type: 'source',
-				text: $scope.newCommentInput,
-				targets: $scope.item.eid
-			}).$promise.then(function (newComment) {
-				console.log('newComment', newComment);
-				$scope.newCommentInput = '';
-				if(newComment) {
-					newComment.answers = [];
-					$scope.comments.push(newComment);
-				}
-			}, function (err) {
-				Utilities.throwApiException('on Comment.save()', err);
-			});
-		};
-
-		/**
-		 * Save a new comment of type `answer`.
-		 * @ngdoc method
-		 * @name sourceDetailCtrl#postAnswer
-		 * @param comment {Object} parent comment
-		 */
-		$scope.postAnswer = function(comment) {
-			if(comment.newAnswerInput.length < 1) return;
-			Comment.save({
-				type: 'answer',
-				text: comment.newAnswerInput,
-				targets: comment.id
-			}).$promise.then(function (newAnswer) {
-				comment.newAnswerInput = '';
-				comment.answering = false;
-				if(newAnswer)
-					comment.answers.push(newAnswer);
-			}, function (err) {
-				Utilities.throwApiException('on Comment.save()', err);
-			});
-		};
-
-		// TODO: Kommentare/Antworten editieren und löschen
-
-
-		/**
 		 * Closes and destroys this modal and changes to GraphSearch state.
 		 * @ngdoc method
 		 * @name sourceDetailCtrl#enterGraph

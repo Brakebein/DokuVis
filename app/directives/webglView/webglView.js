@@ -32,8 +32,8 @@
  * </div>
  * ```
  */
-angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', 'debounce', 'SpatializeInterface',
-	function($stateParams, $window, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService, debounce, SpatializeInterface) {
+angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', '$debounce', '$throttle', 'SpatializeInterface',
+	function($stateParams, $window, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService, $debounce, $throttle, SpatializeInterface) {
 		
 		function link(scope, element, attrs) {
 
@@ -404,7 +404,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			 * Call animate() with debounce. Useful, when iterating over an array, so animate() isn't called a hundred times to update the changes in the viewport.
 			 */
 			// var animateAsync = debounce(animate, 50);
-			var animateAsync = jQuery.throttle(50, animate);
+			var animateAsync = $throttle(animate, 50);
 			webglInterface.callFunc.animateAsync = animateAsync;
 			//DV3D.callFunc.animateAsync = animateAsync;
 
@@ -2608,19 +2608,29 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 								// 	objects[obj.id].edges = edges;
 								// };
 								// worker.postMessage({ data: data, file: file.content });
-								var zip = new JSZip(data);
-								var vobj = JSON.parse(zip.file(file.content + '.json').asText());
-								if (vobj.data.attributes.position.array.length === 0)
-									return;
-								var floatarray = new Float32Array(vobj.data.attributes.position.array);
-								var egeo = new THREE.BufferGeometry();
-								egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
-								edges = new THREE.LineSegments(egeo, materials['edgesMat']);
-								edges.matrix = obj.matrixWorld;
-								edges.matrixAutoUpdate = false;
-								scene.add(edges);
-								geometries[file.content].edgesGeo = egeo;
-								objects[obj.id].edges = edges;
+								JSZip.loadAsync(data)
+									.then(function (zip) {
+										return zip.file(file.content + '.json').async('text');
+									})
+									.catch(function (err) {
+										Utilities.throwException('JSZip Error', 'Failed to load or extract zip file.', err);
+									})
+									.then(function (zipcontent) {
+										// var zip = new JSZip(data);
+										// var vobj = JSON.parse(zip.file(file.content + '.json').asText());
+										var vobj = JSON.parse(zipcontent);
+										if (vobj.data.attributes.position.array.length === 0)
+											return;
+										var floatarray = new Float32Array(vobj.data.attributes.position.array);
+										var egeo = new THREE.BufferGeometry();
+										egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
+										edges = new THREE.LineSegments(egeo, materials['edgesMat']);
+										edges.matrix = obj.matrixWorld;
+										edges.matrixAutoUpdate = false;
+										scene.add(edges);
+										geometries[file.content].edgesGeo = egeo;
+										objects[obj.id].edges = edges;
+									});
 							});
 						}
 						else {

@@ -5,6 +5,7 @@
  * @module dokuvisApp
  * @author Brakebein
  * @requires https://docs.angularjs.org/api/ng/service/$document $document
+ * @requires $throttle
  * @restrict AE
  * @param rampSlider {boolean}
  * @param {number} ngModel Value the directive is bound to [0..1]
@@ -21,8 +22,8 @@
  * </div>
  * ```
  */
-angular.module('dokuvisApp').directive('rampSlider', ['$document',
-	function($document) {
+angular.module('dokuvisApp').directive('rampSlider', ['$document', '$throttle',
+	function($document, $throttle) {
 		return {
 			require: 'ngModel',
 			template: '<div ng-style="{width: rsModel*100+\'%\'}"></div>',
@@ -30,6 +31,10 @@ angular.module('dokuvisApp').directive('rampSlider', ['$document',
 
 				var colorStart = attrs.rsColor || '#aaa';
 				var colorEnd = attrs.rsColorEnd || colorStart;
+
+				var rampSliderMousemove = $throttle(function(event) {
+					applyChange(event);
+				}, 100);
 
 				element.css('position', 'relative');
 				element.find('div').css({
@@ -41,13 +46,9 @@ angular.module('dokuvisApp').directive('rampSlider', ['$document',
 
 				element.on('mousedown', function(event) {
 					event.preventDefault();
-					$document.on('mousemove', jQuery.throttle(100, rampSliderMousemove) );
+					$document.on('mousemove', rampSliderMousemove);
 					$document.on('mouseup', rampSliderMouseup);
 				});
-
-				function rampSliderMousemove(event) {
-					applyChange(event);
-				}
 
 				function rampSliderMouseup(event) {
 					applyChange(event);

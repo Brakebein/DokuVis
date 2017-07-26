@@ -22,17 +22,15 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'ngResource',
 	'ngAnimate',
 	'ngSanitize',
-	'debounce',
+	'ngDebounceThrottle',
 	'truncate',
 	'xeditable',
 	'mgcrea.ngStrap',
 	'angularMoment',
 	'ngScrollbars',
-	'ngDragDrop',
 	'textAngular',
 	'ngTagsInput',
 	'minicolors',
-	'urish',
 	'uiSlider',
 	'angularFileUpload',
 	'pw.canvas-painter',
@@ -45,10 +43,9 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'gantt.sortable',
 	'gantt.drawtask',
 	'gantt.progress',
-
 	'gantt.overlap',
 	'gantt.resizeSensor',
-	// 'ang-drag-drop',
+
 	'mm.acl',
 	'pascalprecht.translate'
 ]);
@@ -463,26 +460,5 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 			});
 		};
 	}]);
-	
-dokuvisApp.filter('filterEditor', function(){
-	return function(items, search) {
-		if(!search) return items;
-		return items.filter(function(element) {
-			return element.editors.indexOf(search) !== -1;
-		});
-	}
-});
-
-dokuvisApp.filter('amJSDate', ['moment', function (moment) {
-	return function (input) {
-		console.log(input);
-		if (moment.isMoment(input))
-			return input.toDate();
-		else if (moment.isDate(input))
-			return input;
-		else
-			return moment(input).toDate();
-	}
-}]);
 
 })();

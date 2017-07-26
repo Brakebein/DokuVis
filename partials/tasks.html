@@ -3,7 +3,7 @@
 	<div>
 		<div class="search col-md-2">
 			<div class="form-group">
-				<input class="form-control" type="text" placeholder="Nach Aufgaben suchen" ng-model="options.filterRow" bs-tooltip="tooltip[6]" data-placement="left"/>
+				<input class="form-control" placeholder="Nach Aufgaben suchen" ng-model="config.filter.row"/>
 			</div>
 		</div>
 
@@ -14,30 +14,29 @@
 	<div class="tasks-controls">
 
 		<div class="tasks-ctrl">
-			<button ng-show="sortby == 'staff'" class="btn btn-info btn-md gradient" ng-click="openStaff()" bs-tooltip="tooltip[1]">
-				<i class="fa fa-plus"></i> Add Staff
-			</button>
-			<button ng-show="sortby == 'task'" class="btn btn-info btn-md" ui-sref=".detail({taskId: 'new'})" bs-tooltip="tooltip[1]">
+			<button class="btn btn-primary" ui-sref=".detail({taskId: 'new'})">
 				<i class="fa fa-plus"></i> Add Task
 			</button>
 		</div>
 
 		<div class="tasks-ctrl">
-			<button ng-show="sortby == 'staff'" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[2]" ng-click="changeOrder()">
+			<button ng-show="config.sort.primary === 'staff'" class="btn btn-default" ng-click="updateSort('task')">
+				<i class="glyphicon glyphicon-sort"></i> Sort by task
+			</button>
+			<button ng-show="config.sort.primary === 'task'" class="btn btn-default" ng-click="updateSort('staff')">
 				<i class="glyphicon glyphicon-sort"></i> Sort by staff
 			</button>
-			<button ng-show="sortby == 'task'" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[3]" ng-click="changeOrder()">
-				<i class="glyphicon glyphicon-sort"></i> Sort by tasks
-			</button>
 		</div>
 
-		<div class="tasks-ctrl" >
-			<button ng-show="subproject == 'master'" class="btn btn-info btn-md gradient" ng-click="showSubprj()" bs-tooltip="tooltip[11]">
-				<i class="fa fa-folder-open"></i>
-			</button>
+		<div class="tasks-ctrl">
+			<select title="gantt.sortMode"
+					class="form-control"
+					data-ng-model="config.sort.sortMode"
+					ng-options="s.value as s.name for s in config.sort.secondary">
+			</select>
 		</div>
 
-		 <div class="tasks-ctrl input-group">
+		<div class="tasks-ctrl input-group">
 			<span class="input-group-btn">
 				<label class="btn btn-default" for="fromDate">
 					<i class="fa fa-angle-left"></i>
@@ -45,11 +44,9 @@
 			</span>
 			<input id="fromDate"
 				   name="fromDate"
-				   type="text"
 				   class="form-control"
 				   ng-model="config.date.from"
 				   ng-blur="updateViewScale()"
-				   bs-tooltip="tooltip[4]"
 				   bs-datepicker
 				   data-date-type="date"
 				   data-date-format="dd.MM.yy"
@@ -58,22 +55,19 @@
 				   data-autoclose="1" />
 		</div>
 
-		<div class="tasks-ctrl input-group">
-			<input type="number" bs-tooltip="tooltip[5]" style="width: 5em" ng-model="options.zoom" step="0.1" min="0.1" max="5" class= "form-control"/>
-		</div>
-
-		<div class="tasks-ctrl input-group">
-			<select ng-model="config.date.viewScale" ng-options="item for item in ['day', 'week', 'month', 'quarter']"></select>
+		<div class="tasks-ctrl">
+			<select title="gantt.viewScale"
+					class="form-control"
+					data-ng-model="config.date.viewScale"
+					ng-options="item for item in ['day', 'week', 'month', 'quarter']"></select>
 		</div>
 			
 		<div class="tasks-ctrl input-group">
 			<input id="toDate"
 				   name="toDate"
-				   type="text"
 				   class="form-control"
 				   ng-model="config.date.to"
 				   ng-blur="updateViewScale()"
-				   bs-tooltip="tooltip[4]"
 				   bs-datepicker
 				   data-date-type="date"
 				   data-date-format="dd.MM.yy"
@@ -93,30 +87,34 @@
 
 	<div class="tasks-container" data-drop="true" jqyoui-droppable="{multiple:true, onDrop: 'addNewStaffToGantt'}">
 		<div gantt
-			 options="config.gantt"
-			 data="data"
-			 from-date="config.date.from"
-			 to-date="config.date.to"
-			 view-scale="config.date.viewScale"
-			 filter-task="{'name': options.filterTask}"
-			 filter-row="{'name': options.filterRow}"
-			 api="registerApi">
+			 data-options="config.gantt"
+			 data-data="data"
+			 data-sort-mode="config.sort.sortMode"
+			 data-from-date="config.date.from"
+			 data-to-date="config.date.to"
+			 data-view-scale="config.date.viewScale"
+			 data-filter-row="{'name': config.filter.row}"
+			 data-api="registerApi">
 
 			<gantt-tree header-content="config.tree.header"
 						keep-ancestor-on-filter-row="true">
 			</gantt-tree>
 
-			<gantt-table columns="config.table.columns"
+			<gantt-table enabled="config.sort.primary !== 'staff'"
+						 columns="config.table.columns"
 						 headers="config.table.headers"
 						 header-contents="config.table.headerContents"
-						 formatters="config.table.formatters">
+						 contents="config.table.contents">
+						 <!--formatters="config.table.formatters">-->
 			</gantt-table>
 
-			<gantt-groups display="overview"></gantt-groups>
+			<gantt-groups display="config.groups.display"></gantt-groups>
+
+			<!--<gantt-progress></gantt-progress>-->
 
 			<gantt-tooltips content="config.tooltips.content"></gantt-tooltips>
 
-			<gantt-sortable enabled ="true"></gantt-sortable>
+			<!--<gantt-sortable enabled="false"></gantt-sortable>-->
 			<gantt-movable allow-row-switching="false"></gantt-movable>
 			<!--<gantt-overlap></gantt-overlap>-->
 			<!--<gantt-resize-sensor></gantt-resize-sensor>-->
@@ -133,18 +131,11 @@
 
 	<div class="sideNav sideNav-right">
 	
-		<div ng-hide = "views.activeSide != 'staff'" title="Mitarbeiter" class="smBtn" ng-class="views.activeSide=='staff'?'active':''" ng-click="views.activeSide = 'staff'">
+		<div title="Mitarbeiter" class="smBtn" ng-class="{'active': views.activeSide === 'staff'}" ng-click="views.activeSide = 'staff'">
 			<i class="glyphicon glyphicon-user"></i>
 		</div>
-		<div  ng-hide = "views.activeSide == 'staff'" title="Kommentare" class="smBtn" ng-class="views.activeSide=='comments'?'active':''" ng-click="views.activeSide = 'comments'">
+		<div title="Details" class="smBtn" ng-class="{'active': views.activeSide === 'details'}" ng-click="views.activeSide = 'details'">
 			<i class="glyphicon glyphicon-comment"></i>
-		</div>
-		<div ng-hide = "views.activeSide == 'staff'" title="Neue Aufgabe" class="smBtn" ng-class="views.activeSide=='newTask'?'active':''" ng-click="views.activeSide = 'newTask'">
-			<i class="glyphicon glyphicon-tasks"></i>
-		</div>
-		
-		<div ng-hide = "views.activeSide == 'staff'" title="Dokumentenverwaltung" class="smBtn" ng-class="views.activeSide=='document'?'active':''" ng-click="views.activeSide = 'document'">
-			<i class="glyphicon glyphicon-paperclip"></i>
 		</div>
 		
 	</div>
@@ -168,12 +159,7 @@
 				</thead>
 				<tbody>
 					<tr ng-repeat="s in staff" >
-						<td><span data-drag="true"
-								  ng-model="staff"
-								  jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep', onStart: 'getIndex($index)'}"
-								  data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" >
-							{{s.name}}</span>
-						</td>
+						<td>{{s.name}}</td>
 						<td>{{s.email}}</td>
 						<td>{{s.role}}</td>
 						<td></td>
@@ -187,183 +173,72 @@
 		<div class="sideFooter">
 		</div>
 
-	</div>	
-	
-	
-	<div ng-if="views.activeSide == 'comments'" class="sideContainer">
-		
-		<div class="sideHeader">
-			<h4>Kommentare zu {{taskNameForComment}}</h4>
-			<hr/>
-		</div>
-		
-		<div class="sideContent">
-			<div class="container">
-					
-			<div class="media screenshotItem">
-			  <div class="media-body">
-				<p class = "desc">{{description}}</p>
-			  </div>
-			</div>
-					
-					
-					
-					<form class="form-inline" > <!-- ng-submit="addComment()" -->
-						 <div class="input-group">
-							<div class="input-group-btn">
-								
-								<button type = "button" class="btn btn-default">
-									<span class="glyphicon glyphicon-camera"></span>
-								</button>
-							
-								<button type = "button" class="btn btn-default">
-									<span class="glyphicon glyphicon-paperclip"></span>
-								</button>
-								
-								<button class="btn btn-info btn-md gradient" ng-click="addComment()">
-									<span class="glyphicon glyphicon-send"></span>
-								</button>
-								
-								<textarea rows ="4" cols = "50" class="form-control" ng-model="newComment.text" style="width: 100%" placeholder="Kommentar verfassen"></textarea>
-							</div>
-						</div>
-					
-						
-					</form>
-				
-				
-
-				<div class="comments">
-					<ul ng-repeat ="d in comments" style="list-style-type:none">
-							<li class-odd="'odd'" ng-class-even="'even'">{{d.desc}}</li>
-							<li ng-class-odd="'odd'" ng-class-even="'even'">{{d.date}}</li>
-							<!-- <li ng-class-odd="'odd'" ng-class-even="'even'">{{d.author}}</li> -->
-						
-					</ul>	
-				</div>
-			</div> 
-		</div>
-		
-		<div class="sideFooter">
-		</div>
-	</div>	
-	
-	<div ng-if="views.activeSide == 'newTask'" class="sideContainer">
-		
-		<div class="sideHeader">
-		
-			<div class= "closeAside">
-				<div class="input-group"  >
-					<button type="button" class="btn btn-info btn-md gradient" bs-tooltip = "tooltip[12]" placement="left" ng-click="closeAside()">
-					<span class="fa fa-times" id="close"></span>
-					</button>
-				</div>
-			</div>
-		
-			<h4 ng-if="!editTask">Neue Aufgabe zu {{newTask.clickedElement.model.name}} hinzufügen</h4>
-			<h4 ng-if="editTask">Aufgabe {{newTask.task}} editieren</h4>
-			<hr/>
-		</div>
-		
-		<div class="sideContent">
-			
-			<div  ng-if = "subproject == 'master'" class="form-group text-left" >
-				<label class="control-label">Unterprojekt</label><br>
-				<select class="form-control" style="width: 8em" ng-model="newTask.subprj">
-				   <option value='' selected='' >Bitte wählen Sie ein Unterprojekt aus</option>
-				   <option ng-repeat= "sub in subprojects" value={{sub.subId}}>{{sub.title}}</option> 
-				 </select> 
-			</div>
-			
-			<!-- <p>{{newTask.subprj}}</p> -->
-
-			
-			<div class="form-group text-left">
-				<label class="control-label">Bearbeiter</label><br>
-				<select class="form-control" style="width: 8em" ng-model="newTask.ids.graph">
-				   <option value="">Bitte wählen Sie einen Bearbeiter aus</option>
-				   <option ng-repeat= "s in staff" value="{{s.sid}}">{{s.name}}</option> 
-				 </select> 
-				 
-		<!-- 		 <select ng-show="editTask == true" class="form-control" style="width: 8em" ng-model="newTask.staffId">
-				   <option value="">Bitte wählen Sie einen Bearbeiter</option>
-				   <option ng-repeat= "staff in staffInGantt" value="{{staff.editorId}}">{{staff.editorName}}</option> 
-				 </select>  -->
-				 
-				 <!-- <p>{{newTask.ids.graph}}</p> -->
-			</div>
-			
-
-			<!-- 
-			<div  ng-if = "sortby == 'staff'" class="form-group text-left">
-				<label class="control-label">Bearbeiter</label><br>
-				<input type="text" class="form-control" style="width: 8em" ng-model="newTask.staff"> 
-			</div> -->
-			
-			
-			<div class="form-group text-left">
-				<label class="control-label">Aufgabe</label><br>
-				<input type="text" class="form-control" style="width: 10em" ng-model="newTask.task" placeholder="Aufgabe">
-			</div>
-			
-			
-		<div class="form-group text-left">
-				<label class="control-label">Von</label><br>
-				<input type="text" class="form-control" style="width: 6em" ng-model="newTask.from" placeholder="Von" bs-datepicker data-autoclose=true data-date-format="dd.MM.yy" data-startDate="today">
-			</div>
-			
-			<div class="form-group text-left">
-				<label for="to" class="control-label">Bis</label><br>
-				<input type="text" id = "to" class="form-control" style="width: 6em" ng-model="newTask.to" placeholder="Bis" bs-datepicker data-autoclose=true data-date-format="dd.MM.yy">
-			</div>
-			
-			 <label>Beschreibung</label>
-			<textarea class="form-control" rows="3" ng-model="newTask.desc"></textarea>
-				   
-			<div class="form-group text-left">
-				<label  class="control-label">Hinzufügen</label><br>
-				<div class="input-group" >
-					<button ng-if="!editTask" type="button" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[1]" ng-click="addNewTask(newTask)" ><span class="fa fa-plus" id="btn"></span></button>
-					<button ng-if="editTask" type="button" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[1]" ng-click="saveTaskChanges(newTask)" ><span class="fa fa-plus" id="btn"></span></button>
-				</div>
-			</div>
-
-		</div>
-		
-		<div class="sideFooter">
-      
-		</div>
-		
 	</div>
 
-		<div ng-if="views.activeSide == 'document'" class="sideContainer">
-		
+	<div ng-show="views.activeSide === 'details'" class="sideContainer">
+
 		<div class="sideHeader">
-			<div class= "closeAside">
-				<div class="input-group"  >
-					<button type="button" class="btn btn-info btn-md gradient" bs-tooltip="tooltip[12]" placement="left" ng-click="closeAside()">
-					<span class="fa fa-times" id="close"></span>
-					</button>
+			<h4>Aufgabendetails</h4>
+			<hr/>
+		</div>
+
+		<div class="sideContent" ng-hide="activeTask && activeTask.data.type === 'task'">
+			<p>Keine Aufgabe ausgewählt.</p>
+		</div>
+
+		<div class="sideContent" ng-show="activeTask && activeTask.data.type === 'task'">
+
+			<h3>{{ activeTask.data.resource.title }}</h3>
+
+			<dl class="dl-horizontal">
+				<dt>Von</dt>
+				<dd>{{ activeTask.data.resource.from | amDateFormat: 'DD.MM.YYYY' }}</dd>
+				<dt>Bis</dt>
+				<dd>{{ activeTask.data.resource.to | amDateFormat: 'DD.MM.YYYY' }}</dd>
+				<dt>Priorität</dt>
+				<dd ng-switch="activeTask.data.resource.priority">
+					<span ng-switch-when="0" class="label task-priority-low">Niedrig</span>
+					<span ng-switch-when="1" class="label task-priority-medium">Mittel</span>
+					<span ng-switch-when="2" class="label task-priority-high">Hoch</span>
+				</dd>
+				<dt>Editors</dt>
+				<dd>{{ activeTask.data.resource.editors | asList:', ':true:'name' }}
+				</dd>
+				<dt>Beschreibung</dt>
+				<dd>{{ activeTask.data.resource.description }}</dd>
+			</dl>
+
+			<div>
+				<div class="pull-right">
+					<button class="btn btn-default" ui-sref=".detail({taskId: activeTask.data.resource.id})">Bearbeiten</button>
+					<button class="btn btn-success" ng-hide="activeTask.data.resource.status" ng-click="setTaskStatus(activeTask, true)">Abschließen</button>
+					<button class="btn btn-warning" ng-show="activeTask.data.resource.status" ng-click="setTaskStatus(activeTask, false)">Wiedereröffnen</button>
+				</div>
+
+				<div class="small">
+					<div ng-show="activeTask.data.resource.created && activeTask.data.resource.created.id">created by {{activeTask.data.resource.created.name}} - {{activeTask.data.resource.created.date | amCalendar}}</div>
+					<div ng-show="activeTask.data.resource.modified && activeTask.data.resource.modified.id">modified by {{activeTask.data.resource.modified.name}} - {{activeTask.data.resource.modified.date | amCalendar}}</div>
 				</div>
 			</div>
-			
-			<h4>Relevante Dokumente für {{taskNameForComment}}</h4>
+
 			<hr/>
-			
+
+			<h4>Kommentare</h4>
+
+			<comment-section target="activeTask.data.resource.id" type="activeTask.data.resource.type"></comment-section>
+
 		</div>
-		
-		<div class="sideContent">
-			<div class="container-fluid">
-					
-			</div> 
-		</div>
-		
-		<div class="sideFooter">
-		</div>
-	</div>	
+
+	</div>
 	 
 </div>	
 
 <!--<div class="resizer-vTask" resizer="vertical" resizer-width="6" resizer-left=".tasksLeft" resizer-left-min="780" resizer-right=".tasksRight" resizer-right-min="0" resizer-anim="resizerValue"></div>-->
 
-<div class="resizer-v" resizer="vertical" resizer-left=".tasks-main" resizer-left-min="780" resizer-right=".tasks-side" resizer-right-min="380" resizer-end="wi.callFunc.resize"></div>
+<div class="resizer-v"
+	 resizer="vertical"
+	 resizer-left=".tasks-main"
+	 resizer-left-min="780"
+	 resizer-right=".tasks-side"
+	 resizer-right-min="380"
+	 resizer-end="wi.callFunc.resize"></div>

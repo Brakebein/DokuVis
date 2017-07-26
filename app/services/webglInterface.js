@@ -1,6 +1,6 @@
 // Schnittstelle zwischen Three.js-Scope und Seite
-angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorScroll', 'debounce',
-	function($rootScope, $anchorScroll, debounce) {
+angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorScroll', '$debounce',
+	function($rootScope, $anchorScroll, $debounce) {
 		
 		var wi = {};
 		
@@ -207,10 +207,14 @@ angular.module('dokuvisApp').factory('webglInterface', ['$rootScope', '$anchorSc
 			if(item.parent) expandParents(item.parent);
 		}
 
-		var scrollToListEntry = debounce(function (id) {
+		var scrollToListEntry = $debounce(function (id) {
 			console.log('anchorScroll called', 'list'+id);
 			$anchorScroll('list'+id);
 		}, 200, true);
+		// var scrollToListEntry = function (id) {
+		// 	console.log('anchorScroll called', 'list'+id);
+		// 	$anchorScroll('list'+id);
+		// };
 		
 		return wi;
 		

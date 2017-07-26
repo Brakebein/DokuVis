@@ -1,5 +1,20 @@
-angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'Staff', 'Task', 'Utilities', 'moment',
-	function ($scope, $state, $stateParams, $timeout, Staff, Task, Utilities, moment) {
+/**
+ * Controller for modal to create new task or edit an existing one.
+ *
+ * @ngdoc controller
+ * @name taskModalCtrl
+ * @module dokuvisApp
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout $timeout
+ * @requires https://github.com/urish/angular-moment moment
+ * @requires Staff
+ * @requires Task
+ * @requires Utilities
+ */
+angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'moment', 'Staff', 'Task', 'Utilities',
+	function ($scope, $state, $stateParams, $timeout, moment, Staff, Task, Utilities) {
 
 		var parent = null;
 		var task = null;
@@ -58,6 +73,11 @@ angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$
 				});
 		}
 
+		/**
+		 * Save new task or changes of existing task.
+		 * @ngdoc method
+		 * @name taskModalCtrl#save
+		 */
 		$scope.save = function () {
 			console.log($scope.task);
 
@@ -91,7 +111,7 @@ angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$
 						$scope.close();
 					})
 					.catch(function (err) {
-						Utilities.throwException('#Task.update', err);
+						Utilities.throwApiException('#Task.update', err);
 					});
 			}
 			else {
@@ -123,6 +143,13 @@ angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$
 			}
 		};
 
+		/**
+		 * Search for users, which contain given query string in their names.
+		 * @ngdoc method
+		 * @name taskModalCtrl#searchEditors
+		 * @param query {string} Query string
+		 * @returns {Array|*} Returns an array with the found users.
+		 */
 		$scope.searchEditors = function(query) {
 			return Staff.query({ search: query })
 				.$promise.then(function (result) {
@@ -134,6 +161,13 @@ angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$
 				});
 		};
 
+		/**
+		 * Check, if the user entered exists and is valid.
+		 * @ngdoc method
+		 * @name taskModalCtrl#checkEditor
+		 * @param tag {Object} Tag object of `tags-input` directive.
+		 * @returns {boolean|*} Return false, if the user is not valid, or returns a promise resolving to true, if the user is valid.
+		 */
 		$scope.checkEditor = function (tag) {
 			if (tag.email || tag.id)
 				return Staff.get({ id: tag.email || tag.id })
@@ -148,17 +182,22 @@ angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$
 				return false;
 		};
 
-		// /**
-		//  *
-		//  * @ngdoc event
-		//  * @name tasksUpdate
-		//  * @param {Task} task The new or updated task.
-		//  * @eventType broadcast on $rootScope
-		//  */
+		/**
+		 * Event that gets fired, when a new task has been created or an exiting one has been updated.
+		 * @ngdoc event
+		 * @name taskModalCtrl#tasksUpdate
+		 * @eventType broadcast on $rootScope
+		 * @param {Task} task New or updated task.
+		 */
 		function tasksUpdate(task) {
 			$scope.$root.$broadcast('tasksUpdate', task);
 		}
 
+		/**
+		 * Closes the modal and destroys the scope.
+		 * @ngdoc method
+		 * @name taskModalCtrl#close
+		 */
 		$scope.close = function () {
 			$state.go('^');
 		};

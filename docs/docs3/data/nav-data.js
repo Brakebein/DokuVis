@@ -75,6 +75,16 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "href": "api/dokuvisApp/controller/sourceDetailCtrl"
               },
               {
+                "name": "taskModalCtrl",
+                "type": "controller",
+                "href": "api/dokuvisApp/controller/taskModalCtrl"
+              },
+              {
+                "name": "tasksCtrl",
+                "type": "controller",
+                "href": "api/dokuvisApp/controller/tasksCtrl"
+              },
+              {
                 "name": "uploadCtrl",
                 "type": "controller",
                 "href": "api/dokuvisApp/controller/uploadCtrl"
@@ -86,6 +96,11 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
             "type": "section",
             "href": "api/dokuvisApp/directive",
             "navItems": [
+              {
+                "name": "commentSection",
+                "type": "directive",
+                "href": "api/dokuvisApp/directive/commentSection"
+              },
               {
                 "name": "horizontalScroll",
                 "type": "directive",

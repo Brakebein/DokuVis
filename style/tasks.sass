@@ -21,7 +21,7 @@
 			&.input-group
 				max-width: 200px
 
-	.tasks-container
+	//.tasks-container
 
 .tasks-side
 	position: absolute
@@ -30,88 +30,111 @@
 	height: 100%
 
 
-//.sidePanelSidemenu
-//	flex: 0 0 36px
-//	order: 2
-//	width: 36px
-//	///*height: 100%;
-//	//right: 100%;*/
-//	color: #999
-//	background-color: #333
-//	border-left: 1px solid #000
-//
-//.sidePanelSidemenu .smBtn
-//	height: 35px
-//	border-left: 2px solid rgba(252,78,42,0.5)
-//	padding: 7px
-//	transition: border-left-color 0.3s, color 0.3s, background-color 0.3s
-//
-//.sidePanelSidemenu .smBtn:hover
-//	border-left-color: rgba(252,78,42,1.0)
-//	background-color: #444
-//	cursor: pointer
-//	color: #ddd
-//
-//.sidePanelSidemenu .smBtn.active
-//	border-left-color: rgba(252,78,42,1.0)
-//	background-color: rgba(252,78,42,0.5)
-//	cursor: pointer
-//	color: #ddd
-//
-//.sidePanelSidemenu .smBtn span
-//	font-size: 20px
+// ganttRow custom
+.gantt-row
+	.gantt-task-truncated-left, .gantt-task-truncated-right
+		color: #333
+	.gantt-task-overview
+		.gantt-task-truncated-left, .gantt-task-truncated-right
+			margin-top: -2px
+			font-size: 13px
+		&.gantt-task.active > .gantt-task-background
+			border: none
+	&.task-group
+		.gantt-task-overview
+			height: 10%
+			top: 90%
+			.gantt-task-truncated-left, .gantt-task-truncated-right
+				display: none
+	&.staff-row:nth-child(n+2)
+		border-top: 2px solid #bbb
+
+.gantt-row-label
+	.gantt-label-text
+		.label-highlight
+			cursor: pointer
+			&:hover
+				color: $dvPrimaryColor
+		.btn-row
+			cursor: pointer
+			opacity: 0.5
+			&:hover
+				opacity: 1
+
+	&.active .gantt-label-text
+		.label-highlight
+			color: $dvPrimaryColor
+	&.staff-row:nth-child(n+2)
+		border-top: 2px solid #bbb
+
+
+// ganttTask custom
+$ganttTaskBorder: 2px solid $dvPrimaryColor
+
+.gantt-task
+	&.active > .gantt-task-background
+		border: $ganttTaskBorder
+
+
+.gantt-task-content
+	.btn-task
+		cursor: pointer
+		opacity: 0
+
+	&:hover .btn-task
+		opacity: 0.5
+		&:hover
+			opacity: 1
+
+
+// task specific classes
+.task-priority-low
+	&.label
+		background-color: $taskPriorityLow
+		color: #333
+	&.btn
+		background-color: $taskPriorityLow
+		&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
+			background-color: $taskPriorityLow * 0.93
+	&.gantt-task > .gantt-task-background
+		background-color: $taskPriorityLow
+	&.gantt-task-overview
+		z-index: 9
+
+.task-priority-medium
+	&.label
+		background-color: $taskPriorityMedium
+		color: #333
+	&.btn
+		background-color: $taskPriorityMedium
+		&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
+			background-color: $taskPriorityMedium * 0.93
+	&.gantt-task > .gantt-task-background
+		background-color: $taskPriorityMedium
+	&.gantt-task-overview
+		z-index: 8
+
+.task-priority-high
+	&.label
+		background-color: $taskPriorityHigh
+	&.btn
+		background-color: $taskPriorityHigh
+		&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
+			background-color: $taskPriorityHigh * 0.93
+	&.gantt-task > .gantt-task-background
+		background-color: $taskPriorityHigh
+	&.gantt-task-overview
+		z-index: 7
+
+.task-status-done
+	&.gantt-task > .gantt-task-background
+		background-color: lighten($dvGreenColor, 20%)
+	&.gantt-task-overview
+		z-index: 6
 
 
 
-//.sideContainer
-//	flex: 1
-//	order: 1
-//	/*height: 100%;*/
-//	//left: 0;
-//	//right: 35px
-//	display: flex
-//	flex-direction: column
-//	/*height: 600px;*/
-//	/*padding: 0 20px;*/
-//	overflow: hidden
-//
-//
-//.sideContainer .sideHeader
-//	//background-color: red;
-//	flex: 0 0 auto
-//	width: 100%
-//	margin-bottom: 5px
-//	margin-left: 10px
-//
-//.sideContainer .sideHeader .closeAside
-//	position: relative
-//	right: -88%
-//
-//.sideContainer .sideContent
-//	flex: 1 1 auto
-//	width: 100%
-//	margin-left: 5px
-//	overflow-y: auto
-//	font-size: 8pt
-//
-//.sideContainer .sideContent .comments
-//	flex: 1 1 auto
-//	width: 100%
-//	margin-top: 10px
-//	margin-left: 0px
-//	overflow-y: auto
-//	font-size: 10pt
-//
-//.sideContainer .sideContent .desc
-//	margin: 5px
-//	font-size: 15px
-//
-//.sideContainer .sideFooter
-//	flex: 0 0 auto
-//	width: 100%
-//	padding-left: 5px
-//	padding-bottom: 20px
-
+// old stuff
 .fa-flag#colHead
 	opacity: 1
 
@@ -203,105 +226,6 @@
 	cursor: pointer
 	opacity: 1.0
 
-
-.fa-times#row
-	opacity: 0.5
-
-
-.fa-times#row:hover
-	cursor: pointer
-	opacity: 1.0
-
-
-.fa-times#close
-	opacity: 1
-
-
-.fa-comment-o
-	opacity: 0.5
-
-
-.fa-comment-o:hover
-	cursor: pointer
-	opacity: 1.0
-
-
-.fa-comments-o
-	opacity: 0.5
-
-
-.fa-comments-o:hover
-	cursor: pointer
-	opacity: 1.0
-
-
-.glyphicon-ok#colHead
-	opacity: 1
-
-.glyphicon-ok#colHead:hover
-	cursor: pointer
-
-
-.glyphicon-ok#row
-	opacity: 0.5
-
-
-.glyphicon-ok#row:hover
-	cursor: pointer
-	opacity: 1.0
-
-
-.glyphicon-trash#colHead
-	opacity: 1
-
-.glyphicon-trash#row
-	opacity: 0.5
-
-
-.glyphicon-trash#row:hover
-	cursor: pointer
-	opacity: 1.0
-
-
-.glyphicon-file
-	opacity: 0.5
-
-.glyphicon-file:hover
-	cursor: pointer
-	opacity: 1
-
-
-
-.odd
-	color: black
-
-.even
-	color: black
-
-.gantt-row-label .gantt-label-text
-	& > span
-		cursor: pointer
-		&:hover
-			color: $dvPrimaryColor
-		&.project
-			font-weight: bold
-
-	.row-btn
-		cursor: pointer
-		opacity: 0.5
-		&:hover
-			opacity: 1
-
-.gantt-task-content
-	.task-btn
-		cursor: pointer
-		opacity: 0
-
-	&:hover .task-btn
-		opacity: 0.5
-		&:hover
-			opacity: 1
-
 .screenshotItem
 	padding: 4px
 	margin-bottom: 20px
@@ -317,31 +241,3 @@
 .bufferModal
 	padding-top: 2px
 	margin-top: 10px
-
-.task-priority-low, .task-priority-low > .gantt-task-background
-	background-color: $taskPriorityLow
-	&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
-		background-color: $taskPriorityLow * 0.93
-.task-priority-medium, .task-priority-medium > .gantt-task-background
-	background-color: $taskPriorityMedium
-	&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
-		background-color: $taskPriorityMedium * 0.93
-.task-priority-high, .task-priority-high > .gantt-task-background
-	background-color: $taskPriorityHigh
-	&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
-		background-color: $taskPriorityHigh * 0.93
-
-//.odd
-//	/* padding-right: 2px;
-//	margin-bottom: 10px;
-//	border: 1px solid #ddd;
-//	border-radius: 4px; */
-///* background-color: rgba(252,78,42,0.05); */
-//
-//.even
-//	/* padding-left: 2px;
-//	margin-bottom: 10px;
-//	border: 1px solid #ddd;
-//	border-radius: 4px; */
-///* background-color: rgba(252,78,42,0.05); */
-
