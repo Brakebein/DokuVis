@@ -1,0 +1,505 @@
+﻿<!-- obere Hälfte -->
+<div class="explorerUpperHalf">
+
+<!-- linke Spalte -->
+<div class="viewportPanel">
+	
+	<!-- Kontrollleiste über Viewport -->
+	<!--<div class="viewportCtrls">
+		
+		<!-- Slice-Buttons --
+		<div class="ctrlGroup">
+			<button title="Toggle Slice" class="ctrlBtn" ng-class="(toggleSlice) ? 'active' : ''" ng-click="ctrlBtnClick('slice_toggle')" ><img src="img/icons/slice_toggle.png"/></button>
+			<button title="Slice Move" class="ctrlBtn" ng-class="(activeBtn == 'slice_move') ? 'active' : ''" ng-click="ctrlBtnClick('slice_move')" ng-disabled="!toggleSlice"><img src="img/icons/slice_move.png"/></button>
+			<button title="Slice Rotate" class="ctrlBtn" ng-class="(activeBtn == 'slice_rotate') ? 'active' : ''" ng-click="ctrlBtnClick('slice_rotate')" ng-disabled="!toggleSlice"><img src="img/icons/slice_rotate.png"/></button>
+			<button title="Slice Cut" class="ctrlBtn" ng-class="(toggleCut) ? 'active' : ''" ng-click="ctrlBtnClick('slice_cut')" ng-disabled="!toggleSlice"><img src="img/icons/slice_cut.png"/></button>
+		</div>
+		
+		<!-- Koordinaten-Inputs --
+		<div class="ctrlGroup form-inline">
+			<label>X</label> <input class="form-control input-sm" type="text" name="inputXCoord" ng-class="(coords.xError)?'error':''" ng-model="coords.x" ng-model-options="{updateOn:blur}" ng-blur="validateCoord('x', coords.x);" ng-disabled="!coords.enabled" ng-keyup="validateCoord('x', coords.x, $event);" ng-click="onEnterField($event);" />
+			<label>Y</label> <input class="form-control input-sm" type="text" name="inputYCoord" ng-class="(coords.yError)?'error':''" ng-model="coords.y" ng-model-options="{updateOn:blur}" ng-blur="validateCoord('y', coords.y);" ng-disabled="!coords.enabled" ng-keyup="validateCoord('y', coords.y, $event);" ng-click="onEnterField($event);" />
+			<label>Z</label> <input class="form-control input-sm" type="text" name="inputZCoord" ng-class="(coords.zError)?'error':''" ng-model="coords.z" ng-model-options="{updateOn:blur}" ng-blur="validateCoord('z', coords.z);" ng-disabled="!coords.enabled" ng-keyup="validateCoord('z', coords.z, $event);" ng-click="onEnterField($event);" />
+		</div>
+	</div>-->
+	
+	<!-- 3D-Viewport -->
+	<div id="webglViewport"
+		 webgl-view="main"
+		 nav-toolbar="['focus','move','shading','camera']"
+		 axis
+		 option-toolbar>
+		<!--ng-class="{cursor_orbit: navigation.rotate, cursor_pan: navigation.pan, cursor_zoom: navigation.zoom}"-->
+		<!--unsafe-settings="unsafeSettings"-->
+		<!--call-func="callDirFunc"-->
+		<!--gizmo-Coords="coords"-->
+		<!--navigation="navigation"-->
+		<!--screenshot-callback="receiveScreenshot">-->
+		
+		
+		
+	</div>
+</div>
+
+<!-- Seitenspalte -->
+<div class="explorer-side sidePanel">
+
+	<div class="sideNav sideNav-right">
+	
+		<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide === 'objlist'}" ng-click="views.activeSide = 'objlist'">
+			<span class="glyphicon glyphicon-list"></span>
+		</div>
+		<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide === 'comments'}" ng-click="views.activeSide = 'comments'">
+			<span class="glyphicon glyphicon-comment"></span>
+		</div>
+		<div title="Eigenschaften" class="smBtn" ng-class="{'active': views.activeSide === 'objproperties'}" ng-click="views.activeSide = 'objproperties'">
+			<span class="glyphicon glyphicon-list-alt"></span>
+		</div>
+		
+	</div>
+	
+	<!--Objekthierarchie-->
+	<div ng-show="views.activeSide === 'objlist'" class="sideContainer">
+		
+		<div class="sideHeader">
+			<h4>3D-Szene</h4>
+			<hr/>
+
+			<p ng-hide="wi.selected.length">Keine Objekte ausgewählt</p>
+			<p ng-show="wi.selected.length === 1">1 Objekt ausgewählt</p>
+			<p ng-show="wi.selected.length > 1">{{wi.selected.length}} Objekte ausgewählt</p>
+		</div>
+		
+		<div class="sideContent smallFont">
+				
+				<div class="listHeader">
+					<div class="listHeaderCaption">
+						<span>3D-Objekte</span>
+						<span><button class="btn btn-default btn-xs" ng-click="reloadModels()"><i class="glyphicon glyphicon-refresh"></i> Alle 3D-Objekte laden</button></span>
+						<div class="btn-group btn-group-xs">
+							<button class="btn" ng-class="listSettings == 'hierarchy' ? 'btn-primary' : 'btn-default'" ng-click="listSettings = 'hierarchy'">Hierarchie</button>
+							<button class="btn" ng-class="listSettings == 'layers' ? 'btn-primary' : 'btn-default'" ng-click="listSettings = 'layers'">Layer</button>
+						</div>
+					</div>
+					<div class="listHeaderCtrls">
+						<div class="ctrlGroup">
+							<span class="toggle glyphicon glyphicon-eye-open"></span>
+						</div>
+						<div class="ctrlGroup">
+							<div class="dvSlider-container dvSlider-slim">
+								Opacity
+								<input class="dvSlider dvSlider-dark" type="range" style="width:100px" min="0.1" max="1" step="0.1" ng-model="wi.listProperties.plans.opacity"/>
+								{{ wi.listProperties.plans.opacity | number: 1 }}
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div ng-if="listSettings=='hierarchy'" ng-repeat="data in wi.hierarchList | orderBy: 'name'" ng-init="depth=0" ng-include="'partials/tree_item_renderer.html'"></div>
+				
+				<div ng-if="listSettings=='layers'" ng-repeat="layer in wi.layers | orderBy: 'name'" ng-init="depth=0">
+					<div class="listItem">
+						<span class="glyphicon toggle" ng-class="layer.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="layer.toggle()"></span>
+						<div class="expand" ng-style="{'flex-basis': (depth*20+15)+'px'}" ng-click="layer.expand = !layer.expand;"><span ng-class="layer.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus'" ></span></div>
+						<span class="info" ng-click="layer.select($event)">{{layer.name}}</span>
+						<div class="opacity" ramp-slider ng-model="layer.opacity" ng-change="layer.setOpacity(layer.opacity)" rs-color="#ddd" rs-color-end="#bbb"></div>
+						<span class="glyphicon glyphicon-search" title="Fokusieren" ng-click="layer.focus()"></span>
+					</div>
+					<div ng-show="layer.expand" class="listChildren">
+						<div ng-repeat="data in wi.layerList | filter: {layer: layer.name} | orderBy: 'name'" ng-init="depth=1">
+							<div class="listItem">
+								<span class="glyphicon toggle" ng-class="data.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="data.toggle()"></span>
+								<div class="expand"></div>
+								<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
+								<div class="opacity" ramp-slider ng-model="data.opacity" ng-change="data.setOpacity(data.opacity)" rs-color="#ddd" rs-color-end="#bbb"></div>
+								<span class="glyphicon glyphicon-search" title="Fokusieren" ng-click="data.focus()"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="listHeader">
+					<div class="listHeaderCaption">
+						<span>Pläne</span>
+						<span><button class="btn btn-default btn-xs" ng-click="loadAll3DPlans()"><i class="glyphicon glyphicon-refresh"></i> Alle Pläne laden</button></span>
+						<span><button class="btn btn-default btn-xs" ng-click="wi.callFunc.explodePlans()">Explode</button></span>
+						<span><button class="btn btn-default btn-xs" ng-click="wi.callFunc.resetPlans()">Reset</button></span>
+					</div>
+					<div class="listHeaderCtrls">
+						<div class="ctrlGroup">
+							<span class="toggle glyphicon" ng-class="{'glyphicon-eye-open': wi.plans.visible, 'glyphicon-eye-close': !wi.plans.visible}" ng-click="wi.plans.toggle()"></span>
+						</div>
+						<div class="ctrlGroup">
+							<div class="dvSlider-container dvSlider-slim">
+								Opacity
+								<input class="dvSlider dvSlider-dark" type="range" style="width:100px" min="0.1" max="1" step="0.1" ng-model="wi.plans.opacity" ng-change="wi.plans.setOpacity()"/>
+								{{ wi.plans.opacity | number: 1 }}
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="data in wi.plans.asArray() | orderBy: 'title'">
+					<span class="glyphicon toggle" ng-class="data.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'" ng-click="data.toggle()"></span>
+					<div class="expand"></div>
+					<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
+					<div class="opacity" ramp-slider ng-model="data.opacity" ng-change="data.setOpacity()" rs-color="#ddd" rs-color-end="#bbb"></div>
+					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="data.setOrthoView()"></span>
+					
+				</div>
+
+				<!-- spatialImages -->
+				<div class="listHeader">
+					<div class="listHeaderCaption">
+						<span>Verortete Bilder</span>
+						<span><button class="btn btn-default btn-xs" ng-click="loadAllImages()"><i class="glyphicon glyphicon-refresh"></i> Alle Bilder laden</button></span>
+					</div>
+					<div class="listHeaderCtrls">
+						<div class="ctrlGroup">
+							<span class="toggle glyphicon" ng-class="{'glyphicon-eye-open': wi.spatialImages.visible, 'glyphicon-eye-close': !wi.spatialImages.visible}" ng-click="wi.spatialImages.toggle()"></span>
+						</div>
+						<div class="ctrlGroup">
+							<div class="dvSlider-container dvSlider-slim">
+								Size
+								<input class="dvSlider dvSlider-dark" type="range" style="width:100px" min="-10" max="10" step="0.5" ng-model="wi.spatialImages.scale" ng-change="wi.spatialImages.setScale()"/>
+								{{ wi.spatialImages.scale | number: 1 }}
+							</div>
+						</div>
+						<div class="ctrlGroup">
+							<div class="dvSlider-container dvSlider-slim">
+								Opacity
+								<input class="dvSlider dvSlider-dark" type="range" style="width:100px" min="0.1" max="1" step="0.1" ng-model="wi.spatialImages.opacity" ng-change="wi.spatialImages.setOpacity()"/>
+								{{ wi.spatialImages.opacity | number: 1 }}
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="listItem" id="list{{data.id}}" ng-class="{selected: data.selected}" ng-repeat="data in wi.spatialImages.asArray() | orderBy: 'title'">
+					<span class="glyphicon toggle" ng-class="{'glyphicon-eye-open': data.visible, 'glyphicon-eye-close': !data.visible}" ng-click="data.toggle()"></span>
+					<div class="expand"></div>
+					<span class="info" ng-click="data.select($event)">{{data.title}} ({{data.id}})</span>
+					<div class="opacity" ramp-slider ng-model="data.opacity" ng-change="data.setOpacity()" rs-color="#ddd" rs-color-end="#bbb"></div>
+					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="wi.callFunc['main'].setImageView(data.object)"></span>
+					<span class="fa fa-camera" title="Update spatial" ng-click="spatializeImage(data.source, 'DLT')"></span>
+				</div>
+
+		</div>
+		
+		<div class="sideFooter">
+			
+		</div>
+		
+	</div>
+
+	<!-- Screenshots und Kommentare -->
+	<div ng-show="views.activeSide === 'comments' && !wi.snapshot.active" class="sideContainer">
+		
+		<div class="sideHeader">
+			<h4>Screenshots & Kommentare</h4>
+			<hr/>
+			
+			<div class="dropArea screenshot" ng-click="wi.callFunc.openSnapshot()">
+				<i class="plus fa fa-plus"></i> <div>Snapshot erstellen</div>
+				<!--<div class="plus" ng-include="'img/plus-sign.svg'"></div> <div>Screenshot erstellen</div>-->
+			</div>
+			
+			<!--<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="screenshotPins.isVisible" ng-change="togglePins()"/> Pins anzeigen
+				</label>
+			</div>-->
+			
+		</div>
+		
+		<div class="sideContent smallFont">
+		
+		
+			<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s)" ng-mouseenter="!screenshotPins.isVisible && s.pin.matrix && addPin(s.id,s.pin, $event)" ng-mouseleave="!screenshotPins.isVisible && removePin(s.id)">
+				<div class="media-left pull-left">
+					<img class="media-object" ng-src="{{'data/' + s.path + '_thumbs/t_' + s.file}}"/>
+				</div>
+				<div class="media-body">
+					<h4 class="media-heading">{{s.title}}</h4>
+					<ol>
+						<li ng-repeat="m in s.markers">{{m.comment | characters:90:false }}</li>
+					</ol>
+					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="wi.callFunc.setScreenshotView(s.camera);$event.stopPropagation()"></span>
+				</div>
+			</div>
+
+			<div class="media" ng-repeat="c in comments | orderBy: 'date':true" ng-switch="c.type">
+
+				<div class="media screenshotItem" ng-switch-when="commentModel" ng-mouseenter="!screenshotPins.isVisible && c.pins.length && addPin(c.eid,c.pins[0], $event)" ng-mouseleave="!screenshotPins.isVisible && removePin(c.eid)">
+					<div ng-class="c.type" title="Modellkommentar"></div>
+
+					<div class="media-left pull-left">
+						<img class="media-object" ng-src="{{'data/' + c.screenshots[0].path + '_thumbs/t_' + c.screenshots[0].file}}"/>
+					</div>
+
+					<div class="media-body">
+						<h4 class="media-heading">{{c.title}}</h4>
+						<p>{{c.text}}</p>
+						<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="wi.callFunc.setScreenshotView(c.screenshots[0]);$event.stopPropagation()"></span>
+
+						<div class="media-footer">
+							<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answerLength}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+							{{c.author.name}} - {{c.date | amCalendar}}
+						</div>
+
+					</div>
+
+				</div>
+
+				<div class="media screenshotItem" ng-switch-when="commentSource" ui-sref="project.explorer.source.id({ sourceId: c.targets[0].eid })">
+					<div ng-class="c.type" title="Quellenkommentar"></div>
+
+					<div class="media-left pull-left">
+						<img class="media-object" ng-src="{{'data/' + c.targets[0].file.path + c.targets[0].file.thumb}}"/>
+					</div>
+
+					<div class="media-body">
+						<h4 class="media-heading">{{c.targets[0].title}}</h4>
+						<p>{{c.text}}</p>
+
+						<div class="media-footer">
+							<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answerLength}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+							{{c.author.name}} - {{c.date | amCalendar}}
+						</div>
+
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+
+		<div class="sideFooter">
+			<!--<button class="btn btn-default" ng-click="makeScreenshot()">Screenshot erstellen</button>-->
+		</div>
+		
+	</div>
+
+	<div class="sideContainer" ng-show="views.activeSide === 'comments' && wi.snapshot.active">
+
+		<div class="sideHeader">
+			<h4>Neuer Modellkommentar</h4>
+			<hr/>
+		</div>
+
+		<div class="sideContent">
+			<div class="form-horizontal">
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Titel</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" ng-model="wi.snapshot.title" />
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-12">
+						<textarea class="form-control" rows="6" ng-model="wi.snapshot.text"></textarea>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<div class="form-group">
+					<label>Gepinnte Objekte</label>
+					<div>
+						<span class="tag-item" ng-repeat="ro in wi.snapshot.refObj">
+						{{ ro.name }} <a class="remove-button" ng-click="wi.snapshot.refObj.splice($index, 1)">×</a>
+						</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>Referenzierte Quellen</label>
+					<div>
+						<div class="src-item" ng-repeat="rs in wi.snapshot.refSrc">
+							<img ng-src="data/{{rs.file.path}}_thumbs/{{rs.file.thumb}}" ng-attr-title="{{rs.title}}"/>
+							<a class="remove-button" ng-click="wi.snapshot.refSrc.splice($index, 1)">×</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="sideFooter">
+			<button class="btn btn-primary" ng-click="wi.callFunc.saveSnapshot()">Kommentar erstellen</button>
+			<button class="btn btn-default" ng-click="wi.callFunc.abortSnapshot()">Verwerfen</button>
+		</div>
+
+	</div>
+	
+	<!-- Objekteigenschaften -->
+	<div ng-show="views.activeSide === 'objproperties'" class="sideContainer" ng-include="'partials/sideObjectProperties.html'"></div>
+	
+
+</div>
+
+<div class="resizer-v" resizer="vertical" resizer-left=".viewportPanel" resizer-left-min="780" resizer-right=".sidePanel" resizer-right-min="380" resizer-end="wi.callFunc.resize"></div>
+
+</div>
+
+<!-- horizontaler Handler --
+<div class="gridHandle-h"></div>
+
+<!-- untere Hälfte -->
+<div class="explorerLowerHalf">
+
+<!-- linke Spalte -->
+<div class="sourcesPanel">
+	
+	<div class="sourcesColumnTop">
+		<!-- Anzeigeoptionen und Suche -->
+		<div class="sourcesCtrls">
+			<div class="ctrlGroup resGroup">
+				<a title="Große Kacheln" class="iconBtn" ng-class="(sourcesSettings.listSize == 'large') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'large'"><span class="glyphicon glyphicon-th-large"></span></a>
+				<a title="Kleine Kacheln" class="iconBtn" ng-class="(sourcesSettings.listSize == 'normal') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'normal'"><span class="glyphicon glyphicon-th"></span></a>
+				<a title="Liste" class="iconBtn" ng-class="(sourcesSettings.listSize == 'list') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'list'"><span class="glyphicon glyphicon-th-list"></span></a>
+			</div>
+			<div class="ctrlGroup resGroup">
+				<a title="Aufsteigend sortieren" class="iconBtn" ng-class="(!sourcesSettings.reverse) ? 'active' : ''" ng-click="sourcesSettings.reverse = false"><span class="glyphicon glyphicon-sort-by-attributes"></span></a>
+				<a title="Absteigend sortieren" class="iconBtn" ng-class="(sourcesSettings.reverse) ? 'active' : ''" ng-click="sourcesSettings.reverse = true"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span></a>
+			</div>
+			<div class="ctrlGroup resGroup form-inline">
+				<span>Sortieren nach</span>
+				<select class="form-control input-sm" ng-model="sourcesSettings.orderBy">
+					<option value="title">Titel</option>
+					<option value="date">Jahr</option>
+					<option value="author">Autor</option>
+				</select>
+			</div>
+			<div class="ctrlGroup resGroup form-inline">
+				<input ng-model="sourcesSettings.filterBy" type="search" placeholder="Suche"/>
+			</div>
+			<!-- <div class="ctrlGroup resGroup">
+				<div class="dropdown">
+					<button class="btn btn-xs btn-default dropdown-toggle" type="button" id="dropdownSources" data-toggle="dropdown">
+						Quelle einfügen
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownSources">
+						<li role="presentation" class="dropdown-header">Harte Quellen</li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Ausgrabung</a></li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Literatur</a></li>
+						<li role="representation"><a role="menuitem" class="pointer" tabindex="-1" ng-click="openInsertForm('plan')">Pläne</a></li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Vermessungen</a></li>
+						<li role="presentation" class="divider"></li>
+						<li role="presentation" class="dropdown-header">Weiche Quellen</li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Vergleichsbauten</a></li>
+						<li role="representation"><a role="menuitem" class="pointer" tabindex="-1" ng-click="openInsertForm('picture')">Bilder</a></li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Skizzen</a></li>
+						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Internet</a></li>
+					</ul>
+				</div>
+			</div> -->
+		</div>
+		
+		<!-- Tabs der einzelnen Quellenarten -->
+		<ul class="tabs" role="tablist">
+			<li ng-class="(sourcesSettings.activeTab == '') ? 'active' : ''" ng-click="sourcesSettings.activeTab = ''"><a>Alle</a></li>
+			<li ng-class="(sourcesSettings.activeTab == 'plan') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'plan'"><a>Pläne</a></li>
+			<li ng-class="(sourcesSettings.activeTab == 'picture') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'picture'"><a>Bilder</a></li>
+			<li ng-class="(sourcesSettings.activeTab == 'text') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'text'"><a>Texte</a></li>
+		</ul>
+	</div>
+	
+	<div class="sourcesColumnContent">
+		
+		
+		<div class="blindSource">
+			<div class="resultItem">
+				<div class="thumbnail">
+					<div class="dropArea" uploader="sourcesUploader" nv-file-drop="" nv-file-over="" ng-click="openInsertForm('source')">
+						<div>Quellen einfügen</div>
+						<div class="plus" ng-include="'img/plus-sign.svg'"></div>
+						<div>Klicken oder hier ablegen</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="sources" horizontal-scroll>
+			<div class="resultItem" ng-repeat="p in sourceResults | filter: {type: sourcesSettings.activeTab} | filter: sourcesSettings.filterBy | filter: filterSelected | orderBy: [sourcesSettings.orderBy,'title']:sourcesSettings.reverse as filteredSourceResults" ng-click="selectResultItem($event, p)">
+				<div class="thumbnail" ng-class="(p.selected) ? 'selected' : ''" title="{{p.title}}" ng-dblclick="openSourceDetail($index)">
+					<img ng-src="data/{{p.file.path+p.file.thumb}}"/>
+					<div class="caption">
+						<span>{{ p.title | characters:23:true }}</span>
+						<p>{{p.author || 'unbekannt'}} &ensp; {{p.date}}</p>
+					</div>
+					
+					<div class="primaryIndicator" ng-show="p.primary"></div>
+					<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>
+					
+					<div class="btnBar">
+						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid, selection: filteredSourceResults })"><span class="glyphicon glyphicon-zoom-in"></span></a>
+						<!--<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>-->
+						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="load3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
+						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
+						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><span class="fa fa-link"></span></a>
+						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><span class="fa fa-lightbulb-o"></span></a>
+						<a ng-if="p.type == 'picture' && p.spatial" title="Bild in 3D anzeigen" ng-click="loadImage(p)"><span class="glyphicon glyphicon-object-align-left"></span></a>
+						<a ng-if="p.type == 'picture' && !p.spatial" title="Bild verorten" ng-click="spatializeImage(p)"><span class="glyphicon glyphicon-camera"></span></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<!-- rechte Spalte (Vorschaufenster -->
+<div class="previewPanel">
+	
+	<img src="img/navigation_legend200.png"/>
+	
+	<div class="debugBtns">
+		<button ng-click="loadModelsWithChildren()">load MWC</button>
+		<button ng-click="openInsertForm('model')">upload model</button>
+		<button ng-click="openIndexEdit()">index modal</button>
+		
+		<button ng-click="resizerValue = 800">resizerAnim</button>
+
+		<button ng-click="logModels()">log models</button>
+
+		<button ui-sref="project.explorer.spatialize">spatialModal</button>
+	</div>
+	
+	
+	<!--
+	<button ng-click="callDirFunc.saveSelected(); clickdebug();">Save selection</button>
+	-->
+	<!-- <p>Ansicht drehen: Alt + linke Maustaste<br/>
+	Ansicht verschieben: mittlere Maustaste<br/>
+	Zoomen: Mausrad
+	</p> -->
+	
+
+
+	<!--<p>
+	<button disabled ng-click="insertObjects()">insert Objects</button>
+	<button disabled ng-click="insertPlans()">insert Plans</button>
+	<button disabled ng-click="connectObjPlan()">connect Obj Plan</button>
+	</p>-->
+	<p>
+	<!--<button ng-click="loadModelsWithChildren()">Load ModelsWChildren</button>-->
+	</p>
+	
+
+	
+</div>
+
+<div class="resizer-v" resizer="vertical" resizer-left=".sourcesPanel" resizer-left-min="780" resizer-right=".previewPanel" resizer-right-min="280" resizer-anim="resizerValue"></div>
+
+</div>
+
+<div class="resizer-h" resizer="horizontal" resizer-top=".explorerUpperHalf" resizer-top-min="400" resizer-bottom=".explorerLowerHalf" resizer-bottom-min="234" resizer-end="wi.callFunc.resize"></div>
+
+<svg id="svgViz" class="svgViz">
+	<line ng-show="line" ng-attr-x1="{{line.x1}}" ng-attr-y1="{{line.y1}}" ng-attr-x2="{{line.x2}}" ng-attr-y2="{{line.y2}}" />
+	<path ng-show="path" ng-attr-d="{{path}}"/>
+</svg>
+
+<!-- alert -->
+<div ng-if="alert.showing" alert="alert" class="alert alert-warning" role="alert"></div>

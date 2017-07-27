@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html data-ng-app="dokuvisApp" lang="de">
+<head>
+	<title>MurEx</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8"/>
+
+	<!-- stylesheets -->
+
+	<!-- bower:css -->
+	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="bower_components/jquery-minicolors/jquery.minicolors.css" />
+	<link rel="stylesheet" href="bower_components/bootstrap-additions/dist/bootstrap-additions.css" />
+	<link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
+	<link rel="stylesheet" href="bower_components/textAngular/dist/textAngular.css" />
+	<link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt.css" />
+	<link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt-plugins.css" />
+	<link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.css" />
+	<link rel="stylesheet" href="bower_components/angular-motion/dist/angular-motion.css" />
+	<link rel="stylesheet" href="bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css" />
+	<!-- endbower -->
+
+	<!--<link href="style/bootstrap-submenu.css" rel="stylesheet">-->
+	<link href="style/angular-slider.css" rel="stylesheet">
+	<link href="style/ng-tags-input.min.css" rel="stylesheet">
+	
+	
+	<link href="app/directives/webglView/webglView.css" rel="stylesheet">
+	<link href="app/directives/legend/legend.css" rel="stylesheet">
+	<link href="app/directives/graphSearch/graphSearch.css" rel="stylesheet">
+	<link href="app/directives/commentSection/commentSection.css" rel="stylesheet">
+
+	<link href="style/general.css" rel="stylesheet">
+	<!--<link href="style/explorer.css" rel="stylesheet">
+	<link href="style/panelContainer.css" rel="stylesheet">-->
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+	  <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+	<![endif]-->
+
+
+  </head>
+
+<body>		
+		
+
+	<!-- Placeholder for the Views -->
+	<div class="mainView" ui-view></div>
+
+	<!-- Javascript files -->
+
+	<!-- build:js lib.js -->
+	<!-- bower:js -->
+	<script src="bower_components/d3/d3.js"></script>
+	<script src="bower_components/jquery/dist/jquery.js"></script>
+	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="bower_components/tween.js/src/Tween.js"></script>
+	<script src="bower_components/angular/angular.js"></script>
+	<script src="bower_components/angular-strap/dist/angular-strap.js"></script>
+	<script src="bower_components/angular-strap/dist/angular-strap.tpl.js"></script>
+	<script src="bower_components/moment/min/moment-with-locales.min.js"></script>
+	<script src="bower_components/jquery-minicolors/jquery.minicolors.js"></script>
+	<script src="bower_components/angular-minicolors/angular-minicolors.js"></script>
+	<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+	<script src="bower_components/ui-router-extras/release/ct-ui-router-extras.js"></script>
+	<script src="bower_components/angular-animate/angular-animate.js"></script>
+	<script src="bower_components/angular-canvas-painter/dist/angular-canvas-painter.js"></script>
+	<script src="bower_components/angular-moment/angular-moment.js"></script>
+	<script src="bower_components/ng-tags-input/ng-tags-input.js"></script>
+	<script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
+	<script src="bower_components/angular-truncate/src/truncate.js"></script>
+	<script src="bower_components/rangy/rangy-core.js"></script>
+	<script src="bower_components/rangy/rangy-classapplier.js"></script>
+	<script src="bower_components/rangy/rangy-highlighter.js"></script>
+	<script src="bower_components/rangy/rangy-selectionsaverestore.js"></script>
+	<script src="bower_components/rangy/rangy-serializer.js"></script>
+	<script src="bower_components/rangy/rangy-textrange.js"></script>
+	<script src="bower_components/textAngular/dist/textAngular.js"></script>
+	<script src="bower_components/textAngular/dist/textAngular-sanitize.js"></script>
+	<script src="bower_components/textAngular/dist/textAngularSetup.js"></script>
+	<script src="bower_components/angular-ui-router-css/angular-ui-router-css.js"></script>
+	<script src="bower_components/angular-file-upload/dist/angular-file-upload.min.js"></script>
+	<script src="bower_components/angular-acl/angular-acl.js"></script>
+	<script src="bower_components/angular-resource/angular-resource.js"></script>
+	<script src="bower_components/angular-translate/angular-translate.js"></script>
+	<script src="bower_components/angular-translate-loader-partial/angular-translate-loader-partial.js"></script>
+	<script src="bower_components/angular-gantt/assets/angular-gantt.js"></script>
+	<script src="bower_components/angular-gantt/assets/angular-gantt-plugins.js"></script>
+	<script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+	<script src="bower_components/jquery-mousewheel/jquery.mousewheel.js"></script>
+	<script src="bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.js"></script>
+	<script src="bower_components/ng-scrollbars/dist/scrollbars.min.js"></script>
+	<script src="bower_components/jszip/dist/jszip.js"></script>
+	<script src="bower_components/jszip-utils/dist/jszip-utils.js"></script>
+	<!-- endbower -->
+	<!-- endbuild -->
+
+	<script type="text/javascript" src="lib/ng-debounce-throttle.js"></script>
+
+	<!--<script type="text/javascript" src="lib/angular/scalyr.js"></script>-->
+	<script type="text/javascript" src="lib/angular/angular-slider.js"></script>
+
+	<!-- three.js -->
+	<!-- build:js webgl.js -->
+	<script type="text/javascript" src="lib/threejs/three-r84.min.js"></script>
+	<script type="text/javascript" src="lib/threejs/Projector.js"></script>
+	<script type="text/javascript" src="lib/threejs/CanvasRenderer.js"></script>
+	<script type="text/javascript" src="lib/threejs/OrbitControls.js"></script>
+	<script type="text/javascript" src="lib/threejs/CombinedCamera.js"></script>
+	<!--<script type="text/javascript" src="lib/threejs/OBJMTLLoader.js"></script>-->
+	<!--<script type="text/javascript" src="lib/threejs/MTLLoader.js"></script>-->
+	<script type="text/javascript" src="lib/threejs/OBJExporter.js"></script>
+	<script type="text/javascript" src="lib/threejs/ctm/lzma.js"></script>
+	<script type="text/javascript" src="lib/threejs/ctm/ctm.js"></script>
+	<script type="text/javascript" src="lib/threejs/ctm/CTMLoader.js"></script>
+	<script type="text/javascript" src="lib/threejs/RenderPass.js"></script>
+	<script type="text/javascript" src="lib/threejs/ShaderPass.js"></script>
+	<script type="text/javascript" src="lib/threejs/MaskPass.js"></script>
+	<script type="text/javascript" src="lib/threejs/CopyShader.js"></script>
+	<script type="text/javascript" src="lib/threejs/SSAOShader.js"></script>
+	<script type="text/javascript" src="lib/threejs/FXAAShader.js"></script>
+	<script type="text/javascript" src="lib/threejs/EdgeShader2.js"></script>
+	<script type="text/javascript" src="lib/threejs/XRayShader.js"></script>
+	<script type="text/javascript" src="lib/threejs/EffectComposer.js"></script>
+	<script type="text/javascript" src="lib/threejs/DepthPassPlugin.js"></script>
+	<script type="text/javascript" src="lib/threejs/stats.min.js"></script>
+
+	<script type="text/javascript" src="lib/dv3d/dv3d.js"></script>
+	<script type="text/javascript" src="lib/dv3d/Gizmo.js"></script>
+	<script type="text/javascript" src="lib/dv3d/Measure.js"></script>
+	<script type="text/javascript" src="lib/dv3d/Pin.js"></script>
+	<script type="text/javascript" src="lib/dv3d/Plan.js"></script>
+	<script type="text/javascript" src="lib/dv3d/ImagePane.js"></script>
+	<script type="text/javascript" src="lib/dv3d/Collection.js"></script>
+	<script type="text/javascript" src="lib/dv3d/Entry.js"></script>
+	<script type="text/javascript" src="lib/dv3d/SphereMarker.js"></script>
+	<script type="text/javascript" src="lib/dv3d/TorusMarker.js"></script>
+	<!-- endbuild -->
+
+	<!-- build:js app.js -->
+	<script type="text/javascript" src="app/app.js"></script>
+	<script type="text/javascript" src="app/auth.factory.js"></script>
+	<script type="text/javascript" src="app/resolve.factory.js"></script>
+	<script type="text/javascript" src="app/services.js"></script>
+	<script type="text/javascript" src="app/directives.js"></script>
+	<script type="text/javascript" src="app/filters.js"></script>
+	
+	<script type="text/javascript" src="app/animations.js"></script>
+	
+	<!-- services -->
+	<script type="text/javascript" src="app/services/Utilities.js"></script>
+	<script type="text/javascript" src="app/services/webglContext.js"></script>
+	<script type="text/javascript" src="app/services/webglInterface.js"></script>
+	<script type="text/javascript" src="app/services/CidocDict.js"></script>
+	<script type="text/javascript" src="app/services/Project.js"></script>
+	<script type="text/javascript" src="app/services/Subproject.js"></script>
+	<script type="text/javascript" src="app/services/ProjInfo.js"></script>
+	<script type="text/javascript" src="app/services/Model.js"></script>
+	<script type="text/javascript" src="app/services/Category.js"></script>
+	<script type="text/javascript" src="app/services/CategoryAttribute.js"></script>
+	<script type="text/javascript" src="app/services/Person.js"></script>
+	<script type="text/javascript" src="app/services/Source.js"></script>
+	<script type="text/javascript" src="app/services/Comment.js"></script>
+	<script type="text/javascript" src="app/services/Archive.js"></script>
+	<script type="text/javascript" src="app/services/Staff.js"></script>
+	<script type="text/javascript" src="app/services/GraphVis.js"></script>
+	<script type="text/javascript" src="app/services/Uploader.js"></script>
+	<script type="text/javascript" src="app/services/ConfirmService.js"></script>
+	<script type="text/javascript" src="app/services/TypeaheadRequest.js"></script>
+	<script type="text/javascript" src="app/services/SpatializeInterface.js"></script>
+	<script type="text/javascript" src="app/services/Task.js"></script>
+
+	<!-- directives -->
+	<script type="text/javascript" src="app/directives/webglView/webglView.js"></script>
+	<script type="text/javascript" src="app/directives/legend/legend.js"></script>
+	<script type="text/javascript" src="app/directives/graphSearch/graphSearch.js"></script>
+	<script type="text/javascript" src="app/directives/ngThumb.js"></script>
+	<script type="text/javascript" src="app/directives/rampSlider.js"></script>
+	<script type="text/javascript" src="app/directives/imageViewer/imageViewer.js"></script>
+	<script type="text/javascript" src="app/directives/commentSection/commentSection.js"></script>
+
+	<!-- controllers -->
+	<script type="text/javascript" src="app/controllers/homeCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/navCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/registerCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/projectlistCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/projectCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/projHomeCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/explorerCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/sourceDetailCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/uploadCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/categoryEditModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/screenshotCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/newArchiveModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/indexEditCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/tasksCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/configCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/resourcesCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/projectModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/newSubprojectModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/newProjInfoModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/staffModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/modelModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/spatializeModalCtrl.js"></script>
+	<script type="text/javascript" src="app/controllers/taskModalCtrl.js"></script>
+	<!-- endbuild -->
+
+</body>
+</html>

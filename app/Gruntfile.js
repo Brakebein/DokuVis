@@ -40,18 +40,18 @@ module.exports = function (grunt) {
 			ng: {
 				src: ['app/*', 'app/directives/webglView/webglView.js'],
 				options: {
-					destination: 'docs/docs',
+					destination: '../docs/docs',
 					configure: 'node_modules/angular-jsdoc/common/conf.json',
-					template: 'docs/docs/angular-template-custom',
-					tutorials: 'docs/docs/tutorials',
-					readme: 'docs/docs/README.md',
+					template: '../docs/docs/angular-template-custom',
+					tutorials: '../docs/docs/tutorials',
+					readme: '../docs/docs/README.md',
 					private: true
 				}
 			},
 			dv3d: {
 				src: ['lib/dv3d/*.js'],
 				options: {
-					destination: 'docs/docs2',
+					destination: '../docs/docs2',
 					configure: 'node_modules/jsdoc-baseline/baseline-config.json',
 					template: 'node_modules/jsdoc-baseline',
 					private: true
@@ -69,10 +69,10 @@ module.exports = function (grunt) {
 			api: {
 				title: 'DokuVis Docs',
 				expand: false,
-				dest: 'docs/docs3/',
+				dest: '../docs/docs3/',
 				src: [
 					'app/**/*.js',
-					'docs/docs3/content/api/*.ngdoc'
+					'../docs/docs3/content/api/*.ngdoc'
 				]
 			}
 		}
