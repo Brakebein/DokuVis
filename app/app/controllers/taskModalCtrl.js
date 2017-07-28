@@ -11,20 +11,23 @@
  * @requires https://github.com/urish/angular-moment moment
  * @requires Staff
  * @requires Task
+ * @requires ConfirmService
  * @requires Utilities
  */
-angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'moment', 'Staff', 'Task', 'Utilities',
-	function ($scope, $state, $stateParams, $timeout, moment, Staff, Task, Utilities) {
+angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'moment', 'Staff', 'Task', 'ConfirmService', 'Utilities',
+	function ($scope, $state, $stateParams, $timeout, moment, Staff, Task, ConfirmService, Utilities) {
 
 		var parent = null;
 		var task = null;
 
 		if ($stateParams.taskId === 'new') {
 			$scope.title = 'Neue Aufgabe';
+			$scope.newTask = true;
 			setEmptyTask();
 		}
 		else {
 			$scope.title = 'Aufgabe bearbeiten';
+			$scope.newTask = false;
 			getTask();
 		}
 
@@ -143,6 +146,25 @@ angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$
 			}
 		};
 
+		$scope.delete = function () {
+
+			ConfirmService({
+				headerText: 'Aufgabe löschen',
+				bodyText: 'Soll die Aufgabe <b>' + task.title + '</b> wirklich gelöscht werden? <br/> \
+					Alle Unteraufgaben gehen an die Oberaufgabe.'
+			}).then(function () {
+				task.$delete()
+					.then(function (result) {
+						console.log(result);
+						tasksUpdate();
+						$scope.close();
+					})
+					.catch(function (reason) {
+						Utilities.throwApiException('#Task.delete', reason);
+					});
+			});
+		};
+
 		/**
 		 * Search for users, which contain given query string in their names.
 		 * @ngdoc method
@@ -187,7 +209,7 @@ angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$
 		 * @ngdoc event
 		 * @name taskModalCtrl#tasksUpdate
 		 * @eventType broadcast on $rootScope
-		 * @param {Task} task New or updated task.
+		 * @param {Task=} task New or updated task.
 		 */
 		function tasksUpdate(task) {
 			$scope.$root.$broadcast('tasksUpdate', task);
