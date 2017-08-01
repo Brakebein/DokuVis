@@ -10,4 +10,5 @@
 /rest-api/node_modules
 /rest-api/logs/
 /rest-api/config.js
-server-setup.md
+/rest-api/npm-debug.log
+/virtual-servers.md

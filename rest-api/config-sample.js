@@ -10,7 +10,10 @@ module.exports = {
 	neo4j: {
 		uriCypher: 'http://127.0.0.1:7474/db/data/cypher',
 		uriTransaction: 'http://127.0.0.1:7474/db/data/transaction/commit',
-		auth: 'Basic bmVvNGo6Y2F2YWxlcmE='
+		uriBolt: 'bolt://127.0.0.1:7687',
+		auth: 'Basic bmVvNGo6Y2F2YWxlcmE=',
+		user: 'neo4j',
+		password: 'cavalera'
 	},
 	
 	secret: function() {
