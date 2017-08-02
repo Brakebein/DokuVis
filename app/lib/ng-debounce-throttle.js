@@ -2,7 +2,7 @@
 
 	'use strict';
 
-	function $debounce($timeout) {
+	function $debounce($rootScope, $timeout) {
 
 		return function (callback, delay, leading, invokeApply) {
 
@@ -10,8 +10,10 @@
 
 			var later = function () {
 				timeout = null;
-				if (leading === false)
+				if (leading === false) {
+					if (invokeApply !== false) $rootScope.$applyAsync();
 					result = callback.apply(context, args);
+				}
 			};
 
 			function debounce() {
@@ -24,10 +26,12 @@
 				if (timeout)
 					$timeout.cancel(timeout);
 
-				timeout = $timeout(later, delay, invokeApply !== false);
+				timeout = $timeout(later, delay, false);
 
-				if (callNow)
+				if (callNow) {
+					if (invokeApply !== false) $rootScope.$applyAsync();
 					result = callback.apply(context, args);
+				}
 
 				return result;
 			}
@@ -41,7 +45,7 @@
 		};
 	}
 
-	function $throttle($timeout) {
+	function $throttle($rootScope, $timeout) {
 
 		return function (callback, delay, leading, trailing, invokeApply) {
 
@@ -51,7 +55,10 @@
 			var later = function () {
 				previous = leading === false ? 0 : (new Date().getTime());
 				timeout = null;
+
+				if (invokeApply === true) $rootScope.$applyAsync();
 				result = callback.apply(context, args);
+
 				if (!timeout)
 					context = args = null;
 			};
@@ -74,12 +81,15 @@
 						timeout = null;
 					}
 					previous = now;
+
+					if (invokeApply === true) $rootScope.$applyAsync();
 					result = callback.apply(context, args);
+
 					if (!timeout)
 						context = args = null;
 				}
 				else if (!timeout && trailing !== false) {
-					timeout = $timeout(later, remaining, invokeApply === true);
+					timeout = $timeout(later, remaining, false);
 				}
 
 				return result;
@@ -96,7 +106,7 @@
 	}
 
 	angular.module('ngDebounceThrottle', [])
-		.factory('$debounce', ['$timeout', $debounce])
-		.factory('$throttle', ['$timeout', $throttle]);
+		.factory('$debounce', ['$rootScope', '$timeout', $debounce])
+		.factory('$throttle', ['$rootScope', '$timeout', $throttle]);
 
 })();

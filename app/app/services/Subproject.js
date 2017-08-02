@@ -1,5 +1,5 @@
 /**
- * $http methods for subproject related tasks
+ * $resource for subprojects to interact with RESTful server-side data sources.
  * @ngdoc factory
  * @name Subproject
  * @module dokuvisApp
@@ -20,11 +20,13 @@ angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateP
 			/**
 			 * Get subproject by id.
 			 * ```
-			 * Subproject.save({ id: <id> }).$promise.then(...);
+			 * Subproject.save({ id: <id> }).$promise
+			 *   .then(function (subproject) {...});
 			 * ```
 			 * @ngdoc method
 			 * @name Subproject#get
 			 * @param id {Object} Object with subproject id
+			 * @return {Resource} Subprojet as Resource object.
 			 */
 			get: {
 				method: 'GET',
@@ -37,6 +39,7 @@ angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateP
 			 * ```
 			 * @ngdoc method
 			 * @name Subproject#$update
+			 * @return {Promise} Promise that resolves, if the request was succesful.
 			 */
 			update: { method: 'PUT' }
 		});
@@ -44,10 +47,12 @@ angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateP
 		/**
 		 * Get all subprojects.
 		 * ```
-		 * Subproject.query().$promise.then(...);
+		 * Subproject.query().$promise
+		 *   .then(function (subprojects) {...});
 		 * ```
 		 * @ngdoc method
 		 * @name Subproject#query
+		 * @return {Array<Resource>} Array of all subprojects, each a Resource object.
 		 */
 
 		/**
@@ -56,11 +61,13 @@ angular.module('dokuvisApp').factory('Subproject', ['$resource', 'API', '$stateP
 		 * Subproject.save({
 			 *   name: <string>,
 			 *   description: <string>  // (optional)
-			 * }).$promise.then(...);
+			 * }).$promise
+		 *   .then(function (subproject) {...});
 		 * ```
 		 * @ngdoc method
 		 * @name Subproject#save
 		 * @param data {Object} Object with data
+		 * @return {Resource} Saved subproject as Resource object.
 		 */
 
 	}]);

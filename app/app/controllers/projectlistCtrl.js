@@ -23,17 +23,19 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 		 * @type {Array}
 		 */
 		$scope.projects = [];
-		
+
 		function queryProjects() {
-			Project.query().$promise.then(function (result) {
-				console.log(result);
-				if(result instanceof Array)
-					$scope.projects = result;
-				else
-					$scope.projects = [];
-			}, function (err) {
-				Utilities.throwApiException('on Project.query()', err);
-			})
+			Project.query().$promise
+				.then(function (result) {
+					console.log(result);
+					if(result instanceof Array)
+						$scope.projects = result;
+					else
+						$scope.projects = [];
+				})
+				.catch(function (err) {
+					Utilities.throwApiException('Project#query', err);
+				});
 		}
 
 		/**
@@ -63,12 +65,14 @@ angular.module('dokuvisApp').controller('projectlistCtrl', ['$scope', '$state', 
 				headerText: 'Projekt löschen',
 				bodyText: 'Soll Projekt ' + p.name + ' wirklich gelöscht werden?'
 			}).then(function () {
-				p.$delete().then(function(response) {
-					console.log(response);
-					queryProjects();
-				}, function(err) {
-					Utilities.throwApiException('on Project.delete()', err);
-				});
+				p.$delete()
+					.then(function(response) {
+						console.log(response);
+						queryProjects();
+					})
+					.catch(function(err) {
+						Utilities.throwApiException('Project#delete', err);
+					});
 			});
 		};
 		

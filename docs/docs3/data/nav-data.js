@@ -204,6 +204,11 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "href": "api/dokuvisApp/factory/SubprojectResolve"
               },
               {
+                "name": "Task",
+                "type": "factory",
+                "href": "api/dokuvisApp/factory/Task"
+              },
+              {
                 "name": "TokenInterceptor",
                 "type": "factory",
                 "href": "api/dokuvisApp/factory/TokenInterceptor"

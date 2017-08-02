@@ -41,10 +41,10 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'gantt.movable',
 	'gantt.tooltips',
 	'gantt.sortable',
-	'gantt.drawtask',
-	'gantt.progress',
-	'gantt.overlap',
-	'gantt.resizeSensor',
+	// 'gantt.drawtask',
+	// 'gantt.progress',
+	// 'gantt.overlap',
+	// 'gantt.resizeSensor',
 
 	'mm.acl',
 	'pascalprecht.translate'

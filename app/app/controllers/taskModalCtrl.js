@@ -146,6 +146,11 @@ angular.module('dokuvisApp').controller('taskModalCtrl', ['$scope', '$state', '$
 			}
 		};
 
+		/**
+		 * Delete task. The user will be prompted with a confirm dialog.
+		 * @ngdoc method
+		 * @name taskModalCtrl#delete
+		 */
 		$scope.delete = function () {
 
 			ConfirmService({

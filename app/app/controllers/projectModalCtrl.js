@@ -53,7 +53,7 @@ angular.module('dokuvisApp').controller('projectModalCtrl', ['$scope', '$state',
 				prj.name = $scope.name;
 				prj.description = $scope.desc;
 				prj.$update().then(function () {
-					projectsUpdate();
+					projectsUpdate(prj);
 					$scope.close();
 				}, function (err) {
 					Utilities.throwApiException('on Project.update()', err);
@@ -62,7 +62,7 @@ angular.module('dokuvisApp').controller('projectModalCtrl', ['$scope', '$state',
 			else {
 				Project.save({ name: $scope.name, description: $scope.desc }).$promise.then(function(result) {
 					console.log(result);
-					projectsUpdate();
+					projectsUpdate(result);
 					$scope.close();
 				}, function(err) {
 					Utilities.throwApiException('on Project.create()', err);

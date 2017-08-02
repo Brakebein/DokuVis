@@ -28,7 +28,7 @@
   
   <h2 id="dependencies">Dependencies</h2>
   <ul>
-    <li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope">$scope</a></li><li><a href="https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state">$state</a></li><li><a href="https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams">$stateParams</a></li><li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout">$timeout</a></li><li><a href="https://github.com/urish/angular-moment">moment</a></li><li><a href="Staff">Staff</a></li><li><a href="Task">Task</a></li><li><a href="api/dokuvisApp/factory/Utilities">Utilities</a></li>
+    <li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope">$scope</a></li><li><a href="https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state">$state</a></li><li><a href="https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams">$stateParams</a></li><li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout">$timeout</a></li><li><a href="https://github.com/urish/angular-moment">moment</a></li><li><a href="Staff">Staff</a></li><li><a href="api/dokuvisApp/factory/Task">Task</a></li><li><a href="api/dokuvisApp/factory/ConfirmService">ConfirmService</a></li><li><a href="api/dokuvisApp/factory/Utilities">Utilities</a></li>
   </ul>
   
 
@@ -45,6 +45,27 @@
   
     </h3>
     <div><p>Save new task or changes of existing task.</p>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="delete">
+    <h3 class="">
+      <span class="title"><p><code>delete();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Delete task. The user will be prompted with a confirm dialog.</p>
 </div>
 
     
@@ -239,10 +260,10 @@
       <td>
         task
         
-        
+        <div><em>(optional)</em></div>
       </td>
       <td>
-        <span class="label type-hint type-hint-task"><a href="Task">Task</a></span>
+        <span class="label type-hint type-hint-task"><a href="api/dokuvisApp/factory/Task">Task</a></span>
       </td>
       <td>
         <p>New or updated task.</p>
