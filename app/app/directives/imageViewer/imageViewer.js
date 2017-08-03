@@ -11,6 +11,7 @@
  * @restrict A
  * @scope
  * @param imageViewer {string} Path/url to the image
+ * @param options {Object=} Force resolution/aspect ratio with `width` and `height` property
  * @param spatialize {boolean=} Activate spatialize feature, e.g. setting markers on image
  */
 angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '$timeout', 'SpatializeInterface',
@@ -20,14 +21,15 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 			restrict: 'A',
 			templateUrl: 'app/directives/imageViewer/imageViewer.html',
 			scope: {
-				source: '=imageViewer'
+				source: '=imageViewer',
+				options: '=options'
 			},
 			link: function (scope, element, attrs) {
 
 				console.log(scope, element, attrs);
 
 				// activate spatialize feature
-				if('spatialize' in attrs)
+				if ('spatialize' in attrs)
 					scope.spatialize = {
 						markers: SpatializeInterface.markers2D
 					};
@@ -97,31 +99,34 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 
 				function loadTexture(url) {
 
-					if(['jpg','png'].indexOf(url.split('.').pop()) === -1) return;
+					if (['jpg','png'].indexOf(url.split('.').pop()) === -1) return;
 
 					readyTexture = true;
 					console.log('source:', url);
 					if(!readyViewer) return;
 
 					// to prevent seeing a white plane, the plane is only added, when texture is loaded
-					if(!readyAll) {
+					if (!readyAll) {
 						scene.add(plane);
 						readyAll = true;
 					}
 
 					loader.load(url, function (texture) {
 
-						imageAspect = texture.image.width / texture.image.height;
+						if (scope.options && scope.options.width && scope.options.height)
+							imageAspect = scope.options.width / scope.options.height;
+						else
+							imageAspect = texture.image.width / texture.image.height;
 
-						if(scope.spatialize) {
-							SpatializeInterface.imageWidth = texture.image.width;
-							SpatializeInterface.imageHeight = texture.image.height;
+						if (scope.spatialize) {
+							SpatializeInterface.imageWidth = scope.options.width || texture.image.width;
+							SpatializeInterface.imageHeight = scope.options.height || texture.image.height;
 						}
 
 						plane.geometry.dispose();
 						plane.geometry = new THREE.PlaneBufferGeometry(imageAspect, 1, 1, 1);
 
-						if(plane.material.map) plane.material.map.dispose();
+						if (plane.material.map) plane.material.map.dispose();
 						plane.material.map = texture;
 						plane.material.needsUpdate = true;
 
@@ -140,16 +145,16 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 				function mousedown(event) {
 					event.preventDefault();
 					//console.log(event);
-					if((event.button === 0 && !isMarking) || event.button === 1)
+					if ((event.button === 0 && !isMarking) || event.button === 1)
 						isPanning = true;
 				}
 
 				// mouseup event
 				function mouseup(event) {
-					if(isPanning && (event.button === 0 || event.button === 1)) {
+					if (isPanning && (event.button === 0 || event.button === 1)) {
 						isPanning = false;
 					}
-					else if(event.button === 0 && isMarking) {
+					else if (event.button === 0 && isMarking) {
 						var uv = currentUV;
 						
 						currentMarker.setNumber(SpatializeInterface.markers2D.length + 1);
@@ -172,13 +177,13 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 				// mousemove event
 				function mousemove(event) {
 					event.preventDefault();
-					if(isPanning) {
+					if (isPanning) {
 						plane.translateX(event.originalEvent.movementX * panSpeed * -plane.position.z);
 						plane.translateY(event.originalEvent.movementY * panSpeed * plane.position.z);
 						fitToBorders();
 						render();
 					}
-					else if(isMarking) {
+					else if (isMarking) {
 						var mouse = new THREE.Vector2();
 						mouse.x = (event.offsetX / SCREEN_WIDTH) * 2 - 1;
 						mouse.y = -(event.offsetY / SCREEN_HEIGHT) * 2 + 1;
@@ -189,16 +194,16 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 
 				// scroll event
 				function zoom(event) {
-					if(event.deltaY > 0) {
-						// scroll up - zoom in
+					if (event.deltaY > 0) {
+						// scroll up -> zoom in
 						var delta = -zoomSpeed * plane.position.z;
 						if(plane.position.z + delta > maxZoomIn) return;
 						plane.translateZ(delta);
 						fitToBorders();
 						render();
 					}
-					else if(event.deltaY < 0) {
-						// scroll down - zoom out
+					else if (event.deltaY < 0) {
+						// scroll down -> zoom out
 						delta = zoomSpeed * plane.position.z;
 						if(plane.position.z + delta <= maxZoomOut) delta = maxZoomOut - plane.position.z;
 						plane.translateZ(delta);
@@ -218,7 +223,7 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 						iHeight = Math.abs(plane.position.y - 0.5) + Math.abs(plane.position.y + 0.5);
 
 
-					if(imageAspect < canvasAspect && cWidth > iWidth) {
+					if (imageAspect < canvasAspect && cWidth > iWidth) {
 						if (xa < plane.position.x + imageAspect / 2)
 							plane.translateX(xa - (plane.position.x + imageAspect / 2));
 						if (-xa > plane.position.x - imageAspect / 2)
@@ -231,7 +236,7 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 							plane.translateX(-xa - (plane.position.x - imageAspect / 2));
 					}
 
-					if(imageAspect > canvasAspect && cHeight > iHeight) {
+					if (imageAspect > canvasAspect && cHeight > iHeight) {
 						if (ya < plane.position.y + 0.5)
 							plane.translateY(ya - (plane.position.y + 0.5));
 						if (-ya > plane.position.y - 0.5)
@@ -248,7 +253,7 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 
 				// set initial view/position of image plane and set maxZoomOut
 				function resetView() {
-					if(imageAspect < canvasAspect) {
+					if (imageAspect < canvasAspect) {
 						plane.position.set(0, 0, -1);
 						maxZoomOut = -1;
 					}
@@ -273,7 +278,7 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 
 					var intersects = raycaster.intersectObject(plane);
 
-					if(intersects[0]) {
+					if (intersects[0]) {
 						var uv = intersects[0].uv;
 						currentUV = uv;
 						
@@ -302,25 +307,25 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 					angleX = Math.atan(0.5 * canvasAspect);
 					angleY = Math.atan(0.5);
 
-					if(imageAspect && imageAspect > canvasAspect)
+					if (imageAspect && imageAspect > canvasAspect)
 						maxZoomOut = -(imageAspect / 2) / Math.tan(angleX);
 					else
 						maxZoomOut = -1;
 
-					if(camera) {
+					if (camera) {
 						// camera.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 						camera.aspect = canvasAspect;
 						camera.updateProjectionMatrix();
 					}
 
-					if(renderer) {
+					if (renderer) {
 						renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 						render();
 					}
 				}
 
 				// bind functions to scope
-				if(scope.spatialize) {
+				if (scope.spatialize) {
 					scope.startMarking = startMarking;
 					scope.clearMarkers = clearMarkers;
 				}
@@ -329,10 +334,12 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 				scope.$on('$destroy', function () {
 					// dispose geometry and materials
 					plane.geometry.dispose();
-					if(plane.material.map) plane.material.map.dispose();
+					if (plane.material.map) plane.material.map.dispose();
 					plane.material.dispose();
 
-					if(scope.spatialize)
+					renderer.dispose();
+
+					if (scope.spatialize)
 						clearMarkers();
 
 					// unbind event listeners

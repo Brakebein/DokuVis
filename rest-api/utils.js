@@ -139,17 +139,26 @@ utils.checkPermission = function (req, res, role) {
 	});
 };
 
-utils.resizeToNearestPowerOf2 = function (path, filename) {
-	var outputname = filename.split('.').shift() + '_';
+/**
+ * Compute best fitting resolution with power of 2 (maximum 2048) and resize image.
+ * @param path {string} Path to directory
+ * @param filename {string} File name
+ * @param outputname {string=} File name of the resized image. If omitted, the new file name will be combination of the `filename` and the computed resolution.
+ * @return {Promise<Object>} Promise with object containing the file name of the resized image and the old and new image width/height.
+ */
+utils.resizeToNearestPowerOf2 = function (path, filename, outputname) {
+
+	var width = 0, w = 0,
+		height = 0, h = 0;
 
 	return exec(config.exec.ImagickIdentify, [path + filename])
 		.then(function (result) {
 			var matches = result.stdout.match(/\s(\d+)x(\d+)\s/);
 
-			var width = +matches[1],
-				height = +matches[2],
-				w = 256,
-				h = 256;
+			width = +matches[1];
+			height = +matches[2];
+			w = 256;
+			h = 256;
 
 			while(w < width && w < 2048) {
 				w *= 2;
@@ -158,7 +167,8 @@ utils.resizeToNearestPowerOf2 = function (path, filename) {
 				h *= 2;
 			}
 
-			outputname += w + 'x' + h + '.jpg';
+			if (!outputname)
+				outputname = filename.split('.').shift() + '_' + w + 'x' + h + '.jpg';
 
 			return exec(config.exec.ImagickConvert, [
 				path + filename,
@@ -167,7 +177,13 @@ utils.resizeToNearestPowerOf2 = function (path, filename) {
 			]);
 		})
 		.then(function () {
-			return Promise.resolve(outputname);
+			return Promise.resolve({
+				name: outputname,
+				width: w,
+				height: h,
+				originalWidth: width,
+				originalHeight: height
+			});
 		})
 		.catch(function (err) {
 			return Promise.reject({

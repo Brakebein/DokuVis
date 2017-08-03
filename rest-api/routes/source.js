@@ -4,6 +4,8 @@ const fs = require('fs-extra-promise');
 const neo4j = require('../neo4j-request');
 const exec = require('child-process-promise').execFile;
 const Promise = require('bluebird');
+const uuid = require('uuid/v4');
+const shortid = require('shortid');
 const THREE = require('../modules/three');
 
 module.exports = {
@@ -99,7 +101,7 @@ module.exports = {
 				pname.value AS place, \
 				date.value AS date, \
 				{identifier: archivenr.value, collection: coll.value, institution: inst.value, institutionAbbr: inst.abbr} AS archive, \
-				{name: file.content, path: file.path, display: file.preview, thumb: file.thumb, link: file.link} AS file, \
+				file AS file, \
 				plan3d.content AS plan3d, \
 				note.value AS note, \
 				repros.value AS repros, \
@@ -123,18 +125,17 @@ module.exports = {
 				utils.error.neo4j(res, err, '#source.get')
 			});
 	},
-	
-	// TODO: #source create/insert
+
 	create: function (req, res) {
 
 		utils.log.fileupload(req.file);
 
 		var prj = req.params.id;
-		var tid = req.body.tid;
+		var id = shortid.generate();
 
 		// check for essential data
 		// if missing then delete file and abort
-		if(!req.body.tid || !req.body.sourceType || !req.body.date || !req.body.title) {
+		if (!req.body.tid || !req.body.sourceType || !req.body.date || !req.body.title) {
 			utils.abort.missingData(res, '#source.create tid|sourceType|date|title');
 			fs.unlinkAsync(req.file.path)
 				.then(function () {
@@ -146,30 +147,44 @@ module.exports = {
 			return;
 		}
 		
-		// process image
-		var path = config.path.data + '/' + prj + '/' + req.body.sourceType + 's/';
-		var filename = req.file.filename;
-		var filenameThumb = '_thumbs/t_' + filename.slice(0, filename.lastIndexOf(".")) + '.jpg';
-		var filenamePreview = filename.slice(0, filename.lastIndexOf(".")) + '_1024.jpg';
+		// path + filenames
+		var shortPath = prj + '/sources/' + uuid() + '/';
+		var path = config.path.data + '/' + shortPath;
+		var filename = id + '_' + utils.replace(req.file.originalname);
+		var filenameThumb = filename.slice(0, filename.lastIndexOf(".")) + '_thumb.jpg';
+		var filenamePreview = filename.slice(0, filename.lastIndexOf(".")) + '_preview.jpg';
+		var filenameTexture = filename.slice(0, filename.lastIndexOf(".")) + '_tex.jpg';
+		var filenameTexturePreview = filename.slice(0, filename.lastIndexOf(".")) + '_tex_preview.jpg';
 
-		// move/rename file
-		fs.renameAsync(req.file.path, path + filename)
+		var imgWidth, imgHeight;
+
+		// create folder
+		fs.ensureDirAsync(path)
 			.then(function () {
-				// image size
-				return exec(config.exec.ImagickIdentify, [path + filename]);
+				// move uploaded file into folder
+				return fs.renameAsync(req.file.path, path + filename);
 			})
-			.then(function (result) {
-				console.debug(result.stdout);
-
-				// thumbnail
+			.then(function () {
+				// create thumbnail
 				return exec(config.exec.ImagickConvert, [path + filename, '-resize', '160x90^', '-gravity', 'center', '-extent', '160x90', path + filenameThumb]);
 			})
 			.then(function () {
 				// downsample preview image
 				return exec(config.exec.ImagickConvert, [path + filename, '-resize', '1024x1024>', path + filenamePreview]);
 			})
+			.then(function () {
+				// sample image to texture with resolution power of 2
+				return utils.resizeToNearestPowerOf2(path, filename, filenameTexture);
+			})
+			.then(function (output) {
+				imgWidth = output.originalWidth;
+				imgHeight = output.originalHeight;
+
+				// downsample image to preview texture
+				return exec(config.exec.ImagickConvert, [path + filename, '-resize', '128x128!', path + filenameTexturePreview]);
+			})
 			.catch(function (err) {
-				utils.error.server(res, err, '#source.create fs/exec ' + path + filename);
+				utils.error.server(res, err, '#source.create fs/exec @ ' + path + filename);
 				return Promise.reject();
 			})
 			.then(function () {
@@ -251,10 +266,14 @@ module.exports = {
 					e75file: {
 						content: filename,
 						type: filename.split(".").pop().toLowerCase(),
-						path: prj + '/' + req.body.sourceType + 's/',
+						path: shortPath,
 						thumb: filenameThumb,
 						preview: filenamePreview,
-						orginal: req.file.originalname
+						texture: filenameTexture,
+						texturePreview: filenameTexturePreview,
+						orginal: req.file.originalname,
+						width: imgWidth,
+						height: imgHeight
 					},
 					e35title: {
 						content: 'e35_' + filename,
@@ -265,11 +284,11 @@ module.exports = {
 					e33id: 'e33_e31_' + filename,
 					e36id: 'e36_e31_' + filename,
 					author: req.body.author,
-					e21id: 'e21_' + tid + '_' + utils.replace(req.body.author),
-					e82id: 'e82_' + tid + '_' + utils.replace(req.body.author),
+					e21id: 'e21_' + id + '_' + utils.replace(req.body.author),
+					e82id: 'e82_' + id + '_' + utils.replace(req.body.author),
 					place: req.body.creationPlace,
-					e53id: 'e53_' + tid + '_' + utils.replace(req.body.creationPlace),
-					e48id: 'e48_' + tid + '_' + utils.replace(req.body.creationPlace),
+					e53id: 'e53_' + id + '_' + utils.replace(req.body.creationPlace),
+					e48id: 'e48_' + id + '_' + utils.replace(req.body.creationPlace),
 					e61value: req.body.creationDate,
 					e52id: 'e52_e65_e31_' + filename,
 					archive: req.body.archive,
@@ -289,17 +308,12 @@ module.exports = {
 					upload52: 'e52_e7_upload_' + filename,
 					tags: req.body.tags ? req.body.tags.split(',') : []
 				};
-				
-				return neo4j.transaction(q, params);
+
+				return neo4j.writeTransaction(q, params);
 			})
-			.then(function (response) {
-				if(response.errors.length) {
-					utils.error.neo4j(res, response, '#source.create');
-					return Promise.reject();
-				}
-				var rows = neo4j.extractTransactionData(response.results[0]);
-				if(rows.length)
-					res.json(rows[0]);
+			.then(function (result) {
+				if (result.length)
+					res.json(result[0]);
 				else {
 					console.warn('#source.create: no nodes created');
 					res.json(null);
@@ -307,11 +321,31 @@ module.exports = {
 				}
 			})
 			.catch(function (err) {
-				if(err) utils.error.neo4j(res, err, '#cypher');
-				fs.unlinkSync(path + filename);
-				fs.unlinkSync(path + filenameThumb);
-				fs.unlinkSync(path + filenamePreview);
-				console.warn('File unlink:', path, filename, filenameThumb, filenamePreview);
+				if (err) utils.error.neo4j(res, err, '#source.create');
+
+				// remove files/directory
+				return fs.existsAsync(path);
+			})
+			.then(function (exists) {
+				if (exists) {
+					console.warn('Unlink directory:', path);
+					return fs.removeAsync(path);
+				}
+			})
+			.catch(function (err) {
+				console.error('Unlink directory failed:', path, err);
+			})
+			.then(function () {
+				return fs.existsAsync(req.file.path);
+			})
+			.then(function (exists) {
+				if (exists) {
+					console.warn('Unlink temp file:', req.file.path);
+					return fs.unlinkAsync(req.file.path);
+				}
+			})
+			.catch(function (err) {
+				console.error('Unlink temp file failed:', req.file.path, err);
 			});
 	},
 

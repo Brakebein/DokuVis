@@ -65,7 +65,7 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		};
 		
 		$scope.nextPage = function(incr) {
-			$scope.pageNr = (($scope.pageNr + incr) % $scope.item.file.display.length + $scope.item.file.display.length) % $scope.item.file.display.length;
+			$scope.pageNr = (($scope.pageNr + incr) % $scope.item.file.preview.length + $scope.item.file.preview.length) % $scope.item.file.preview.length;
 		};
 		
 		$scope.highlight = function(event) {
@@ -113,7 +113,7 @@ angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state',
 		$scope.editText = function() {
 			//$scope.textEdit = !$scope.textEdit;
 			
-			$http.get('data/' + $scope.item.file.path + $scope.item.file.display[$scope.pageNr]).then(function(response) {
+			$http.get('data/' + $scope.item.file.path + $scope.item.file.preview[$scope.pageNr]).then(function(response) {
 				console.log(response);
 				$scope.editorInput = response.data;
 				$scope.textEdit = true;

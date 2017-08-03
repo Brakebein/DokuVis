@@ -1,6 +1,7 @@
 const config = require('../config');
 const utils = require('../utils');
 const express = require('express');
+const shortid = require('shortid');
 const router = express.Router();
 
 // multer
@@ -10,12 +11,12 @@ var storage = multer.diskStorage({
 		cb(null, config.path.tmp);
 	},
 	filename: function (req, file, cb) {
-		if(req.body.tid)
+		if (req.body.tid)
 			cb(null, req.body.tid + '_' + utils.replace(file.originalname));
-		else if(req.body.newFileName)
+		else if (req.body.newFileName)
 			cb(null, req.body.newFileName);
 		else
-			cb(null, file.fieldname + '-' + Date.now());
+			cb(null, file.fieldname + '-' + shortid.generate());
 	}
 });
 var mUpload = multer({ storage: storage });

@@ -205,11 +205,11 @@ function extractImage(zipObj, imageUrl, file, params) {
 			.then(function () {
 				return utils.resizeToNearestPowerOf2(file.destination + '/', params.tid + '_' + imageUrl);
 			})
-			.then(function (resizeFilename) {
+			.then(function (resizeOutput) {
 				fs.unlink(imgFile);
 				return Promise.resolve({
 					oldName: imageUrl,
-					newName: resizeFilename
+					newName: resizeOutput.name
 				});
 			});
 	}

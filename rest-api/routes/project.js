@@ -62,6 +62,7 @@ module.exports = {
 		
 		// Ordner anlegen
 		fs.mkdirsSync(pProj);
+		fs.mkdirsSync(pProj + '/sources');
 		fs.mkdirsSync(pProj + '/models/maps');
 		fs.mkdirsSync(pProj + '/pictures/_thumbs');
 		fs.mkdirsSync(pProj + '/texts/_thumbs');

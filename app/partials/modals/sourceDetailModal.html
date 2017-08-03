@@ -10,17 +10,18 @@
 	<div class="modal-body sourceDetail">
 	
 		<div class="imageDiv" ng-if="item.type !== 'text'">
-			<div image-viewer="'data/' + item.file.path + (item.file.display || item.file.name)"></div>
+			<div image-viewer="'data/' + item.file.path + (item.file.texture || item.file.preview || item.file.content)"
+				 data-options="{width: item.file.width, height: item.file.height}"></div>
 		</div>
 
 		<div class="textDiv" ng-if="item.type === 'text'">
 			<div ng-show="!textEdit" class="displayText" sync-scroll="vertical-scroll">
 				<div class="vertical-scroll text"
 					 ng-mouseover="highlight($event)">
-					<div ng-include="'data/' + item.file.path + item.file.display[pageNr] + '.hocr'"></div>
+					<div ng-include="'data/' + item.file.path + item.file.preview[pageNr] + '.hocr'"></div>
 				</div>
 				<div class="vertical-scroll image">
-					<img ng-src="{{'data/' + item.file.path + item.file.display[pageNr] + '.jpg' || 'data/Proj_puuD1TP/texts/pdf_image.jpg'}}"/>
+					<img ng-src="{{'data/' + item.file.path + item.file.preview[pageNr] + '.jpg' || 'data/Proj_puuD1TP/texts/pdf_image.jpg'}}"/>
 					<div id="wordRect"></div>
 				</div>
 			</div>
@@ -73,7 +74,7 @@
 				<div>
 					<strong>Links</strong>
 					<p ng-show="item.file.link"><a ng-href="{{item.file.link}}" target="_blank">SLUB-Link</a></p>
-					<p><a ng-href="data/{{item.file.path + item.file.name}}" target="_blank">Originaldatei</a></p>
+					<p><a ng-href="data/{{item.file.path + item.file.content}}" target="_blank">Originaldatei</a></p>
 					<p><a href="" ng-click="enterGraph(item.nId)">Graphensuche</a></p>
 				</div>
 				<div ng-show="item.type == 'text'">
