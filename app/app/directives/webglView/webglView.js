@@ -373,7 +373,13 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				console.log(plane);
 				
 				//setGizmo(plane, 'move');
-				
+
+				// point cloud test
+				var pcdloader = new THREE.PCDLoader(manager);
+				pcdloader.load('data/Punktwolke_rgb_Cloud2.pcd', function (mesh) {
+					console.log(mesh);
+					scene.add(mesh);
+				});
 				
 				$timeout(function() {
 					//resizeViewport();
