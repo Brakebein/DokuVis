@@ -5,10 +5,9 @@
  * @module dokuvisApp
  * @author Brakebein
  */
-angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$http', 'Utilities', 'Source', 'Comment', '$timeout', '$translatePartialLoader',
-	function($scope, $state, $stateParams, $previousState, $http, Utilities, Source, Comment, $timeout, $translatePartialLoader) {
-		
-		$translatePartialLoader.addPart('source');
+angular.module('dokuvisApp').controller('sourceDetailCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$http', 'Utilities', 'Source', 'Comment', '$timeout',
+	function($scope, $state, $stateParams, $previousState, $http, Utilities, Source, Comment, $timeout) {
+
 		$previousState.memo('modalInvoker');
 		$scope.switchable = $state.includes('project.explorer');
 

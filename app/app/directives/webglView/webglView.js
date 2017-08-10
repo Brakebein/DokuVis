@@ -142,7 +142,33 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				XRAY: 'xray'
 			};
 			var currentShading = webglInterface.viewportSettings.shadingSel;
-			
+
+			var pcConfig = {
+				clipMode: Potree.ClipMode.HIGHLIGHT_INSIDE,
+				isFlipYZ: false,
+				useDEMCollisions: false,
+				generateDEM: false,
+				minNodeSize: 100,
+				// pointBudget: 1000000,
+				edlStrength: 1.0,
+				edlRadius: 1.4,
+				useEDL: false,
+				classifications: {
+					0: { visible: true, name: 'never classified' },
+					1: { visible: true, name: 'unclassified' },
+					2: { visible: true, name: 'ground' },
+					3: { visible: true, name: 'low vegetation' },
+					4: { visible: true, name: 'medium vegetation' },
+					5: { visible: true, name: 'high vegetation' },
+					6: { visible: true, name: 'building' },
+					7: { visible: true, name: 'low point(noise)' },
+					8: { visible: true, name: 'key-point' },
+					9: { visible: true, name: 'water' },
+					12: { visible: true, name: 'overlap' }
+				}
+			};
+			Potree.pointBudget = 500000;
+
 			var camPerspective = true;
 			var needsAnimationRequest = false;
 			var renderSSAO = false;
@@ -164,6 +190,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 
 			// Übernahme aus webglContext
 			var objects = webglContext.objects;
+			var pointclouds = [];
 			var plans = webglInterface.plans;
 			var spatialImages = webglInterface.spatialImages;
 			var geometries = webglContext.geometries;
@@ -373,13 +400,126 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				console.log(plane);
 				
 				//setGizmo(plane, 'move');
-				
+
+
+				// pointcloud test
+				// loadPointCloud('data/pointclouds/georgentor/cloud.js', 'potree-test', function (e) {
+				// 	console.info(e);
+				// 	var pc = e.pointcloud;
+				// 	pointclouds.push(pc);
+				// 	scene.add(pc);
+				// 	pc.material.pointColorType = Potree.PointColorType.RGB;
+				// 	pc.material.size = 2;
+				// 	pc.material.pointSizeType = Potree.PointSizeType.FIXED;
+				// 	pc.material.shape = Potree.PointShape.SQUARE;
+				// 	pc.rotateOnAxis(new THREE.Vector3(1,0,0),- Math.PI / 2);
+				// 	// var q = new THREE.Quaternion();
+				// 	// q.setFromAxisAngle(new THREE.Vector3(1,0,0), - Math.PI / 2);
+				// 	// pc.quaternion.premultiply(q);
+				// 	var rotMatrix = new THREE.Matrix4();
+				// 	rotMatrix.makeRotationAxis(new THREE.Vector3(1,0,0), - Math.PI / 2);
+				// 	var currentPos = new THREE.Vector4(pc.position.x, pc.position.y, pc.position.z, 1);
+				// 	var newPos = currentPos.applyMatrix4(rotMatrix);
+				// 	pc.position.set(newPos.x, newPos.y, newPos.z);
+				// });
+
 				
 				$timeout(function() {
 					//resizeViewport();
 				});
 				
 				animate();
+			}
+
+
+			function updatePointClouds() {
+				var pointLoadLimit = 2000000;
+				var visibleNodes = 0,
+					visiblePoints = 0,
+					progress = 0;
+
+				for (var i=0; i<pointclouds.length; i++) {
+					var pc = pointclouds[i];
+					var bbWorld = Potree.utils.computeTransformedBoundingBox(pc.boundingBox, pc.matrixWorld);
+
+					if (!pc.material._defaultIntensityRangeChanged) {
+						var root = pc.pcoGeometry.root;
+						if (root !== null && root.loaded) {
+							var attributes = pc.pcoGeometry.root.geometry.attributes;
+							if (attributes.intensity) {
+								var array = attributes.intensity.array;
+
+								var ordered = [];
+								for (var j=0; j<array.length; j++) {
+									ordered.push(array[j]);
+								}
+								ordered.sort();
+								var capIndex = parseInt((ordered.length - 1) * 0.75);
+								var cap = ordered[capIndex];
+
+								if (cap <= 1)
+									pc.material.intensityRange = [0, 1];
+								else if (cap <= 256)
+									pc.material.intensityRange = [0, 255];
+								else
+									pc.material.intensityRange = [0, cap];
+
+							}
+						}
+					}
+
+					pc.material.clipMode = pcConfig.clipMode;
+					pc.generateDEM = pcConfig.generateDEM;
+					pc.minimumNodePixelSize = pcConfig.minNodeSize;
+
+					visibleNodes += pc.numVisibleNodes;
+					visiblePoints += pc.numVisiblePoints;
+
+					progress += pc.progress;
+
+					var classification = pc.material.classification;
+					var somethingChanged = false;
+					for (var key in pcConfig.classifications) {
+						var w = pcConfig.classifications[key].visible ? 1 : 0;
+						if (classification[key]) {
+							if (classification[key].w !== w) {
+								classification[key].w = w;
+								somethingChanged = true;
+							}
+						}
+						else if (classification.DEFAULT) {
+							classification[key] = classification.DEFAULT;
+							somethingChanged = true;
+						}
+						else {
+							classification[key] = new THREE.Vector4(0.3, 0.6, 0.6, 0.5);
+							somethingChanged = true;
+						}
+						if (somethingChanged)
+							pc.material.recomputeClassification();
+					}
+				}
+
+				var result = Potree.updatePointClouds(pointclouds, camera, renderer);
+				visibleNodes = result.visibleNodes.length;
+				visiblePoints = result.numVisiblePoints;
+
+			}
+			var updatePointCloudsThrottle = $throttle(updatePointClouds, 500, false, true);
+
+			function loadPointCloud(path, name, callback) {
+				if (!path) return;
+				if (path.indexOf('cloud.js') > 0) {
+					Potree.POCLoader.load(path, function (geometry) {
+						if (!geometry)
+							callback({ type: 'loading_failed' });
+						else {
+							var pc = new Potree.PointCloudOctree(geometry);
+							pc.name = name;
+							callback({ type: 'pointcloud_loaded', pointcloud: pc });
+						}
+					})
+				}
 			}
 
 			/**
@@ -426,7 +566,9 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				
 				TWEEN.update();
 				if(controls) controls.update();
-				
+
+				updatePointCloudsThrottle();
+
 				// Steinmetzzeichen zeigen immer zur Kamera
 				// for(var key in marks) {
 				// 	if(marks[key].visible) {

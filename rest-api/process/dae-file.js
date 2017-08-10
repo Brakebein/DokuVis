@@ -35,7 +35,7 @@ var tid = process.argv[3];
 var path = process.argv[4];
 
 if(!(file && tid && path)) {
-	process.send('arguments missing');
+	process.send({ error: 'arguments missing' });
 	process.exit();
 }
 

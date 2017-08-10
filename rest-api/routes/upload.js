@@ -4,7 +4,6 @@ const neo4j = require('../neo4j-request');
 const fork = require('child_process').fork;
 const fs = require('fs-extra-promise');
 const Promise = require('bluebird');
-const util = require('util');
 const JSZip = require('jszip');
 const mime = require('mime-types');
 

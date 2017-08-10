@@ -200,7 +200,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			})
 			.state('project.explorer.source', {
 				url: '/source',
-				onEnter: ['$modal', function ($modal) {
+				onEnter: ['$translatePartialLoader', '$modal', function ($translatePartialLoader, $modal) {
+					$translatePartialLoader.addPart('source');
 					$modal({
 						templateUrl: 'partials/modals/_modalLargeTpl.html',
 						contentTemplate: 'partials/modals/sourceDetailModal.html',
@@ -235,7 +236,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			})
 			.state('project.explorer.upload', {
 				url: '/upload',
-				onEnter: ['$modal', function ($modal) {
+				onEnter: ['$translatePartialLoader', '$modal', function ($translatePartialLoader, $modal) {
+					$translatePartialLoader.addPart('source');
 					$modal({
 						templateUrl: 'partials/modals/_modalLargeTpl.html',
 						contentTemplate: 'partials/modals/uploadModal.html',
