@@ -72,7 +72,8 @@ module.exports = function (grunt) {
 				dest: '../docs/docs3/',
 				src: [
 					'app/**/*.js',
-					'../docs/docs3/content/api/*.ngdoc'
+					'components/**/*.js',
+					'../docs/docs3/content/**/*.ngdoc'
 				]
 			}
 		}

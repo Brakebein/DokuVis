@@ -1,0 +1,212 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">Staff</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+  
+
+    <li>
+      - factory in module <a href="api/dokuvis.staff">dokuvis.staff</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>$resource for staff.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ngResource/service/$resource">$resource</a></li><li><a href="guide/ApiParams">ApiParams</a></li><li><a href="ApiStaff">ApiStaff</a></li><li><a href="ApiRoles">ApiRoles</a></li>
+  </ul>
+  
+
+  
+<h2>Methods</h2>
+<ul class="methods">
+  <li id="queryRoles">
+    <h3 class="">
+      <span class="title"><p><code>queryRoles();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Get all available roles.</p>
+<pre><code>Staff.queryRoles().$promise
+.then(function (roles) {...});
+</code></pre>
+</div>
+
+    
+
+    
+    
+    
+    <h4>Returns</h4>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-array"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">Array.&lt;String&gt;</a></span></td>
+    <td><p>List of roles.</p>
+</td>
+  </tr>
+</table>
+    
+
+    
+  </li>
+  
+  <li id="query">
+    <h3 class="">
+      <span class="title"><p><code>query();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Get all users, who are working on this project.</p>
+<pre><code>Staff.query().$promise
+.then(function (staff) {...});
+</code></pre>
+</div>
+
+    
+
+    
+    
+    
+    <h4>Returns</h4>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-array"><a href="Resource">Array.&lt;Resource&gt;</a></span></td>
+    <td><p>Array of all users.</p>
+</td>
+  </tr>
+</table>
+    
+
+    
+  </li>
+  
+  <li id="get">
+    <h3 class="">
+      <span class="title"><p><code>get();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Get user by id.</p>
+<pre><code>Staff.get({ id: &lt;id&gt; }).$promise
+.then(function (user) {...});
+</code></pre>
+</div>
+
+    
+
+    
+    
+    
+    <h4>Returns</h4>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-resource"><a href="Resource">Resource</a></span></td>
+    <td><p>User as Resource object.</p>
+</td>
+  </tr>
+</table>
+    
+
+    
+  </li>
+  
+  <li id="save">
+    <h3 class="">
+      <span class="title"><p><code>save(data);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Add a new (existing) user to the project.</p>
+<pre><code>Staff.save({
+  user: &lt;string&gt;  // email of the user
+  role: &lt;string&gt;  // role (available from Staff.queryRoles())
+}).$promise
+  .then(function (user) {...});
+</code></pre>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Object with data</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+    <h4>Returns</h4>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-resource"><a href="Resource">Resource</a></span></td>
+    <td><p>User as Resource object.</p>
+</td>
+  </tr>
+</table>
+    
+
+    
+  </li>
+  </ul>
+
+  
+</div>
+
+

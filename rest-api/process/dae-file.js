@@ -2,10 +2,11 @@ const config = require('../config');
 const utils = require('../utils');
 const fs = require('fs-extra-promise');
 const XmlStream = require('xml-stream');
+const xmljs = require('xml-js');
 const xmlbuilder = require('xmlbuilder');
 const Promise = require('bluebird');
 const npath = require('path');
-const exec = require('child_process').exec;
+const exec = require('child-process-promise').execFile;
 const LineByLineReader = require('line-by-line');
 const JSZip = require('jszip');
 const THREE = require('../modules/three');
@@ -24,6 +25,12 @@ log4js.replaceConsole(logger);
 
 process.on('message', function (m) {
 	console.debug('CHILD got message:', m);
+});
+
+// catch uncaught exception and exit properly
+process.on('uncaughtException', function (err) {
+	console.error('Uncaught Exception', err);
+	process.exit(1);
 });
 
 // process.on('unhandledRejection', function (reason, promise) {
@@ -46,34 +53,57 @@ var effects = {},
 	images = {},
 	newparams = {},
 	nodes = [],
-	geoIds = [],
 	geometryFiles = {},
 	upAxis = '',
 	unit = {};
 
-/*	1. extract geometries
-	2. parse DAE file
-	3. convert to CTM
-	4. return nodes
+/*	1. triangulation and optimization with Assimp
+	2. extract geometries
+	3. parse DAE file
+	4. convert to CTM
+	5. prepare nodes
+	6. return nodes
 */
 
-extractGeometries();
+// 1. convert with Assimp
+var assimpFile = path + 'assimp_' + tid + '.dae';
+exec(config.exec.Assimp, ['export', file, assimpFile, '-tri', '-rrm', '-fi', '-jiv'])
+	.then(function (result) {
+		if (result.stderr)
+			return Promise.reject(result.stderr);
+		else
+			return fs.existsAsync(assimpFile);
+	})
+	.then(function (exists) {
+		if (exists)
+			extractGeometries();
+		else
+			return Promise.reject('No assimp file generated');
+	})
+	.catch(function (err) {
+		process.send({ error: 'Assimp/fs', data: err });
+	});
 
+// 2. extract geometries
 function extractGeometries() {
 	//TODO: convert to <triangles> if necessary
 	var geoState = {
 		NONE: 0,
 		GEOMETRY: 1,
-		MESH: 2
+		MESH: 2,
+		POLYLIST: 3
 	};
 	var currentState = geoState.NONE;
 	var currentId = null;
 
 	var wstream;
-	var linereader = new LineByLineReader( file );
+	var linereader = new LineByLineReader( assimpFile ); //TODO: assimpfile
+
+	var tmpPolylist = null;
 
 	linereader.on('error', function (err) {
-		console.error('lr error', err);
+		process.send({ error: 'LineReader', data: err });
+		process.exit();
 	});
 
 	linereader.on('end', function () {
@@ -82,34 +112,46 @@ function extractGeometries() {
 	});
 
 	linereader.on('line', function (line) {
-		if(currentState === geoState.NONE) {
+		if (currentState === geoState.NONE) {
 			// <geometry id="geom-foo">
-			if(/<geometry/.test(line)) {
+			if (/<geometry/.test(line)) {
 				var capt = /<geometry.*id="([^"]+)"/.exec(line);
 				currentId = utils.replace(capt[1]);
 				currentState = geoState.GEOMETRY;
 			}
 		}
-		else if(currentState === geoState.GEOMETRY) {
+		else if (currentState === geoState.GEOMETRY) {
 			// <mesh>
-			if(/<mesh>/.test(line)) {
-				wstream = fs.createWriteStream( config.path.tmp + '/' + tid + '_' + currentId + '.dae' );
+			if (/<mesh>/.test(line)) {
+				var basename = tid + '_' + currentId;
+				var daetmp = basename + '_tmp.dae';
+
+				wstream = fs.createWriteStream( path + daetmp );
 				wstream.write('<?xml version="1.0" encoding="utf-8"?>' + "\n");
 				wstream.write('<COLLADA>' + "\n" + '<library_geometries>' + "\n" + '<geometry id="' + currentId + '">' + "\n");
 				wstream.write(line + "\n");
 
-				geoIds.push({ id: currentId });
+				geometryFiles[currentId] = {
+					id: currentId,
+					basename: basename,
+					dae: daetmp
+				};
 				currentState = geoState.MESH;
 			}
 			// </geometry>
-			else if(/<\/geometry>/.test(line)) {
+			else if (/<\/geometry>/.test(line)) {
 				currentId = null;
 				currentState = geoState.NONE;
 			}
 		}
-		else if(currentState === geoState.MESH) {
+		else if (currentState === geoState.MESH) {
+			// <polylist>
+			if (/<polylist/.test(line)) {
+				tmpPolylist = line;
+				currentState = geoState.POLYLIST;
+			}
 			// </mesh>
-			if(/<\/mesh>/.test(line)) {
+			else if (/<\/mesh>/.test(line)) {
 				wstream.write(line + "\n");
 				wstream.end('</geometry>' + "\n" + '</library_geometries>' + "\n" + '</COLLADA>');
 
@@ -119,12 +161,37 @@ function extractGeometries() {
 				wstream.write(line + "\n");
 			}
 		}
+		else if (currentState === geoState.POLYLIST) {
+			// </polylist>
+			if (/<\/polylist>/.test(line)) {
+				tmpPolylist += line;
+
+				var jsPoly = xmljs.xml2js(tmpPolylist);
+
+				var elPoly = jsPoly.elements[0];
+				elPoly.name = 'triangles';
+				for (var i=0; i<elPoly.elements.length; i++) {
+					if (elPoly.elements[i].name === 'vcount') {
+						elPoly.elements.splice(i, 1);
+						break;
+					}
+				}
+				wstream.write(xmljs.js2xml(jsPoly, { spaces: 2 }) + "\n");
+
+				tmpPolylist = null;
+				currentState = geoState.MESH;
+			}
+			else {
+				tmpPolylist += line;
+			}
+		}
 
 	});
 }
 
+// 3. parse DAE file
 function parseDAE() {
-	var stream = fs.createReadStream(file);
+	var stream = fs.createReadStream(assimpFile);
 	stream.on('close', function () {
 		console.debug('readstream closed');
 	});
@@ -133,7 +200,11 @@ function parseDAE() {
 
 	// collect data
 	xml.on('updateElement: up_axis', function (axis) {
-		upAxis = axis.$text;
+		switch (axis.$text) {
+			case 'X_UP': upAxis = 'X'; break;
+			case 'Z_UP': upAxis = 'Z'; break;
+			default: upAxis = 'Y';
+		}
 	});
 
 	xml.on('updateElement: unit', function (u) {
@@ -157,6 +228,7 @@ function parseDAE() {
 	});
 
 	xml.collect('node');
+	xml.collect('instance_geometry');
 	xml.on('endElement: visual_scene', function (scene) {
 		for (var i = 0; i < scene.node.length; i++) {
 			if (scene.node[i].$.id)
@@ -172,122 +244,139 @@ function parseDAE() {
 
 // return data and close
 function finalize() {
+	// TODO: delete assimpFile
+	const cpexec = require('child_process').exec;
+	Promise.mapSeries(Object.keys(geometryFiles),
+		function (geoId) {
 
-	Promise.mapSeries(geoIds, function (geo) {
-		
-		if(geo.error) return Promise.reject(geo.error);
-		
-		var fname = tid + '_' + geo.id;
-		var daefile = config.path.tmp + '/' + fname + '.dae';
-		var ctmfile = config.path.tmp + '/' + fname + '.ctm';
+			var geofile = geometryFiles[geoId];
+			geofile.ctm = geofile.basename + '.ctm';
 
-		geometryFiles[geo.id] = { ctm: fname + '.ctm' };
-
-		return new Promise(
-			function (resolve, reject) {
-				var args = [daefile, ctmfile, '--method', 'MG2', '--level', '1', '--vprec', '0.001', '--nprec', '0.01', '--no-colors'];
-				exec(config.exec.CTMconv + ' ' + args.join(' '), function (error, stdout, stderr) {
+			// 4. convert to CTM and generate edges
+			return new Promise(function (resolve, reject) {
+				var args = [
+					path + geofile.dae, path + geofile.ctm,
+					'--method', 'MG2',
+					'--level', '1',
+					'--vprec', '0.001',
+					'--nprec', '0.01',
+					'--no-colors'
+				];
+				cpexec(config.exec.CTMconv + ' ' + args.join(' '), function (error, stdout, stderr) {
 					if (error) reject(error);
-					else resolve({stdout: stdout, stderr: stderr});
+					else resolve({ stdout: stdout, stderr: stderr });
 				});
 			})
 			.then(function (result) {
-				//if (result.stdout) console.log('ctmconv.exe stdout', result.stdout);
-				//if (result.stderr) console.log('ctmconv.exe stderr', result.stderr);
-				if (result.stderr) return Promise.reject(result.stderr);
+				if (result.stderr)
+					return Promise.reject(result.stderr);
 
 				// delete dae file
-				return fs.unlinkAsync(daefile);
+				return fs.unlinkAsync(path + geofile.dae);
 			})
 			.then(function () {
-				// copy ctm file into project folder
-				return fs.renameAsync(ctmfile, path + fname + '.ctm');
-			})
-			.then(function () {
-				return generateEdges(path, fname);
+				// generate edges file
+				return generateEdges(path, geofile);
 			})
 			.then(function (edgesFile) {
-				geometryFiles[geo.id].edges = edgesFile;
-		});
-
-	}).then(function () {
-		// copy base dae file into project folder
-		return fs.renameAsync(file, path + npath.basename(file));
-	}).then(function () {
-		prepareNodes(nodes, null)
-
-	}).then(function () {
-		process.send({ nodes: nodes, axis: upAxis, unit: unit, images: images });
-		process.exit();
-	})
-	.catch(function (err) {
-		console.error(err);
-		console.debug('deleting files...');
-
-		// delete all files
-		Promise.map(geoIds, function (geo) {
-			var fname = tid + '_' + geo.id;
-			var prjCtmfile = path + fname + '.ctm';
-			var prjZipfile = path + fname + '.ctm.zip';
-			var tmpDaefile = config.path.tmp + '/' + fname + '.dae';
-			var tmpCtmfile = config.path.tmp + '/' + fname + '.ctm';
-		
-			return fs.statAsync(prjCtmfile).then(function () {
-				return fs.unlinkAsync(prjCtmfile);
-			}).catch(function (err) {
-				if(err && err.code === 'ENOENT') return Promise.resolve();
-				else return Promise.reject(err);
-			}).then(function () {
-				return fs.statAsync(prjZipfile);
-			}).then(function () {
-				return fs.unlinkAsync(prjZipfile);
-			}).catch(function (err) {
-				if(err && err.code === 'ENOENT') return Promise.resolve();
-				else return Promise.reject(err);
-			}).then(function () {
-				return fs.statAsync(tmpCtmfile);
-			}).then(function () {
-				return fs.unlinkAsync(tmpCtmfile);
-			}).catch(function (err) {
-				if(err && err.code === 'ENOENT') return Promise.resolve();
-				else return Promise.reject(err);
-			}).then(function () {
-				return fs.statAsync(tmpDaefile);
-			}).then(function () {
-				return fs.unlinkAsync(tmpDaefile);
-			}).catch(function (err) {
-				if(err && err.code === 'ENOENT') return Promise.resolve();
-				else return Promise.reject(err);
+				geofile.edges = edgesFile;
 			});
-		}).then(function () {
-			var prjDaefile = path + npath.basename(file);
-			return fs.statAsync(prjDaefile).then(function () {
-				return fs.unlinkAsync(prjDaefile);
-			}).catch(function (err) {
-				if(err && err.code === 'ENOENT') return Promise.resolve();
-				else return Promise.reject(err);
-			}).then(function () {
-				return fs.statAsync(file);
-			}).then(function () {
-				return fs.unlinkAsync(file);
-			}).catch(function (err) {
-				if(err && err.code === 'ENOENT') return Promise.resolve();
-				else return Promise.reject(err);
+
+		})
+		.then(function () {
+			// 5. prepare nodes
+			prepareNodes(nodes, null)
+
+		})
+		.then(function () {
+			// everything went well
+			// 6. return nodes
+			process.send({ nodes: nodes, axis: upAxis, unit: unit, images: images });
+			process.exit();
+		})
+		.catch(function (err) {
+			// something went wrong
+			process.send({
+				error: 'dae-file-process failed',
+				data: err,
+				effects: effects,
+				materials: materials,
+				nodes: nodes,
+				geo: geometryFiles,
+				axis: upAxis,
+				unit: unit
 			});
-		}).catch(function (err) {
-			console.error('deleting files failed', err);
-		}).then(function () {
-			process.send({ error: 'dae-file-process failed', effects: effects, materials: materials, nodes: nodes, geo: geometryFiles, geoIds: geoIds, axis: upAxis, unit: unit });
 			process.exit();
 		});
-
-		// process.send({ error: 'dae-file-process failed', effects: effects, materials: materials, nodes: nodes, geo: geometryFiles, geoIds: geoIds, axis: upAxis, unit: unit });
-		// process.exit();
+	// .catch(function (err) {
+	// 	console.error(err);
+	// 	console.debug('deleting files...');
+	//
+	// 	// delete all files
+	// 	Promise.map(geoIds, function (geo) {
+	// 		var fname = tid + '_' + geo.id;
+	// 		var prjCtmfile = path + fname + '.ctm';
+	// 		var prjZipfile = path + fname + '.ctm.zip';
+	// 		var tmpDaefile = config.path.tmp + '/' + fname + '.dae';
+	// 		var tmpCtmfile = config.path.tmp + '/' + fname + '.ctm';
+	//
+	// 		return fs.statAsync(prjCtmfile).then(function () {
+	// 			return fs.unlinkAsync(prjCtmfile);
+	// 		}).catch(function (err) {
+	// 			if(err && err.code === 'ENOENT') return Promise.resolve();
+	// 			else return Promise.reject(err);
+	// 		}).then(function () {
+	// 			return fs.statAsync(prjZipfile);
+	// 		}).then(function () {
+	// 			return fs.unlinkAsync(prjZipfile);
+	// 		}).catch(function (err) {
+	// 			if(err && err.code === 'ENOENT') return Promise.resolve();
+	// 			else return Promise.reject(err);
+	// 		}).then(function () {
+	// 			return fs.statAsync(tmpCtmfile);
+	// 		}).then(function () {
+	// 			return fs.unlinkAsync(tmpCtmfile);
+	// 		}).catch(function (err) {
+	// 			if(err && err.code === 'ENOENT') return Promise.resolve();
+	// 			else return Promise.reject(err);
+	// 		}).then(function () {
+	// 			return fs.statAsync(tmpDaefile);
+	// 		}).then(function () {
+	// 			return fs.unlinkAsync(tmpDaefile);
+	// 		}).catch(function (err) {
+	// 			if(err && err.code === 'ENOENT') return Promise.resolve();
+	// 			else return Promise.reject(err);
+	// 		});
+	// 	}).then(function () {
+	// 		var prjDaefile = path + npath.basename(file);
+	// 		return fs.statAsync(prjDaefile).then(function () {
+	// 			return fs.unlinkAsync(prjDaefile);
+	// 		}).catch(function (err) {
+	// 			if(err && err.code === 'ENOENT') return Promise.resolve();
+	// 			else return Promise.reject(err);
+	// 		}).then(function () {
+	// 			return fs.statAsync(file);
+	// 		}).then(function () {
+	// 			return fs.unlinkAsync(file);
+	// 		}).catch(function (err) {
+	// 			if(err && err.code === 'ENOENT') return Promise.resolve();
+	// 			else return Promise.reject(err);
+	// 		});
+	// 	}).catch(function (err) {
+	// 		console.error('deleting files failed', err);
+	// 	}).then(function () {
+	// 		process.send({ error: 'dae-file-process failed', effects: effects, materials: materials, nodes: nodes, geo: geometryFiles, geoIds: geoIds, axis: upAxis, unit: unit });
+	// 		process.exit();
+	// 	});
+	//
+	// 	// process.send({ error: 'dae-file-process failed', effects: effects, materials: materials, nodes: nodes, geo: geometryFiles, geoIds: geoIds, axis: upAxis, unit: unit });
+	// 	// process.exit();
 		
-	});
+	// });
 
 }
 
+// extract data from dae xml object and prepare nodes
 function prepareNodes(nodes, parentid) {
 
 	for (var i=0; i<nodes.length; i++) {
@@ -297,7 +386,7 @@ function prepareNodes(nodes, parentid) {
 		n.name = n.$.name;
 		n.layer = n.$.layer || undefined;
 		n.unit = +unit.meter;
-		n.upAxis = upAxis;
+		n.up = upAxis;
 		n.parentid = parentid;
 
 		//console.warn(n);
@@ -322,60 +411,44 @@ function prepareNodes(nodes, parentid) {
 
 		// geometry
 		if (n.instance_geometry) {
-			n.geometryUrl = n.instance_geometry.$.url.substring(1);
-			n.files = geometryFiles[utils.replace(n.geometryUrl)];
-			n.type = 'object';
-			
-			// material
-			if(n.instance_geometry.bind_material && n.instance_geometry.bind_material.technique_common.instance_material) {
-				n.material = {
-					id: n.instance_geometry.bind_material.technique_common.instance_material.$.target.substring(1)
-				};
-				n.material.name = materials[n.material.id].$.name;
-				
-				var effect = effects[materials[n.material.id].instance_effect.$.url.substring(1)];
-				var shading = effect.phong || effect.blinn || effect.lambert;
-				
-				if (shading.diffuse.color) {
-					var color = shading.diffuse.color instanceof Object ? shading.diffuse.color.$text.split(/\s+/) : shading.diffuse.color.split(/\s+/);
-					n.material.color = [ +color[0], +color[1], +color[2], +color[3] ];
+			for (var j = 0; j < n.instance_geometry.length; j++) {
+				n.type = 'object';
+
+				var ig = extractInstanceGeometry(n.instance_geometry[j]);
+
+				// geometryUrl
+				if (!n.geometryUrl)
+					n.geometryUrl = ig.geometryUrl;
+				else if (Array.isArray(n.geometryUrl))
+					n.geometryUrl.push(ig.geometryUrl);
+				else {
+					n.geometryUrl = [n.geometryUrl];
+					n.geometryUrl.push(ig.geometryUrl);
 				}
-				else if (shading.diffuse.texture) {
-					var texId = shading.diffuse.texture.$.texture;
-					if (texId in images)
-						n.material.map = images[texId];
-					else {
-						while (!(texId in images)) {
-							if (!(texId in newparams)) break;
-							var np = newparams[texId];
-							if (np.sampler2D && np.sampler2D.source)
-								texId = np.sampler2D.source;
-							else if (np.surface && np.surface.init_from)
-								texId = np.surface.init_from;
-						}
-						n.material.map = images[texId];
-					}
+
+				// file
+				if (!n.files)
+					n.files = ig.files;
+				else if (Array.isArray(n.files))
+					n.files.push(ig.files);
+				else {
+					n.files = [n.files];
+					n.files.push(ig.files);
 				}
-				if (shading.transparent && shading.transparent.texture) {
-					texId = shading.transparent.texture.$.texture;
-					if (texId in images)
-						n.material.alphaMap = images[texId];
-					else {
-						while (!(texId in images)) {
-							if (!(texId in newparams)) break;
-							np = newparams[texId];
-							if (np.sampler2D && np.sampler2D.source)
-								texId = np.sampler2D.source;
-							else if (np.surface && np.surface.init_from)
-								texId = np.surface.init_from;
-						}
-						n.material.alphaMap = images[texId];
-					}
+
+				// material
+				if (!n.material)
+					n.material = ig.material;
+				else if (Array.isArray(n.material))
+					n.material.push(ig.material);
+				else {
+					n.material = [n.material];
+					n.material.push(ig.material);
 				}
 			}
-
 			delete n.instance_geometry;
 		}
+
 		else if (n.instance_light) {
 			n.type = 'light';
 			continue;
@@ -400,6 +473,64 @@ function prepareNodes(nodes, parentid) {
 		prepareNodes(n.children, n.id);
 	}
 
+}
+
+function extractInstanceGeometry(ig) {
+	var data = {};
+	data.geometryUrl = ig.$.url.substring(1);
+	data.files = geometryFiles[utils.replace(data.geometryUrl)];
+
+	// material
+	if(ig.bind_material && ig.bind_material.technique_common.instance_material) {
+
+		var material = {
+			id: ig.bind_material.technique_common.instance_material.$.target.substring(1)
+		};
+		material.name = materials[material.id].$.name;
+
+		var effect = effects[materials[material.id].instance_effect.$.url.substring(1)];
+		var shading = effect.phong || effect.blinn || effect.lambert;
+
+		if (shading.diffuse.color) {
+			var color = shading.diffuse.color instanceof Object ? shading.diffuse.color.$text.split(/\s+/) : shading.diffuse.color.split(/\s+/);
+			material.color = [ +color[0], +color[1], +color[2], +color[3] ];
+		}
+		else if (shading.diffuse.texture) {
+			var texId = shading.diffuse.texture.$.texture;
+			if (texId in images)
+				material.map = images[texId];
+			else {
+				while (!(texId in images)) {
+					if (!(texId in newparams)) break;
+					var np = newparams[texId];
+					if (np.sampler2D && np.sampler2D.source)
+						texId = np.sampler2D.source;
+					else if (np.surface && np.surface.init_from)
+						texId = np.surface.init_from;
+				}
+				material.map = images[texId];
+			}
+		}
+		if (shading.transparent && shading.transparent.texture) {
+			texId = shading.transparent.texture.$.texture;
+			if (texId in images)
+				material.alphaMap = images[texId];
+			else {
+				while (!(texId in images)) {
+					if (!(texId in newparams)) break;
+					np = newparams[texId];
+					if (np.sampler2D && np.sampler2D.source)
+						texId = np.sampler2D.source;
+					else if (np.surface && np.surface.init_from)
+						texId = np.surface.init_from;
+				}
+				material.alphaMap = images[texId];
+			}
+		}
+	}
+	data.material = material;
+
+	return data;
 }
 
 // build xml from xml-stream object
@@ -483,14 +614,15 @@ function multiplyMatrices(ae, be) {
 	return te;
 }
 
-function generateEdges(path, fname) {
+// load ctm, compute EdgesGeometry by angle, and save as zipped json
+function generateEdges(path, geofile) {
 	return new Promise(function (resolve, reject) {
 
-		ctmlloader.load(path + fname + '.ctm', function (geo) {
+		ctmlloader.load(path + geofile.ctm, function (geo) {
 
-			if(!geo) {
+			if (!geo) {
 				console.warn('No ctm loaded');
-				reject('NOGEO');
+				reject('NO_GEO');
 			}
 
 			var edgesGeo = new THREE.EdgesGeometry(geo, 24.0);
@@ -498,17 +630,21 @@ function generateEdges(path, fname) {
 			
 			var json = edgesGeo.toJSON();
 			var array = json.data.attributes.position.array;
-			for(var i=0, l=array.length; i<l; i++) {
+			// shorten numbers
+			for (var i=0, l=array.length; i<l; i++) {
 				array[i] = parseFloat(array[i].toFixed(3));
 			}
 
+			var zipfile = geofile.basename + '.json.zip';
+
 			var zip = new JSZip();
-			zip.file(fname + '.ctm.json', JSON.stringify(json));
+			zip.file(geofile.basename + '.json', JSON.stringify(json));
+
 			zip.generateNodeStream({ compression: 'DEFLATE', compressionOptions: { level: 9 } })
-				.pipe(fs.createWriteStream(path + fname + '.ctm.zip'))
+				.pipe(fs.createWriteStream(path + zipfile))
 				.on('finish', function () {
 					edgesGeo.dispose();
-					resolve(fname + '.ctm.zip');
+					resolve(zipfile);
 				})
 				.on('error', function (err) {
 					edgesGeo.dispose();

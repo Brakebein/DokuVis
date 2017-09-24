@@ -6,53 +6,11 @@
 	</div>
 
 	<div class="col-lg-4">
-		<div class="panel panel-default">
-			<div class="panel-heading">Personen</div>
-			<div class="panel-body">
-				<table class="table">
-					<thead>
-						<tr>
-							<th>Name</th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr ng-repeat="p in persons">
-							<td>{{ p.name }}</td>
-							<td><a ui-sref="project.graph.node({ startNode: p.personId })">Graphensuche</a></td>
-						</tr>
-					</tbody>
-				</table>
-
-			</div>
-		</div>
+		<author-list></author-list>
 	</div>
 
 	<div class="col-lg-4">
-		<div class="panel panel-default">
-			<div class="panel-heading">Archive</div>
-			<div class="panel-body">
-				<ul class="list-group">
-					<li class="list-group-item" ng-repeat="ar in archives">
-						<table class="table">
-							<tr>
-								<td><strong>Institution:</strong></td>
-								<td>{{ ar.institutionName }} ({{ ar.institutionAbbr }})</td>
-							</tr>
-							<tr>
-								<td><strong>Sammlung:</strong></td>
-								<td>{{ ar.collectionName }}</td>
-							</tr>
-							<tr>
-								<td></td>
-								<td><a ui-sref="project.graph.node({ startNode: ar.collectionId })">Graphensuche</a></td>
-							</tr>
-						</table>
-					</li>
-				</ul>
-
-			</div>
-		</div>
+		<archives-list></archives-list>
 	</div>
 
 </div>

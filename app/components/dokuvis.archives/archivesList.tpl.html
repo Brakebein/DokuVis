@@ -1,0 +1,28 @@
+<div class="panel panel-default">
+	<div class="panel-heading">{{'archive_title' | translate}}</div>
+	<div class="panel-body">
+		<table class="table">
+			<thead>
+			<tr>
+				<th width="60%">{{'archive_institution' | translate}}/{{'archive_collection' | translate}}</th>
+				<th><i class="fa fa-link"></i></th>
+				<th></th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr ng-repeat="archive in archives | orderBy: 'institution.name'">
+				<td>{{ archive.institution.name }} <span ng-show="archive.institution.abbr">({{ archive.institution.abbr }})</span><br/>
+					<h4>{{ archive.collection.name }}</h4>
+				</td>
+				<td>{{ archive.linkStats.documents }}</td>
+				<td><a ui-sref="project.graph.node({ startNode: archive.collection.nodeId })">Graphensuche</a>
+					<button class="btn btn-default btn-xs" ui-sref=".archive({ archiveId: archive.collection.id })">{{'edit' | translate}}</button>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="panel-footer">
+		<button class="btn btn-default" ui-sref=".archive">{{'archive_modal_title' | translate}}</button>
+	</div>
+</div>

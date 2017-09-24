@@ -7,22 +7,6 @@
 	height: 100%
 	padding: 10px
 
-	.search
-		float: right
-
-	.tasks-controls
-		padding-bottom: 20px
-		display: flex
-		//justify-content: space-around
-
-		.tasks-ctrl
-			flex: 0 0 auto
-			padding: 0 20px
-			&.input-group
-				max-width: 200px
-
-	//.tasks-container
-
 .tasks-side
 	position: absolute
 	left: $tasksMainWidth
@@ -30,214 +14,113 @@
 	height: 100%
 
 
-// ganttRow custom
-.gantt-row
-	.gantt-task-truncated-left, .gantt-task-truncated-right
-		color: #333
-	.gantt-task-overview
-		.gantt-task-truncated-left, .gantt-task-truncated-right
-			margin-top: -2px
-			font-size: 13px
-		&.gantt-task.active > .gantt-task-background
-			border: none
-	&.task-group
-		.gantt-task-overview
-			height: 10%
-			top: 90%
-			.gantt-task-truncated-left, .gantt-task-truncated-right
-				display: none
-	&.staff-row:nth-child(n+2)
-		border-top: 2px solid #bbb
-
-.gantt-row-label
-	.gantt-label-text
-		.label-highlight
-			cursor: pointer
-			&:hover
-				color: $dvPrimaryColor
-		.btn-row
-			cursor: pointer
-			opacity: 0.5
-			&:hover
-				opacity: 1
-
-	&.active .gantt-label-text
-		.label-highlight
-			color: $dvPrimaryColor
-	&.staff-row:nth-child(n+2)
-		border-top: 2px solid #bbb
-
-
-// ganttTask custom
-$ganttTaskBorder: 2px solid $dvPrimaryColor
-
-.gantt-task
-	&.active > .gantt-task-background
-		border: $ganttTaskBorder
-
-
-.gantt-task-content
-	.btn-task
-		cursor: pointer
-		opacity: 0
-
-	&:hover .btn-task
-		opacity: 0.5
-		&:hover
-			opacity: 1
-
-
-// task specific classes
-.task-priority-low
-	&.label
-		background-color: $taskPriorityLow
-		color: #333
-	&.btn
-		background-color: $taskPriorityLow
-		&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
-			background-color: $taskPriorityLow * 0.93
-	&.gantt-task > .gantt-task-background
-		background-color: $taskPriorityLow
-	&.gantt-task-overview
-		z-index: 9
-
-.task-priority-medium
-	&.label
-		background-color: $taskPriorityMedium
-		color: #333
-	&.btn
-		background-color: $taskPriorityMedium
-		&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
-			background-color: $taskPriorityMedium * 0.93
-	&.gantt-task > .gantt-task-background
-		background-color: $taskPriorityMedium
-	&.gantt-task-overview
-		z-index: 8
-
-.task-priority-high
-	&.label
-		background-color: $taskPriorityHigh
-	&.btn
-		background-color: $taskPriorityHigh
-		&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
-			background-color: $taskPriorityHigh * 0.93
-	&.gantt-task > .gantt-task-background
-		background-color: $taskPriorityHigh
-	&.gantt-task-overview
-		z-index: 7
-
-.task-status-done
-	&.gantt-task > .gantt-task-background
-		background-color: lighten($dvGreenColor, 20%)
-	&.gantt-task-overview
-		z-index: 6
 
 
 
 // old stuff
-.fa-flag#colHead
-	opacity: 1
-
-.fa-flag#colHead:hover
-	cursor: pointer
-
-.fa-flag#highPriority
-	color: red
-	opacity: 0.5
-	-webkit-text-stroke-width: 0.5px
-	-webkit-text-stroke-color: black
-
-.fa-flag#mediumPriority
-	color: #ffbe37
-	opacity: 0.5
-	-webkit-text-stroke-width: 0.5px
-	-webkit-text-stroke-color: black
-
-
-.fa-flag#lowPriority
-	color: yellow
-	opacity: 0.5
-	-webkit-text-stroke-width: 0.5px
-	-webkit-text-stroke-color: black
-
-.fa-flag#highPriority:hover
-	cursor: pointer
-	opacity: 1.0
-
-
-.fa-flag#mediumPriority:hover
-	cursor: pointer
-	opacity: 1.0
-
-
-.fa-flag#lowPriority:hover
-	cursor: pointer
-	opacity: 1.0
-
-
-.fa-exclamation
-	opacity: 0.75
-
-
-.fa-exclamation:hover
-	cursor: pointer
-	opacity: 1.0
-
-
-
-.fa-exclamation#colHead
-	opacity: 1
-
-
-.fa-exclamation#colHead:hover
-	cursor: pointer
-
-
-.fa-exclamation#highPriority
-	color: red
-	opacity: 0.75
-	-webkit-text-stroke-width: 0.5px
-	-webkit-text-stroke-color: black
-
-.fa-exclamation#mediumPriority
-	color: #ffbe37
-	opacity: 0.75
-	-webkit-text-stroke-width: 0.5px
-	-webkit-text-stroke-color: black
-
-
-.fa-exclamation#lowPriority
-	color: yellow
-	opacity: 0.75
-	-webkit-text-stroke-width: 0.5px
-	-webkit-text-stroke-color: black
-
-
-.fa-exclamation#highPriority:hover
-	cursor: pointer
-	opacity: 1.0
-
-
-.fa-exclamation#mediumPriority:hover
-	cursor: pointer
-	opacity: 1.0
-
-.fa-exclamation#lowPriority:hover
-	cursor: pointer
-	opacity: 1.0
-
-.screenshotItem
-	padding: 4px
-	margin-bottom: 20px
-	border: 1px solid #ddd
-	border-radius: 4px
-/* background-color: rgba(252,78,42,0.05); */
-
-
-.buffer
-	padding-top: 2px
-	margin: 20px
-
-.bufferModal
-	padding-top: 2px
-	margin-top: 10px
+//.fa-flag#colHead
+//	opacity: 1
+//
+//.fa-flag#colHead:hover
+//	cursor: pointer
+//
+//.fa-flag#highPriority
+//	color: red
+//	opacity: 0.5
+//	-webkit-text-stroke-width: 0.5px
+//	-webkit-text-stroke-color: black
+//
+//.fa-flag#mediumPriority
+//	color: #ffbe37
+//	opacity: 0.5
+//	-webkit-text-stroke-width: 0.5px
+//	-webkit-text-stroke-color: black
+//
+//
+//.fa-flag#lowPriority
+//	color: yellow
+//	opacity: 0.5
+//	-webkit-text-stroke-width: 0.5px
+//	-webkit-text-stroke-color: black
+//
+//.fa-flag#highPriority:hover
+//	cursor: pointer
+//	opacity: 1.0
+//
+//
+//.fa-flag#mediumPriority:hover
+//	cursor: pointer
+//	opacity: 1.0
+//
+//
+//.fa-flag#lowPriority:hover
+//	cursor: pointer
+//	opacity: 1.0
+//
+//
+//.fa-exclamation
+//	opacity: 0.75
+//
+//
+//.fa-exclamation:hover
+//	cursor: pointer
+//	opacity: 1.0
+//
+//
+//
+//.fa-exclamation#colHead
+//	opacity: 1
+//
+//
+//.fa-exclamation#colHead:hover
+//	cursor: pointer
+//
+//
+//.fa-exclamation#highPriority
+//	color: red
+//	opacity: 0.75
+//	-webkit-text-stroke-width: 0.5px
+//	-webkit-text-stroke-color: black
+//
+//.fa-exclamation#mediumPriority
+//	color: #ffbe37
+//	opacity: 0.75
+//	-webkit-text-stroke-width: 0.5px
+//	-webkit-text-stroke-color: black
+//
+//
+//.fa-exclamation#lowPriority
+//	color: yellow
+//	opacity: 0.75
+//	-webkit-text-stroke-width: 0.5px
+//	-webkit-text-stroke-color: black
+//
+//
+//.fa-exclamation#highPriority:hover
+//	cursor: pointer
+//	opacity: 1.0
+//
+//
+//.fa-exclamation#mediumPriority:hover
+//	cursor: pointer
+//	opacity: 1.0
+//
+//.fa-exclamation#lowPriority:hover
+//	cursor: pointer
+//	opacity: 1.0
+//
+//.screenshotItem
+//	padding: 4px
+//	margin-bottom: 20px
+//	border: 1px solid #ddd
+//	border-radius: 4px
+///* background-color: rgba(252,78,42,0.05); */
+//
+//
+//.buffer
+//	padding-top: 2px
+//	margin: 20px
+//
+//.bufferModal
+//	padding-top: 2px
+//	margin-top: 10px

@@ -15,6 +15,24 @@ module.exports = {
 			.catch(function (err) {
 				utils.error.neo4j(res, err, '#cypher');
 			});
+	},
+
+	queryTags: function (req, res) {
+		var q = 'MATCH (n:TAG:'+req.params.id+') \
+				WHERE n.content =~ $regex \
+				RETURN n.content as tag ORDER BY tag';
+
+		var params = {
+			regex: '.*' + req.query.search + '.*'
+		};
+
+		neo4j.readTransaction(q, params)
+			.then(function (result) {
+				res.json(result);
+			})
+			.catch(function (err) {
+				utils.error.neo4j(res, err, '#typeahead.queryTags');
+			});
 	}
 	
 };

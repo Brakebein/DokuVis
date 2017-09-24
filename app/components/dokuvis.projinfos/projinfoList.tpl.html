@@ -1,0 +1,10 @@
+<p ng-hide="infos.length">Keine Infos vorhanden.</p>
+<div class="projinfo" ng-repeat="info in infos | orderBy: 'order' as filteredInfos">
+	<div class="projinfo-text" ng-bind-html="info.value"></div>
+	<div class="projinfo-ctrls">
+		<i class="fa fa-sort-asc" ng-hide="$first" ng-click="swapInfoOrder($index, $index-1)"></i>
+		<i class="fa fa-pencil" ui-sref=".projinfo({ infoId: info.id })"></i>
+		<i class="fa fa-trash" ng-click="removeProjInfo(info)"></i>
+		<i class="fa fa-sort-desc" ng-hide="$last" ng-click="swapInfoOrder($index, $index+1)"></i>
+	</div>
+</div>

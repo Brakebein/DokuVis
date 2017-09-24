@@ -143,8 +143,9 @@ module.exports = {
 			// something went wrong rollback everything
 			.catch(function (err) {
 				if (err) {
-					tx.rollback();
-					session.close();
+					tx.rollback().then(function () {
+						session.close();
+					});
 					connection.rollback();
 					mysql.releaseConnection(connection);
 					utils.error.mysql(res, err, 'staff.create #3');

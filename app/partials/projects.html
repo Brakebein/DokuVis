@@ -10,37 +10,12 @@
 			<h3 class="panel-title">{{'overview' | translate}}</h3>
 		</div>
 		<div class="panel-body">
-		
-			<span ng-show="projects.length < 1">Keine Projekte vorhanden</span>
-		
-			<table ng-show="projects.length > 0" class="table table-striped">
-			<thead>
-				<tr>
-					<th width="200">{{'name' | translate}}</th>
-					<th>{{'description' | translate}}</th>
-					<th width="100">{{'rights' | translate}}</th>
-					<th width="300"></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="p in projects | orderBy: 'name'">
-					<td ui-sref="project.home({ project: p.proj, subproject: 'master' })" target="_blank">{{p.name}}</td>
-					<td>{{p.description}}</td>
-					<td>{{p.role}}</td>
-					<td>
-						<button class="btn btn-primary btn-xs" ng-click="openProject(p.proj)"><i class="fa fa-folder-open"></i> {{'open' | translate}}</button>
-						<button class="btn btn-default btn-xs" ng-show="p.role === 'superadmin'" ui-sref="projectlist.project({ prj: p })"><i class="fa fa-pencil"></i> {{'edit' | translate}}</button>
-						<button class="btn btn-danger btn-xs" ng-show="p.role === 'superadmin'" ng-click="deleteProject(p)"><i class="fa fa-trash"></i> {{'delete' | translate}}</button>
-					</td>
-					
-				</tr>
-				
-			</tbody>
-			</table>
+
+			<project-list></project-list>
 			
 		</div>
 	</div>
 
-	<button class="btn btn-primary" ui-sref="projectlist.project"><i class="fa fa-plus"></i> {{'project_new' | translate}}</button>
+	<button class="btn btn-primary" ui-sref=".project"><i class="fa fa-plus"></i> {{'project_new' | translate}}</button>
 
 </div>

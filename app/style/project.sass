@@ -63,9 +63,15 @@
 		order: 2
 		border-left: 1px solid #000
 		.smBtn
+			display: block
 			border-left: 2px solid rgba($dvPrimaryColor, 0.5)
 			&:hover, &.active
 				border-left-color: $dvPrimaryColor
+		&[bs-radio-group] > label
+			margin: 0
+			& > input
+				display: none
+
 
 .sideContainer
 	flex: 1 1 auto
@@ -102,6 +108,7 @@
 	left: $navWidth
 	right: 0
 	z-index: 30
+	//overflow-y: auto
 
 // resizer
 .resizer-h

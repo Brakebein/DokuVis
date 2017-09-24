@@ -11,8 +11,6 @@
  * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$q $q
  * @requires APIRequest
  * @requires neo4jRequest
- * @requires https://github.com/nervgh/angular-file-upload FileUploader
- * @requires Uploader
  * @requires Utilities
  * @requires webglInterface
  * @requires http://mgcrea.github.io/angular-strap/#/modals $modalProvider
@@ -22,8 +20,8 @@
  * @requires Category
  * 
  */
-angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'FileUploader', 'Uploader', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model', 'Comment', 'Category',
-	function($scope, $state, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, FileUploader, Uploader, Utilities, webglInterface, $modal, Source, Model, Comment, Category) {
+angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model', 'Comment', 'Category',
+	function($scope, $state, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, Utilities, webglInterface, $modal, Source, Model, Comment, Category) {
 
 		// Initialisierung von Variablen
 		$scope.project = $stateParams.project;
@@ -32,7 +30,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		$scope.views = {};
 		$scope.views.activeMain = '3dview';
-		$scope.views.activeSide = 'objlist';
+		$scope.views.activeSide = 'versions';
 		//$scope.views.activeSide = 'comments';
 								
 		$scope.overlayParams = {url: '', params: {}};
@@ -137,40 +135,8 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		$scope.categories = [];
 		$scope.activeCategory = null;
 	
-		// Uploader für Quellen
-		$scope.sourcesUploader = new FileUploader();
 
-		$scope.sourcesUploader.filters.push({
-			name: 'sourceFilter',
-			fn: function(item, options) {
-				var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|';
-				return '|jpg|png|jpeg|bmp|gif|tiff|pdf|'.indexOf(type) !== -1;
-			}
-		});
-        $scope.sourcesUploader.onWhenAddingFileFailed = function(item, filter, options) {
-            console.info('onWhenAddingFileFailed', item, filter, options);
-			Utilities.dangerAlert('Nicht unterstütztes Format!');
-        };
-        $scope.sourcesUploader.onAfterAddingAll = function(addedFileItems) {
-            console.info('onAfterAddingAll', addedFileItems);
-			//$scope.openSourceTypeDialog();
-			$scope.openInsertForm('source');
-        };
-		
-		// Modal öffnen
-		$scope.openInsertForm = function(type, attach) {
-			
-			//console.log($scope.sourcesUploader);
 
-			$state.go('project.explorer.upload.type', { uploadType: type, attachTo: attach || undefined });
-
-			$timeout(function () {
-				for(var i=0; i<$scope.sourcesUploader.queue.length; i++)
-					Uploader.addToQueue($scope.sourcesUploader.queue[i]._file);
-				console.log('files', Uploader);
-				$scope.sourcesUploader.clearQueue();
-			},500);
-		};
 		$scope.openScreenshotDetail = function(data) {
 			$scope.modalParams = {
 				modalType: 'xlarge',
@@ -198,17 +164,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				show: true
 			});
 		};
-		// $scope.openCategoryEdit = function() {
-		// 	$scope.modalParams = {};
-		// 	$modal({
-		// 		title: 'Kategorien verwalten',
-		// 		templateUrl: 'partials/modals/_modalTpl.html',
-		// 		contentTemplate: 'partials/modals/categoryEditModal.html',
-		// 		controller: 'categoryEditCtrl',
-		// 		scope: $scope,
-		// 		show: true 
-		// 	});
-		// };
+
 
 		/**
 		 * close modal
@@ -216,17 +172,14 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		 * @deprecated
 		 */
 		$scope.closeModal = function(update) {
-			if(update === 'source')
-				$scope.queryDocuments();
 			if(update === 'screenshot')
 				$scope.getScreenshots();
-			if(update === 'category')
-				getAllCategories();
 			
 			$scope.overlayParams.params = {};
 			$scope.overlayParams.url = '';
 			$scope.sourcesUploader.clearQueue();
 		};
+
 		/**
 		 * get all sources/documents
 		 */
@@ -566,7 +519,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 
 		//old
-		$scope.selectResultItem = function(event, item) {
+		/*$scope.selectResultItem = function(event, item) {
 			//console.log(event, item);
 			var btnbar = event.currentTarget.children[0].children[2];
 			if(event.target.parentElement == btnbar || event.target.parentElement.parentElement == btnbar)
@@ -591,7 +544,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 					item.selected = true;
 			}
 			$scope.sourcesSettings.filterSelected = false;
-		};
+		};*/
 		
 		$scope.filterSelected = function (value) {
 			if($scope.sourcesSettings.filterSelected)
@@ -679,6 +632,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 
 		/**
 		 * Query categories
+		 * @deprecated
 		 */
 		function getAllCategories() {
 			Category.query().$promise.then(function (result) {
@@ -702,6 +656,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		/**
 		 * Assign new categorie to selection
 		 * @param c
+		 * @deprecated
 		 */
 		$scope.updateCategoryAttr = function(c) {
 			if(c.selected === -1) return;
@@ -783,7 +738,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 				$scope.queryComments();
 			});
 			$scope.getScreenshots();
-			getAllCategories();
 			//$scope.loadModelsWithChildren();
 		}, 500);
 

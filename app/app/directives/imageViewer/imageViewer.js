@@ -8,25 +8,26 @@
  * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$window $window
  * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout $timeout
  * @requires SpatializeInterface
- * @restrict A
+ * @requires $debounce
+ * @restrict E
  * @scope
- * @param imageViewer {string} Path/url to the image
+ * @param src {string} Path/url to the image
  * @param options {Object=} Force resolution/aspect ratio with `width` and `height` property
  * @param spatialize {boolean=} Activate spatialize feature, e.g. setting markers on image
  */
-angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '$timeout', 'SpatializeInterface',
-	function ($document, $window, $timeout, SpatializeInterface) {
+angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '$timeout', 'SpatializeInterface', '$debounce',
+	function ($document, $window, $timeout, SpatializeInterface, $debounce) {
 
 		return {
-			restrict: 'A',
+			restrict: 'E',
 			templateUrl: 'app/directives/imageViewer/imageViewer.html',
 			scope: {
-				source: '=imageViewer',
+				source: '=src',
 				options: '=options'
 			},
 			link: function (scope, element, attrs) {
 
-				console.log(scope, element, attrs);
+				angular.element(element).css('overflow', 'hidden');
 
 				// activate spatialize feature
 				if ('spatialize' in attrs)
@@ -54,7 +55,19 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 				
 				// bind event listeners
 				$document.on('mouseup', mouseup);
-				angular.element($window).on('resize', resizeViewer);
+				angular.element($window).on('resize', function () {
+					// invoke digest on window resize
+					scope.$applyAsync();
+				});
+
+				// call resizeViewer after element dimensions have been changed by last digest call
+				var resizeDebounce = $debounce(function () {
+					resizeViewer();
+				}, 200, false, false);
+
+				scope.$watch(function () {
+					resizeDebounce();
+				});
 
 				// load new image, if url has changed
 				scope.$watch('source', loadTexture);
@@ -63,7 +76,7 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 				$timeout(function () {
 					resizeViewer();
 					init();
-					if(readyTexture) loadTexture(scope.source);
+					if (readyTexture) loadTexture(scope.source);
 				});
 				
 				function init() {
@@ -103,7 +116,7 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 
 					readyTexture = true;
 					console.log('source:', url);
-					if(!readyViewer) return;
+					if (!readyViewer) return;
 
 					// to prevent seeing a white plane, the plane is only added, when texture is loaded
 					if (!readyAll) {
@@ -197,7 +210,7 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 					if (event.deltaY > 0) {
 						// scroll up -> zoom in
 						var delta = -zoomSpeed * plane.position.z;
-						if(plane.position.z + delta > maxZoomIn) return;
+						if (plane.position.z + delta > maxZoomIn) return;
 						plane.translateZ(delta);
 						fitToBorders();
 						render();
@@ -205,7 +218,7 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 					else if (event.deltaY < 0) {
 						// scroll down -> zoom out
 						delta = zoomSpeed * plane.position.z;
-						if(plane.position.z + delta <= maxZoomOut) delta = maxZoomOut - plane.position.z;
+						if (plane.position.z + delta <= maxZoomOut) delta = maxZoomOut - plane.position.z;
 						plane.translateZ(delta);
 						fitToBorders();
 						render();
@@ -297,15 +310,15 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 				}
 
 				// update aspect ratios, camera, and renderer on resize
-				function resizeViewer() {
-					console.log('resize viewer');
-
-					SCREEN_WIDTH = element.width();
-					SCREEN_HEIGHT = element.height();
+				function resizeViewer(width, height) {
+					SCREEN_WIDTH = width || element.width();
+					SCREEN_HEIGHT = height || element.height();
 
 					canvasAspect = SCREEN_WIDTH / SCREEN_HEIGHT;
 					angleX = Math.atan(0.5 * canvasAspect);
 					angleY = Math.atan(0.5);
+
+					var doResetView = plane && plane.position.z === maxZoomOut;
 
 					if (imageAspect && imageAspect > canvasAspect)
 						maxZoomOut = -(imageAspect / 2) / Math.tan(angleX);
@@ -320,7 +333,8 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 
 					if (renderer) {
 						renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-						render();
+						if (plane && doResetView) resetView();
+						else render();
 					}
 				}
 
@@ -333,11 +347,14 @@ angular.module('dokuvisApp').directive('imageViewer', ['$document', '$window', '
 				// destroy elements / cleanup
 				scope.$on('$destroy', function () {
 					// dispose geometry and materials
-					plane.geometry.dispose();
-					if (plane.material.map) plane.material.map.dispose();
-					plane.material.dispose();
+					if (plane) {
+						plane.geometry.dispose();
+						if (plane.material.map) plane.material.map.dispose();
+						plane.material.dispose();
+					}
 
-					renderer.dispose();
+					if (renderer)
+						renderer.dispose();
 
 					if (scope.spatialize)
 						clearMarkers();

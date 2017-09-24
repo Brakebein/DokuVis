@@ -29,7 +29,7 @@ An optional feature is to set markers on the image.</p>
   
   <h2 id="dependencies">Dependencies</h2>
   <ul>
-    <li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/service/$document">$document</a></li><li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/service/$window">$window</a></li><li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout">$timeout</a></li><li><a href="api/dokuvisApp/factory/SpatializeInterface">SpatializeInterface</a></li>
+    <li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/service/$document">$document</a></li><li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/service/$window">$window</a></li><li><a href="https://code.angularjs.org/1.4.6/docs/api/ng/service/$timeout">$timeout</a></li><li><a href="api/dokuvisApp/factory/SpatializeInterface">SpatializeInterface</a></li><li><a href="$debounce">$debounce</a></li>
   </ul>
   
 
@@ -46,8 +46,10 @@ An optional feature is to set markers on the image.</p>
   <div class="usage">
   
     <ul>
-    <li>as attribute:
-        <pre><code>&lt;ANY&#10;  image-viewer=&quot;string&quot;&#10;  [spatialize]&gt;&#10;...&#10;&lt;/ANY&gt;</code></pre>
+    
+      <li>as element:
+      
+      <pre><code>&lt;image-viewer&#10;    src=&quot;string&quot;&#10;    [options=&quot;Object&quot;]&#10;    [spatialize]&gt;&#10;  ...&#10;&lt;/image-viewer&gt;</code></pre>
       </li>
     
   </div>
@@ -67,7 +69,7 @@ An optional feature is to set markers on the image.</p>
     
     <tr>
       <td>
-        imageViewer
+        src
         
         
       </td>
@@ -76,6 +78,23 @@ An optional feature is to set markers on the image.</p>
       </td>
       <td>
         <p>Path/url to the image</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        options
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Force resolution/aspect ratio with <code>width</code> and <code>height</code> property</p>
 
         
         

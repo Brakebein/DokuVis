@@ -54,9 +54,14 @@
     order: 2;
     border-left: 1px solid #000; }
     .sideNav.sideNav-right .smBtn {
+      display: block;
       border-left: 2px solid rgba(252, 78, 42, 0.5); }
       .sideNav.sideNav-right .smBtn:hover, .sideNav.sideNav-right .smBtn.active {
         border-left-color: #fc4e2a; }
+    .sideNav.sideNav-right[bs-radio-group] > label {
+      margin: 0; }
+      .sideNav.sideNav-right[bs-radio-group] > label > input {
+        display: none; }
 
 .sideContainer {
   flex: 1 1 auto;

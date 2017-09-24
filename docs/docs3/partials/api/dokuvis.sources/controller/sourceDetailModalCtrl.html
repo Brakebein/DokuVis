@@ -1,0 +1,184 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">sourceDetailModalCtrl</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+    <li>
+      - controller in module <a href="api/dokuvis.sources">dokuvis.sources</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>Controller of the modal showing metadata of the source and image viewer.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ng/type/$rootScope.Scope">$scope</a></li><li><a href="https://docs.angularjs.org/api/ng/service/$rootScope">$rootScope</a></li><li><a href="https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state">$state</a></li><li><a href="https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$stateParams">$stateParams</a></li><li><a href="https://docs.angularjs.org/api/ng/service/$timeout">$timeout</a></li><li><a href="https://docs.angularjs.org/api/ng/service/$http">$http</a></li><li><a href="api/dokuvis.sources/factory/Source">Source</a></li><li><a href="api/dokuvis.sources/factory/SourcesCache">SourcesCache</a></li><li><a href="Utilities">Utilities</a></li><li><a href="api/dokuvis.utils/factory/ConfirmDialog">ConfirmDialog</a></li>
+  </ul>
+  
+
+  
+<h2>Methods</h2>
+<ul class="methods">
+  <li id="prev">
+    <h3 class="">
+      <span class="title"><p><code>prev();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Go to previous source item.</p>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="next">
+    <h3 class="">
+      <span class="title"><p><code>next();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Go to next source item.</p>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="close">
+    <h3 class="">
+      <span class="title"><p><code>close();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Close the modal.</p>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  </ul>
+<h2>Events</h2>
+<ul class="events">
+  <li id="sourcesUpdate">
+    <h3 class="">
+      <span class="title"><code>sourcesUpdate</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when the changes to the source have been saved or source has been deleted.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">$rootScope</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        source
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
+        <span class="label type-hint type-hint-source"><a href="api/dokuvis.sources/factory/Source">Source</a></span>
+      </td>
+      <td>
+        <p>Updated source</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>$rootScope.$on(&#39;sourcesUpdate&#39;, function (evt, source) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  </ul>
+
+<h2>Properties</h2>
+<ul class="properties">
+  <li id="iterable">
+    <h3 class="">
+      <span class="title"><code>iterable</code></span>
+      
+      
+  
+    </h3>
+    <table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-boolean"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" _target="blank">Boolean</a></span></td>
+    <td><p>Flag indicating if <code>Previous</code> and <code>Next</code> buttons should be displayed. Depends on the length of the filtered sources array.</p>
+</td>
+  </tr>
+</table>
+  </li>
+  </ul>
+
+  
+</div>
+
+

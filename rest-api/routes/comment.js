@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const neo4j = require('../neo4j-request');
 const fs = require('fs-extra-promise');
 const exec = require('child-process-promise').exec;
+const shortid = require('shortid');
 
 module.exports = {
 
@@ -33,7 +34,7 @@ module.exports = {
 				(paint)-[:P1]->(paintFile:E75) \
 			WITH e33, text, title, type, author, date, targets, refs, CASE WHEN count(screen) = 0 THEN [] ELSE collect({screenId: screen.content, cameraCenter: screen.cameraCenter, cameraFOV: screen.cameraFOV, cameraMatrix: screen.cameraMatrix, file: screenFile.content, path: screenFile.path, width: screenFile.width, height: screenFile.height, paint: {id: paint.content, file: paintFile.content, path: paintFile.path, width: paintFile.width, height: paintFile.height}}) END AS screenshots, screen, answerLength \
 			OPTIONAL MATCH (screen)-[:P106]->(pin:E73) \
-			RETURN e33.content AS eid, text.value AS text, title.value AS title, author, date, type.content AS type, targets AS targets, refs AS refs, screenshots, collect(DISTINCT pin) AS pins, answerLength';
+			RETURN e33.content AS id, text.value AS text, title.value AS title, author, date, type.content AS type, targets AS targets, refs AS refs, screenshots, collect(DISTINCT pin) AS pins, answerLength';
 
 		var params = {
 			subproj: sub === 'master' ? prj : sub
@@ -60,7 +61,11 @@ module.exports = {
 				(ae33)-[:P3]->(ae62:E62), \
 				(ae33)<-[:P94]-(ae65:E65)-[:P14]->(:E21)-[:P131]->(ae82:E82), \
 				(ae65)-[:P4]->(:E52)-[:P82]->(ae61:E61) \
-			RETURN ce33.content AS id, ce62.value AS value, ce61.value AS date, ce82.value AS author, type.content AS type, \
+			RETURN ce33.content AS id,\
+				ce62.value AS value,\
+				ce61.value AS date,\
+				ce82.value AS author,\
+				type.content AS type,\
 				collect({ id: ae33.content, value: ae62.value, date: ae61.value, author: ae82.value, type: atype.content }) AS answers';
 		var params = {
 			id: req.params.targetId
@@ -77,6 +82,7 @@ module.exports = {
 	
 	create: function (req, res) {
 		var prj = req.params.id;
+		var id = shortid.generate();
 
 		// set type
 		var cType = '';
@@ -103,8 +109,8 @@ module.exports = {
 		// prepare screenshots and process image data
 		for(var i=0; i<req.body.screenshots.length; i++) {
 			(function (screen) {
-				var sFilename = req.body.tid + '_screenshot_' + i + '.jpg';
-				var pFilename = req.body.tid + '_paint_' + i + '.png';
+				var sFilename = id + '_screenshot_' + i + '.jpg';
+				var pFilename = id + '_paint_' + i + '.png';
 
 				screen.sData = screen.sData.replace(/^data:image\/\w+;base64,/, "");
 				screen.pData = screen.pData.replace(/^data:image\/\w+;base64,/, "");
@@ -139,10 +145,10 @@ module.exports = {
 				if(cType === 'commentModel') {
 					var pins = [];
 					for (var j = 0; j < targets.length; j++) {
-						objIds.push(targets[j].eid);
+						objIds.push(targets[j].id);
 						pins.push({
 							id: 'e73_' + screenMap.screen36content + '_pin_' + j,
-							targetId: targets[j].eid,
+							targetId: targets[j].id,
 							screenIndex: i,
 							pinMatrix: targets[j].pinMatrix
 						});
@@ -178,7 +184,7 @@ module.exports = {
 		// refIds rausfiltern
 		var refs = [];
 		for(var j=0; j<req.body.refs.length; j++) {
-			refs.push(req.body.refs[j].eid);
+			refs.push(req.body.refs[j].id);
 		}
 		req.body.refs = refs;
 
@@ -224,13 +230,13 @@ module.exports = {
 				targets: targets,
 				user: req.headers['x-key'],
 				type: cType,
-				e33id: 'e33_' + req.body.tid + '_comment',
+				e33id: 'e33_' + id + '_comment',
 				e62content: {
-					content: 'e62_e33_' + req.body.tid + '_comment',
+					content: 'e62_e33_' + id + '_comment',
 					value: req.body.text
 				},
 				e35content: {
-					content: 'e35_e33_' + req.body.tid + '_comment',
+					content: 'e35_e33_' + id + '_comment',
 					value: req.body.title
 				},
 				date: req.body.date,

@@ -47,7 +47,8 @@
   
     </h3>
     <div><p>Get all archives.</p>
-<pre><code>Archive.query().$promise.then(...);
+<pre><code>Archive.query().$promise
+.then(function (archives) {...});
 </code></pre>
 </div>
 
@@ -74,7 +75,8 @@
   name: &lt;string&gt;  // archive name
   abbr: &lt;string&gt;  // abbreviation (optional)
   coll: &lt;string&gt;  // collection name
-}).$promise.then(...);
+}).$promise
+  .then(function (archive) {...});
 </code></pre>
 </div>
 

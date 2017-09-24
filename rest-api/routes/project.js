@@ -220,11 +220,14 @@ module.exports = {
 				utils.error.mysql(res, err, '#projects.create on ' + prj);
 			}
 		});
+
+		// TODO: delete folder and remove nodes, if something went wrong
 		
 	},
 
 	update: function (req, res) {
 		// TODO: check, if user is superadmin
+		// TODO: return name, description (see #project.get)
 		
 		if(!req.body.name) { utils.abort.missingData(res, 'body.name'); return; }
 		

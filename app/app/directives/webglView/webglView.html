@@ -51,7 +51,9 @@
 <div ng-if="hud.options" ng-include="'partials/enhanced_options.html'" class="vpPanelContainer" ng-hide="snapshot.active" ng-class="{ expand: vPanel.expand }" bs-collapse ng-model="vPanel.activeTab"></div>
 <!--<div ng-include="'partials/enhanced_options_horizontal.html'" class="vpPanelContainerHorizontal"></div>-->
 
-<div class="ng-hide" legend="activeCategory" ng-show="activeCategory"></div>
+<!--<div class="ng-hide" legend="activeCategory" ng-show="activeCategory"></div>-->
+
+<category-legend></category-legend>
 
 <div class="snapshot" ng-if="snapshot.active" ng-include="'partials/snapshot.html'"></div>
 

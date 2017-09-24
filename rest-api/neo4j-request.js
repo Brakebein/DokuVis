@@ -54,6 +54,34 @@ function writeTransaction(query, params) {
 	});
 }
 
+function multipleTransactions(statements) {
+	var session = driver.session();
+	var tx = session.beginTransaction();
+	
+	return Promise
+		.mapSeries(statements, function (sm) {
+			return tx.run(sm.statement, sm.parameters)
+				.then(function (result) {
+					return extractBoltRecords(result.records);
+				})
+				.catch(function (err) {
+					return Promise.reject(err);
+				});
+		})
+		.then(function (results) {
+			return tx.commit().then(function () {
+				session.close();
+				return results;
+			});
+		})
+		.catch(function (err) {
+			tx.rollback().then(function () {
+				session.close();
+			});
+			return Promise.reject(err);
+		});
+}
+
 function extractBoltRecords (data) {
 	if (!data) return [];
 	if (!Array.isArray(data)) return data;
@@ -167,6 +195,7 @@ module.exports = {
 
 	readTransaction: readTransaction,
 	writeTransaction: writeTransaction,
+	multipleStatements: multipleTransactions,
 
 	extractBoltRecords: extractBoltRecords,
 	

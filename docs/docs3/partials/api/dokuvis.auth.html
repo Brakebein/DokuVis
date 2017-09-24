@@ -1,0 +1,72 @@
+
+
+<h1>
+  <code>dokuvis.auth</code>
+</h1>
+
+<p>Services and factories for authentication.</p>
+<p>The implementation was inspired by this tutorial: <a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></p>
+<h3 id="module-dependencies">Module Dependencies</h3>
+<ul>
+<li><a href="https://ui-router.github.io/ng1/docs/0.3.2/#/api">ui.router</a></li>
+<li><a href="https://github.com/mikemclin/angular-acl">mm.acl</a></li>
+</ul>
+
+
+
+<div class="component-breakdown">
+  <h2>Module Components</h2>
+  
+  <div>
+    <h3 class="component-heading" id="factory">Factory</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/AuthenticationFactory">AuthenticationFactory</a></td>
+        <td><p>Service responsible for checking the user status.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/UserAuthFactory">UserAuthFactory</a></td>
+        <td><p>Service responsible for contacting the login endpoint and validating the user (and logging out the user).</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/TokenInterceptor">TokenInterceptor</a></td>
+        <td><p>Service responsible for sending in the access token and the key along with each request to the server.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/ValidateResolve">ValidateResolve</a></td>
+        <td><p>Resolver: Check for valid token and user data.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/AuthenticateResolve">AuthenticateResolve</a></td>
+        <td><p>Resolver: No access, if user is not logged in.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/SkipResolve">SkipResolve</a></td>
+        <td><p>Resolver: If the user is already logged in, take him to the home page.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+</div>
+
+
+
+
+

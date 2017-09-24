@@ -165,7 +165,7 @@ angular.module('dokuvisApp').factory('webglContext',
 		// font
 		var fontLoader = new THREE.FontLoader(),
 			fonts = {};
-		fontLoader.load('fonts/helvetiker_bold.typeface.js', function (font) {
+		fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
 			fonts['HelvetikerBold'] = font;
 		});
 

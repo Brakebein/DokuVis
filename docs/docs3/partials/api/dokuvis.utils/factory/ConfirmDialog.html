@@ -1,0 +1,153 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">ConfirmDialog</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+  
+
+    <li>
+      - factory in module <a href="api/dokuvis.utils">dokuvis.utils</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>Service providing a dialog with two buttons to confirm or abort an action.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ng/service/$q">$q</a></li><li><a href="http://mgcrea.github.io/angular-strap/#/alerts">$alert</a></li><li><a href="ComponentsPath">ComponentsPath</a></li>
+  </ul>
+  
+
+  <h2 id="usage">Usage</h2>
+    <p><code>ConfirmDialog(customAlertOptions, [customAlertDefaults]);</code></p>
+
+
+    
+<section class="api-section">
+  <h3>Arguments</h3>
+
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        customAlertOptions
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Custom text and captions</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        customAlertDefaults
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Custom templateUrl, etc.</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+</section><h3>Returns</h3>
+<table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-promise"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" _target="blank">Promise</a></span></td>
+    <td><p>Resolves, if action has been confirmed, or rejects, if aborted.</p>
+</td>
+  </tr>
+</table>
+
+  
+  <h2 id="example">Example</h2><h4 id="available-options-and-their-defaults-">Available options and their defaults:</h4>
+<pre><code>// default values
+alertDefaults = {
+    backdrop: &#39;static&#39;,
+    templateUrl: &#39;partials/alerts/confirmAlert.html&#39;,
+    show: true
+};
+alertOptions = {
+    abortButtonText: &#39;abort&#39;,
+    actionButtonText: &#39;OK&#39;,
+    headerText: &#39;continue?&#39;,
+    bodyText: &#39;Sind Sie sicher?&#39;,
+    type: &#39;warning&#39;,
+    translationData: {}
+};
+</code></pre>
+<p>Button labels, header and body text can be overwritten. For header and body text, HTML syntax is supported. Also, a translation ID can be passed. For <a href="https://angular-translate.github.io/docs/#/guide/06_variable-replacement">variable replacement</a> in translate filter, varibales can be bound to <code>translationData</code> object. Be sure that the parameter names match the variable names in your translations.</p>
+<h4 id="normal-usage-">Normal usage:</h4>
+<pre><code>ConfirmDialog({
+    headerText: &#39;Projekt löschen&#39;,
+    bodyText: &#39;Soll das Projekt wirklich gelöscht werden?&#39;
+}).then(function () {
+    // do something, if confirm button has been pressed
+}.catch(function () {
+    // do something, if abort button has been pressed
+});
+</code></pre>
+<h4 id="usage-with-translation-ids-">Usage with translation IDs:</h4>
+<pre><code>// en-US.json
+{
+  &quot;project_delete&quot;: &quot;Delete project&quot;,
+  &quot;project_delete_text&quot;: &quot;Are you sure that project &lt;b&gt;{{name}}&lt;/b&gt; should be deleted? All data will be lost!&quot;
+}
+
+// controller.js
+ConfirmDialog({
+    headerText: &#39;project_delete&#39;,        // results in -&gt; Delete project
+    bodyText: &#39;project_delete_text&#39;      // results in -&gt; Are you sure that project Sample Project should be deleted? All data will be lost!
+    translationData: {
+        name: project.name               // = &#39;Sample Project&#39;
+    }
+}).then(function () {
+    // do something, if confirm button has been pressed
+    project.$delete();
+}.catch(function () {
+    // do something, if abort button has been pressed
+});
+</code></pre>
+
+</div>
+
+

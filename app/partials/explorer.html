@@ -36,7 +36,7 @@
 		<!--navigation="navigation"-->
 		<!--screenshot-callback="receiveScreenshot">-->
 		
-		
+		<!--<category-legend></category-legend>-->
 		
 	</div>
 </div>
@@ -44,19 +44,41 @@
 <!-- Seitenspalte -->
 <div class="explorer-side sidePanel">
 
-	<div class="sideNav sideNav-right">
+	<div class="sideNav sideNav-right" bs-radio-group data-ng-model="views.activeSide">
+
+		<label title="Versionen" class="smBtn">
+			<input type="radio" value="versions"/>
+			<i class="fa fa-history"></i>
+		</label>
+		<label title="Objekte" class="smBtn">
+			<input type="radio" value="objlist"/>
+			<i class="glyphicon glyphicon-list"></i>
+		</label>
+		<label title="Kommentate" class="smBtn">
+			<input type="radio" value="comments"/>
+			<i class="glyphicon glyphicon-comment"></i>
+		</label>
+		<label title="Eigenschaften" class="smBtn">
+			<input type="radio" value="objproperties"/>
+			<i class="glyphicon glyphicon-list-alt"></i>
+		</label>
 	
-		<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide === 'objlist'}" ng-click="views.activeSide = 'objlist'">
-			<span class="glyphicon glyphicon-list"></span>
-		</div>
-		<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide === 'comments'}" ng-click="views.activeSide = 'comments'">
-			<span class="glyphicon glyphicon-comment"></span>
-		</div>
-		<div title="Eigenschaften" class="smBtn" ng-class="{'active': views.activeSide === 'objproperties'}" ng-click="views.activeSide = 'objproperties'">
-			<span class="glyphicon glyphicon-list-alt"></span>
-		</div>
+		<!--<div title="Versionen" class="smBtn" ng-class="{'active': views.activeSide === 'versions'}" ng-click="views.activeSide = 'versions'">-->
+			<!--<span class="glyphicon glyphicon-list"></span>-->
+		<!--</div>-->
+		<!--<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide === 'objlist'}" ng-click="views.activeSide = 'objlist'">-->
+			<!--<span class="glyphicon glyphicon-list"></span>-->
+		<!--</div>-->
+		<!--<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide === 'comments'}" ng-click="views.activeSide = 'comments'">-->
+			<!--<span class="glyphicon glyphicon-comment"></span>-->
+		<!--</div>-->
+		<!--<div title="Eigenschaften" class="smBtn" ng-class="{'active': views.activeSide === 'objproperties'}" ng-click="views.activeSide = 'objproperties'">-->
+			<!--<span class="glyphicon glyphicon-list-alt"></span>-->
+		<!--</div>-->
 		
 	</div>
+
+	<div class="sideContainer" ng-show="views.activeSide === 'versions'" ng-include="'partials/explorer.versions.html'"></div>
 	
 	<!--Objekthierarchie-->
 	<div ng-show="views.activeSide === 'objlist'" class="sideContainer">
@@ -349,103 +371,104 @@
 
 <!-- linke Spalte -->
 <div class="sourcesPanel">
+	<sources-list show-upload="true"></sources-list>
+
+	<!--<div class="sourcesColumnTop">-->
+		<!--&lt;!&ndash; Anzeigeoptionen und Suche &ndash;&gt;-->
+		<!--<div class="sourcesCtrls">-->
+			<!--<div class="ctrlGroup resGroup">-->
+				<!--<a title="Große Kacheln" class="iconBtn" ng-class="(sourcesSettings.listSize == 'large') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'large'"><span class="glyphicon glyphicon-th-large"></span></a>-->
+				<!--<a title="Kleine Kacheln" class="iconBtn" ng-class="(sourcesSettings.listSize == 'normal') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'normal'"><span class="glyphicon glyphicon-th"></span></a>-->
+				<!--<a title="Liste" class="iconBtn" ng-class="(sourcesSettings.listSize == 'list') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'list'"><span class="glyphicon glyphicon-th-list"></span></a>-->
+			<!--</div>-->
+			<!--<div class="ctrlGroup resGroup">-->
+				<!--<a title="Aufsteigend sortieren" class="iconBtn" ng-class="(!sourcesSettings.reverse) ? 'active' : ''" ng-click="sourcesSettings.reverse = false"><span class="glyphicon glyphicon-sort-by-attributes"></span></a>-->
+				<!--<a title="Absteigend sortieren" class="iconBtn" ng-class="(sourcesSettings.reverse) ? 'active' : ''" ng-click="sourcesSettings.reverse = true"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span></a>-->
+			<!--</div>-->
+			<!--<div class="ctrlGroup resGroup form-inline">-->
+				<!--<span>Sortieren nach</span>-->
+				<!--<select class="form-control input-sm" ng-model="sourcesSettings.orderBy">-->
+					<!--<option value="title">Titel</option>-->
+					<!--<option value="date">Jahr</option>-->
+					<!--<option value="author">Autor</option>-->
+				<!--</select>-->
+			<!--</div>-->
+			<!--<div class="ctrlGroup resGroup form-inline">-->
+				<!--<input ng-model="sourcesSettings.filterBy" type="search" placeholder="Suche"/>-->
+			<!--</div>-->
+			<!--&lt;!&ndash; <div class="ctrlGroup resGroup">-->
+				<!--<div class="dropdown">-->
+					<!--<button class="btn btn-xs btn-default dropdown-toggle" type="button" id="dropdownSources" data-toggle="dropdown">-->
+						<!--Quelle einfügen-->
+						<!--<span class="caret"></span>-->
+					<!--</button>-->
+					<!--<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownSources">-->
+						<!--<li role="presentation" class="dropdown-header">Harte Quellen</li>-->
+						<!--<li role="representation"><a role="menuitem" tabindex="-1" href="#">Ausgrabung</a></li>-->
+						<!--<li role="representation"><a role="menuitem" tabindex="-1" href="#">Literatur</a></li>-->
+						<!--<li role="representation"><a role="menuitem" class="pointer" tabindex="-1" ng-click="openInsertForm('plan')">Pläne</a></li>-->
+						<!--<li role="representation"><a role="menuitem" tabindex="-1" href="#">Vermessungen</a></li>-->
+						<!--<li role="presentation" class="divider"></li>-->
+						<!--<li role="presentation" class="dropdown-header">Weiche Quellen</li>-->
+						<!--<li role="representation"><a role="menuitem" tabindex="-1" href="#">Vergleichsbauten</a></li>-->
+						<!--<li role="representation"><a role="menuitem" class="pointer" tabindex="-1" ng-click="openInsertForm('picture')">Bilder</a></li>-->
+						<!--<li role="representation"><a role="menuitem" tabindex="-1" href="#">Skizzen</a></li>-->
+						<!--<li role="representation"><a role="menuitem" tabindex="-1" href="#">Internet</a></li>-->
+					<!--</ul>-->
+				<!--</div>-->
+			<!--</div> &ndash;&gt;-->
+		<!--</div>-->
+
+		<!--&lt;!&ndash; Tabs der einzelnen Quellenarten &ndash;&gt;-->
+		<!--<ul class="tabs" role="tablist">-->
+			<!--<li ng-class="(sourcesSettings.activeTab == '') ? 'active' : ''" ng-click="sourcesSettings.activeTab = ''"><a>Alle</a></li>-->
+			<!--<li ng-class="(sourcesSettings.activeTab == 'plan') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'plan'"><a>Pläne</a></li>-->
+			<!--<li ng-class="(sourcesSettings.activeTab == 'picture') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'picture'"><a>Bilder</a></li>-->
+			<!--<li ng-class="(sourcesSettings.activeTab == 'text') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'text'"><a>Texte</a></li>-->
+		<!--</ul>-->
+	<!--</div>-->
 	
-	<div class="sourcesColumnTop">
-		<!-- Anzeigeoptionen und Suche -->
-		<div class="sourcesCtrls">
-			<div class="ctrlGroup resGroup">
-				<a title="Große Kacheln" class="iconBtn" ng-class="(sourcesSettings.listSize == 'large') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'large'"><span class="glyphicon glyphicon-th-large"></span></a>
-				<a title="Kleine Kacheln" class="iconBtn" ng-class="(sourcesSettings.listSize == 'normal') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'normal'"><span class="glyphicon glyphicon-th"></span></a>
-				<a title="Liste" class="iconBtn" ng-class="(sourcesSettings.listSize == 'list') ? 'active' : ''" ng-click="sourcesSettings.listSize = 'list'"><span class="glyphicon glyphicon-th-list"></span></a>
-			</div>
-			<div class="ctrlGroup resGroup">
-				<a title="Aufsteigend sortieren" class="iconBtn" ng-class="(!sourcesSettings.reverse) ? 'active' : ''" ng-click="sourcesSettings.reverse = false"><span class="glyphicon glyphicon-sort-by-attributes"></span></a>
-				<a title="Absteigend sortieren" class="iconBtn" ng-class="(sourcesSettings.reverse) ? 'active' : ''" ng-click="sourcesSettings.reverse = true"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span></a>
-			</div>
-			<div class="ctrlGroup resGroup form-inline">
-				<span>Sortieren nach</span>
-				<select class="form-control input-sm" ng-model="sourcesSettings.orderBy">
-					<option value="title">Titel</option>
-					<option value="date">Jahr</option>
-					<option value="author">Autor</option>
-				</select>
-			</div>
-			<div class="ctrlGroup resGroup form-inline">
-				<input ng-model="sourcesSettings.filterBy" type="search" placeholder="Suche"/>
-			</div>
-			<!-- <div class="ctrlGroup resGroup">
-				<div class="dropdown">
-					<button class="btn btn-xs btn-default dropdown-toggle" type="button" id="dropdownSources" data-toggle="dropdown">
-						Quelle einfügen
-						<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownSources">
-						<li role="presentation" class="dropdown-header">Harte Quellen</li>
-						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Ausgrabung</a></li>
-						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Literatur</a></li>
-						<li role="representation"><a role="menuitem" class="pointer" tabindex="-1" ng-click="openInsertForm('plan')">Pläne</a></li>
-						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Vermessungen</a></li>
-						<li role="presentation" class="divider"></li>
-						<li role="presentation" class="dropdown-header">Weiche Quellen</li>
-						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Vergleichsbauten</a></li>
-						<li role="representation"><a role="menuitem" class="pointer" tabindex="-1" ng-click="openInsertForm('picture')">Bilder</a></li>
-						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Skizzen</a></li>
-						<li role="representation"><a role="menuitem" tabindex="-1" href="#">Internet</a></li>
-					</ul>
-				</div>
-			</div> -->
-		</div>
-		
-		<!-- Tabs der einzelnen Quellenarten -->
-		<ul class="tabs" role="tablist">
-			<li ng-class="(sourcesSettings.activeTab == '') ? 'active' : ''" ng-click="sourcesSettings.activeTab = ''"><a>Alle</a></li>
-			<li ng-class="(sourcesSettings.activeTab == 'plan') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'plan'"><a>Pläne</a></li>
-			<li ng-class="(sourcesSettings.activeTab == 'picture') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'picture'"><a>Bilder</a></li>
-			<li ng-class="(sourcesSettings.activeTab == 'text') ? 'active' : ''" ng-click="sourcesSettings.activeTab = 'text'"><a>Texte</a></li>
-		</ul>
-	</div>
-	
-	<div class="sourcesColumnContent">
-		
-		
-		<div class="blindSource">
-			<div class="resultItem">
-				<div class="thumbnail">
-					<div class="dropArea" uploader="sourcesUploader" nv-file-drop="" nv-file-over="" ng-click="openInsertForm('source')">
-						<div>Quellen einfügen</div>
-						<div class="plus" ng-include="'img/plus-sign.svg'"></div>
-						<div>Klicken oder hier ablegen</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<div class="sources" horizontal-scroll>
-			<div class="resultItem" ng-repeat="p in sourceResults | filter: {type: sourcesSettings.activeTab} | filter: sourcesSettings.filterBy | filter: filterSelected | orderBy: [sourcesSettings.orderBy,'title']:sourcesSettings.reverse as filteredSourceResults" ng-click="selectResultItem($event, p)">
-				<div class="thumbnail" ng-class="(p.selected) ? 'selected' : ''" title="{{p.title}}" ng-dblclick="openSourceDetail($index)">
-					<img ng-src="data/{{p.file.path+p.file.thumb}}"/>
-					<div class="caption">
-						<span>{{ p.title | characters:23:true }}</span>
-						<p>{{p.author || 'unbekannt'}} &ensp; {{p.date}}</p>
-					</div>
-					
-					<div class="primaryIndicator" ng-show="p.primary"></div>
-					<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>
-					
-					<div class="btnBar">
-						<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid, selection: filteredSourceResults })"><span class="glyphicon glyphicon-zoom-in"></span></a>
-						<!--<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>-->
-						<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="load3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>
-						<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>
-						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><span class="fa fa-link"></span></a>
-						<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><span class="fa fa-lightbulb-o"></span></a>
-						<a ng-if="p.type == 'picture' && p.spatial" title="Bild in 3D anzeigen" ng-click="loadImage(p)"><span class="glyphicon glyphicon-object-align-left"></span></a>
-						<a ng-if="p.type == 'picture' && !p.spatial" title="Bild verorten" ng-click="spatializeImage(p)"><span class="glyphicon glyphicon-camera"></span></a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+	<!--<div class="sourcesColumnContent">-->
+		<!---->
+		<!---->
+		<!--<div class="blindSource">-->
+			<!--<div class="resultItem">-->
+				<!--<div class="thumbnail">-->
+					<!--<div class="dropArea" uploader="sourcesUploader" nv-file-drop="" nv-file-over="" ng-click="openInsertForm('source')">-->
+						<!--<div>Quellen einfügen</div>-->
+						<!--<div class="plus" ng-include="'img/plus-sign.svg'"></div>-->
+						<!--<div>Klicken oder hier ablegen</div>-->
+					<!--</div>-->
+				<!--</div>-->
+			<!--</div>-->
+		<!--</div>-->
+		<!---->
+		<!--<div class="sources" horizontal-scroll>-->
+			<!--<div class="resultItem" ng-repeat="p in sourceResults | filter: {type: sourcesSettings.activeTab} | filter: sourcesSettings.filterBy | filter: filterSelected | orderBy: [sourcesSettings.orderBy,'title']:sourcesSettings.reverse as filteredSourceResults" ng-click="selectResultItem($event, p)">-->
+				<!--<div class="thumbnail" ng-class="(p.selected) ? 'selected' : ''" title="{{p.title}}" ng-dblclick="openSourceDetail($index)">-->
+					<!--<img ng-src="data/{{p.file.path+p.file.thumb}}"/>-->
+					<!--<div class="caption">-->
+						<!--<span>{{ p.title | characters:23:true }}</span>-->
+						<!--<p>{{p.author || 'unbekannt'}} &ensp; {{p.date}}</p>-->
+					<!--</div>-->
+					<!---->
+					<!--<div class="primaryIndicator" ng-show="p.primary"></div>-->
+					<!--<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>-->
+					<!---->
+					<!--<div class="btnBar">-->
+						<!--<a title="Details ansehen" ui-sref="project.explorer.source.id({ sourceId: p.eid, selection: filteredSourceResults })"><span class="glyphicon glyphicon-zoom-in"></span></a>-->
+						<!--&lt;!&ndash;<a title="Details ansehen" ng-click="openSourceDetail($index)"><span class="glyphicon glyphicon-zoom-in"></span></a>&ndash;&gt;-->
+						<!--<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="load3DPlan(p)"><span class="glyphicon glyphicon-open"></span></a>-->
+						<!--<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><span class="glyphicon glyphicon-import"></span></a>-->
+						<!--<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><span class="fa fa-link"></span></a>-->
+						<!--<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><span class="fa fa-lightbulb-o"></span></a>-->
+						<!--<a ng-if="p.type == 'picture' && p.spatial" title="Bild in 3D anzeigen" ng-click="loadImage(p)"><span class="glyphicon glyphicon-object-align-left"></span></a>-->
+						<!--<a ng-if="p.type == 'picture' && !p.spatial" title="Bild verorten" ng-click="spatializeImage(p)"><span class="glyphicon glyphicon-camera"></span></a>-->
+					<!--</div>-->
+				<!--</div>-->
+			<!--</div>-->
+		<!--</div>-->
+	<!--</div>-->
 
 </div>
 
@@ -456,7 +479,8 @@
 	
 	<div class="debugBtns">
 		<button ng-click="loadModelsWithChildren()">load MWC</button>
-		<button ng-click="openInsertForm('model')">upload model</button>
+		<!--<button ng-click="openInsertForm('model')">upload model</button>-->
+		<button ui-sref=".upload.model">upload model</button>
 		<button ng-click="openIndexEdit()">index modal</button>
 		
 		<button ng-click="resizerValue = 800">resizerAnim</button>

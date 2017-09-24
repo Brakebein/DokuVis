@@ -32,8 +32,8 @@
  * </div>
  * ```
  */
-angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', '$debounce', '$throttle', 'SpatializeInterface',
-	function($stateParams, $window, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService, $debounce, $throttle, SpatializeInterface) {
+angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '$window', '$timeout', 'webglContext', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', '$debounce', '$throttle', 'SpatializeInterface',
+	function($state, $stateParams, $window, $timeout, webglContext, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService, $debounce, $throttle, SpatializeInterface) {
 		
 		function link(scope, element, attrs) {
 
@@ -567,7 +567,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				TWEEN.update();
 				if(controls) controls.update();
 
-				updatePointCloudsThrottle();
+				//updatePointCloudsThrottle();
 
 				// Steinmetzzeichen zeigen immer zur Kamera
 				// for(var key in marks) {
@@ -1200,7 +1200,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				
 				var uncoverObj = ['onlyEdges'].indexOf(currentShading) !== -1;
 				var uncoverEdge = webglInterface.viewportSettings.edges ? ['xray'].indexOf(currentShading) !== -1 : false;
-				if(currentShading === 'Custom') { scope.activeCategory = null; webglInterface.activeCategory = null; }
+				if(currentShading === 'Custom') categoryDeactivate();
 				currentShading = value;
 				webglInterface.viewportSettings.shadingSel = value;
 				
@@ -1735,6 +1735,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 						isRotatingView = false;
 						canvas.removeClass('cursor_orbit');
 						controls.onMouseUp(event.originalEvent);
+						navigationEnd();
 						return;
 					}
 					//if(!mouseDownCoord.equals(new THREE.Vector2(event.clientX, event.clientY))) return;
@@ -1813,6 +1814,17 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 					
 				}
 				
+			}
+
+			function navigationEnd() {
+				var camMatrix = camera.matrixWorld.toArray();
+				var json = angular.toJson(camMatrix);
+				//console.log(json);
+				//var base64 = btoa(json);
+				//console.log(base64);
+				var uri = encodeURIComponent(json);
+				//console.log(uri);
+				$state.go('.', { camera: uri })
 			}
 
 			/**
@@ -2984,52 +2996,63 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 				}
 			}
 
-			/**
-			 * color all objects by their assigned category attribute
-			 * @param category
-             */
-			webglInterface.callFunc.colorByCategory = function(category) {
+			///// CATEGORIES
+
+			// listen to categoryActivate event
+			// color all objects by their assigned category attribute
+			scope.$on('categoryActivate', function (event, category) {
 				console.log(category);
 				scope.setShading('Custom');
-				scope.activeCategory = category; webglInterface.activeCategory = category;
-				for(var i=0; i<category.attributes.length; i++) {
-					if(category.attributes[i].id === 0 || category.attributes[i].id === -1) continue;
-					var cValues = category.attributes[i].color.match(/\d+(\.\d+)?/g);
-					
-					var mat;
-					if(materials[category.attributes[i].id]) {
-						mat = materials[category.attributes[i].id];
-						mat.color.setRGB(parseInt(cValues[0])/255, parseInt(cValues[1])/255, parseInt(cValues[2])/255);
+
+				// create or update materials
+				category.attributes.forEach(function (attr) {
+					if (attr.id === 0 || attr.id === -1) return;
+
+					var cValues = attr.color.match(/\d+(\.\d+)?/g);
+
+					var mat = materials[attr.id];
+					if (mat) {
+						// update color
+						mat.color.setRGB(parseInt(cValues[0]) / 255, parseInt(cValues[1]) / 255, parseInt(cValues[2]) / 255);
 					}
-					else
+					else {
+						// create new material
 						mat = new THREE.MeshLambertMaterial({
-							name: category.attributes[i].id,
-							color: new THREE.Color(parseInt(cValues[0])/255, parseInt(cValues[1])/255, parseInt(cValues[2])/255),
+							name: attr.id,
+							color: new THREE.Color(parseInt(cValues[0]) / 255, parseInt(cValues[1]) / 255, parseInt(cValues[2]) / 255),
 							side: THREE.DoubleSide
 						});
+					}
+
+					// update opacity
 					var opacity = parseFloat(cValues[3]);
-					if(opacity !== 1.0) {
+					if (opacity !== 1.0) {
 						mat.transparent = true;
 						mat.opacity = opacity;
 					}
 					else
 						mat.transparent = false;
-					
-					materials[category.attributes[i].id] = mat;
-					console.log(mat);
-				}
-				for(var key in objects) {
-					var userData = objects[key].mesh.userData;
-					if(userData.type === 'object') {
-						if(userData.categories[category.id] && userData.categories[category.id].attrId)
-							objects[key].mesh.material = materials[userData.categories[category.id].attrId];
-						else
-							objects[key].mesh.material = materials['defaultDoublesideMat'];
-					}
-				}
+
+					materials[attr.id] = mat;
+				});
+
+				// apply materials to objects
+				angular.forEach(objects, function (obj) {
+					var userData = obj.mesh.userData;
+					if (userData.type !== 'object') return;
+					if (userData.categories[category.id] && userData.categories[category.id].attrId)
+						obj.mesh.material = materials[userData.categories[category.id].attrId];
+					else
+						obj.mesh.material = materials['defaultDoublesideMat'];
+				});
 
 				animate();
-			};
+			});
+
+			// broadcast event that the current category is not displayed anymore
+			function categoryDeactivate() {
+				$rootScope.$broadcast('categoryDeactivate');
+			}
 			
 			// add and remove pins
 			webglInterface.callFunc.addPin = function(id, pinObj) {
@@ -3349,7 +3372,7 @@ angular.module('dokuvisApp').directive('webglView', ['$stateParams', '$window', 
 			templateUrl: 'app/directives/webglView/webglView.html',
 			scope: {
 				navToolbar: '=',
-				unsafeSettings: '=',
+				//unsafeSettings: '=',
 				callFunc: '=',
 				gizmoCoords: '=',
 				//navigation: '=',

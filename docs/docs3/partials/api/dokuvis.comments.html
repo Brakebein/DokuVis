@@ -1,0 +1,65 @@
+
+
+<h1>
+  <code>dokuvis.comments</code>
+</h1>
+
+<p>Components to integrate comments.</p>
+<h3 id="module-dependencies">Module Dependencies</h3>
+<ul>
+<li><a href="https://docs.angularjs.org/api/ngResource">ngResource</a></li>
+<li><a href="https://github.com/urish/angular-moment">angularMoment</a></li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<p>Add <code>dokuvis.comments.js</code> and <code>dokuvis.comments.css</code> to your <code>index.html</code> and add <code>dokuvis.comments</code> as dependency.</p>
+<p>In your application, define a constant named <code>ApiComment</code> to specify the REST-API url. The url will be extended by <code>/:id</code>. Don&#39;t forget to set your <a href="guide/ApiParams">ApiParams</a>.</p>
+<pre><code>// example
+var myApp = angular.module(&#39;myApp&#39;, [&#39;dokuvis.comments&#39;]);
+myApp.constant(&#39;ApiComment&#39;, &#39;api/auth/project/:project/:subproject/comment&#39;);
+</code></pre>
+
+
+
+<div class="component-breakdown">
+  <h2>Module Components</h2>
+  
+  <div>
+    <h3 class="component-heading" id="factory">Factory</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.comments/factory/Comment">Comment</a></td>
+        <td><p>$resource for comments.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="directive">Directive</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.comments/directive/commentSection">commentSection</a></td>
+        <td><p>Directive to show comments of the specified target, to add new comments, or answer to existing ones.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+</div>
+
+
+
+
+

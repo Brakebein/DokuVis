@@ -1,0 +1,26 @@
+<span ng-show="!categories.length">{{'category_none' | translate}}</span>
+<table ng-show="categories.length" class="table table-striped">
+	<thead>
+	<tr>
+		<th width="40%">{{'category' | translate}}</th>
+		<th width="40%">{{'attribute' | translate}}</th>
+		<th width="20%"></th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr ng-repeat="c in categories | orderBy: 'value'">
+		<td>{{c.value}}</td>
+		<td>
+			<select title="Attribute"
+					class="form-control input-sm"
+					ng-options="attr.id as attr.value for attr in c.attributes | orderBy: 'value'"
+					data-ng-model="c.selected"
+					data-ng-change="updateCategoryAttr(c)">
+			</select>
+		</td>
+		<td>
+			<button class="btn btn-default btn-sm" ng-click="activateCategory(c)"><i class="fa fa-lightbulb-o"></i> Activate</button>
+		</td>
+	</tr>
+	</tbody>
+</table>

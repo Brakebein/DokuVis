@@ -1,127 +1,12 @@
 <div class="tasks-main">
 
 	<div>
-		<div class="search col-md-2">
-			<div class="form-group">
-				<input class="form-control" placeholder="Nach Aufgaben suchen" ng-model="config.filter.row"/>
-			</div>
-		</div>
-
 		<h2>Aufgaben</h2>
 		<hr/>
 	</div>
 
-	<div class="tasks-controls">
+	<tasks-gantt></tasks-gantt>
 
-		<div class="tasks-ctrl">
-			<button class="btn btn-primary" ui-sref=".detail({taskId: 'new'})">
-				<i class="fa fa-plus"></i> Add Task
-			</button>
-		</div>
-
-		<div class="tasks-ctrl">
-			<button ng-show="config.sort.primary === 'staff'" class="btn btn-default" ng-click="updateSort('task')">
-				<i class="glyphicon glyphicon-sort"></i> Sort by task
-			</button>
-			<button ng-show="config.sort.primary === 'task'" class="btn btn-default" ng-click="updateSort('staff')">
-				<i class="glyphicon glyphicon-sort"></i> Sort by staff
-			</button>
-		</div>
-
-		<div class="tasks-ctrl">
-			<select title="gantt.sortMode"
-					class="form-control"
-					data-ng-model="config.sort.sortMode"
-					ng-options="s.value as s.name for s in config.sort.secondary">
-			</select>
-		</div>
-
-		<div class="tasks-ctrl input-group">
-			<span class="input-group-btn">
-				<label class="btn btn-default" for="fromDate">
-					<i class="fa fa-angle-left"></i>
-				</label>
-			</span>
-			<input id="fromDate"
-				   name="fromDate"
-				   class="form-control"
-				   ng-model="config.date.from"
-				   ng-blur="updateViewScale()"
-				   bs-datepicker
-				   data-date-type="date"
-				   data-date-format="dd.MM.yy"
-				   data-max-date="{{config.date.to | amSubtract: '1':'w'}}"
-				   data-start-week="1"
-				   data-autoclose="1" />
-		</div>
-
-		<div class="tasks-ctrl">
-			<select title="gantt.viewScale"
-					class="form-control"
-					data-ng-model="config.date.viewScale"
-					ng-options="item for item in ['day', 'week', 'month', 'quarter']"></select>
-		</div>
-			
-		<div class="tasks-ctrl input-group">
-			<input id="toDate"
-				   name="toDate"
-				   class="form-control"
-				   ng-model="config.date.to"
-				   ng-blur="updateViewScale()"
-				   bs-datepicker
-				   data-date-type="date"
-				   data-date-format="dd.MM.yy"
-				   data-min-date="{{config.date.from | amAdd: '1':'w'}}"
-				   data-start-week="1"
-				   data-placement="bottom-right"
-				   data-autoclose="1" />
-			<span class="input-group-btn">
-				<label class="btn btn-default" for="toDate">
-					<i class="fa fa-angle-right"></i>
-				</label>
-			</span>
-		</div>
-
-	</div>
-					
-
-	<div class="tasks-container" data-drop="true" jqyoui-droppable="{multiple:true, onDrop: 'addNewStaffToGantt'}">
-		<div gantt
-			 data-options="config.gantt"
-			 data-data="data"
-			 data-sort-mode="config.sort.sortMode"
-			 data-from-date="config.date.from"
-			 data-to-date="config.date.to"
-			 data-view-scale="config.date.viewScale"
-			 data-filter-row="{'name': config.filter.row}"
-			 data-api="registerApi">
-
-			<gantt-tree header-content="config.tree.header"
-						keep-ancestor-on-filter-row="true">
-			</gantt-tree>
-
-			<gantt-table enabled="config.sort.primary !== 'staff'"
-						 columns="config.table.columns"
-						 headers="config.table.headers"
-						 header-contents="config.table.headerContents"
-						 contents="config.table.contents">
-						 <!--formatters="config.table.formatters">-->
-			</gantt-table>
-
-			<gantt-groups display="config.groups.display"></gantt-groups>
-
-			<!--<gantt-progress></gantt-progress>-->
-
-			<gantt-tooltips content="config.tooltips.content"></gantt-tooltips>
-
-			<!--<gantt-sortable enabled="false"></gantt-sortable>-->
-			<gantt-movable allow-row-switching="false"></gantt-movable>
-			<!--<gantt-overlap></gantt-overlap>-->
-			<!--<gantt-resize-sensor></gantt-resize-sensor>-->
-		</div>
-		<hr/>
-	</div>
-	
 	<div class="optionsFooter"></div>
 
 </div>
@@ -148,25 +33,7 @@
 		</div>
 		
 		<div class="sideContent">
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>E-Mail</th>
-						<th>Rolle</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="s in staff" >
-						<td>{{s.name}}</td>
-						<td>{{s.email}}</td>
-						<td>{{s.role}}</td>
-						<td></td>
-					</tr>
-				</tbody>
-			</table>
-
+			<staff-list></staff-list>
 			<p>Weitere Personen können über die <a href="#" ui-sref="project.config">Konfigurationsseite</a> dem Projekt hinzugefügt werden.</p>
 		</div>
 		
@@ -182,50 +49,15 @@
 			<hr/>
 		</div>
 
-		<div class="sideContent" ng-hide="activeTask && activeTask.data.type === 'task'">
-			<p>Keine Aufgabe ausgewählt.</p>
-		</div>
+		<div class="sideContent">
 
-		<div class="sideContent" ng-show="activeTask && activeTask.data.type === 'task'">
-
-			<h3>{{ activeTask.data.resource.title }}</h3>
-
-			<dl class="dl-horizontal">
-				<dt>Von</dt>
-				<dd>{{ activeTask.data.resource.from | amDateFormat: 'DD.MM.YYYY' }}</dd>
-				<dt>Bis</dt>
-				<dd>{{ activeTask.data.resource.to | amDateFormat: 'DD.MM.YYYY' }}</dd>
-				<dt>Priorität</dt>
-				<dd ng-switch="activeTask.data.resource.priority">
-					<span ng-switch-when="0" class="label task-priority-low">Niedrig</span>
-					<span ng-switch-when="1" class="label task-priority-medium">Mittel</span>
-					<span ng-switch-when="2" class="label task-priority-high">Hoch</span>
-				</dd>
-				<dt>Editors</dt>
-				<dd>{{ activeTask.data.resource.editors | asList:', ':true:'name' }}
-				</dd>
-				<dt>Beschreibung</dt>
-				<dd>{{ activeTask.data.resource.description }}</dd>
-			</dl>
-
-			<div>
-				<div class="pull-right">
-					<button class="btn btn-default" ui-sref=".detail({taskId: activeTask.data.resource.id})">Bearbeiten</button>
-					<button class="btn btn-success" ng-hide="activeTask.data.resource.status" ng-click="setTaskStatus(activeTask, true)">Abschließen</button>
-					<button class="btn btn-warning" ng-show="activeTask.data.resource.status" ng-click="setTaskStatus(activeTask, false)">Wiedereröffnen</button>
-				</div>
-
-				<div class="small">
-					<div ng-show="activeTask.data.resource.created && activeTask.data.resource.created.id">created by {{activeTask.data.resource.created.name}} - {{activeTask.data.resource.created.date | amCalendar}}</div>
-					<div ng-show="activeTask.data.resource.modified && activeTask.data.resource.modified.id">modified by {{activeTask.data.resource.modified.name}} - {{activeTask.data.resource.modified.date | amCalendar}}</div>
-				</div>
-			</div>
+			<task-detail></task-detail>
 
 			<hr/>
 
 			<h4>Kommentare</h4>
 
-			<comment-section target="activeTask.data.resource.id" type="activeTask.data.resource.type"></comment-section>
+			<comment-section target="activeTask.id" type="activeTask.type"></comment-section>
 
 		</div>
 

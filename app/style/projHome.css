@@ -13,27 +13,4 @@
   height: 100%;
   padding: 0px 50px; }
 
-.projInfos {
-  display: flex; }
-  .projInfos > .infoText {
-    flex: 1 0 200px; }
-  .projInfos > .infoCtrls {
-    flex: 0 0 30px;
-    padding: 5px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; }
-    .projInfos > .infoCtrls > i {
-      flex: 0 0 18px;
-      font-size: 18px;
-      color: #eee;
-      margin-bottom: 3px;
-      text-align: center;
-      cursor: pointer;
-      transition: color 0.2s; }
-  .projInfos:hover > .infoCtrls > i {
-    color: #c3c3c3; }
-    .projInfos:hover > .infoCtrls > i:hover {
-      color: #888; }
-
 /*# sourceMappingURL=projHome.css.map */

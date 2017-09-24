@@ -239,6 +239,27 @@ angular.module('dokuvisApp').factory('Utilities',
 			return undefined;
 		}
 
+		/**
+		 * Replace url parameters with the values from the `params` object.
+		 * @ngdoc method
+		 * @name Utilities#setUrlParams
+		 * @param url {string} Url with parameters
+		 * @param params {Object} Object with values or function for each parameter
+		 * @return {string} Url without parameters
+		 */
+		f.setUrlParams = function (url, params) {
+			var newUrl = url;
+			var regex = /:([^:\/]+)/g;
+			var match;
+			while ((match = regex.exec(url)) !== null) {
+				if (typeof params[match[1]] === 'function')
+					newUrl = newUrl.replace(match[0], params[match[1]]());
+				else
+					newUrl = newUrl.replace(match[0], params[match[1]]);
+			}
+			return newUrl;
+		};
+
 		// Alerts
 		/**
 		 * Shows a danger alert for 5 seconds.

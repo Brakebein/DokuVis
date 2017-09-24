@@ -1,0 +1,8 @@
+{
+  "author_title": "Authors",
+  "author_btn_add": "Add author",
+  "author_new": "New author",
+  "author_edit": "Edit author",
+  "author_delete": "Delete author",
+  "author_delete_confirm": "Should author <b>{{name}}</b> really be deleted? Any links to sources, etc., will be lost."
+}

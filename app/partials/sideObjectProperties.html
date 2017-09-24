@@ -25,29 +25,13 @@
 	
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<a class="pull-right" href="#" ui-sref="project.explorer.categoryedit">Kategorien verwalten <i class="fa fa-cog"></i></a>
-			Kategorien
+			<a class="pull-right" href="#" ui-sref=".category">{{'category_config' | translate}} <i class="fa fa-cog"></i></a>
+			{{'categories' | translate}}
 		</div>
 		<div class="panel-body">
-			<span ng-show="!wi.categories.length">Keine Kategorien vorhanden!</span>
-			<table ng-show="wi.categories.length" class="table table-striped">
-				<thead>
-					<tr>
-						<th width="40%">Kategorie</th>
-						<th width="40%">Attribut</th>
-						<th width="20%"></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="c in wi.categories">
-						<td>{{c.value}}</td>
-						<td>
-							<select class="form-control input-sm" ng-options="attr.id as attr.value for attr in c.attributes" ng-model="c.selected" ng-change="updateCategoryAttr(c)"></select>
-						</td>
-						<td><i class="glyphicon glyphicon-eye-open" ng-click="wi.callFunc.colorByCategory(c)"></i></td>
-					</tr>
-				</tbody>
-			</table>
+
+			<category-list></category-list>
+
 		</div>
 	</div>
 	
