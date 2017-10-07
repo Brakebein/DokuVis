@@ -218,14 +218,14 @@ angular.module('dokuvis.sources', [
 		});
 
 		// FILTER
-		var imageTypes = ['jpg','JPG','png','PNG','jpeg','bmp','gif','tiff'];
+		var imageTypes = ['jpg','png','jpeg','bmp','gif','tiff'];
 		var textTypes = ['pdf'];
 
 		// restrict to file types
 		uploader.filters.push({
 			name: 'sourceFilter',
 			fn: function(item) {
-				var type = item.type.slice(item.type.lastIndexOf('/') + 1);
+				var type = item.type.slice(item.type.lastIndexOf('/') + 1).toLowerCase();
 				return imageTypes.concat(textTypes).indexOf(type) !== -1;
 			}
 		});
@@ -469,7 +469,6 @@ angular.module('dokuvis.sources', [
  * @author Brakebein
  * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state
  * @requires ComponentsPath
- * @requires Source
  * @requires SourcesCache
  * @requires SourceUploader
  * @restrict E
@@ -480,9 +479,9 @@ angular.module('dokuvis.sources', [
  * <sources-list show-upload="can('historian')"></sources-list>
  * ```
   */
-.directive('sourcesList', ['$state', 'ComponentsPath', 'Source', 'SourcesCache', 'SourceUploader',
-	function ($state, ComponentsPath, Source, SourcesCache, SourceUploader) {
-		// TODO: remove Source factory if unused
+.directive('sourcesList', ['$state', 'ComponentsPath', 'SourcesCache', 'SourceUploader',
+	function ($state, ComponentsPath, SourcesCache, SourceUploader) {
+
 		return {
 			templateUrl: ComponentsPath + '/dokuvis.sources/sourcesList.tpl.html',
 			restrict: 'E',

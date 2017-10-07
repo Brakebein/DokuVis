@@ -45,7 +45,7 @@ module.exports = function (req, res) {
 	};
 
 	// create folder
-	fs.ensureDirAsync(path)
+	fs.ensureDirAsync(path + 'maps/')
 		.then(function () {
 			// move uploaded file into folder
 			return fs.renameAsync(file.path, path + filename);
@@ -66,8 +66,9 @@ module.exports = function (req, res) {
 					break;
 
 				case 'application/zip':
-					return processZip(file, params)
+					return processZip(params)
 						.then(function (result) {
+							// return Promise.reject();
 							return writeToDB(result, params);
 						});
 					break;
@@ -154,11 +155,11 @@ function processDae(params) {
 	});
 }
 
-function processZip(file, params) {
-	var daeFile = file.destination + '/' + params.tid + '_model.dae';
+function processZip(params) {
+	var daeTmpFile = params.path + params.tid + '_tmp.dae';
 	var zipObj;
 
-	return fs.readFileAsync(file.path)
+	return fs.readFileAsync(params.path + params.filename)
 		.then(function (data) {
 			return JSZip.loadAsync(data);
 		})
@@ -171,17 +172,17 @@ function processZip(file, params) {
 			else
 				return Promise.reject({
 					code: 'DAE-PROCESS',
-					message: 'No dae file found in zip file!'
+					message: 'No DAE file found in zip file!'
 				});
 		})
 		.then(function (buffer) {
-			return fs.writeFileAsync(daeFile, buffer);
+			return fs.writeFileAsync(daeTmpFile, buffer);
 		})
 		.then(function () {
 			// process dae
 			return new Promise(function (resolve, reject) {
 
-				var forkDae = fork('process/dae-file', [daeFile, params.tid, params.path]);
+				var forkDae = fork('process/dae-file', [daeTmpFile, params.tid, params.path]);
 
 				forkDae.on('message', function (response) {
 					console.debug('PARENT got message');
@@ -206,33 +207,56 @@ function processZip(file, params) {
 		})
 		.then(function (result) {
 			// extract and process images/textures
-			return new Promise(function (resolve, reject) {
+			var imgUrls = [];
+			for (var key in result.images) {
+				console.debug(result.images[key]);
+				imgUrls.push(result.images[key]);
+			}
 
-				var imgUrls = [];
-				for (var key in result.images) {
-					imgUrls.push(result.images[key]);
-				}
-
-				Promise.each(imgUrls, function (value) {
-					return extractImage(zipObj, value, file, params)
-						.then(function (fnames) {
-							updateMapValues(result.nodes, fnames.oldName, fnames.newName);
-							return fs.renameAsync(file.destination + '/' + fnames.newName, params.path + 'maps/' + fnames.newName);
-						});
-				}).then(function () {
-					return fs.renameAsync(file.path, params.path + file.filename);
-				}).then(function () {
-					resolve(result);
-				}).catch(function (err) {
-					reject(err);
+			return Promise.each(imgUrls, function (url) {
+				return extractImage(zipObj, url, params)
+					.then(function (fnames) {
+						updateMapValues(result.nodes, fnames.oldName, fnames.newName);
+						return Promise.resolve();
+					})
+			})
+				.then(function () {
+					return Promise.resolve(result);
+				})
+				.catch(function (err) {
+					return Promise.reject(err);
 				});
 
-			});
+			// return new Promise(function (resolve, reject) {
+			//
+			// 	var imgUrls = [];
+			// 	for (var key in result.images) {
+			// 		imgUrls.push(result.images[key]);
+			// 	}
+			//
+			// 	Promise.each(imgUrls, function (value) {
+			// 		return extractImage(zipObj, value, params)
+			// 			.then(function (fnames) {
+			// 				updateMapValues(result.nodes, fnames.oldName, fnames.newName);
+			// 				// return fs.renameAsync(file.destination + '/' + fnames.newName, params.path + 'maps/' + fnames.newName);
+			// 				return Promise.resolve();
+			// 			});
+			//
+			// 	}).then(function () {
+			// 		// return fs.renameAsync(file.path, params.path + file.filename);
+			// 	}).then(function () {
+			// 		resolve(result);
+			// 	}).catch(function (err) {
+			// 		reject(err);
+			// 	});
+			//
+			// });
 		});
 }
 
-function extractImage(zipObj, imageUrl, file, params) {
-	var imgFile = file.destination + '/' + params.tid + '_' + imageUrl;
+// extract image from zip and resize
+function extractImage(zipObj, imageUrl, params) {
+	var imgFile = params.path + 'maps/' + params.tid + '_' + imageUrl;
 	var imgResults = zipObj.file(new RegExp("^(.*\\/)?" + imageUrl + "$"));
 
 	if(!imgResults[0])
@@ -246,7 +270,7 @@ function extractImage(zipObj, imageUrl, file, params) {
 				return fs.writeFileAsync(imgFile, buffer);
 			})
 			.then(function () {
-				return utils.resizeToNearestPowerOf2(file.destination + '/', params.tid + '_' + imageUrl);
+				return utils.resizeToNearestPowerOf2(params.path + 'maps/', params.tid + '_' + imageUrl);
 			})
 			.then(function (resizeOutput) {
 				fs.unlink(imgFile);
@@ -258,16 +282,16 @@ function extractImage(zipObj, imageUrl, file, params) {
 	}
 }
 
+// set map properties to new image url
 function updateMapValues(objs, oldName, newName) {
-	for(var i=0; i<objs.length; i++) {
-		var o = objs[i];
-		if(o.material) {
-			if(o.material.map === oldName) o.material.map = newName;
-			if(o.material.alphaMap === oldName) o.material.alphaMap = newName;
+	objs.forEach(function (o) {
+		if (o.material) {
+			if (o.material.map === oldName) o.material.map = newName;
+			if (o.material.alphaMap === oldName) o.material.alphaMap = newName;
 		}
-		if(o.children)
+		if (o.children)
 			updateMapValues(o.children, oldName, newName);
-	}
+	});
 }
 
 function writeToDB(data, p) {
@@ -280,6 +304,7 @@ function writeToDB(data, p) {
 		for (var i = 0; i < nodes.length; i++) {
 			var n = nodes[i];
 
+			// TODO: look for previous objects only within previous/not parallel events
 			// create digital object
 			var q = 'MATCH (tmodel:E55:'+prj+' {content: "model"}),\
 				(subprj:E7:'+prj+' {content: $subprj}),\

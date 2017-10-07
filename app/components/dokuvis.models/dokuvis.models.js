@@ -34,8 +34,8 @@ angular.module('dokuvis.models', [
 	}
 ])
 
-.factory('ModelUploader', ['$window', '$stateParams', 'API', 'FileUploader', 'Utilities', 'moment',
-	function ($window, $stateParams, API, FileUploader, Utilities, moment) {
+.factory('ModelUploader', ['$window', '$stateParams', 'ApiParams', 'ApiModelVersion', 'FileUploader', 'Utilities', 'moment',
+	function ($window, $stateParams, ApiParams, ApiModelVersion, FileUploader, Utilities, moment) {
 
 		var headers = {};
 		if ($window.localStorage.token) {
@@ -45,32 +45,39 @@ angular.module('dokuvis.models', [
 
 		var uploader = new FileUploader({
 			headers: headers,
-			alias: 'uploadModelFile'
+			alias: 'uploadModelFile',
+			queueLimit: 1
 		});
 
 		// FILTER
-		var modelTypes = ['dae', 'DAE', 'obj', 'zip'];
+		var modelTypes = ['dae','obj','zip'];
 
 		// restrict to file types
 		uploader.filters.push({
 			name: 'modelFilter',
 			fn: function(item) {
-				var type = item.name.slice(item.name.lastIndexOf('.') + 1);
+				var type = item.name.slice(item.name.lastIndexOf('.') + 1).toLowerCase();
 				return modelTypes.indexOf(type) !== -1;
 			}
 		});
 
 		// CALLBACKS
 		uploader.onWhenAddingFileFailed = function(item, filter, options) {
-			console.warn('onWhenAddingFileFailed', item, filter, options);
-			Utilities.dangerAlert('Nicht unterstütztes Format!');
+			if (filter.name === 'queueLimit') {
+				uploader.clearQueue();
+				uploader.addToQueue(item);
+			}
+			else if (filter.name === 'modelFilter') {
+				Utilities.dangerAlert('Nicht unterstütztes Format!');
+			}
+			else {
+				console.warn('onWhenAddingFileFailed', item, filter, options);
+				Utilities.dangerAlert('Unknown failure while adding file. See console for details.');
+			}
 		};
 
 		uploader.onAfterAddingFile = function (item) {
-			console.info('onAfterAddingFile', item);
-
-			item.sourceType = 'model';
-
+			// console.info('onAfterAddingFile', item);
 			item.isProcessing = false;
 		};
 
@@ -81,17 +88,20 @@ angular.module('dokuvis.models', [
 
 		uploader.onBeforeUploadItem = function (item) {
 			// set POST request url
-			item.url =  API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
+			// item.url =  API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
+			item.url = Utilities.setUrlParams(ApiModelVersion, ApiParams);
 
 			// push data to request form data
 			item.formData = [];
 			item.formData.push({
 				date: moment().format(),
-				title: 'Versuch mit MultiMaterial',
-				note: 'Weitere Anmerkungen',
-				software: '3ds max',
-				predecessor: 'd7_rylly5GZiZ'
+				title: item.commit.title,
+				note: item.commit.note,
+				software: item.commit.software,
+				predecessor: item.commit.parent
 			});
+
+			item.showProgress = true;
 		};
 
 		uploader.onSuccessItem = function (item, response) {
@@ -110,8 +120,7 @@ angular.module('dokuvis.models', [
 			console.error('onErrorItem', fileItem, response, status, headers);
 			fileItem.isProcessing = false;
 			fileItem.isUploaded = false;
-			Utilities.throwApiException('#source.create', response);
-
+			Utilities.throwApiException('#ModelVersion.upload', response);
 		};
 
 		uploader.onCancelItem = function(fileItem, response, status, headers) {
@@ -124,8 +133,8 @@ angular.module('dokuvis.models', [
 	}
 ])
 
-.controller('modelUploadModalCtrl', ['$scope', '$state', '$timeout', 'ModelUploader',
-	function ($scope, $state, $timeout, ModelUploader) {
+.controller('modelUploadModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'ModelUploader', 'Utilities',
+	function ($scope, $state, $stateParams, $timeout, ModelUploader, Utilities) {
 
 		/**
 		 * Instance of `{@link https://github.com/nervgh/angular-file-upload FileUploader}` provided by `ModelUploader` factory.
@@ -135,16 +144,36 @@ angular.module('dokuvis.models', [
 		 */
 		$scope.uploader = ModelUploader;
 
-		/**
-		 * Triggers click event on hidden files input field.
-		 * @ngdoc method
-		 * @name modelUploadModalCtrl#openFileDialog
-		 * @param event {Object} Click event on parent html element
-		 */
-		$scope.openFileDialog = function (event) {
-			$timeout(function () {
-				angular.element(event.delegateTarget).find('input').trigger('click');
-			});
+		$scope.commit = {
+			title: '',
+			note: '',
+			software: ''
+		};
+
+		$scope.parent = $stateParams.parent;
+
+		// watch first queue item and assign to $scope
+		$scope.$watch(function () {
+			return ModelUploader.queue[0];
+		}, function (item) {
+			console.log(item);
+			if (item)
+				$scope.fileitem = ModelUploader.queue[0];
+			else
+				$scope.fileitem = null;
+		});
+
+		// start upload
+		$scope.checkAndUpload = function () {
+			if (!$scope.fileitem) return;
+			if (!$scope.commit.title.length) {
+				Utilities.dangerAlert('Geben Sie mindestens einen Titel ein!');
+				return;
+			}
+
+			$scope.fileitem.commit = $scope.commit;
+			$scope.fileitem.commit.parent = $scope.parent.id;
+			$scope.fileitem.upload();
 		};
 
 		/**
@@ -168,13 +197,19 @@ angular.module('dokuvis.models', [
 .factory('ModelVersion', ['$resource', 'ApiParams', 'ApiModelVersion',
 	function ($resource, ApiParams, ApiModelVersion) {
 
-		return $resource(ApiModelVersion + '/:id', angular.extend({ id: '@id' }, ApiParams));
+		return $resource(ApiModelVersion + '/:id', angular.extend({ id: '@id' }, ApiParams), {
+			queryModels: {
+				url: ApiModelVersion + '/:id/object',
+				methed: 'GET',
+				isArray: true
+			}
+		});
 
 	}
 ])
 
-.directive('versionList', ['ComponentsPath', 'ModelVersion', 'Utilities', 'ModelUploader',
-	function (ComponentsPath, ModelVersion, Utilities, ModelUploader) {
+.directive('versionList', ['$rootScope', 'ComponentsPath', 'ModelVersion', 'Utilities', 'ModelUploader',
+	function ($rootScope, ComponentsPath, ModelVersion, Utilities, ModelUploader) {
 
 		return {
 			templateUrl: ComponentsPath + '/dokuvis.models/versionList.tpl.html',
@@ -200,6 +235,21 @@ angular.module('dokuvis.models', [
 				// init
 				queryVersions();
 
+				scope.loadModels = function (vers) {
+					console.log(vers);
+					ModelVersion.queryModels({ id: vers.id }).$promise
+						.then(function (results) {
+							console.log(results);
+							modelQuerySuccess(results);
+						})
+						.catch(function (reason) {
+							Utilities.throwApiException('#ModelVersion.loadModels', reason);
+						});
+				};
+
+				function modelQuerySuccess(entries) {
+					$rootScope.$broadcast('modelQuerySuccess', entries);
+				}
 			}
 		}
 

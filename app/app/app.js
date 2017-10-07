@@ -379,8 +379,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					modelUploadModalInstance: ['$translatePartialLoader', '$modal', function ($translatePartialLoader, $modal) {
 						$translatePartialLoader.addPart('source');
 						return $modal({
-							templateUrl: 'partials/modals/_modalLargeTpl.html',
-							contentTemplate: 'components/dokuvis.models/modelUploadModal.html',
+							templateUrl: 'partials/modals/_modalTpl.html',
+							contentTemplate: 'components/dokuvis.models/modelUploadModal.tpl.html',
 							controller: 'modelUploadModalCtrl',
 							show: false
 						});
@@ -393,7 +393,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					modelUploadModalInstance.hide();
 					modelUploadModalInstance.destroy();
 					ModelUploader.clearQueue();
-				}]
+				}],
+				params: {
+					parent: null
+				}
 			})
 			.state('project.explorer.upload.source', {
 				url: '/source',

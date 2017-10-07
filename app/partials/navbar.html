@@ -24,12 +24,12 @@
 			
 			<!-- login form -->
 			<button ng-hide="isLogged" class="btn btn-default btn-sm navbar-btn navbar-right" ui-sref="register">{{'register' | translate}}</button>
-			<form ng-hide="isLogged" class="navbar-form navbar-right navFormMargin" ng-submit="login()">
-				<div class="form-group">
-					<input type="email" class="form-control input-sm" name="email" placeholder="Email" ng-model="user.email"/>
+			<form ng-hide="isLogged" class="navbar-form navbar-form-sm navbar-right" ng-submit="login()">
+				<div class="form-group form-group-sm">
+					<input type="email" class="form-control" name="email" placeholder="Email" ng-model="user.email"/>
 				</div>
-				<div class="form-group">
-					<input type="password" class="form-control input-sm" name="password" placeholder="Password" ng-model="user.password"/>
+				<div class="form-group form-group-sm">
+					<input type="password" class="form-control" name="password" placeholder="Password" ng-model="user.password"/>
 				</div>
 				<button type="submit" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-log-in"></i> {{'login' | translate}}</button>
 			</form>

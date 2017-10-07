@@ -274,9 +274,9 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 						console.log('before timeout');
 						$timeout(function () {
 							console.log('after timeout');
-							manager.reset();
+							//manager.reset();
 							scope.$apply();
-							animate();
+							//animate();
 						}, 2000);
 					}
 					scope.$applyAsync();
@@ -547,6 +547,7 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 			var animateAsync = $throttle(animate, 50);
 			webglInterface.callFunc.animateAsync = animateAsync;
 			//DV3D.callFunc.animateAsync = animateAsync;
+			var animateThrottle500 = $throttle(animate, 500);
 
 			/**
 			 * animation loop
@@ -2827,6 +2828,338 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 				return defer.promise;
 				
 			};
+
+			// listen to modelQuerySuccess event, start loading objects
+			scope.$on('modelQuerySuccess', function (event, entries) {
+				console.log(entries);
+
+				resetScene();
+				ctmloader.manager.reset();
+
+				entries.reduce(function (promise, item) {
+					return promise.then(function () {
+						return loadObject(item);
+					});
+				}, $q.resolve())
+					.then(function () {
+						console.log('objects loaded');
+					})
+					.catch(function (err) {
+						Utilities.throwException('Loading Error', 'An error occurred while loading objects. See concole for details.', err);
+					});
+			});
+
+			// load object as ctm file
+			function loadObject(entry) {
+				var defer = $q.defer();
+
+				// create instance
+				var obj;
+				switch (entry.obj.type) {
+					case 'group':
+						obj = new THREE.Group();
+						break;
+					case 'object':
+						obj = new THREE.Mesh(geometries['initGeo'], materials['defaultMat']);
+						break;
+					default:
+						defer.reject('Unsupported type');
+						return defer.promise;
+				}
+
+				var matrix = new THREE.Matrix4();
+				matrix.fromArray(entry.obj.matrix).transpose();
+
+				// transformation from z-up-world to y-up-world
+				if (entry.obj.up === 'Z' && !entry.parent) {
+					var yupMatrix = new THREE.Matrix4();
+					yupMatrix.set(1,0,0,0, 0,0,1,0, 0,-1,0,0, 0,0,0,1);
+					matrix.multiplyMatrices(yupMatrix, matrix);
+				}
+
+				var t = new THREE.Vector3();
+				var q = new THREE.Quaternion();
+				var s = new THREE.Vector3();
+				matrix.decompose(t,q,s);
+
+				var scale = typeof entry.obj.unit === 'number' ? entry.obj.unit : 1.0;
+				// apply scale only to translation and scale and if there is no parent
+				if (!entry.parent) {
+					t.multiplyScalar(scale);
+					s.multiplyScalar(scale);
+				}
+
+				matrix.compose(t, q, s);
+				obj.applyMatrix(matrix);
+				obj.matrixAutoUpdate = false;
+
+				// set additional data
+				obj.name = entry.obj.content;
+				obj.userData.id = entry.obj.content;
+				obj.userData.name = entry.obj.name;
+				obj.userData.type = entry.obj.type;
+				obj.userData.layer = entry.obj.layer;
+				// obj.userData.categories = entry.obj.categories;
+
+				// add to scene or parent
+				var parent = null;
+				if (entry.parent) parent = scene.getObjectByName(entry.parent, true);
+				if (parent) parent.add(obj);
+				else scene.add(obj);
+
+				// add to list managing objects belonging together (e.g. mesh and edges)
+				objects[obj.id] = {
+					mesh: obj,
+					edges: null,
+					visible: true,
+					parent: parent ? parent.id : null
+				};
+
+				// Liste für die Anzeige auf der HTML-Seite
+				//webglInterface.insertIntoLists({ name: obj.name, id: obj.id, title: obj.userData.name, layer: obj.userData.layer, type: obj.userData.type, parent: parentid, parentVisible: true});
+				webglInterface.insertIntoLists({
+					name: obj.name,
+					id: obj.id,
+					title: obj.userData.name,
+					layer: obj.userData.layer,
+					type: obj.userData.type,
+					parent: parent ? parent.id : null,
+					parentVisible: true
+				});
+
+
+				// load geometry / ctm file
+				if (entry.obj.type === 'object') {
+					var geomId = Array.isArray(entry.file.content) ?
+						entry.file.content.reduce(function (acc, next) { return acc + next;	}) :
+						entry.file.content;
+
+					// if geometry already exists, use this one
+					if (geomId in geometries)
+						ctmHandler(geometries[geomId].mesh);
+
+					// load multi-material objects
+					if (Array.isArray(entry.file.content)) {
+						var geoParts = [];
+						entry.file.content.reduce(function (promise, file) {
+							return promise.then(function () {
+								var deferGeo = $q.defer();
+
+								ctmloader.load('data/' + entry.file.path + file, function (geo) {
+									geoParts.push(geo);
+									deferGeo.resolve();
+								}, { useWorker: false });
+
+								return deferGeo.promise;
+							});
+						}, $q.resolve())
+							.then(function () {
+								ctmHandler(geoParts);
+							});
+					}
+
+					// load normal objects
+					else
+						ctmloader.load('data/' + entry.file.path + entry.file.content, ctmHandler, { useWorker: false });
+				}
+
+				defer.resolve();
+
+
+				function ctmHandler(geometry) {
+
+					// merge geometry parts
+					if (Array.isArray(geometry)) {
+						var geometryParts = geometry;
+						geometry = geometryParts[0];
+
+						for (var i = 1; i < geometryParts.length; i++) {
+							geometry.merge(geometryParts[i]);
+							var count = geometryParts[i].index.count;
+							geometry.addGroup(geometry.index.count - count, count, i);
+							geometryParts[i].dispose();
+						}
+
+						if (!geometry.name) geometry.name = entry.file.content.reduce(function (acc, next) {
+							return acc + next;
+						});
+					}
+					else {
+						if (!geometry.name) geometry.name = entry.file.content;
+					}
+
+					// add to geometry list
+					if (!(geometry.name in geometries)) {
+						geometries[geometry.name] = { mesh: geometry };
+					}
+
+					geometry.computeBoundingBox();
+
+					obj.geometry = geometry;
+
+					// set material
+					if (entry.materials && Array.isArray(entry.materials)) {
+						// obj.material = entry.materials.map(prepareMaterial);
+						textureLoader.load('data/images/L_PEF_Kitchener_P3991.JPG', function (texture) {
+							console.log(texture);
+							obj.material = new THREE.MeshLambertMaterial({map: texture});
+						});
+						// obj.material = prepareMaterial(entry.materials[0]);
+						// obj.userData.originalMat = entry.materials.map(function (m) {
+						// 	return m.id;
+						// });
+					}
+					else {
+						obj.material = materials['defaultDoublesideMat'];
+						obj.userData.originalMat = 'defaultDoublesideMat';
+					}
+					console.log(obj);
+					// load edges of normal object
+					if (entry.file.edges && !Array.isArray(entry.file.edges)) {
+						loadEdges('data/' + entry.file.path + entry.file.edges)
+							.then(function (edgesGeo) {
+								var edges = new THREE.LineSegments(edgesGeo, materials['edgesMat']);
+								edges.matrix = obj.matrixWorld;
+								edges.matrixAutoUpdate = false;
+
+								scene.add(edges);
+								geometries[geometry.name].edges = edgesGeo;
+								objects[obj.id].edges = edges;
+								animateThrottle500();
+							})
+							.catch(function (err) {
+								if (err)
+									Utilities.throwException('Loading Error', 'Some error occurred while loading objects. See console for details.', err);
+							});
+					}
+					// load edges of multi-material object
+					else if (entry.file.edges && Array.isArray(entry.file.edges)) {
+						 var edgesParts = [];
+						entry.file.edges.reduce(function (promise, file) {
+							return promise.then(function () {
+								return loadEdges('data/' + entry.file.path + file)
+									.then(function (edgesGeo) {
+										edgesParts.push(edgesGeo);
+										return $q.resolve();
+									});
+							});
+						}, $q.resolve())
+							.then(function () {
+								var edgesGeo = edgesParts[0];
+								for (var i = 1; i < edgesParts.length; i++) {
+									edgesGeo.merge(edgesParts[i]);
+									edgesParts[i].dispose();
+								}
+
+								var edges = new THREE.LineSegments(edgesGeo, materials['edgesMat']);
+								edges.matrix = obj.matrixWorld;
+								edges.matrixAutoUpdate = false;
+
+								scene.add(edges);
+								geometries[geometry.name].edges = edgesGeo;
+								objects[obj.id].edges = edges;
+								animateThrottle500();
+							})
+							.catch(function (err) {
+								if (err)
+									Utilities.throwException('Loading Error', 'Some error occurred while loading objects. See console for details.', err);
+							});
+					}
+
+					animateThrottle500();
+				}
+
+				return defer.promise;
+			}
+
+			function prepareMaterial(m) {
+				// if material with id/name already exists, use existing instance
+				if (m.name in materials)
+					return materials[m.name];
+
+				// else create new material instance
+				var material = new THREE.MeshLambertMaterial();
+				material.name = m.id;
+
+				// set diffuse color/map
+				if (Array.isArray(m.diffuse)) {
+					material.color = new THREE.Color(m.diffuse[0], m.diffuse[1], m.diffuse[2]);
+					material.color.convertLinearToGamma();
+				}
+				else if (typeof m.diffuse === 'string') {
+					textureLoader.load('data/' + m.path + m.diffuse, function (texture) {
+						material.map = texture;
+						material.needsUpdate = true;
+					});
+				}
+				// set alpha map
+				// if (m.alpha) {
+				// 	material.alphaMap = textureLoader.load('data/' + m.path + m.alpha);
+				// 	material.transparent = true;
+				// }
+
+				// material.ambient = material.color.clone();
+				material.side = THREE.DoubleSide;
+
+				// material.needsUpdate = true;
+
+				// add to materials list
+				materials[m.name] = material;
+
+				return material;
+			}
+
+			// load edges from zipped json file
+			function loadEdges(file) {
+				var defer = $q.defer();
+
+				JSZipUtils.getBinaryContent(file, function (err, data) {
+					if (err) {
+						defer.reject(err);
+						return;
+					}
+
+					JSZip.loadAsync(data)
+						.then(function (zip) {
+							var files = zip.file(/.+\.json$/i);
+							return files[0].async('text');
+						})
+						.then(function (json) {
+							json = JSON.parse(json);
+							var vertices = new Float32Array(json.data.attributes.position.array);
+							var geometry = new THREE.BufferGeometry();
+							geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+							defer.resolve(geometry);
+						})
+						.catch(function (err) {
+							Utilities.throwException('JSZip Error', 'Failed to load or extract zip file.', err);
+							defer.reject();
+						});
+				});
+
+				return defer.promise;
+			}
+
+			// clear scene and dispose geometries and materials
+			function resetScene() {
+				for (var key in objects) {
+					if (!objects.hasOwnProperty(key)) continue;
+					var obj = objects[key];
+					obj.mesh.parent.remove(obj.mesh);
+					if (obj.edges) scene.remove(obj.edges);
+					delete objects[key];
+				}
+
+				for (key in geometries) {
+					if (!geometries.hasOwnProperty(key)) continue;
+					if (geometries[key].mesh) geometries[key].mesh.dispose();
+					if (geometries[key].edges) geometries[key].edges.dispose();
+					delete geometries[key];
+				}
+
+				animate();
+				webglInterface.clearLists();
+			}
 
 			webglInterface.callFunc.resetScene = function () {
 				for(var key in objects) {

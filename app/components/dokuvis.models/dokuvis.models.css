@@ -1,54 +1,35 @@
 .model-upload-form {
   position: relative;
-  padding: 25px 40px;
-  display: flex;
-  flex-direction: column; }
-  .model-upload-form > .upload-header {
-    flex: 0 0 auto;
-    width: 100%;
-    padding-right: 17px; }
-  .model-upload-form > .upload-body {
-    position: relative;
-    flex: 1 1 auto;
-    width: 100%; }
-  .model-upload-form > .upload-footer {
-    flex: 0 0 auto;
-    width: 100%;
-    padding-top: 20px;
-    padding-right: 17px;
-    text-align: center; }
-  .model-upload-form .dropArea {
-    height: 80px;
-    width: 300px;
-    font-size: 16px; }
-    .model-upload-form .dropArea .plus {
-      flex: 0 0 60px;
-      height: 40px;
+  padding: 25px 40px; }
+  .model-upload-form .file-section {
+    height: 100px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center; }
+    .model-upload-form .file-section file-drop-area {
+      flex: 1 1 50%;
+      height: 100%; }
+    .model-upload-form .file-section > div {
+      flex: 1 1 50%;
       padding: 0 10px; }
-    .model-upload-form .dropArea svg {
-      width: 40px; }
-  .model-upload-form .queue-header {
-    margin-top: 10px; }
-    .model-upload-form .queue-header > table {
-      margin: 0; }
-  .model-upload-form .queue-body {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow-y: scroll; }
   .model-upload-form .file-metadata strong {
     word-break: break-all; }
-  .model-upload-form .file-metadata canvas {
-    background-color: #f3f3f3;
-    border: 1px solid #c3c3c3;
-    box-shadow: 3px 3px 3px 0 #e3e3e3;
-    max-width: 280px;
-    max-height: 280px;
-    margin-top: 6px; }
-  .model-upload-form .file-metadata img {
-    max-width: 100px;
-    max-height: 100px;
-    margin-top: 6px; }
+  .model-upload-form .progress-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0; }
+    .model-upload-form .progress-area > div {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      padding: 100px;
+      background-color: rgba(240, 240, 240, 0.5); }
+      .model-upload-form .progress-area > div > .progress {
+        border: 1px solid #2e2f2f; }
 
 version-list > file-drop-area {
   margin-bottom: 18px; }

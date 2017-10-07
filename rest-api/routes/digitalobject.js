@@ -9,20 +9,20 @@ module.exports = {
 		// noinspection JSAnnotator
 		var q = `MATCH (tmodel:E55:`+prj+` {content: 'model'})
 			WITH tmodel
-			MATCH (:E7:`+prj+` {content: $subprj})-[:P15]->(devent:D7 {content: $devenId}),
+			MATCH (:E7:`+prj+` {content: $subprj})-[:P15]->(devent:D7 {content: $deventId}),
 				(devent)-[:L11]->(dobj:D1)-[:P1]->(file:E75),
-				(dobj)-[:P2]->(mat:E57),
+				(dobj)-[rmat:P2]->(mat:E57),
 				(dobj)<-[:P106]-(dglob:D1)-[:P2]->(tmodel),
 				(dglob)-[:P67]->(e22:E22)
-			WITH dobj, file, mat
+			WITH tmodel, dobj, file, mat
 			ORDER BY rmat.order
-			WITH dobj, file, collect(mat) AS materials
+			WITH tmodel, dobj, file, collect(mat) AS materials
 			OPTIONAL MATCH (dobj)<-[:P106]-(parent:D1)
 			WHERE NOT (parent)-[:P2]->(tmodel)
 			RETURN dobj.content AS id,
 				dobj AS obj,
 				file AS file,
-				mat AS material,
+				materials,
 				parent.content AS parent`;
 
 		var params = {

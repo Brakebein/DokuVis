@@ -1,5 +1,9 @@
 <file-drop-area uploader="uploader" label="Drop here" ui-sref=".upload.model"></file-drop-area>
 
+<p>
+	<button class="btn btn-default" ui-sref=".upload.model"><i class="fa fa-upload"></i> Neue Version hochloden</button>
+</p>
+
 <div class="panel panel-default" ng-repeat="vers in versions | orderBy:'created.date':true">
 	<div class="panel-body">
 		<h4>{{ vers.title }} <small>Version {{versions.length - $index}}</small></h4>
@@ -8,7 +12,10 @@
 
 	</div>
 	<div class="panel-footer">
-		<button class="btn btn-default btn-xs pull-right">load models</button>
+		<div class="pull-right">
+			<button class="btn btn-default btn-xs" ng-click="loadModels(vers)"><i class="fa fa-refresh"></i> Version laden</button>
+			<button class="btn btn-default btn-xs" ui-sref=".upload.model({ parent: vers })"><i class="fa fa-upload"></i> Neue Version hochladen</button>
+		</div>
 		{{'uploaded_by' | translate}} {{vers.created.name}} - {{vers.created.date | amCalendar}}
 	</div>
 </div>

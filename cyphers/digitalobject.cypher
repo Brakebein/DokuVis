@@ -75,9 +75,9 @@ MATCH (:E7 {content: $subprj})-[:P15]->(devent:D7 {content: $deventId}),
       (dobj)-[rmat:P2]->(mat:E57),
       (dobj)<-[:P106]-(dglob:D1)-[:P2]->(tmodel),
       (dglob)-[:P67]->(e22:E22)
-WITH dobj, file, mat
+WITH tmodel, dobj, file, mat
 ORDER BY rmat.order
-WITH dobj, file, collect(mat) AS materials
+WITH tmodel, dobj, file, collect(mat) AS materials
 OPTIONAL MATCH (dobj)<-[:P106]-(parent:D1)
 WHERE NOT (parent)-[:P2]->(tmodel)
 RETURN dobj.content AS id,

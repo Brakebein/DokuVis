@@ -241,8 +241,8 @@ angular.module('dokuvis.utils', [
  * @restrict AE
  * @scope
   */
-.directive('fileDropArea', ['$timeout', '$compile',
-	function ($timeout, $compile) {
+.directive('fileDropArea', ['$timeout', '$state',
+	function ($timeout, $state) {
 
 		return {
 			restrict: 'AE',
@@ -256,9 +256,17 @@ angular.module('dokuvis.utils', [
 				// init
 				$timeout(function () {
 					var el = angular.element(element);
-					// remove input if ui-sref
-					if ('uiSref' in attrs)
+
+					if ('uiSref' in attrs) {
+						// remove input if ui-sref
 						el.find('input').remove();
+						// trigger state change after adding file
+						scope.uploader.onAfterAddingAll = function () {
+							if (!$state.includes(attrs['uiSref']) && !$state.includes('**' + attrs['uiSref']))
+								$state.go(attrs['uiSref']);
+						};
+					}
+
 					// set multiple attribute
 					if ('multiple' in attrs)
 						el.find('input').attr('multiple', true);

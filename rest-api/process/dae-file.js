@@ -91,7 +91,8 @@ function extractGeometries() {
 		NONE: 0,
 		GEOMETRY: 1,
 		MESH: 2,
-		POLYLIST: 3
+		VERTICES: 3,
+		POLYLIST: 4
 	};
 	var currentState = geoState.NONE;
 	var currentId = null;
@@ -100,6 +101,7 @@ function extractGeometries() {
 	var linereader = new LineByLineReader( assimpFile ); //TODO: assimpfile
 
 	var tmpPolylist = null;
+	var tmpVertices = null;
 
 	linereader.on('error', function (err) {
 		process.send({ error: 'LineReader', data: err });
@@ -145,8 +147,13 @@ function extractGeometries() {
 			}
 		}
 		else if (currentState === geoState.MESH) {
+			// <vertices>
+			if (/vertices/.test(line)) {
+				tmpVertices = line;
+				currentState = geoState.VERTICES;
+			}
 			// <polylist>
-			if (/<polylist/.test(line)) {
+			else if (/<polylist/.test(line)) {
 				tmpPolylist = line;
 				currentState = geoState.POLYLIST;
 			}
@@ -161,6 +168,16 @@ function extractGeometries() {
 				wstream.write(line + "\n");
 			}
 		}
+		else if (currentState === geoState.VERTICES) {
+			// </vertices>
+			if (/<\/vertices>/.test(line)) {
+				tmpVertices += line;
+				currentState = geoState.MESH;
+			}
+			else {
+				tmpVertices += line;
+			}
+		}
 		else if (currentState === geoState.POLYLIST) {
 			// </polylist>
 			if (/<\/polylist>/.test(line)) {
@@ -170,12 +187,37 @@ function extractGeometries() {
 
 				var elPoly = jsPoly.elements[0];
 				elPoly.name = 'triangles';
-				for (var i=0; i<elPoly.elements.length; i++) {
+
+				var spliceIndex = 0;
+				var inputOffset = 0;
+
+				for (var i = 0; i < elPoly.elements.length; i++) {
+					if (elPoly.elements[i].name === 'input') {
+						if (elPoly.elements[i].attributes.semantic === 'VERTEX')
+							spliceIndex = i;
+						if (+elPoly.elements[i].attributes.offset > inputOffset)
+							inputOffset = +elPoly.element[i].attributes.offset;
+					}
 					if (elPoly.elements[i].name === 'vcount') {
 						elPoly.elements.splice(i, 1);
 						break;
 					}
 				}
+
+				var jsVert =  xmljs.xml2js(tmpVertices)
+				var elVert = jsVert.elements[0];
+				for (i = 0; i < elVert.elements.length; i++) {
+					if (elVert.elements[i].attributes.semantic !== 'POSITION') {
+						elVert.elements[i].attributes.offset = ++inputOffset;
+						elPoly.elements.splice(++spliceIndex, 0, elVert.elements[i]);
+						elVert.elements.splice(i--, 1);
+					}
+				}
+
+				console.debug(xmljs.js2xml(jsVert, { spaces: 2 }));
+				console.debug(xmljs.js2xml(jsPoly, { spaces: 2 }));
+
+				wstream.write(xmljs.js2xml(jsVert, { spaces: 2 }) + "\n");
 				wstream.write(xmljs.js2xml(jsPoly, { spaces: 2 }) + "\n");
 
 				tmpPolylist = null;
@@ -220,7 +262,7 @@ function parseDAE() {
 	});
 	
 	xml.on('updateElement: image', function (image) {
-		images[image.$.id] = image.init_from.split(/[\/\\]/).pop();
+		images[image.$.id] = decodeURIComponent(image.init_from.split(/[\/\\]/).pop());
 	});
 
 	xml.on('updateElement: newparam', function (newparam) {
