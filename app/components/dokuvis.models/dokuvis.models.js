@@ -34,8 +34,8 @@ angular.module('dokuvis.models', [
 	}
 ])
 
-.factory('ModelUploader', ['$window', '$stateParams', 'ApiParams', 'ApiModelVersion', 'FileUploader', 'Utilities', 'moment',
-	function ($window, $stateParams, ApiParams, ApiModelVersion, FileUploader, Utilities, moment) {
+.factory('ModelUploader', ['$window', '$rootScope', 'ApiParams', 'ApiModelVersion', 'FileUploader', 'Utilities', 'moment',
+	function ($window, $rootScope, ApiParams, ApiModelVersion, FileUploader, Utilities, moment) {
 
 		var headers = {};
 		if ($window.localStorage.token) {
@@ -77,7 +77,6 @@ angular.module('dokuvis.models', [
 		};
 
 		uploader.onAfterAddingFile = function (item) {
-			// console.info('onAfterAddingFile', item);
 			item.isProcessing = false;
 		};
 
@@ -88,7 +87,6 @@ angular.module('dokuvis.models', [
 
 		uploader.onBeforeUploadItem = function (item) {
 			// set POST request url
-			// item.url =  API + 'auth/project/' + $stateParams.project + '/' + $stateParams.subproject + '/model/upload';
 			item.url = Utilities.setUrlParams(ApiModelVersion, ApiParams);
 
 			// push data to request form data
@@ -105,14 +103,17 @@ angular.module('dokuvis.models', [
 		};
 
 		uploader.onSuccessItem = function (item, response) {
-			console.log(item, response);
 			item.isProcessing = false;
 
 			if (!(response instanceof Object) || response.error) {
-				console.error(response);
 				item.isSuccess = false;
 				item.isError = true;
 				item.isUploaded = false;
+				Utilities.throwApiException('#ModelVersion.upload', response);
+				modelUploadError(response);
+			}
+			else {
+				modelUploadSuccess(response);
 			}
 		};
 
@@ -121,12 +122,22 @@ angular.module('dokuvis.models', [
 			fileItem.isProcessing = false;
 			fileItem.isUploaded = false;
 			Utilities.throwApiException('#ModelVersion.upload', response);
+			modelUploadError(response);
 		};
 
 		uploader.onCancelItem = function(fileItem, response, status, headers) {
 			console.warn('onCancelItem', fileItem, response, status, headers);
 			fileItem.isProcessing = false;
 		};
+
+		// broadcast event
+		function modelUploadSuccess(response) {
+			$rootScope.$broadcast('modelUploadSuccess', response);
+		}
+
+		function modelUploadError(response) {
+			$rootScope.$broadcast('modelUploadError', response);
+		}
 
 		return uploader;
 
@@ -172,7 +183,7 @@ angular.module('dokuvis.models', [
 			}
 
 			$scope.fileitem.commit = $scope.commit;
-			$scope.fileitem.commit.parent = $scope.parent.id;
+			$scope.fileitem.commit.parent = $scope.parent ? $scope.parent.id : null;
 			$scope.fileitem.upload();
 		};
 
@@ -194,6 +205,55 @@ angular.module('dokuvis.models', [
 	}
 ])
 
+.factory('DigitalObject', ['$resource', 'ApiParams', 'ApiModelVersion',
+	function ($resource, ApiParams, ApiModelVersion) {
+
+		function createHierarchy(data) {
+			for (var i = 0; i < data.length; i++) {
+				var obj = data[i];
+				if (!obj.children) obj.children = [];
+				if (obj.parent) {
+					var parent = getObjectById(data, obj.parent);
+					if (parent) {
+						if (!parent.children) parent.children = [];
+						parent.children.push(new resource(obj));
+						data.splice(i, 1);
+						i--;
+					}
+				}
+			}
+			return data;
+		}
+
+		function getObjectById(data, id) {
+			for (var i = 0; i < data.length; i++) {
+				if (data[i].id === id) return data[i];
+				if (data[i].children) {
+					var obj = getObjectById(data[i].children, id);
+					if (obj !== undefined) return obj;
+				}
+			}
+			return undefined;
+		}
+
+		var resource =  $resource(ApiModelVersion + '/:eventId/object/:id', angular.extend({ id: '@id', eventId: '@eventId' }, ApiParams), {
+			query: {
+				method: 'GET',
+				isArray: true,
+				transformResponse: function (json) {
+					return createHierarchy(angular.fromJson(json));
+				}
+			},
+			update: {
+				method: 'PUT'
+			}
+		});
+
+		return resource;
+
+	}
+])
+
 .factory('ModelVersion', ['$resource', 'ApiParams', 'ApiModelVersion',
 	function ($resource, ApiParams, ApiModelVersion) {
 
@@ -208,8 +268,8 @@ angular.module('dokuvis.models', [
 	}
 ])
 
-.directive('versionList', ['$rootScope', 'ComponentsPath', 'ModelVersion', 'Utilities', 'ModelUploader',
-	function ($rootScope, ComponentsPath, ModelVersion, Utilities, ModelUploader) {
+.directive('versionList', ['$rootScope', 'ComponentsPath', 'ModelVersion', 'DigitalObject', 'Utilities', 'ModelUploader',
+	function ($rootScope, ComponentsPath, ModelVersion, DigitalObject, Utilities, ModelUploader) {
 
 		return {
 			templateUrl: ComponentsPath + '/dokuvis.models/versionList.tpl.html',
@@ -237,7 +297,7 @@ angular.module('dokuvis.models', [
 
 				scope.loadModels = function (vers) {
 					console.log(vers);
-					ModelVersion.queryModels({ id: vers.id }).$promise
+					DigitalObject.query({ eventId: vers.id }).$promise
 						.then(function (results) {
 							console.log(results);
 							modelQuerySuccess(results);
@@ -250,6 +310,11 @@ angular.module('dokuvis.models', [
 				function modelQuerySuccess(entries) {
 					$rootScope.$broadcast('modelQuerySuccess', entries);
 				}
+
+				// listen to modelUploadSuccess event
+				scope.$on('modelUploadSuccess', function () {
+					queryVersions();
+				});
 			}
 		}
 

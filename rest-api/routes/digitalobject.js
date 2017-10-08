@@ -20,6 +20,7 @@ module.exports = {
 			OPTIONAL MATCH (dobj)<-[:P106]-(parent:D1)
 			WHERE NOT (parent)-[:P2]->(tmodel)
 			RETURN dobj.content AS id,
+				$deventId AS eventId,
 				dobj AS obj,
 				file AS file,
 				materials,

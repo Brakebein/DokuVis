@@ -20,10 +20,10 @@ module.exports = function (req, res) {
 		utils.abort.missingData(res, '#upload.model date|title');
 		fs.unlinkAsync(req.file.path)
 			.then(function () {
-				console.warn('File unlink:', req.file.path);
+				console.warn('Unlink upload file:', req.file.path);
 			})
 			.catch(function () {
-				console.error('File unlink failed:', req.file.path);
+				console.error('Unlink upload file failed:', req.file.path);
 			});
 		return;
 	}
@@ -68,7 +68,6 @@ module.exports = function (req, res) {
 				case 'application/zip':
 					return processZip(params)
 						.then(function (result) {
-							// return Promise.reject();
 							return writeToDB(result, params);
 						});
 					break;
@@ -167,7 +166,7 @@ function processZip(params) {
 			// extract dae file
 			zipObj = zip;
 			var daeResults = zip.file(/.+\.dae$/i);
-			if(daeResults[0])
+			if (daeResults[0])
 				return daeResults[0].async('nodebuffer');
 			else
 				return Promise.reject({
@@ -206,11 +205,17 @@ function processZip(params) {
 			});
 		})
 		.then(function (result) {
+			// remove tmp dae file
+			fs.unlinkAsync(daeTmpFile).catch(function (err) {
+				console.error('Unlink failed:', daeTmpFile, err);
+			});
+			
 			// extract and process images/textures
 			var imgUrls = [];
 			for (var key in result.images) {
-				console.debug(result.images[key]);
-				imgUrls.push(result.images[key]);
+				if (result.images.hasOwnProperty(key))
+					// console.debug(result.images[key]);
+					imgUrls.push(result.images[key]);
 			}
 
 			return Promise.each(imgUrls, function (url) {
@@ -226,31 +231,6 @@ function processZip(params) {
 				.catch(function (err) {
 					return Promise.reject(err);
 				});
-
-			// return new Promise(function (resolve, reject) {
-			//
-			// 	var imgUrls = [];
-			// 	for (var key in result.images) {
-			// 		imgUrls.push(result.images[key]);
-			// 	}
-			//
-			// 	Promise.each(imgUrls, function (value) {
-			// 		return extractImage(zipObj, value, params)
-			// 			.then(function (fnames) {
-			// 				updateMapValues(result.nodes, fnames.oldName, fnames.newName);
-			// 				// return fs.renameAsync(file.destination + '/' + fnames.newName, params.path + 'maps/' + fnames.newName);
-			// 				return Promise.resolve();
-			// 			});
-			//
-			// 	}).then(function () {
-			// 		// return fs.renameAsync(file.path, params.path + file.filename);
-			// 	}).then(function () {
-			// 		resolve(result);
-			// 	}).catch(function (err) {
-			// 		reject(err);
-			// 	});
-			//
-			// });
 		});
 }
 
@@ -273,7 +253,9 @@ function extractImage(zipObj, imageUrl, params) {
 				return utils.resizeToNearestPowerOf2(params.path + 'maps/', params.tid + '_' + imageUrl);
 			})
 			.then(function (resizeOutput) {
-				fs.unlink(imgFile);
+				fs.unlinkAsync(imgFile).catch(function (err) {
+					console.error('Unlink failed:', imgFile, err);
+				});
 				return Promise.resolve({
 					oldName: imageUrl,
 					newName: resizeOutput.name
@@ -304,18 +286,20 @@ function writeToDB(data, p) {
 		for (var i = 0; i < nodes.length; i++) {
 			var n = nodes[i];
 
-			// TODO: look for previous objects only within previous/not parallel events
 			// create digital object
 			var q = 'MATCH (tmodel:E55:'+prj+' {content: "model"}),\
-				(subprj:E7:'+prj+' {content: $subprj}),\
 				(devent:D7:'+prj+' {content: $deventId})\
-			OPTIONAL MATCH (subprj)-[:P15]->(deventOld:D7)-[:L11]->(dobjOld:D1 {id: $obj.id})<-[:P106]-(dglobOld:D1)-[:P2]->(tmodel)\
-			WHERE NOT (dobjOld)<-[:L10]-(:D7)\
+			OPTIONAL MATCH path = (devent)-[:P134*1..]->(:D7)-[:L11]->(dobjOld:D1 {id: $obj.id})<-[:P106]-(dglobOld:D1)-[:P2]->(tmodel)\
+			WITH devent, dobjOld, dglobOld, tmodel, path\
+			ORDER BY length(path)\
+			LIMIT 1\
 			\
 			MERGE (dobj:D1:'+prj+' {content: $obj.content})\
 				ON CREATE SET dobj = $obj\
+			MERGE (file:E75:'+prj+' {content: $file.content})\
+				ON CREATE SET file = $file\
 			CREATE (devent)-[:L11]->(dobj),\
-				(dobj)-[:P1]->(file:E75:'+prj+' $file)\
+				(dobj)-[:P1]->(file)\
 			\
 			FOREACH (parentId IN $parentId |\
 				MERGE (parent:D1:'+prj+' {content: parentId})\
@@ -352,7 +336,6 @@ function writeToDB(data, p) {
 			}
 
 			var params = {
-				subprj: p.subprj,
 				deventId: 'd7_' + p.tid,
 				parentId: n.parentid ? ['d1_' + p.tid + '_' + utils.replace(n.parentid)] : [],
 				dglobid: 'd1_glob_' + p.tid + '_' + utils.replace(n.id),
@@ -385,7 +368,7 @@ function writeToDB(data, p) {
 						content: 'e57_' + p.tid + '_' + utils.replace(m.id),
 						id: m.id,
 						name: m.name,
-						path: p.shortPath,
+						path: p.shortPath + 'maps/',
 						diffuse: m.map || m.color,
 						alpha: m.alphaMap || null
 						// ambient: m.ambientMap || null,
@@ -458,14 +441,4 @@ function createEventStatement(p) {
 	};
 
 	return { statement: q, parameters: params };
-}
-
-function unlinkFile(filepath) {
-	fs.unlinkAsync(filepath)
-		.then(function () {
-			console.warn('File unlink:', filepath);
-		})
-		.catch(function () {
-			console.error('File unlink failed:', filepath);
-		});
 }

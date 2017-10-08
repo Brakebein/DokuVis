@@ -193,6 +193,7 @@ angular.module('dokuvisApp').factory('webglContext',
 
 			geometries: geometries,
 			materials: materials,
+			standardMaterials: Object.keys(materials),
 			
 			fonts: fonts,
 

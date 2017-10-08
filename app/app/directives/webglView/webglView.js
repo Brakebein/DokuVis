@@ -2831,16 +2831,10 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 
 			// listen to modelQuerySuccess event, start loading objects
 			scope.$on('modelQuerySuccess', function (event, entries) {
-				console.log(entries);
-
 				resetScene();
 				ctmloader.manager.reset();
 
-				entries.reduce(function (promise, item) {
-					return promise.then(function () {
-						return loadObject(item);
-					});
-				}, $q.resolve())
+				loadHierarchyObjects(entries)
 					.then(function () {
 						console.log('objects loaded');
 					})
@@ -2848,6 +2842,18 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 						Utilities.throwException('Loading Error', 'An error occurred while loading objects. See concole for details.', err);
 					});
 			});
+
+			function loadHierarchyObjects(nodes) {
+				return nodes.reduce(function (promise, node) {
+					return promise
+						.then(function () {
+							return loadObject(node);
+						})
+						.then(function () {
+							return loadHierarchyObjects(node.children);
+						});
+				}, $q.resolve());
+			}
 
 			// load object as ctm file
 			function loadObject(entry) {
@@ -2868,7 +2874,7 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 				}
 
 				var matrix = new THREE.Matrix4();
-				matrix.fromArray(entry.obj.matrix).transpose();
+				matrix.fromArray(entry.obj.matrix);
 
 				// transformation from z-up-world to y-up-world
 				if (entry.obj.up === 'Z' && !entry.parent) {
@@ -2948,7 +2954,7 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 								ctmloader.load('data/' + entry.file.path + file, function (geo) {
 									geoParts.push(geo);
 									deferGeo.resolve();
-								}, { useWorker: false });
+								}, { useWorker: true });
 
 								return deferGeo.promise;
 							});
@@ -2960,7 +2966,7 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 
 					// load normal objects
 					else
-						ctmloader.load('data/' + entry.file.path + entry.file.content, ctmHandler, { useWorker: false });
+						ctmloader.load('data/' + entry.file.path + entry.file.content, ctmHandler, { useWorker: true });
 				}
 
 				defer.resolve();
@@ -2972,6 +2978,8 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 					if (Array.isArray(geometry)) {
 						var geometryParts = geometry;
 						geometry = geometryParts[0];
+						geometry.clearGroups();
+						geometry.addGroup(0, geometry.index.count, 0);
 
 						for (var i = 1; i < geometryParts.length; i++) {
 							geometry.merge(geometryParts[i]);
@@ -2985,6 +2993,9 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 						});
 					}
 					else {
+						geometry.clearGroups();
+						geometry.addGroup(0, geometry.index.count, 0);
+
 						if (!geometry.name) geometry.name = entry.file.content;
 					}
 
@@ -2998,22 +3009,24 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 					obj.geometry = geometry;
 
 					// set material
+					console.log(entry.materials);
 					if (entry.materials && Array.isArray(entry.materials)) {
-						// obj.material = entry.materials.map(prepareMaterial);
-						textureLoader.load('data/images/L_PEF_Kitchener_P3991.JPG', function (texture) {
-							console.log(texture);
-							obj.material = new THREE.MeshLambertMaterial({map: texture});
-						});
-						// obj.material = prepareMaterial(entry.materials[0]);
-						// obj.userData.originalMat = entry.materials.map(function (m) {
-						// 	return m.id;
-						// });
+						if (entry.materials.length !== 1) {
+							obj.material = entry.materials.map(prepareMaterial);
+							obj.userData.originalMat = entry.materials.map(function (m) {
+								return m.id;
+							});
+						}
+						else {
+							obj.material = prepareMaterial(entry.materials[0]);
+							obj.userData.originalMat = entry.materials[0].id;
+						}
 					}
 					else {
 						obj.material = materials['defaultDoublesideMat'];
 						obj.userData.originalMat = 'defaultDoublesideMat';
 					}
-					console.log(obj);
+
 					// load edges of normal object
 					if (entry.file.edges && !Array.isArray(entry.file.edges)) {
 						loadEdges('data/' + entry.file.path + entry.file.edges)
@@ -3087,21 +3100,16 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 					material.color.convertLinearToGamma();
 				}
 				else if (typeof m.diffuse === 'string') {
-					textureLoader.load('data/' + m.path + m.diffuse, function (texture) {
-						material.map = texture;
-						material.needsUpdate = true;
-					});
+					material.map = textureLoader.load('data/' + m.path + m.diffuse);
 				}
+
 				// set alpha map
-				// if (m.alpha) {
-				// 	material.alphaMap = textureLoader.load('data/' + m.path + m.alpha);
-				// 	material.transparent = true;
-				// }
+				if (m.alpha) {
+					material.alphaMap = textureLoader.load('data/' + m.path + m.alpha);
+					material.transparent = true;
+				}
 
-				// material.ambient = material.color.clone();
 				material.side = THREE.DoubleSide;
-
-				// material.needsUpdate = true;
 
 				// add to materials list
 				materials[m.name] = material;
@@ -3142,6 +3150,7 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 
 			// clear scene and dispose geometries and materials
 			function resetScene() {
+				// remove from scene
 				for (var key in objects) {
 					if (!objects.hasOwnProperty(key)) continue;
 					var obj = objects[key];
@@ -3150,11 +3159,22 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 					delete objects[key];
 				}
 
+				// dispose geometries
 				for (key in geometries) {
 					if (!geometries.hasOwnProperty(key)) continue;
 					if (geometries[key].mesh) geometries[key].mesh.dispose();
 					if (geometries[key].edges) geometries[key].edges.dispose();
 					delete geometries[key];
+				}
+
+				// dispose materials
+				for (key in materials) {
+					if (!materials.hasOwnProperty(key)) continue;
+					if (webglContext.standardMaterials.indexOf(key) !== -1) continue;
+					if (materials[key].map) materials[key].map.dispose();
+					if (materials[key].alphaMap) materials[key].alphaMap.dispose();
+					materials[key].dispose();
+					delete materials[key];
 				}
 
 				animate();

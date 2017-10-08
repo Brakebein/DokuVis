@@ -19,15 +19,18 @@ RETURN devent;
 
 // create digital object
 MATCH (tmodel:E55:Proj_q66NrRJ {content: 'model'}),
-      (subprj:E7:Proj_q66NrRJ {content: $subprj}),
       (devent:D7 {content: $deventId})
-OPTIONAL MATCH (subprj)-[:P15]->(deventOld:D7)-[:L11]->(dobjOld:D1 {id: $obj.id})<-[:P106]-(dglobOld:D1)-[:P2]->(tmodel)
-WHERE NOT (dobjOld)<-[:L10]-(:D7)
+OPTIONAL MATCH path = (devent)-[:P134*1..]->(:D7)-[:L11]->(dobjOld:D1 {id: $obj.id})<-[:P106]-(dglobOld:D1)-[:P2]->(tmodel)
+WITH devent, dobjOld, dglobOld, tmodel, path
+ORDER BY length(path)
+LIMIT 1
 
 MERGE (dobj:D1 {content: $obj.content})
   ON CREATE SET dobj = $obj
+MERGE (file:E75 {content: $file.content})
+  ON CREATE SET file = $file
 CREATE (devent)-[:L11]->(dobj),
-       (dobj)-[:P1]->(file:E75 $file)
+       (dobj)-[:P1]->(file)
 
 FOREACH (parentId IN $parentId |
   MERGE (parent:D1 {content: parentId})
@@ -81,6 +84,7 @@ WITH tmodel, dobj, file, collect(mat) AS materials
 OPTIONAL MATCH (dobj)<-[:P106]-(parent:D1)
 WHERE NOT (parent)-[:P2]->(tmodel)
 RETURN dobj.content AS id,
+       $deventId AS eventId,
        dobj AS obj,
        file AS file,
        materials,
