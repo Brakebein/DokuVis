@@ -48,6 +48,7 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	// 'gantt.resizeSensor',
 
 	'mm.acl',
+	'ngCookies',
 	'pascalprecht.translate',
 
 	'dokuvis.auth',
@@ -598,6 +599,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				'en_*': 'en-US',
 				'de_*': 'de-DE'
 			});
+		$translateProvider.useLocalStorage();
 		//.determinePreferredLanguage();
 		$translatePartialLoaderProvider.addPart('general');
 
@@ -665,9 +667,24 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 			//$rootScope.role = AuthenticationFactory.userRole;
 		});
 
-		amMoment.changeLocale('de');
-		// amMoment.changeLocale('en');
 		editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
+
+
+		// localization
+		$rootScope.availableLanguages = [
+			{ key: 'en-US', shortKey: 'en', label: 'English' },
+			{ key: 'de-DE', shortKey: 'de', label: 'Deutsch' }
+		];
+
+		$rootScope.currentLanguage = $rootScope.availableLanguages.find(function (lang) {
+			return lang.key === $translate.proposedLanguage();
+		});
+		amMoment.changeLocale($rootScope.currentLanguage.shortKey);
+
+		$rootScope.setLanguage = function () {
+			$translate.use($rootScope.currentLanguage.key);
+			amMoment.changeLocale($rootScope.currentLanguage.shortKey);
+		};
 
 		// typeahead
 		$rootScope.setTypeahead = function (label, from, prop) {

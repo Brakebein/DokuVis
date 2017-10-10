@@ -44,37 +44,12 @@
 <!-- Seitenspalte -->
 <div class="explorer-side sidePanel">
 
-	<div class="sideNav sideNav-right" bs-radio-group data-ng-model="views.activeSide">
-
-		<label title="Versionen" class="smBtn">
-			<input type="radio" value="versions"/>
-			<i class="fa fa-history"></i>
-		</label>
-		<label title="Objekte" class="smBtn">
-			<input type="radio" value="objlist"/>
-			<i class="glyphicon glyphicon-list"></i>
-		</label>
-		<label title="Kommentate" class="smBtn">
-			<input type="radio" value="comments"/>
-			<i class="glyphicon glyphicon-comment"></i>
-		</label>
-		<label title="Eigenschaften" class="smBtn">
-			<input type="radio" value="objproperties"/>
-			<i class="glyphicon glyphicon-list-alt"></i>
-		</label>
+	<div class="sideNav sideNav-right">
 	
-		<!--<div title="Versionen" class="smBtn" ng-class="{'active': views.activeSide === 'versions'}" ng-click="views.activeSide = 'versions'">-->
-			<!--<span class="glyphicon glyphicon-list"></span>-->
-		<!--</div>-->
-		<!--<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide === 'objlist'}" ng-click="views.activeSide = 'objlist'">-->
-			<!--<span class="glyphicon glyphicon-list"></span>-->
-		<!--</div>-->
-		<!--<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide === 'comments'}" ng-click="views.activeSide = 'comments'">-->
-			<!--<span class="glyphicon glyphicon-comment"></span>-->
-		<!--</div>-->
-		<!--<div title="Eigenschaften" class="smBtn" ng-class="{'active': views.activeSide === 'objproperties'}" ng-click="views.activeSide = 'objproperties'">-->
-			<!--<span class="glyphicon glyphicon-list-alt"></span>-->
-		<!--</div>-->
+		<div title="Versionen" class="smBtn" ng-class="{'active': views.activeSide === 'versions'}" ng-click="views.activeSide = 'versions'" ng-include="'img/icons/fork.svg'"></div>
+		<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide === 'objlist'}" ng-click="views.activeSide = 'objlist'" ng-include="'img/icons/tree.svg'"></div>
+		<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide === 'comments'}" ng-click="views.activeSide = 'comments'" ng-include="'img/icons/comment.svg'"></div>
+		<div title="Eigenschaften" class="smBtn" ng-class="{'active': views.activeSide === 'objproperties'}" ng-click="views.activeSide = 'objproperties'" ng-include="'img/icons/properties.svg'"></div>
 		
 	</div>
 

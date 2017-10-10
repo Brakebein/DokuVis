@@ -28,7 +28,7 @@
     .sideNav .smBtn:hover, .sideNav .smBtn.active {
       cursor: pointer;
       color: #ddd; }
-      .sideNav .smBtn:hover path, .sideNav .smBtn.active path {
+      .sideNav .smBtn:hover svg, .sideNav .smBtn.active svg {
         fill: #ddd; }
     .sideNav .smBtn:hover {
       background-color: #444; }
@@ -38,10 +38,13 @@
       font-size: 20px; }
     .sideNav .smBtn svg {
       width: 25px;
-      height: 25px; }
-    .sideNav .smBtn path {
+      height: 25px;
       fill: #999;
       transition: fill 0.3s; }
+    .sideNav .smBtn.smBtn-lang {
+      font-size: 18px;
+      text-align: center;
+      padding: 5px 0; }
   .sideNav .smSpace {
     flex: 1 1 35px; }
   .sideNav.sideNav-left {

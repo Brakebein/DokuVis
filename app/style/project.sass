@@ -35,7 +35,7 @@
 		&:hover, &.active
 			cursor: pointer
 			color: $navFontColorHover
-			path
+			svg
 				fill: $navFontColorHover
 		&:hover
 			background-color: #444
@@ -46,9 +46,12 @@
 		svg
 			width: 25px
 			height: 25px
-		path
 			fill: $navFontColor
 			transition: fill 0.3s
+		&.smBtn-lang
+			font-size: 18px
+			text-align: center
+			padding: 5px 0
 
 	.smSpace
 		flex: 1 1 $navButtonHeight
