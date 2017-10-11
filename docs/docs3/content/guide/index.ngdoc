@@ -1,7 +1,0 @@
-@ngdoc overview
-@name index
-@area guide
-@title Component guide
-@description
-# How to use the components
-To use the components, you will need to declare specific Angular constants and a factory. These are required to configurate the REST-API urls. So, the components are independent from the actual url.

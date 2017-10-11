@@ -1,0 +1,146 @@
+
+
+<h1>
+  <code>dokuvis.sources</code>
+</h1>
+
+<p>Components to integrate sources.</p>
+<h3 id="module-dependencies">Module Dependencies</h3>
+<ul>
+<li><a href="https://docs.angularjs.org/api/ngResource">ngResource</a></li>
+<li><a href="https://ui-router.github.io/ng1/docs/0.3.2/#/api">ui.router</a></li>
+<li><a href="https://github.com/nervgh/angular-file-upload">angularFileUpload</a></li>
+<li><a href="https://github.com/urish/angular-moment">angularMoment</a></li>
+<li><a href="api/dokuvis.archives">dokuvis.archives</a></li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<p>Add <code>dokuvis.sources.js</code> and <code>dokuvis.sources.css</code> to your <code>index.html</code> and add <code>dokuvis.sources</code> as dependency.</p>
+<p>In your application, define a constant named <code>ApiSource</code> to specify the REST-API url. The url will be extended by <code>/:id</code>. Don&#39;t forget to set your <a href="guide/ApiParams">ApiParams</a>.</p>
+<pre><code>// example
+var myApp = angular.module(&#39;myApp&#39;, [&#39;dokuvis.sources&#39;]);
+myApp.constant(&#39;ApiSource&#39;, &#39;api/auth/project/:project/:subproject/source&#39;);
+</code></pre>
+<h3 id="source-object">Source object</h3>
+<p>Requesting a source from database via <code>Source</code> $resource factory should return an object:</p>
+<pre><code>{
+  archive: {                        // archive, from which the source is retrieved
+    identifier: &lt;string|null&gt;,      // identification nummer of the source within the archive
+    collection: &lt;string|null&gt;,      // name of the collection
+    institution: &lt;string|null&gt;,     // name of the institution
+    institutionAbbr: &lt;string|null&gt;  // abbreviation of the institution
+  },
+  author: &lt;string|null&gt;             // name of the author
+  created: {                        // who uploaded the source?
+    id: &lt;id&gt;,                       // user id
+    name: &lt;string&gt;,                 // user name
+    date: &lt;sting&gt;                   // upload date
+  },
+  date: &lt;string|null&gt;               // date, at which the source has been created
+  file: {
+    content: &lt;id&gt;                   // filename
+    height: &lt;integer&gt;,              // height in pixel
+    original: &lt;string&gt;,             // original filename
+    path: &lt;string&gt;,                 // path to the file
+    preview: &lt;string&gt;,              // file for preview (resized to max. 1024px)
+    texture: &lt;string&gt;,              // resolution to nearest power of 2
+    texturePreview: &lt;string&gt;,       // small sized texture
+    thumb: &lt;string&gt;,                // thumbnail image
+    type: &lt;string&gt;,                 // file type
+    width: &lt;integer&gt;                // width in pixel
+  },
+  id: &lt;id&gt;,                         // id of the source (string)
+  modified: {                       // who has modified the source?
+    id: &lt;id&gt;,                       // user id
+    name: &lt;string&gt;,                 // user name
+    date: &lt;sting&gt;                   // modification date
+  },
+  nodeId: &lt;integer&gt;,                // internal Neo4j id
+  note: &lt;string|null&gt;,              // additional information
+  primary: &lt;boolean&gt;,               // whether the source is a primary source or not
+  repros: &lt;string|null&gt;,            // repros
+  tags: &lt;Array&lt;string&gt;&gt;,            // associated tags
+  title: &lt;string&gt;,                  // title (should always be set)
+  type: &lt;string&gt;                    // source type
+}
+</code></pre>
+
+
+
+<div class="component-breakdown">
+  <h2>Module Components</h2>
+  
+  <div>
+    <h3 class="component-heading" id="factory">Factory</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.sources/factory/Source">Source</a></td>
+        <td><p>$resource for sources/documents.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.sources/factory/SourceUploader">SourceUploader</a></td>
+        <td><p><code>FileUploader</code> instance for sources.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.sources/factory/SourcesCache">SourcesCache</a></td>
+        <td><p>Factory that provides currently loaded sources and filtered sources.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="controller">Controller</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.sources/controller/sourceUploadModalCtrl">sourceUploadModalCtrl</a></td>
+        <td><p>Controller for the source upload modal.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.sources/controller/sourceDetailModalCtrl">sourceDetailModalCtrl</a></td>
+        <td><p>Controller of the modal showing metadata of the source and image viewer.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="directive">Directive</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.sources/directive/sourcesList">sourcesList</a></td>
+        <td><p>List all sources as a collection of thumbnail items. A blank item is provided as an entry point to upload further sources.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+</div>
+
+
+
+
+

@@ -4,6 +4,7 @@
  * ### Module Dependencies
  * * [ngResource](https://docs.angularjs.org/api/ngResource)
  * * [ui.router](https://ui-router.github.io/ng1/docs/0.3.2/#/api)
+ * * [angularMoment](https://github.com/urish/angular-moment)
  * * [gantt](https://www.angular-gantt.com/)
  * * gantt.table
  * * gantt.tree
@@ -23,6 +24,33 @@
  * ```
  * Also, the path to the components should be defined, so directives can find their templates (see {@link ComponentsPath}).
  *
+ * ### Task object
+ * ```
+ * {
+ *   children: <Array<id>>,     // ids of child tasks
+ *   created: {                 // who created the task?
+ *     id: <id>,                // user id
+ *     name: <string>,          // user name
+ *     date: <string>           // creation date
+ *   },
+ *   description: <string>,     // what is the content of this task
+ *   editors: <Array<Object>>,  // array of persons who are assigned to this task ({ id: <id>, name: <string> })
+ *   from: <string>,            // when starts the task?
+ *   id: <id>,                  // id of the task (string)
+ *   modified: {                // who modified the task?
+ *     id: <id>,                // user id
+ *     name: <string>,          // user name
+ *     date: <string>           // modification date
+ *   },
+ *   parent: <id>,              // id of parent task or subproject
+ *   priority: <integer>,       // priority low: 0, medium: 1, high: 2
+ *   status: <integer>,         // status to do: 0, done: 1
+ *   title: <string>,           // title (should always be set)
+ *   to: <string>,              // when ends the task?
+ *   type: <string>             // task or subproject
+ * }
+ * ```
+ *
  * @ngdoc module
  * @name dokuvis.tasks
  * @module dokuvis.tasks
@@ -30,6 +58,7 @@
 angular.module('dokuvis.tasks', [
 	'ngResource',
 	'ui.router',
+	'angularMoment',
 	'gantt',
 	'gantt.table',
 	'gantt.tree',
@@ -789,8 +818,8 @@ angular.module('dokuvis.tasks', [
  * @name taskModalCtrl
  * @module dokuvis.tasks
  * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
- * @requires https://ui-router.github.io/ng1/docs/0.321/index.html#/api/ui.router.state.$state $state
- * @requires https://ui-router.github.io/ng1/docs/0.321/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$stateParams $stateParams
  * @requires https://github.com/urish/angular-moment moment
  * @requires Task
  * @requires Staff

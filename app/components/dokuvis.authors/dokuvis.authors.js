@@ -1,12 +1,18 @@
 /**
  * Components to integrate authors.
  *
+ * ### Module Dependencies
+ * * [ngResource](https://docs.angularjs.org/api/ngResource)
+ * * [pascalprecht.translate](https://angular-translate.github.io/)
+ *
+ *
  * @ngdoc module
  * @name dokuvis.authors
  * @module dokuvis.authors
  */
 angular.module('dokuvis.authors', [
-	'ngResource'
+	'ngResource',
+	'pascalprecht.translate'
 ])
 
 /**
@@ -129,7 +135,7 @@ angular.module('dokuvis.authors', [
  * Controller for the modal to add, edit or delete an author.
  * @ngdoc controller
  * @name authorModalCtrl
- * @module dokuvis.author
+ * @module dokuvis.authors
  * @requires https://docs.angularjs.org/api/ng/type/$rootScope.Scope $scope
  * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
  * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state

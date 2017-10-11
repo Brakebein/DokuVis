@@ -230,14 +230,18 @@ angular.module('dokuvis.utils', [
 ])
 
 /**
- * File drop area.
+ * A grey area, where someone can drop a file passed to a [FileUploader](https://github.com/nervgh/angular-file-upload). On click, a file dialog opens to select a file or multiple files.
  * @ngdoc directive
  * @name fileDropArea
  * @module dokuvis.utils
- * @param uploader {FileUploader}
- * @param label {string}
- * @param multiple {boolean}
- * @param column {boolean}
+ * @requires https://docs.angularjs.org/api/ng/service/$timeout $timeout
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state
+ * @param fileDropArea {boolean}
+ * @param uploader {FileUploader} Instance of [FileUploader](https://github.com/nervgh/angular-file-upload)
+ * @param label {string} Some text displayed next to a plus sign
+ * @param uiSref {string=} On click, it doesn't open the file dialog, but it transitions to given state. After adding file via file drop, it transitions to given state.
+ * @param multiple {boolean=} If set, multiple files are sele
+ * @param column {boolean=} Show label and plus sign among each other
  * @restrict AE
  * @scope
   */
@@ -248,8 +252,7 @@ angular.module('dokuvis.utils', [
 			restrict: 'AE',
 			scope: {
 				uploader: '=',
-				label: '@',
-				stateOnClick: '@'
+				label: '@'
 			},
 			link: function (scope, element, attrs) {
 

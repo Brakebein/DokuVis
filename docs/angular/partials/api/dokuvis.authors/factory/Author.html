@@ -1,0 +1,230 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">Author</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+  
+
+    <li>
+      - factory in module <a href="api/dokuvis.authors">dokuvis.authors</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>$resource for authors.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ngResource/service/$resource">$resource</a></li><li><a href="guide/ApiParams">ApiParams</a></li><li><a href="ApiAuthor">ApiAuthor</a></li>
+  </ul>
+  
+
+  
+<h2>Methods</h2>
+<ul class="methods">
+  <li id="$update">
+    <h3 class="">
+      <span class="title"><p><code>$update();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Save name changes.</p>
+<pre><code>author.$update
+.then(function (author) {...});
+</code></pre>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="query">
+    <h3 class="">
+      <span class="title"><p><code>query();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Get all authors.</p>
+<pre><code>Author.query().$promise
+.then(function (authors) {...});
+</code></pre>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="get">
+    <h3 class="">
+      <span class="title"><p><code>get(data);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Get author by id.</p>
+<pre><code>Author.get({ id: &lt;id&gt; }).$promise
+.then(function (author) {...});
+</code></pre>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Data object with <code>id</code> property</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="save">
+    <h3 class="">
+      <span class="title"><p><code>save(data);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Save a new author.</p>
+<pre><code>Author.save({ name: &lt;string&gt; }).$promise
+.then(function (author) {...});
+</code></pre>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Data object with <code>name</code> property</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="$delete">
+    <h3 class="">
+      <span class="title"><p><code>$delete();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Delete author.</p>
+<pre><code>author.$delete()
+.then(function () {...});
+</code></pre>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  </ul>
+
+  
+</div>
+
+
