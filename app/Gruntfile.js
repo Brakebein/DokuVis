@@ -8,6 +8,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-wiredep');
 	grunt.loadNpmTasks('grunt-jsdoc');
 	grunt.loadNpmTasks('dgeni-alive');
+	grunt.loadNpmTasks('grunt-version');
 	
 	// Project configuration
 	grunt.initConfig({
@@ -75,6 +76,22 @@ module.exports = function (grunt) {
 					'components/**/*.js',
 					'../docs/docs3/content/**/*.ngdoc'
 				]
+			}
+		},
+
+		version: {
+			js: {
+				options: {
+					prefix: '@version\\s*',
+					prereleaseIdentifier: 'alpha'
+				},
+				src: ['app/app.js']
+			},
+			packages: {
+				options: {
+					prereleaseIdentifier: 'alpha'
+				},
+				src: ['package.json', 'bower.json']
 			}
 		}
 	});

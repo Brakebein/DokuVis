@@ -4,6 +4,7 @@
 /**
  * Dokuvis base module.
  *
+ * @version 0.1.1-alpha.0
  * @ngdoc module
  * @name dokuvisApp
  * @module dokuvisApp
