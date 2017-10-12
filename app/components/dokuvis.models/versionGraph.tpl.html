@@ -1,0 +1,20 @@
+Hello World
+<div class="vgraph">
+	<div class="vgraph-row" ng-repeat="v in versions | orderBy:'order':true" ng-click="select(v.data)" ng-class="{active: v.data.active}">
+
+		<div class="vgraph-nodes" ng-class="{active: v.active}">
+			<div class="vgraph-nodes-bg" ng-class="v.data.id === 'blind' ? 'bg-blind' : 'bg-' + v.index.col" ng-style="{left: v.index.col * 30 + 15}"></div>
+			<div class="vgraph-cell" ng-repeat="cell in v.cells">
+				<div ng-repeat="t in cell" ng-class="[t.type, t.css]"></div>
+			</div>
+		</div>
+
+		<div class="vgraph-text" ng-class="v.data.id === 'blind' ? 'line-blind' : 'line-' + v.index.col">
+			<div>{{ v.data.title }}</div>
+			<div>
+				{{ v.data.created.date | amDateFormat:'DD.MM.YYYY' }}
+				<button class="btn btn-default btn-xs">Load</button>
+			</div>
+		</div>
+	</div>
+</div>

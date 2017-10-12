@@ -89,3 +89,141 @@ version-list
 			padding: 10px 15px
 		& > .panel-footer
 			font-size: 12px
+
+
+// versionGraph
+$vGraphCellWidth: 30px
+$vGraphCellHeight: 40px
+$vGraphNodeSize: 26px
+$vGraphLineWidth: 4px
+$vGraphLineStd: $vGraphLineWidth solid blue
+$vGraphLineDotted: $vGraphLineWidth dotted blue
+$vGraphLineRadius: $vGraphCellWidth / 2 - 3px
+
+$vGraphColBlind: #ddc700
+$vGraphCol0: #7bccc4
+$vGraphCol1: #0868ac
+$vGraphCol2: #8856a7
+$vGraphCol3: #c51b8a
+$vGraphCol4: #31a354
+
+version-graph
+	.vgraph
+		.vgraph-row
+			cursor: pointer
+			display: flex
+			align-items: center
+			& > .vgraph-nodes
+				flex: 0 0 auto
+				position: relative
+				height: $vGraphCellHeight
+				& > .vgraph-nodes-bg
+					position: absolute
+					right: 0
+					margin: ($vGraphCellHeight - $vGraphNodeSize) / 2 0
+					top: 0
+					bottom: 0
+					opacity: 0.2
+					&.bg-blind
+						opacity: 0.1
+				& > .vgraph-cell
+					width: $vGraphCellWidth
+					height: $vGraphCellHeight
+					float: left
+					position: relative
+					& > div
+						position: absolute
+						&.node
+							width: $vGraphNodeSize
+							height: $vGraphNodeSize
+							border-radius: $vGraphNodeSize / 2
+							margin: ($vGraphCellHeight - $vGraphNodeSize) / 2 ($vGraphCellWidth - $vGraphNodeSize) / 2
+							z-index: 50
+							&:hover
+								box-shadow: 0 0 5px 1px red
+							&.bg-blind
+								border: $vGraphLineWidth solid mix($vGraphColBlind, #fff, 50%)
+								background-color: mix($vGraphColBlind, #fff, 10%)
+						&.hline
+							width: $vGraphCellWidth
+							height: ($vGraphCellHeight +  + $vGraphLineWidth) / 2
+							border-bottom: $vGraphLineStd
+						&.vline
+							width: ($vGraphCellWidth + $vGraphLineWidth) / 2
+							top: 0
+							bottom: 0
+							border-right: $vGraphLineStd
+							margin-right: ($vGraphCellWidth + $vGraphLineWidth) / 2
+						&.corner
+							width: ($vGraphCellWidth + $vGraphLineWidth) / 2
+							height: ($vGraphCellHeight +  + $vGraphLineWidth) / 2
+							border-right: $vGraphLineStd
+							border-bottom: $vGraphLineStd
+							border-bottom-right-radius: $vGraphLineRadius
+							margin-right: ($vGraphCellWidth + $vGraphLineWidth) / 2
+						&.downtick
+							width: ($vGraphCellWidth + $vGraphLineWidth) / 2
+							height: $vGraphCellHeight / 2
+							border-right: $vGraphLineStd
+							margin-top: $vGraphCellHeight / 2
+							margin-right: ($vGraphCellWidth + $vGraphLineWidth) / 2
+						&.uptick
+							width: ($vGraphCellWidth + $vGraphLineWidth) / 2
+							height: $vGraphCellHeight / 2
+							border-right: $vGraphLineStd
+							margin-right: ($vGraphCellWidth + $vGraphLineWidth) / 2
+						&.sidetick
+							width: $vGraphCellWidth / 2
+							height: ($vGraphCellHeight + $vGraphLineWidth) / 2
+							border-bottom: $vGraphLineStd
+							margin-left: $vGraphCellWidth / 2
+
+			& > .vgraph-text
+				flex: 1 1 auto
+				position: relative
+				height: $vGraphNodeSize
+				padding: 0px 6px
+				border-left: 2px solid blue
+				display: flex
+				justify-content: space-between
+				//align-items: center
+				& > div
+					padding: 2px 0
+
+			&:hover
+				& > .vgraph-text
+					background-color: #efefef
+			&.active
+				& > .vgraph-nodes > .vgraph-nodes-bg
+					opacity: 0.5
+				& > .vgraph-text
+					background-color: #e5e5e5
+
+
+	.bg-0
+		background-color: $vGraphCol0
+	.bg-1
+		background-color: $vGraphCol1
+	.bg-2
+		background-color: $vGraphCol2
+	.bg-3
+		background-color: $vGraphCol3
+	.bg-4
+		background-color: $vGraphCol4
+
+	.line-0
+		border-color: $vGraphCol0 !important
+	.line-1
+		border-color: $vGraphCol1 !important
+	.line-2
+		border-color: $vGraphCol2 !important
+	.line-3
+		border-color: $vGraphCol3 !important
+	.line-4
+		border-color: $vGraphCol4 !important
+
+	.bg-blind
+		background-color: $vGraphColBlind
+	.line-blind
+		border-color: $vGraphColBlind !important
+		opacity: 0.5

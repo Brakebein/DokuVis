@@ -319,4 +319,162 @@ angular.module('dokuvis.models', [
 		}
 
 	}
+])
+
+.directive('versionGraph', ['$rootScope', 'ComponentsPath', 'ModelVersion', 'DigitalObject', 'Utilities', 'moment',
+	function ($rootScope, ComponentsPath, ModelVersion, DigitalObject, Utilities, moment) {
+
+		return {
+			templateUrl: ComponentsPath + '/dokuvis.models/versionGraph.tpl.html',
+			restrict: 'E',
+			scope: {},
+			link: function (scope, element) {
+
+				var versions = null,
+					activeVersion = null;
+
+				function queryVersions() {
+					ModelVersion.query().$promise
+						.then(function (results) {
+							console.log('versions:', results);
+							versions = results;
+							buildGraph(results);
+						})
+						.catch(function (reason) {
+							Utilities.throwApiException('#ModelVersion.query', reason);
+						});
+				}
+
+				// init
+				queryVersions();
+
+				function buildGraph(data) {
+					var tmpData = [].concat(data);
+					// add root
+					tmpData.unshift({ id: 'root', predecessor: null, title: 'root', created: {} });
+					// add blind version
+					tmpData.push({ id: 'blind', predecessor: activeVersion ? activeVersion.id : data[data.length - 1].id, title: 'New', created: { date: moment().format() } });
+
+					// create d3 hierarchie
+					var root = d3.stratify()
+						.id(function (d) { return d.id;	})
+						.parentId(function (d) {
+							if (d.id === 'root') return null;
+							return d.predecessor || 'root';
+						})
+						(tmpData);
+
+					// get d3 nodes as sorted array
+					var sorted = root.descendants().sort(function (a, b) {
+						if (!a.data.created.date) return -1;
+						if (!b.data.created.date) return 1;
+						if (a.data.created.date < b.data.created.date) return -1;
+						else return 1;
+					});
+
+					var newColOffset = 0;
+					var cols = {};
+					var blindIndex;
+
+					// determine postion (row, col) of each node
+					// and get start/end of each col
+					sorted.forEach(function (node, index) {
+						var colIndex = 0;
+						var parentRow = -1;
+						var parentCol = 0;
+
+						if (node.parent) {
+							parentRow = node.parent.index.row;
+							parentCol = node.parent.index.col;
+
+							if (node.parent.children[0] === node)
+								colIndex = parentCol;
+
+							for (var i = 1; i < node.parent.children.length; i++) {
+								if (node.parent.children[i] === node) {
+									colIndex = parentCol + ++newColOffset;
+									if (!cols[colIndex]) cols[colIndex] = {};
+									cols[colIndex].start = parentRow;
+								}
+							}
+						}
+
+						if (!cols[colIndex]) cols[colIndex] = { start: index };
+						cols[colIndex].end = index;
+
+						node.index = {
+							row: index,
+							col: colIndex,
+							parentRow: parentRow,
+							parentCol: parentCol
+						};
+						if (node.data.id === 'blind')
+							blindIndex = node.index;
+					});
+
+					var colCount = Object.keys(cols).length + (blindIndex.col === blindIndex.parentCol ? 1 : 0);
+					var list = [];
+
+					root.each(function (node) {
+						var isBlind = false;
+						// init cells
+						var cells = [];
+						for (var i = 0; i < colCount; i++)
+							cells.push([]);
+
+						// add node and incoming line
+						isBlind = node.data.id === 'blind';
+						cells[node.index.col].push({ type: 'node', css: isBlind ? 'bg-blind' : 'bg-' + node.index.col });
+						if (node.data.id !== 'root') cells[node.index.col].push({ type: 'downtick', css: isBlind ? 'line-blind' : 'line-' + node.index.col });
+
+						// add outgoing lines for children
+						var children = node.children || [];
+						children.forEach(function (c) {
+							isBlind = c.data.id === 'blind';
+							if (node.index.col === c.index.col)
+								cells[node.index.col].push({ type: 'uptick', css: isBlind ? 'line-blind' : 'line-' + c.index.col });
+							else {
+								cells[node.index.col].push({ type: 'sidetick', css: isBlind ? 'line-blind' : 'line-' + c.index.col });
+								cells[c.index.col].push({ type: 'corner', css: isBlind ? 'line-blind' : 'line-' + c.index.col });
+								for (var i = node.index.col + 1; i < c.index.col; i++)
+									cells[i].push({ type: 'hline', css: isBlind ? 'line-blind' : 'line-' + c.index.col });
+							}
+						});
+
+						// fill other rows with vertical lines
+						for (var key in cols) {
+							if (+key === node.index.col) continue;
+							if (node.index.row > cols[key].start && node.index.row < cols[key].end) {
+								isBlind = blindIndex.col === +key && blindIndex.parentRow < node.index.row;
+								cells[key].push({type: 'vline', css: isBlind ? 'line-blind' : 'line-' + key});
+							}
+						}
+
+						// write data into lists for view
+						list.push({
+							data: node.data,
+							order: node.data.created.date || 0,
+							parent: node.parent,
+							children: node.children,
+							index: node.index,
+							cells: cells
+						});
+					});
+					
+					scope.versions = list;
+				}
+
+				scope.select = function (vers) {
+					console.log(vers);
+					if (vers.id === 'blind') return;
+					if (activeVersion) activeVersion.active = false;
+					activeVersion = vers;
+					activeVersion.active = true;
+					buildGraph(versions);
+				}
+
+			}
+		}
+
+	}
 ]);

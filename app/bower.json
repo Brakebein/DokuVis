@@ -24,7 +24,7 @@
     "cyphers"
   ],
   "dependencies": {
-    "d3": "^3.5.17",
+    "d3": "^4.11.0",
     "jquery": "^2.2.4",
     "bootstrap": "^3.3.6",
     "tween.js": "tweenjs#^16.3.4",
