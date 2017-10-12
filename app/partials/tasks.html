@@ -16,12 +16,8 @@
 
 	<div class="sideNav sideNav-right">
 	
-		<div title="Mitarbeiter" class="smBtn" ng-class="{'active': views.activeSide === 'staff'}" ng-click="views.activeSide = 'staff'">
-			<i class="glyphicon glyphicon-user"></i>
-		</div>
-		<div title="Details" class="smBtn" ng-class="{'active': views.activeSide === 'details'}" ng-click="views.activeSide = 'details'">
-			<i class="glyphicon glyphicon-comment"></i>
-		</div>
+		<div title="Mitarbeiter" class="smBtn" ng-class="{'active': views.activeSide === 'staff'}" ng-click="views.activeSide = 'staff'" ng-include="'img/icons/staff.svg'"></div>
+		<div title="Details" class="smBtn" ng-class="{'active': views.activeSide === 'details'}" ng-click="views.activeSide = 'details'" ng-include="'img/icons/task.svg'"></div>
 		
 	</div>
 	

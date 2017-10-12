@@ -8,6 +8,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-wiredep');
 	grunt.loadNpmTasks('grunt-jsdoc');
 	grunt.loadNpmTasks('dgeni-alive');
+	grunt.loadNpmTasks('grunt-version');
 	
 	// Project configuration
 	grunt.initConfig({
@@ -51,7 +52,7 @@ module.exports = function (grunt) {
 			dv3d: {
 				src: ['lib/dv3d/*.js'],
 				options: {
-					destination: '../docs/docs2',
+					destination: '../docs/dv3d',
 					configure: 'node_modules/jsdoc-baseline/baseline-config.json',
 					template: 'node_modules/jsdoc-baseline',
 					private: true
@@ -69,12 +70,28 @@ module.exports = function (grunt) {
 			api: {
 				title: 'DokuVis Docs',
 				expand: false,
-				dest: '../docs/docs3/',
+				dest: '../docs/angular/',
 				src: [
 					'app/**/*.js',
 					'components/**/*.js',
-					'../docs/docs3/content/**/*.ngdoc'
+					'../docs/angular/content/**/*.ngdoc'
 				]
+			}
+		},
+
+		version: {
+			js: {
+				options: {
+					prefix: '@version\\s*',
+					prereleaseIdentifier: 'alpha'
+				},
+				src: ['app/app.js']
+			},
+			packages: {
+				options: {
+					prereleaseIdentifier: 'alpha'
+				},
+				src: ['package.json', 'bower.json']
 			}
 		}
 	});

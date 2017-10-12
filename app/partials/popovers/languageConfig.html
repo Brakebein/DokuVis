@@ -1,0 +1,19 @@
+<div class="popover" tabindex="-1">
+	<div class="arrow"></div>
+	<h3 class="popover-title" ng-bind="title" ng-show="title"></h3>
+	<form class="popover-content form-horizontal" style="width: 200px">
+
+		<div class="form-group form-group-sm">
+			<label for="languageSelect" class="control-label col-sm-4">Choose:</label>
+			<div class="col-sm-8">
+				<select id="languageSelect"
+						class="form-control"
+						ng-options="lang as lang.label for lang in $root.availableLanguages | orderBy:'label'"
+						data-ng-model="$root.currentLanguage"
+						data-ng-change="$root.setLanguage(); $hide()">
+				</select>
+			</div>
+		</div>
+
+	</form>
+</div>

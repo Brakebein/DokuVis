@@ -1,6 +1,6 @@
 {
   "name": "dokuvis-gui",
-  "version": "1.0.0",
+  "version": "0.1.1-alpha.0",
   "description": "Online tool for the documentation of digital reconstructions and their modelling processes",
   "main": "app/app.js",
   "scripts": {
@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/Brakebein/DokuVis#readme",
   "devDependencies": {
-    "angular-jsdoc": "^1.4.2",
     "bootstrap-sass": "^3.3.7",
     "bootswatch": "^3.3.7",
     "dgeni-alive": "^0.3.5",
@@ -28,6 +27,7 @@
     "grunt-contrib-uglify": "^1.0.1",
     "grunt-jsdoc": "^2.1.0",
     "grunt-usemin": "^3.1.1",
+    "grunt-version": "^1.2.1",
     "grunt-wiredep": "^3.0.1",
     "jsdoc-baseline": "https://github.com/hegemonic/baseline/tarball/master",
     "ng-tags-input": "^3.2.0"

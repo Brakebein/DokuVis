@@ -58,7 +58,7 @@
  *   primary: <boolean>,               // whether the source is a primary source or not
  *   repros: <string|null>,            // repros
  *   tags: <Array<string>>,            // associated tags
- *   title: <string>,                  // title (should be always set
+ *   title: <string>,                  // title (should always be set)
  *   type: <string>                    // source type
  * }
  * ```
@@ -353,8 +353,8 @@ angular.module('dokuvis.sources', [
  * @name sourceUploadModalCtrl
  * @module dokuvis.sources
  * @requires https://docs.angularjs.org/api/ng/type/$rootScope.Scope $scope
- * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
- * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$stateParams $stateParams
  * @requires https://docs.angularjs.org/api/ng/service/$timeout $timeout
  * @requires API
  * @requires SourceUploader
