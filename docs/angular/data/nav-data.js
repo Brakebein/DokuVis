@@ -207,6 +207,69 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
         ]
       },
       {
+        "name": "dokuvis.models",
+        "type": "groups",
+        "href": "api/dokuvis.models",
+        "navItems": [
+          {
+            "name": "controller",
+            "type": "section",
+            "href": "api/dokuvis.models/controller",
+            "navItems": [
+              {
+                "name": "modelUploadModalCtrl",
+                "type": "controller",
+                "href": "api/dokuvis.models/controller/modelUploadModalCtrl"
+              }
+            ]
+          },
+          {
+            "name": "directive",
+            "type": "section",
+            "href": "api/dokuvis.models/directive",
+            "navItems": [
+              {
+                "name": "versionDetail",
+                "type": "directive",
+                "href": "api/dokuvis.models/directive/versionDetail"
+              },
+              {
+                "name": "versionGraph",
+                "type": "directive",
+                "href": "api/dokuvis.models/directive/versionGraph"
+              }
+            ]
+          },
+          {
+            "name": "factory",
+            "type": "section",
+            "href": "api/dokuvis.models/factory",
+            "navItems": [
+              {
+                "name": "DigitalObject",
+                "type": "factory",
+                "href": "api/dokuvis.models/factory/DigitalObject"
+              },
+              {
+                "name": "ModelUploader",
+                "type": "factory",
+                "href": "api/dokuvis.models/factory/ModelUploader"
+              },
+              {
+                "name": "ModelVersion",
+                "type": "factory",
+                "href": "api/dokuvis.models/factory/ModelVersion"
+              },
+              {
+                "name": "Software",
+                "type": "factory",
+                "href": "api/dokuvis.models/factory/Software"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "dokuvis.projects",
         "type": "groups",
         "href": "api/dokuvis.projects",

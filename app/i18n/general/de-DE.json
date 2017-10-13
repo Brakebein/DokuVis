@@ -18,6 +18,7 @@
   "save": "Speichern",
   "abort": "Abbrechen",
   "close": "Schließen",
+  "back": "Zurück",
   "continue": "Fortfahren",
   "continue?": "Fortfahren?",
   "eg": "z.B.",
@@ -26,6 +27,7 @@
   "search": "Suche",
   "not_specified": "Keine Angabe",
   "status": "Status",
+  "load": "Laden",
   "upload": "Hochladen",
   "created_by": "Erstellt von",
   "uploaded_by": "Hochgeladen von",
@@ -33,5 +35,12 @@
   "comments": "Kommentare",
   "sort_by": "Sortieren nach",
   "ascending": "Austeigend",
-  "descending": "Absteigend"
+  "descending": "Absteigend",
+  "filedrop_file": "Hier Datei ablegen",
+  "filedrop_files": "Hier Dateien ablegen",
+  "processing": "Verarbeitung",
+  "upload_sucess": "Upload erfolgreich",
+  "upload_fail": "Upload fehlgeschlagen",
+  "error_file_nosupport": "Nicht unterstütztes Dateiformat!",
+  "error_unknown": "Unbekannter Fehler! Siehe Konsole für weitere Details."
 }

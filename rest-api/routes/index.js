@@ -72,13 +72,15 @@ router.post('/auth/project/:id/:subprj/assignCategory', models.assignCategory);
 router.get('/auth/project/:id/:subprj/model/:modelId/connect', models.getConnections);
 router.post('/auth/project/:prj/:subprj/model/upload', mUpload.single('uploadModelFile'), upload);
 
-//digital event
+// model version / digital object
 const modelversion = require('./modelversion');
 const digitalobject = require('./digitalobject');
+const software = require('./software');
 router.get('/auth/project/:prj/:subprj/model/version', modelversion.query);
 router.get('/auth/project/:prj/:subprj/model/version/:id', modelversion.get);
 router.get('/auth/project/:prj/:subprj/model/version/:id/object', digitalobject.query);
 router.post('/auth/project/:prj/:subprj/model/version', mUpload.single('uploadModelFile'), upload);
+router.get('/auth/project/:prj/software', software.query);
 
 // categories
 const category = require('./category');

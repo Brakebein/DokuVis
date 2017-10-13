@@ -89,6 +89,7 @@ dokuvisApp.constant('ApiTask',			'api/auth/project/:project/task');
 dokuvisApp.constant('ApiStaff',			'api/auth/project/:project/staff');
 dokuvisApp.constant('ApiRoles',			'api/roles');
 dokuvisApp.constant('ApiModelVersion',	'api/auth/project/:project/:subproject/model/version');
+dokuvisApp.constant('ApiSoftware',		'api/auth/project/:project/software');
 
 dokuvisApp.factory('ApiParams', ['$stateParams', function ($stateParams) {
 	return {
@@ -295,6 +296,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					// 'style/modals/categoryEdit.css'
 				],
 				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
+					$translatePartialLoader.addPart('model');
 					$translatePartialLoader.addPart('category');
 				}]
 			})

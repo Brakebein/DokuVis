@@ -18,6 +18,7 @@
   "save": "Save",
   "abort": "Abort",
   "close": "Close",
+  "back": "Back",
   "continue": "Continue",
   "continue?": "Continue?",
   "eg": "e.g.",
@@ -26,6 +27,7 @@
   "search": "Search",
   "not_specified": "Not specified",
   "status": "Status",
+  "load": "Load",
   "upload": "Upload",
   "created_by": "Created by",
   "uploaded_by": "Uploaded by",
@@ -33,5 +35,12 @@
   "comments": "Comments",
   "sort_by": "Sort by",
   "ascending": "Ascending",
-  "descending": "Descending"
+  "descending": "Descending",
+  "filedrop_file": "Drop file here",
+  "filedrop_files": "Drop files here",
+  "processing": "Processing",
+  "upload_sucess": "Upload successful",
+  "upload_fail": "Upload failed",
+  "error_file_nosupport": "File format not supportet!",
+  "error_unknown": "Unknown failure! See console for more details."
 }

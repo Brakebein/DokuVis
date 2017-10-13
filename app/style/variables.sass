@@ -38,3 +38,11 @@ $tasksMainWidth: 70%
 $taskPriorityLow: #ffffb2
 $taskPriorityMedium: #fecc5c
 $taskPriorityHigh: #fd8d3c
+
+
+// mixins
+=text-truncate($nowrap)
+	overflow: hidden
+	@if $nowrap
+		white-space: nowrap
+	text-overflow: ellipsis

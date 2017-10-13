@@ -16,8 +16,8 @@ module.exports = function (req, res) {
 
 	// check for essential data
 	// if missing then delete file and abort
-	if (!req.body.date || !req.body.title) {
-		utils.abort.missingData(res, '#upload.model date|title');
+	if (!req.body.date || !req.body.summary) {
+		utils.abort.missingData(res, '#upload.model date|summary');
 		fs.unlinkAsync(req.file.path)
 			.then(function () {
 				console.warn('Unlink upload file:', req.file.path);
@@ -407,7 +407,7 @@ function createEventStatement(p) {
 		CREATE (devent:D7:'+prj+' {content: $deventId})-[:P14]->(user),\
 			(devent)-[:P4]->(:E52:'+prj+' {content: $e52id})-[:P82]->(:E61:'+prj+' {value: $date}),\
 			(devent)<-[:P15]-(subprj),\
-			(devent)-[:P102]->(:E35:'+prj+' $title),\
+			(devent)-[:P1]->(:E41:'+prj+' $summary),\
 			(devent)-[:P3]->(:E62:'+prj+' $note)\
 		FOREACH (sw IN $software |\
 			MERGE (software:D14:'+prj+' {value: sw.value})\
@@ -426,18 +426,20 @@ function createEventStatement(p) {
 		deventId: 'd7_' + p.tid,
 		e52id: 'e52_d7_' + p.tid,
 		date: p.body.date,
-		title: {
-			content: 'e35_d7_' + p.tid,
-			value: p.body.title
+		summary: {
+			content: 'e41_d7_' + p.tid,
+			value: p.body.summary
 		},
 		note: {
 			content: 'e62_d7_' + p.tid,
 			value: p.body.note
 		},
-		software: p.body.software ? [{
-			content: p.tid + '_' + utils.replace(p.body.software),
-			value: p.body.software
-		}] : []
+		software: p.body.software ? p.body.software.split(',').map(function (sw) {
+			return {
+				constent: p.tid + '_' + utils.replace(sw),
+				value: sw
+			};
+		}) : []
 	};
 
 	return { statement: q, parameters: params };

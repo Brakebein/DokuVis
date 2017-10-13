@@ -1,3 +1,5 @@
+@import "../../style/variables"
+
 .model-upload-form
 	position: relative
 	padding: 25px 40px
@@ -100,6 +102,7 @@ $vGraphLineStd: $vGraphLineWidth solid blue
 $vGraphLineDotted: $vGraphLineWidth dotted blue
 $vGraphLineRadius: $vGraphCellWidth / 2 - 3px
 
+$vGraphColRoot: #c3c3c3
 $vGraphColBlind: #ddc700
 $vGraphCol0: #7bccc4
 $vGraphCol1: #0868ac
@@ -139,8 +142,6 @@ version-graph
 							border-radius: $vGraphNodeSize / 2
 							margin: ($vGraphCellHeight - $vGraphNodeSize) / 2 ($vGraphCellWidth - $vGraphNodeSize) / 2
 							z-index: 50
-							&:hover
-								box-shadow: 0 0 5px 1px red
 							&.bg-blind
 								border: $vGraphLineWidth solid mix($vGraphColBlind, #fff, 50%)
 								background-color: mix($vGraphColBlind, #fff, 10%)
@@ -182,20 +183,29 @@ version-graph
 				flex: 1 1 auto
 				position: relative
 				height: $vGraphNodeSize
-				padding: 0px 6px
+				padding: 3px 0
 				border-left: 2px solid blue
 				display: flex
-				justify-content: space-between
-				//align-items: center
 				& > div
-					padding: 2px 0
+					flex: 0 0 auto
+					padding: 0 6px
+					&:first-child
+						flex: 1 1 auto
+						+text-truncate(true)
+				&.italic
+					font-style: italic
 
 			&:hover
+				& > .vgraph-nodes > .vgraph-cell > .node
+					box-shadow: 0 0 5px 1px #aaa
 				& > .vgraph-text
 					background-color: #efefef
 			&.active
-				& > .vgraph-nodes > .vgraph-nodes-bg
-					opacity: 0.5
+				& > .vgraph-nodes
+					& > .vgraph-nodes-bg
+						opacity: 0.5
+					& > .vgraph-cell > .node
+						box-shadow: 0 0 5px 1px #aaa
 				& > .vgraph-text
 					background-color: #e5e5e5
 
@@ -222,6 +232,10 @@ version-graph
 	.line-4
 		border-color: $vGraphCol4 !important
 
+	.bg-root
+		background-color: $vGraphColRoot
+	.line-root
+		border-color: $vGraphColRoot !important
 	.bg-blind
 		background-color: $vGraphColBlind
 	.line-blind

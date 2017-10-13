@@ -1,0 +1,150 @@
+
+
+<h1>
+  <code>dokuvis.models</code>
+</h1>
+
+<p>Module that adds functionality to upload and query models and different versions of it.</p>
+<h3 id="module-dependencies">Module Dependencies</h3>
+<ul>
+<li><a href="https://docs.angularjs.org/api/ngResource">ngResource</a></li>
+<li><a href="https://ui-router.github.io/ng1/docs/0.3.2/#/api">ui.router</a></li>
+<li><a href="https://github.com/nervgh/angular-file-upload">angularFileUpload</a></li>
+<li><a href="https://github.com/urish/angular-moment">angularMoment</a></li>
+<li><a href="https://angular-translate.github.io/">pascalprecht.translate</a></li>
+<li><a href="http://mbenford.github.io/ngTagsInput/">ngTagsInput</a></li>
+</ul>
+<h3 id="modelversion-object">ModelVersion object</h3>
+<pre><code>{
+  created: {                  // who uploaded the model?
+    id: &lt;id&gt;,                 // user id
+    name: &lt;string&gt;,           // user name
+    date: &lt;string&gt;,           // upload date
+  },
+  id: &lt;id&gt;,                   // id of the version
+  note: &lt;string&gt;,             // additional notes describing the version
+  predecessor: &lt;id&gt;,          // id of the predecessor version
+  software: &lt;Array&lt;string&gt;&gt;,  // used software
+  summary: &lt;string&gt;           // summary of version description
+}
+</code></pre>
+<h3 id="digitalobject-object">DigitalObject object</h3>
+<pre><code>{
+  children: &lt;Array&lt;DigitalObject&gt;&gt;,      // DigitalObjects linked to this instance hierarchically
+  file: {
+    content: &lt;id|Array&lt;id&gt;&gt;,             // filename or filenames of the geometry files
+    edges: &lt;string|Array&lt;string&gt;&gt;,       // filename or filenames of the files containing the edges geometry
+    geometryId: &lt;string|Array&lt;string&gt;&gt;,  // id of geometry within the DAE file
+    original: &lt;string&gt;,                  // filename of the original DAE/ZIP file
+    path: &lt;string&gt;,                      // path to the files
+    type: &lt;string&gt;                       // type of the original file (should be &#39;dae&#39; or &#39;zip&#39;)
+  },
+  id: &lt;id&gt;,                              // id of the DigitalObject
+  materials: &lt;Array&lt;{
+    alpha: &lt;string&gt;,                     // filename of the alpha map (optional)
+    content: &lt;id&gt;,                       // internal id of the material
+    diffuse: &lt;string|Array&lt;number&gt;&gt;,     // filename of the texture or array of color values
+    id: &lt;string&gt;,                        // id of material within the DAE file
+    name: &lt;string&gt;,                      // name of the file as retrieved from the DAE file
+    path: &lt;string&gt;                       // path to texture files
+  }&gt;&gt;,
+  obj: {
+    content: &lt;id&gt;,                       // id of the object (same as above)
+    id: &lt;string&gt;,                        // id of the mesh as described within the DAE file
+    matrix: &lt;Array&lt;number&gt;&gt;,             // 4x4 matrix values
+    name: &lt;string&gt;,                      // name of the object as retrieved from the DAE file
+    type: &lt;string&gt;,                      // type of the object (should be &#39;object&#39;, or &#39;group&#39; if there is no geometry)
+    unit: &lt;number&gt;,                      // unit as retrieved from DAE file (1.0 = meter)
+    up: &lt;string&gt;                         // up axis (should be &#39;Y&#39; or &#39;Z&#39;)
+  },
+  parent: &lt;id|null&gt;,                     // id of parent DigitalObject
+  versionId: &lt;id&gt;                        // id of the associated version
+}
+</code></pre>
+
+
+
+<div class="component-breakdown">
+  <h2>Module Components</h2>
+  
+  <div>
+    <h3 class="component-heading" id="factory">Factory</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.models/factory/ModelVersion">ModelVersion</a></td>
+        <td><p>$resource to query versions of models.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.models/factory/DigitalObject">DigitalObject</a></td>
+        <td><p>$resource to query the 3D objects of a version.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.models/factory/Software">Software</a></td>
+        <td><p>$resource to query software entries.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.models/factory/ModelUploader">ModelUploader</a></td>
+        <td><p>This factory provides an instance of <a href="https://github.com/nervgh/angular-file-upload">FileUploader</a> specified to upload models/3D files.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="controller">Controller</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.models/controller/modelUploadModalCtrl">modelUploadModalCtrl</a></td>
+        <td><p>Controller for modal for uploading 3D files.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="directive">Directive</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.models/directive/versionGraph">versionGraph</a></td>
+        <td><p>Directive displaying all the versions as a graph.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.models/directive/versionDetail">versionDetail</a></td>
+        <td><p>Directive displaying details of a version.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+</div>
+
+
+
+
+

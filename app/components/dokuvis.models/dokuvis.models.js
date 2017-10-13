@@ -1,8 +1,81 @@
+/**
+ * Module that adds functionality to upload and query models and different versions of it.
+ *
+ * ### Module Dependencies
+ * * [ngResource](https://docs.angularjs.org/api/ngResource)
+ * * [ui.router](https://ui-router.github.io/ng1/docs/0.3.2/#/api)
+ * * [angularFileUpload](https://github.com/nervgh/angular-file-upload)
+ * * [angularMoment](https://github.com/urish/angular-moment)
+ * * [pascalprecht.translate](https://angular-translate.github.io/)
+ * * [ngTagsInput](http://mbenford.github.io/ngTagsInput/)
+ *
+ * ### ModelVersion object
+ * ```
+ * {
+ *   created: {                  // who uploaded the model?
+ *     id: <id>,                 // user id
+ *     name: <string>,           // user name
+ *     date: <string>,           // upload date
+ *   },
+ *   id: <id>,                   // id of the version
+ *   note: <string>,             // additional notes describing the version
+ *   predecessor: <id>,          // id of the predecessor version
+ *   software: <Array<string>>,  // used software
+ *   summary: <string>           // summary of version description
+ * }
+ * ```
+ *
+ * ### DigitalObject object
+ * ```
+ * {
+ *   children: <Array<DigitalObject>>,      // DigitalObjects linked to this instance hierarchically
+ *   file: {
+ *     content: <id|Array<id>>,             // filename or filenames of the geometry files
+ *     edges: <string|Array<string>>,       // filename or filenames of the files containing the edges geometry
+ *     geometryId: <string|Array<string>>,  // id of geometry within the DAE file
+ *     original: <string>,                  // filename of the original DAE/ZIP file
+ *     path: <string>,                      // path to the files
+ *     type: <string>                       // type of the original file (should be 'dae' or 'zip')
+ *   },
+ *   id: <id>,                              // id of the DigitalObject
+ *   materials: <Array<{
+ *     alpha: <string>,                     // filename of the alpha map (optional)
+ *     content: <id>,                       // internal id of the material
+ *     diffuse: <string|Array<number>>,     // filename of the texture or array of color values
+ *     id: <string>,                        // id of material within the DAE file
+ *     name: <string>,                      // name of the file as retrieved from the DAE file
+ *     path: <string>                       // path to texture files
+ *   }>>,
+ *   obj: {
+ *     content: <id>,                       // id of the object (same as above)
+ *     id: <string>,                        // id of the mesh as described within the DAE file
+ *     matrix: <Array<number>>,             // 4x4 matrix values
+ *     name: <string>,                      // name of the object as retrieved from the DAE file
+ *     type: <string>,                      // type of the object (should be 'object', or 'group' if there is no geometry)
+ *     unit: <number>,                      // unit as retrieved from DAE file (1.0 = meter)
+ *     up: <string>                         // up axis (should be 'Y' or 'Z')
+ *   },
+ *   parent: <id|null>,                     // id of parent DigitalObject
+ *   versionId: <id>                        // id of the associated version
+ * }
+ * ```
+ *
+ * @ngdoc module
+ * @name dokuvis.models
+ * @module dokuvis.models
+ */
 angular.module('dokuvis.models', [
+	'ngResource',
 	'ui.router',
-	'angularFileUpload'
+	'angularFileUpload',
+	'angularMoment',
+	'pascalprecht.translate',
+	'ngTagsInput'
 ])
 
+/**
+ * @deprecated
+ */
 .factory('Model', ['$http', 'API', '$stateParams',
 	function ($http, API, $stateParams) {
 
@@ -34,6 +107,129 @@ angular.module('dokuvis.models', [
 	}
 ])
 
+/**
+ * $resource to query versions of models.
+ * @ngdoc factory
+ * @name ModelVersion
+ * @module dokuvis.models
+ * @requires https://docs.angularjs.org/api/ngResource/service/$resource $resource
+ * @requires ApiParams
+ * @requires ApiModelVersion
+ */
+.factory('ModelVersion', ['$resource', 'ApiParams', 'ApiModelVersion',
+	function ($resource, ApiParams, ApiModelVersion) {
+
+		return $resource(ApiModelVersion + '/:id', angular.extend({ id: '@id' }, ApiParams), {
+			queryModels: {
+				url: ApiModelVersion + '/:id/object',
+				methed: 'GET',
+				isArray: true
+			}
+		});
+
+		/**
+		 * Get all versions within the current subproject.
+		 * ```
+		 * ModelVersion.query().$promise
+		 *   .then(function (versions) {...});
+		 * ```
+		 * @ngdoc method
+		 * @name ModelVersion#query
+		 * @return {Promise} Promise with versions as array as resolve value.
+		 */
+
+	}
+])
+
+/**
+ * $resource to query the 3D objects of a version.
+ * @ngdoc factory
+ * @name DigitalObject
+ * @module dokuvis.models
+ * @requires https://docs.angularjs.org/api/ngResource/service/$resource $resource
+ * @requires ApiParams
+ * @requires ApiModelVersion
+ */
+.factory('DigitalObject', ['$resource', 'ApiParams', 'ApiModelVersion',
+	function ($resource, ApiParams, ApiModelVersion) {
+
+		function createHierarchy(data) {
+			for (var i = 0; i < data.length; i++) {
+				var obj = data[i];
+				if (!obj.children) obj.children = [];
+				if (obj.parent) {
+					var parent = getObjectById(data, obj.parent);
+					if (parent) {
+						if (!parent.children) parent.children = [];
+						parent.children.push(new resource(obj));
+						data.splice(i, 1);
+						i--;
+					}
+				}
+			}
+			return data;
+		}
+
+		function getObjectById(data, id) {
+			for (var i = 0; i < data.length; i++) {
+				if (data[i].id === id) return data[i];
+				if (data[i].children) {
+					var obj = getObjectById(data[i].children, id);
+					if (obj !== undefined) return obj;
+				}
+			}
+			return undefined;
+		}
+
+		var resource =  $resource(ApiModelVersion + '/:versionId/object/:id', angular.extend({ id: '@id', versionId: '@versionId' }, ApiParams), {
+			query: {
+				method: 'GET',
+				isArray: true,
+				transformResponse: function (json) {
+					return createHierarchy(angular.fromJson(json));
+				}
+			},
+			update: {
+				method: 'PUT'
+			}
+		});
+
+		return resource;
+
+	}
+])
+
+/**
+ * $resource to query software entries.
+ * @ngdoc factory
+ * @name Software
+ * @module dokuvis.models
+ * @requires https://docs.angularjs.org/api/ngResource/service/$resource $resource
+ * @requires ApiParams
+ * @requires ApiSoftware
+ */
+.factory('Software', ['$resource', 'ApiParams', 'ApiSoftware',
+	function ($resource, ApiParams, ApiSoftware) {
+
+		return $resource(ApiSoftware + '/:id', angular.extend({ id: '@id' }, ApiParams));
+
+	}
+])
+
+/**
+ * This factory provides an instance of [FileUploader](https://github.com/nervgh/angular-file-upload) specified to upload models/3D files.
+ * @ngdoc factory
+ * @name ModelUploader
+ * @module dokuvis.models
+ * @requires https://docs.angularjs.org/api/ng/service/$window $window
+ * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
+ * @requires ApiParams
+ * @requires ApiModelVersion
+ * @requires https://github.com/nervgh/angular-file-upload FileUploader
+ * @requires Utilities
+ * @requires https://github.com/urish/angular-moment moment
+ * @return {FileUploader} An instance of FileUploader.
+  */
 .factory('ModelUploader', ['$window', '$rootScope', 'ApiParams', 'ApiModelVersion', 'FileUploader', 'Utilities', 'moment',
 	function ($window, $rootScope, ApiParams, ApiModelVersion, FileUploader, Utilities, moment) {
 
@@ -50,7 +246,7 @@ angular.module('dokuvis.models', [
 		});
 
 		// FILTER
-		var modelTypes = ['dae','obj','zip'];
+		var modelTypes = ['dae','zip'];
 
 		// restrict to file types
 		uploader.filters.push({
@@ -63,16 +259,17 @@ angular.module('dokuvis.models', [
 
 		// CALLBACKS
 		uploader.onWhenAddingFileFailed = function(item, filter, options) {
+			// if there is already another file in the queue, replace it by the new file
 			if (filter.name === 'queueLimit') {
 				uploader.clearQueue();
 				uploader.addToQueue(item);
 			}
 			else if (filter.name === 'modelFilter') {
-				Utilities.dangerAlert('Nicht unterstütztes Format!');
+				Utilities.dangerAlert('error_file_nosupport');
 			}
 			else {
 				console.warn('onWhenAddingFileFailed', item, filter, options);
-				Utilities.dangerAlert('Unknown failure while adding file. See console for details.');
+				Utilities.dangerAlert('error_unknown');
 			}
 		};
 
@@ -93,9 +290,11 @@ angular.module('dokuvis.models', [
 			item.formData = [];
 			item.formData.push({
 				date: moment().format(),
-				title: item.commit.title,
+				summary: item.commit.summary,
 				note: item.commit.note,
-				software: item.commit.software,
+				software: item.commit.software.map(function (sw) {
+					return sw.name;
+				}),
 				predecessor: item.commit.parent
 			});
 
@@ -130,11 +329,24 @@ angular.module('dokuvis.models', [
 			fileItem.isProcessing = false;
 		};
 
-		// broadcast event
+		/**
+		 * Event that gets fired, when the the file was successfully uploaded and processed.
+		 * @ngdoc event
+		 * @name ModelUploader#modelUploadSuccess
+		 * @eventType broadcast on $rootScope
+		 * @param response {Object} HTTP request response object.
+		 */
 		function modelUploadSuccess(response) {
 			$rootScope.$broadcast('modelUploadSuccess', response);
 		}
 
+		/**
+		 * Event that gets fired, when an error occured while uploading or processing the file server-side.
+		 * @ngdoc event
+		 * @name ModelUploader#modelUploadError
+		 * @eventType broadcast on $rootScope
+		 * @param response {Object} HTTP request response object.
+		 */
 		function modelUploadError(response) {
 			$rootScope.$broadcast('modelUploadError', response);
 		}
@@ -144,8 +356,21 @@ angular.module('dokuvis.models', [
 	}
 ])
 
-.controller('modelUploadModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'ModelUploader', 'Utilities',
-	function ($scope, $state, $stateParams, $timeout, ModelUploader, Utilities) {
+/**
+ * Controller for modal for uploading 3D files.
+ * @ngdoc controller
+ * @name modelUploadModalCtrl
+ * @module dokuvis.models
+ * @requires https://docs.angularjs.org/api/ng/type/$rootScope.Scope $scope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires https://docs.angularjs.org/api/ng/service/$timeout $timeout
+ * @requires ModelUploader
+ * @requires Software
+ * @requires Utilities
+ */
+.controller('modelUploadModalCtrl', ['$scope', '$state', '$stateParams', '$timeout', 'ModelUploader', 'Software', 'Utilities',
+	function ($scope, $state, $stateParams, $timeout, ModelUploader, Software, Utilities) {
 
 		/**
 		 * Instance of `{@link https://github.com/nervgh/angular-file-upload FileUploader}` provided by `ModelUploader` factory.
@@ -156,7 +381,7 @@ angular.module('dokuvis.models', [
 		$scope.uploader = ModelUploader;
 
 		$scope.commit = {
-			title: '',
+			summary: '',
 			note: '',
 			software: ''
 		};
@@ -177,14 +402,26 @@ angular.module('dokuvis.models', [
 		// start upload
 		$scope.checkAndUpload = function () {
 			if (!$scope.fileitem) return;
-			if (!$scope.commit.title.length) {
-				Utilities.dangerAlert('Geben Sie mindestens einen Titel ein!');
+			if (!$scope.commit.summary.length) {
+				Utilities.dangerAlert('model_form_summary_missing');
 				return;
 			}
 
 			$scope.fileitem.commit = $scope.commit;
-			$scope.fileitem.commit.parent = $scope.parent ? $scope.parent.id : null;
+			$scope.fileitem.commit.parent = $scope.parent && $scope.parent.id !== 'root' ? $scope.parent.id : null;
 			$scope.fileitem.upload();
+		};
+
+		// query software entries for ngInputTags
+		$scope.searchSoftware = function (query) {
+			return Software.query({ search: query }).$promise
+				.then(function (results) {
+					return results;
+				})
+				.catch(function (reason) {
+					Utilities.throwApiException('#Software.query', reason);
+					return [];
+				});
 		};
 
 		/**
@@ -199,136 +436,28 @@ angular.module('dokuvis.models', [
 	}
 ])
 
-.directive('modelTree', ['Model',
-	function (Model) {
-
-	}
-])
-
-.factory('DigitalObject', ['$resource', 'ApiParams', 'ApiModelVersion',
-	function ($resource, ApiParams, ApiModelVersion) {
-
-		function createHierarchy(data) {
-			for (var i = 0; i < data.length; i++) {
-				var obj = data[i];
-				if (!obj.children) obj.children = [];
-				if (obj.parent) {
-					var parent = getObjectById(data, obj.parent);
-					if (parent) {
-						if (!parent.children) parent.children = [];
-						parent.children.push(new resource(obj));
-						data.splice(i, 1);
-						i--;
-					}
-				}
-			}
-			return data;
-		}
-
-		function getObjectById(data, id) {
-			for (var i = 0; i < data.length; i++) {
-				if (data[i].id === id) return data[i];
-				if (data[i].children) {
-					var obj = getObjectById(data[i].children, id);
-					if (obj !== undefined) return obj;
-				}
-			}
-			return undefined;
-		}
-
-		var resource =  $resource(ApiModelVersion + '/:eventId/object/:id', angular.extend({ id: '@id', eventId: '@eventId' }, ApiParams), {
-			query: {
-				method: 'GET',
-				isArray: true,
-				transformResponse: function (json) {
-					return createHierarchy(angular.fromJson(json));
-				}
-			},
-			update: {
-				method: 'PUT'
-			}
-		});
-
-		return resource;
-
-	}
-])
-
-.factory('ModelVersion', ['$resource', 'ApiParams', 'ApiModelVersion',
-	function ($resource, ApiParams, ApiModelVersion) {
-
-		return $resource(ApiModelVersion + '/:id', angular.extend({ id: '@id' }, ApiParams), {
-			queryModels: {
-				url: ApiModelVersion + '/:id/object',
-				methed: 'GET',
-				isArray: true
-			}
-		});
-
-	}
-])
-
-.directive('versionList', ['$rootScope', 'ComponentsPath', 'ModelVersion', 'DigitalObject', 'Utilities', 'ModelUploader',
-	function ($rootScope, ComponentsPath, ModelVersion, DigitalObject, Utilities, ModelUploader) {
-
-		return {
-			templateUrl: ComponentsPath + '/dokuvis.models/versionList.tpl.html',
-			restrict: 'E',
-			scope: {},
-			link: function (scope) {
-
-				scope.uploader = ModelUploader;
-
-				scope.verions = [];
-
-				function queryVersions() {
-					ModelVersion.query().$promise
-						.then(function (results) {
-							console.log('versions:', results);
-							scope.versions = results;
-						})
-						.catch(function (reason) {
-							Utilities.throwApiException('#ModelVersion.query', reason);
-						});
-				}
-
-				// init
-				queryVersions();
-
-				scope.loadModels = function (vers) {
-					console.log(vers);
-					DigitalObject.query({ eventId: vers.id }).$promise
-						.then(function (results) {
-							console.log(results);
-							modelQuerySuccess(results);
-						})
-						.catch(function (reason) {
-							Utilities.throwApiException('#ModelVersion.loadModels', reason);
-						});
-				};
-
-				function modelQuerySuccess(entries) {
-					$rootScope.$broadcast('modelQuerySuccess', entries);
-				}
-
-				// listen to modelUploadSuccess event
-				scope.$on('modelUploadSuccess', function () {
-					queryVersions();
-				});
-			}
-		}
-
-	}
-])
-
-.directive('versionGraph', ['$rootScope', 'ComponentsPath', 'ModelVersion', 'DigitalObject', 'Utilities', 'moment',
-	function ($rootScope, ComponentsPath, ModelVersion, DigitalObject, Utilities, moment) {
+/**
+ * Directive displaying all the versions as a graph.
+ * @ngdoc directive
+ * @name versionGraph
+ * @module dokuvis.models
+ * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state
+ * @requires ComponentsPath
+ * @requires ModelVersion
+ * @requires Utilities
+ * @requires https://github.com/urish/angular-moment moment
+ * @restrict E
+ * @scope
+ */
+.directive('versionGraph', ['$rootScope', '$state', 'ComponentsPath', 'ModelVersion', 'Utilities', 'moment',
+	function ($rootScope, $state, ComponentsPath, ModelVersion, Utilities, moment) {
 
 		return {
 			templateUrl: ComponentsPath + '/dokuvis.models/versionGraph.tpl.html',
 			restrict: 'E',
 			scope: {},
-			link: function (scope, element) {
+			link: function (scope) {
 
 				var versions = null,
 					activeVersion = null;
@@ -337,8 +466,11 @@ angular.module('dokuvis.models', [
 					ModelVersion.query().$promise
 						.then(function (results) {
 							console.log('versions:', results);
+							// add root
+							results.unshift({ id: 'root', predecessor: null, summary: 'root', created: { date: 0 } });
 							versions = results;
-							buildGraph(results);
+							scope.select(versions[versions.length - 1]);
+							// buildGraph(results);
 						})
 						.catch(function (reason) {
 							Utilities.throwApiException('#ModelVersion.query', reason);
@@ -348,12 +480,15 @@ angular.module('dokuvis.models', [
 				// init
 				queryVersions();
 
+				// listen to modelUploadSuccess event
+				scope.$on('modelUploadSuccess', function () {
+					queryVersions();
+				});
+
 				function buildGraph(data) {
 					var tmpData = [].concat(data);
-					// add root
-					tmpData.unshift({ id: 'root', predecessor: null, title: 'root', created: {} });
 					// add blind version
-					tmpData.push({ id: 'blind', predecessor: activeVersion ? activeVersion.id : data[data.length - 1].id, title: 'New', created: { date: moment().format() } });
+					tmpData.push({ id: 'blind', predecessor: activeVersion ? activeVersion.id : tmpData[tmpData.length - 1].id, summary: 'model_version_new', created: { date: moment().format() } });
 
 					// create d3 hierarchie
 					var root = d3.stratify()
@@ -374,7 +509,7 @@ angular.module('dokuvis.models', [
 
 					var newColOffset = 0;
 					var cols = {};
-					var blindIndex;
+					var blindIndex = 0;
 
 					// determine postion (row, col) of each node
 					// and get start/end of each col
@@ -424,20 +559,20 @@ angular.module('dokuvis.models', [
 
 						// add node and incoming line
 						isBlind = node.data.id === 'blind';
-						cells[node.index.col].push({ type: 'node', css: isBlind ? 'bg-blind' : 'bg-' + node.index.col });
-						if (node.data.id !== 'root') cells[node.index.col].push({ type: 'downtick', css: isBlind ? 'line-blind' : 'line-' + node.index.col });
+						cells[node.index.col].push({ type: 'node', css: node.data.id === 'root' ? 'bg-root' : isBlind ? 'bg-blind' : 'bg-' + node.index.col % 5 });
+						if (node.data.id !== 'root') cells[node.index.col].push({ type: 'downtick', css: isBlind ? 'line-blind' : 'line-' + node.index.col % 5 });
 
 						// add outgoing lines for children
 						var children = node.children || [];
 						children.forEach(function (c) {
 							isBlind = c.data.id === 'blind';
 							if (node.index.col === c.index.col)
-								cells[node.index.col].push({ type: 'uptick', css: isBlind ? 'line-blind' : 'line-' + c.index.col });
+								cells[node.index.col].push({ type: 'uptick', css: isBlind ? 'line-blind' : 'line-' + c.index.col % 5 });
 							else {
-								cells[node.index.col].push({ type: 'sidetick', css: isBlind ? 'line-blind' : 'line-' + c.index.col });
-								cells[c.index.col].push({ type: 'corner', css: isBlind ? 'line-blind' : 'line-' + c.index.col });
+								cells[node.index.col].push({ type: 'sidetick', css: isBlind ? 'line-blind' : 'line-' + c.index.col % 5 });
+								cells[c.index.col].push({ type: 'corner', css: isBlind ? 'line-blind' : 'line-' + c.index.col % 5 });
 								for (var i = node.index.col + 1; i < c.index.col; i++)
-									cells[i].push({ type: 'hline', css: isBlind ? 'line-blind' : 'line-' + c.index.col });
+									cells[i].push({ type: 'hline', css: isBlind ? 'line-blind' : 'line-' + c.index.col % 5 });
 							}
 						});
 
@@ -446,7 +581,7 @@ angular.module('dokuvis.models', [
 							if (+key === node.index.col) continue;
 							if (node.index.row > cols[key].start && node.index.row < cols[key].end) {
 								isBlind = blindIndex.col === +key && blindIndex.parentRow < node.index.row;
-								cells[key].push({type: 'vline', css: isBlind ? 'line-blind' : 'line-' + key});
+								cells[key].push({type: 'vline', css: isBlind ? 'line-blind' : 'line-' + key % 5});
 							}
 						}
 
@@ -464,13 +599,90 @@ angular.module('dokuvis.models', [
 					scope.versions = list;
 				}
 
+				// activate clicked version
 				scope.select = function (vers) {
 					console.log(vers);
-					if (vers.id === 'blind') return;
+					if (vers.id === 'blind') {
+						$state.go('.upload.model', { parent: activeVersion });
+						return;
+					}
+
 					if (activeVersion) activeVersion.active = false;
 					activeVersion = vers;
 					activeVersion.active = true;
+
 					buildGraph(versions);
+					modelVersionActive(vers);
+				};
+
+				/**
+				 * Event that gets fired, when version has been selected/activated.
+				 * @ngdoc event
+				 * @name versionGraph#modelVersionActive
+				 * @eventType broadcast on $rootScope
+				 * @param vers {ModelVersion} The selected/activated version.
+				 */
+				function modelVersionActive(vers) {
+					$rootScope.$broadcast('modelVersionActive', vers);
+				}
+
+			}
+		}
+
+	}
+])
+
+/**
+ * Directive displaying details of a version.
+ * @ngdoc directive
+ * @name versionDetail
+ * @module dokuvis.models
+ * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
+ * @requires ComponentsPath
+ * @requires DigitalObject
+ * @requires Utilities
+ * @restrict E
+ * @scope
+ */
+.directive('versionDetail', ['$rootScope', 'ComponentsPath', 'DigitalObject', 'Utilities',
+	function ($rootScope, ComponentsPath, DigitalObject, Utilities) {
+
+		return {
+			templateUrl: ComponentsPath + '/dokuvis.models/versionDetail.tpl.html',
+			restrict: 'E',
+			scope: {},
+			link: function (scope) {
+
+				scope.version = null;
+
+				// listen to modelVersionActive event
+				scope.$on('modelVersionActive', function (event, version) {
+					scope.version = version;
+				});
+
+				// query 3D objects of active version
+				scope.load = function () {
+					if (!scope.version && scope.version.id === 'root') return;
+
+					DigitalObject.query({ versionId: scope.version.id }).$promise
+						.then(function (results) {
+							console.log(results);
+							modelQuerySuccess(results);
+						})
+						.catch(function (reason) {
+							Utilities.throwApiException('#DigitalObject.query', reason);
+						});
+				};
+
+				/**
+				 * Event that gets fired, when all models/3D object entries has been successfully retrieved from the database.
+				 * @ngdoc event
+				 * @name versionDetail#modelQuerySuccess
+				 * @eventType broadcast on $rootScope
+				 * @param entries {Array<DigitalObject>} Entries returned from the database as array (in hierachical order).
+				 */
+				function modelQuerySuccess(entries) {
+					$rootScope.$broadcast('modelQuerySuccess', entries);
 				}
 
 			}

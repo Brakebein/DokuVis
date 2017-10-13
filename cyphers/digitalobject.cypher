@@ -5,7 +5,7 @@ OPTIONAL MATCH (pre:D7 {content: $predecessor})
 CREATE (devent:D7 {content: $deventId})-[:P14]->(user),
        (devent)-[:P4]->(:E52 {content: $e52id})-[:P82]->(:E61 {value: $date}),
        (devent)<-[:P15]-(subprj),
-       (devent)-[:P102]->(:E35 $title),
+       (devent)-[:P1]->(:E41 $summary),
        (devent)-[:P3]->(:E62 $note)
 FOREACH (sw IN $software |
   MERGE (software:D14 {value: sw.value})
@@ -56,18 +56,20 @@ RETURN DISTINCT dobj;
 
 // query event
 MATCH (:E7 {content: $subprj})-[:P15]->(devent:D7 {content: $deventId}),
-      (devent)-[:P102]->(title:E35),
+      (devent)-[:P1]->(summary:E41),
       (devent)-[:P3]->(note:E62),
       (devent)-[:P14]->(user:E21)-[:P131]->(userName:E82),
       (devent)-[:P4]->(:E52)-[:P82]->(date:E61)
-OPTIONAL MATCH (devent)-[:L23]->(software:D14)
 OPTIONAL MATCH (devent)-[:P134]->(prev:D7)
+OPTIONAL MATCH (devent)-[:L23]->(software:D14)
+WITH devent, summary, note, user, userName, date, prev, collect(software.value) AS software
 RETURN devent.content AS id,
        title.value AS title,
        note.value AS note,
        {id: user.content, name: userName.value, date: date.value} AS created,
-       software.value AS software,
-       prev.content AS predecessor;
+       prev.content AS predecessor,
+       software
+ORDER BY date.value;
 
 
 // query models/digital objects

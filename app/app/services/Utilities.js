@@ -7,7 +7,7 @@
  * @requires http://mgcrea.github.io/angular-strap/#/alerts $alert
  */
 angular.module('dokuvisApp').factory('Utilities',
-	function($alert) {
+	function($alert, $translate) {
 		
 		var f = {};
 		
@@ -268,10 +268,18 @@ angular.module('dokuvisApp').factory('Utilities',
 		 * @param message {string} Message to show
 		 */
 		f.dangerAlert = function(message) {
-			$alert({
-				content: message,
-				type: 'danger',
-				duration: 5
+			$translate(message).then(function (translation) {
+				$alert({
+					content: translation,
+					type: 'danger',
+					duration: 5
+				});
+			}, function (translationId) {
+				$alert({
+					content: translationId,
+					type: 'danger',
+					duration: 5
+				});
 			});
 		};
 

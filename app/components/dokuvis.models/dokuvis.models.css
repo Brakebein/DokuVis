@@ -68,8 +68,6 @@ version-graph .vgraph .vgraph-row {
           border-radius: 13px;
           margin: 7px 2px;
           z-index: 50; }
-          version-graph .vgraph .vgraph-row > .vgraph-nodes > .vgraph-cell > div.node:hover {
-            box-shadow: 0 0 5px 1px red; }
           version-graph .vgraph .vgraph-row > .vgraph-nodes > .vgraph-cell > div.node.bg-blind {
             border: 4px solid #eee380;
             background-color: #fcf9e6; }
@@ -110,16 +108,27 @@ version-graph .vgraph .vgraph-row {
     flex: 1 1 auto;
     position: relative;
     height: 26px;
-    padding: 0px 6px;
+    padding: 3px 0;
     border-left: 2px solid blue;
-    display: flex;
-    justify-content: space-between; }
+    display: flex; }
     version-graph .vgraph .vgraph-row > .vgraph-text > div {
-      padding: 2px 0; }
+      flex: 0 0 auto;
+      padding: 0 6px; }
+      version-graph .vgraph .vgraph-row > .vgraph-text > div:first-child {
+        flex: 1 1 auto;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis; }
+    version-graph .vgraph .vgraph-row > .vgraph-text.italic {
+      font-style: italic; }
+  version-graph .vgraph .vgraph-row:hover > .vgraph-nodes > .vgraph-cell > .node {
+    box-shadow: 0 0 5px 1px #aaa; }
   version-graph .vgraph .vgraph-row:hover > .vgraph-text {
     background-color: #efefef; }
   version-graph .vgraph .vgraph-row.active > .vgraph-nodes > .vgraph-nodes-bg {
     opacity: 0.5; }
+  version-graph .vgraph .vgraph-row.active > .vgraph-nodes > .vgraph-cell > .node {
+    box-shadow: 0 0 5px 1px #aaa; }
   version-graph .vgraph .vgraph-row.active > .vgraph-text {
     background-color: #e5e5e5; }
 version-graph .bg-0 {
@@ -142,6 +151,10 @@ version-graph .line-3 {
   border-color: #c51b8a !important; }
 version-graph .line-4 {
   border-color: #31a354 !important; }
+version-graph .bg-root {
+  background-color: #c3c3c3; }
+version-graph .line-root {
+  border-color: #c3c3c3 !important; }
 version-graph .bg-blind {
   background-color: #ddc700; }
 version-graph .line-blind {

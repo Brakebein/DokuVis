@@ -99,3 +99,12 @@ match (task:E7)-[:P2]->(:E55 {content: "task"}),
 create (task)<-[:P94]-(c)
 delete r
 return task,c
+
+// 2017-10-12
+// E35 Title to E41 Appellation
+match (d:D7)-[r]->(title:E35)
+create (d)-[:P1]->(title)
+set title:E41
+remove title:E35
+delete r
+return d, title

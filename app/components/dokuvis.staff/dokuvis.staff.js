@@ -46,11 +46,12 @@ angular.module('dokuvis.staff', [
 		/**
 		 * Get all users, who are working on this project.
 		 * ```
-		 * Staff.query().$promise
+		 * Staff.query({ search: 'user' }).$promise
 		 *   .then(function (staff) {...});
 		 * ```
 		 * @ngdoc method
 		 * @name Staff#query
+		 * @param search {Object=} Object with property `search` to search for staff that contain the search term.
 		 * @return {Array<Resource>} Array of all users.
 		 */
 

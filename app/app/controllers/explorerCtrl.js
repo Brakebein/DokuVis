@@ -134,8 +134,11 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		// Properties
 		$scope.categories = [];
 		$scope.activeCategory = null;
+		$scope.activeVersion = null;
 	
-
+		$scope.$on('modelVersionActive', function (event, version) {
+			$scope.activeVersion = version;
+		});
 
 		$scope.openScreenshotDetail = function(data) {
 			$scope.modalParams = {

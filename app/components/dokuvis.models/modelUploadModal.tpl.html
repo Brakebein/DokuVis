@@ -4,45 +4,41 @@
 		<button type="button" class="close" aria-label="Close" ng-click="close()">
 			<span>&times;</span>
 		</button>
-		<h4 class="modal-title" ng-bind="'Modell einfügen' | translate"></h4>
+		<h4 class="modal-title" translate>model_upload_heading</h4>
 	</div>
 
 	<div class="modal-body model-upload-form">
 
 		<div class="file-section">
-			<file-drop-area uploader="uploader" label="Drop file here"></file-drop-area>
+			<file-drop-area uploader="uploader" label="filedrop_file"></file-drop-area>
 			<div class="file-metadata" ng-show="fileitem">
 				<strong>{{ fileitem.file.name }}</strong>
 				&emsp; <small>{{ uploader.queue[0].file.size/1024/1024|number:2 }}&nbsp;MB</small>
 			</div>
-			<div ng-hide="fileitem">
-				Zur Zeit werden nur <b>DAE</b>-Dateien oder DAE + Texturen als <b>ZIP</b> verpackt verarbeitet.
-			</div>
+			<div ng-hide="fileitem" translate>model_upload_hint</div>
 		</div>
 
-		<div class="bs-callout bs-callout-default">
-			<span ng-show="parent">Die neue Version wird an <b>{{parent.title}}</b> angefügt.</span>
-			<span ng-hide="parent">Eine neue Version wird erstellt ohne Vorgänger.</span>
-		</div>
+		<div class="bs-callout bs-callout-default" translate translate-values="{parent: parent.summary || 'root'}">model_upload_parent</div>
 
-		<form class="form-horizontal">
+		<form>
 			<div class="form-group">
-				<label for="commitTitle" class="control-label col-sm-3">Titel</label>
-				<div class="col-sm-8">
-					<input id="commitTitle" class="form-control" ng-model="commit.title"/>
-				</div>
+				<label for="commitTitle" class="control-label" translate>model_form_summary</label>
+				<input id="commitTitle" class="form-control" ng-model="commit.summary"/>
 			</div>
 			<div class="form-group">
-				<label for="commitNote" class="control-label col-sm-3">Anmerkung</label>
-				<div class="col-sm-8">
-					<textarea id="commitNote" class="form-control" rows="5" ng-model="commit.note"></textarea>
-				</div>
+				<label for="commitNote" class="control-label" translate>model_form_note</label>
+				<textarea id="commitNote" class="form-control" rows="5" ng-model="commit.note"></textarea>
 			</div>
 			<div class="form-group">
-				<label for="commitSoftware" class="control-label col-sm-3">Software</label>
-				<div class="col-sm-8">
-					<input id="commitSoftware" class="form-control" ng-model="commit.software"/>
-				</div>
+				<label class="control-label" translate>model_form_software</label>
+				<tags-input ng-model="commit.software"
+							display-property="name"
+							replace-spaces-with-dashes="false"
+							placeholder="Start typing">
+					<auto-complete source="searchSoftware($query)"
+								   display-property="name"
+								   debounce-delay="200"></auto-complete>
+				</tags-input>
 			</div>
 		</form>
 
@@ -57,89 +53,21 @@
 				</div>
 			</div>
 			<div ng-show="fileitem.isProcessing">
-				<h4>Processing...</h4>
+				<h4>{{'processing'|translate}}...</h4>
 				<div><img src="img/db_write.gif"/></div>
 			</div>
 			<div ng-show="fileitem.isSuccess">
-				<h1 class="text-success">Upload successful!</h1>
+				<h1 class="text-success">{{'upload_success'|translate}}!</h1>
 				<h1 class="text-success"><i class="fa fa-check-circle"></i></h1>
 			</div>
 			<div ng-show="fileitem.isError">
-				<h1 class="text-danger">Upload failed!</h1>
+				<h1 class="text-danger">{{'upload_fail'|translate}}!</h1>
 				<h1 class="text-danger"><i class="fa fa-times-circle"></i></h1>
 				<div>
-					<button class="btn btn-default" ng-click="fileitem.showProgress = false">Zurück</button>
+					<button class="btn btn-default" ng-click="fileitem.showProgress = false" translate>back</button>
 				</div>
 			</div>
 		</div>
-
-		<!--<div class="upload-header">-->
-			<!--<div class="dropArea"-->
-				 <!--data-uploader="uploader"-->
-				 <!--nv-file-drop-->
-				 <!--nv-file-over-->
-				 <!--ng-click="openFileDialog($event)">-->
-				<!--<input type="file"-->
-					   <!--multiple-->
-					   <!--ng-hide="1"-->
-					   <!--nv-file-select-->
-					   <!--data-uploader="uploader"-->
-					   <!--ng-click="$event.stopPropagation()" />-->
-				<!--<div class="plus" ng-include="'img/plus-sign.svg'"></div>-->
-				<!--<div>{{'source_upload_filedrop' | translate}}</div>-->
-			<!--</div>-->
-
-			<!--<div ng-show="uploader.queue.length" class="queue-header">-->
-				<!--<table class="table">-->
-					<!--<thead>-->
-					<!--<tr>-->
-						<!--<th width="300">{{'name' | translate}}</th>-->
-						<!--<th width="100" ng-show="uploader.isHTML5"></th>-->
-						<!--<th width="60">{{'status' | translate}}</th>-->
-						<!--<th width="30"></th>-->
-					<!--</tr>-->
-					<!--</thead>-->
-				<!--</table>-->
-			<!--</div>-->
-		<!--</div>-->
-
-		<!--<div class="upload-body">-->
-
-			<!--<div ng-show="uploader.queue.length" class="queue-body">-->
-				<!--<table class="table">-->
-					<!--<tbody>-->
-
-					<!--<tr ng-repeat="item in uploader.queue" ng-class="{success: item.isSuccess && !item.isInserting, danger: item.isError}">-->
-						<!--<td class="uploadMeta">-->
-							<!--<strong>{{ item.file.name }}</strong>-->
-							<!--&emsp; <small>{{ item.file.size/1024/1024|number:2 }}&nbsp;MB</small>-->
-						<!--</td>-->
-
-						<!--<td width="100" ng-show="uploader.isHTML5">-->
-							<!--<div class="progress">-->
-								<!--<div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>-->
-							<!--</div>-->
-						<!--</td>-->
-
-						<!--<td width="60" class="text-center">-->
-							<!--<img ng-show="item.isProcessing" src="img/db_write.gif"/>-->
-							<!--<span ng-show="item.isSuccess && !item.isProcessing"><i class="glyphicon glyphicon-ok"></i></span>-->
-							<!--<span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>-->
-							<!--<span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>-->
-						<!--</td>-->
-
-						<!--<td width="30">-->
-							<!--<a class="icon-btn" ng-click="item.remove()" title="{{'remove' | translate}}">-->
-								<!--<span class="glyphicon glyphicon-trash"></span>-->
-							<!--</a>-->
-						<!--</td>-->
-					<!--</tr>-->
-
-					<!--</tbody>-->
-				<!--</table>-->
-			<!--</div>-->
-
-		<!--</div>-->
 
 	</div>
 
@@ -148,8 +76,8 @@
 			<span class="glyphicon glyphicon-upload"></span> {{'upload' | translate}}
 		</button>
 
-		<button type="button" class="btn btn-default" ng-click="close()" ng-show="uploader.getNotUploadedItems().length">{{'abort' | translate}}</button>
-		<button type="button" class="btn btn-default" ng-click="close()" ng-hide="uploader.getNotUploadedItems().length">{{'close' | translate}}</button>
+		<button type="button" class="btn btn-default" ng-click="close()" ng-show="uploader.getNotUploadedItems().length" translate>abort</button>
+		<button type="button" class="btn btn-default" ng-click="close()" ng-hide="uploader.getNotUploadedItems().length" translate>close</button>
 	</div>
 
 </div>

@@ -15,7 +15,7 @@ module.exports = {
 			AND p.proj_tstamp = ? \
 			AND LOWER(users.name) REGEXP ?';
 
-		var search = '.*.*';
+		var search = '.*';
 		if (req.query.search)
 			search = '.*' + req.query.search.toLowerCase() + '.*';
 

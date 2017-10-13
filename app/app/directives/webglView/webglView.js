@@ -3009,7 +3009,6 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 					obj.geometry = geometry;
 
 					// set material
-					console.log(entry.materials);
 					if (entry.materials && Array.isArray(entry.materials)) {
 						if (entry.materials.length !== 1) {
 							obj.material = entry.materials.map(prepareMaterial);
@@ -3100,13 +3099,24 @@ angular.module('dokuvisApp').directive('webglView', ['$state', '$stateParams', '
 					material.color.convertLinearToGamma();
 				}
 				else if (typeof m.diffuse === 'string') {
-					material.map = textureLoader.load('data/' + m.path + m.diffuse);
+					textureLoader.load('data/' + m.path + m.diffuse, function (map) {
+						material.map = map;
+						material.needsUpdate = true;
+					}, null, function (xhr) {
+						console.warn('Couldn\'t load texture', xhr.path[0].src);
+					});
 				}
 
 				// set alpha map
 				if (m.alpha) {
-					material.alphaMap = textureLoader.load('data/' + m.path + m.alpha);
-					material.transparent = true;
+					textureLoader.load('data/' + m.path + m.alpha, function (map) {
+						material.alphaMap = map;
+						material.transparent = true;
+						material.needsUpdate = true;
+					}, null, function (xhr) {
+						console.warn('Couldn\'t load texture', xhr.path[0].src);
+					});
+
 				}
 
 				material.side = THREE.DoubleSide;
