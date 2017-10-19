@@ -1,0 +1,10 @@
+{
+  "viewport_navi_focus_all": "Alles fokussieren",
+  "viewport_navi_focus_sel": "Auswahl fokussieren",
+  "viewport_navi_select": "Auswahl-Werkzeug",
+  "viewport_navi_rotate": "Ansicht drehen",
+  "viewport_navi_pan": "Ansicht verschieben",
+  "viewport_navi_zoom": "Ansicht zoomen",
+  "viewport_navi_shading": "Rendering",
+  "viewport_navi_camera": "Kameramodus"
+}

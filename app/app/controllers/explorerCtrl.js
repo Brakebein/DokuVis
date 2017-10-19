@@ -566,38 +566,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			}*/
 		//});
 		
-		/**
-		 * @deprecated
-		 * @param btn
-		 */
-		$scope.ctrlBtnClick = function(btn) {
-			switch(btn) {
-				case 'slice_toggle':
-					$scope.toggleSlice = !$scope.toggleSlice;
-					$scope.callDirFunc.ctrlBtnHandler(btn);
-					if(!$scope.toggleSlice) {
-						$scope.toggleCut = false;
-						$scope.activeBtn = '';
-						$scope.callDirFunc.ctrlBtnHandler('');
-					}
-					break;
-				case 'slice_cut':
-					$scope.toggleCut = !$scope.toggleCut;
-					$scope.callDirFunc.ctrlBtnHandler(btn);
-					break;	
-				
-				default:
-					if($scope.activeBtn == btn) {
-						$scope.activeBtn = '';
-						$scope.callDirFunc.ctrlBtnHandler('');
-					}
-					else {
-						$scope.activeBtn = btn;
-						//console.log($scope.activeBtn);
-						$scope.callDirFunc.ctrlBtnHandler(btn);
-					}
-			}
-		};
+
 		
 		$scope.validateCoord = function(coord, value, event) {
 			console.log('validate');

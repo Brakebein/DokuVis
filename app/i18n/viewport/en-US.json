@@ -1,0 +1,10 @@
+{
+  "viewport_navi_focus_all": "Focus all",
+  "viewport_navi_focus_sel": "Focus selection",
+  "viewport_navi_select": "Selection tool",
+  "viewport_navi_rotate": "Rotate view",
+  "viewport_navi_pan": "Pan view",
+  "viewport_navi_zoom": "Zoom view",
+  "viewport_navi_shading": "Rendering",
+  "viewport_navi_camera": "Camera mode"
+}

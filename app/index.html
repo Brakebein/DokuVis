@@ -29,6 +29,7 @@
 
 	<link href="components/dokuvis.utils/dokuvis.utils.css" rel="stylesheet">
 	<link href="components/dokuvis.models/dokuvis.models.css" rel="stylesheet">
+	<link href="components/dokuvis.viewport/viewport.css" rel="stylesheet">
 	<link href="components/dokuvis.sources/dokuvis.sources.css" rel="stylesheet">
 	<link href="components/dokuvis.archives/dokuvis.archives.css" rel="stylesheet">
 	<link href="components/dokuvis.comments/dokuvis.comments.css" rel="stylesheet">
@@ -36,7 +37,7 @@
 	<link href="components/dokuvis.tasks/dokuvis.tasks.css" rel="stylesheet">
 	<link href="components/dokuvis.projinfos/dokuvis.projinfos.css" rel="stylesheet">
 
-	<link href="app/directives/webglView/webglView.css" rel="stylesheet">
+	<!--<link href="app/directives/webglView/webglView.css" rel="stylesheet">-->
 	<!--<link href="app/directives/legend/legend.css" rel="stylesheet">-->
 	<link href="app/directives/graphSearch/graphSearch.css" rel="stylesheet">
 	<!--<link href="app/directives/commentSection/commentSection.css" rel="stylesheet">-->
@@ -122,27 +123,27 @@
 	<!-- build:js webgl.js -->
 	<!--<script type="text/javascript" src="lib/threejs/three-r84.min.js"></script>-->
 	<script type="text/javascript" src="lib/threejs/three-r87.js"></script>
-	<script type="text/javascript" src="lib/threejs/Projector.js"></script>
+	<!--<script type="text/javascript" src="lib/threejs/Projector.js"></script>-->
 	<script type="text/javascript" src="lib/threejs/CanvasRenderer.js"></script>
 	<script type="text/javascript" src="lib/threejs/OrbitControls.js"></script>
 	<script type="text/javascript" src="lib/threejs/CombinedCamera.js"></script>
 	<!--<script type="text/javascript" src="lib/threejs/OBJMTLLoader.js"></script>-->
 	<!--<script type="text/javascript" src="lib/threejs/MTLLoader.js"></script>-->
-	<script type="text/javascript" src="lib/threejs/OBJExporter.js"></script>
+	<!--<script type="text/javascript" src="lib/threejs/OBJExporter.js"></script>-->
 	<script type="text/javascript" src="lib/threejs/ctm/lzma.js"></script>
 	<script type="text/javascript" src="lib/threejs/ctm/ctm.js"></script>
 	<script type="text/javascript" src="lib/threejs/ctm/CTMLoader.js"></script>
-	<script type="text/javascript" src="lib/threejs/RenderPass.js"></script>
-	<script type="text/javascript" src="lib/threejs/ShaderPass.js"></script>
-	<script type="text/javascript" src="lib/threejs/MaskPass.js"></script>
-	<script type="text/javascript" src="lib/threejs/CopyShader.js"></script>
-	<script type="text/javascript" src="lib/threejs/SSAOShader.js"></script>
-	<script type="text/javascript" src="lib/threejs/FXAAShader.js"></script>
+	<!--<script type="text/javascript" src="lib/threejs/RenderPass.js"></script>-->
+	<!--<script type="text/javascript" src="lib/threejs/ShaderPass.js"></script>-->
+	<!--<script type="text/javascript" src="lib/threejs/MaskPass.js"></script>-->
+	<!--<script type="text/javascript" src="lib/threejs/CopyShader.js"></script>-->
+	<!--<script type="text/javascript" src="lib/threejs/SSAOShader.js"></script>-->
+	<!--<script type="text/javascript" src="lib/threejs/FXAAShader.js"></script>-->
 	<script type="text/javascript" src="lib/threejs/EdgeShader2.js"></script>
 	<script type="text/javascript" src="lib/threejs/XRayShader.js"></script>
-	<script type="text/javascript" src="lib/threejs/EffectComposer.js"></script>
-	<script type="text/javascript" src="lib/threejs/DepthPassPlugin.js"></script>
-	<script type="text/javascript" src="lib/threejs/stats.min.js"></script>
+	<!--<script type="text/javascript" src="lib/threejs/EffectComposer.js"></script>-->
+	<!--<script type="text/javascript" src="lib/threejs/DepthPassPlugin.js"></script>-->
+	<!--<script type="text/javascript" src="lib/threejs/stats.min.js"></script>-->
 
 	<script type="text/javascript" src="lib/potree/BinaryHeap.js"></script>
 	<script type="text/javascript" src="lib/potree/potree.js"></script>
@@ -173,7 +174,7 @@
 	
 	<!-- services -->
 	<script type="text/javascript" src="app/services/Utilities.js"></script>
-	<script type="text/javascript" src="app/services/webglContext.js"></script>
+	<!--<script type="text/javascript" src="app/services/webglContext.js"></script>-->
 	<script type="text/javascript" src="app/services/webglInterface.js"></script>
 	<script type="text/javascript" src="app/services/CidocDict.js"></script>
 	<!--<script type="text/javascript" src="app/services/Project.js"></script>-->
@@ -208,8 +209,12 @@
 	<script type="text/javascript" src="components/dokuvis.staff/dokuvis.staff.js"></script>
 	<script type="text/javascript" src="components/dokuvis.authors/dokuvis.authors.js"></script>
 
+	<script type="text/javascript" src="components/dokuvis.viewport/viewport.core.js"></script>
+	<script type="text/javascript" src="components/dokuvis.viewport/viewport.factories.js"></script>
+	<script type="text/javascript" src="components/dokuvis.viewport/viewport.extras.js"></script>
+
 	<!-- directives -->
-	<script type="text/javascript" src="app/directives/webglView/webglView.js"></script>
+	<!--<script type="text/javascript" src="app/directives/webglView/webglView.js"></script>-->
 	<!--<script type="text/javascript" src="app/directives/legend/legend.js"></script>-->
 	<script type="text/javascript" src="app/directives/graphSearch/graphSearch.js"></script>
 	<script type="text/javascript" src="app/directives/ngThumb.js"></script>

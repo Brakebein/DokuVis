@@ -39,6 +39,7 @@ DV3D.ImagePane = function ( imageUrl, params, scale ) {
 		var distance = params.ck;
 
 		// plane with texture
+		// TODO: texture anisotropy
 		var paneGeometry = new THREE.PlaneBufferGeometry(scope.width, scope.height);
 		var paneMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, map: texture, side: THREE.DoubleSide });
 

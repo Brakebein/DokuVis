@@ -73,7 +73,7 @@ DV3D.Collection.prototype.getByName = function (value) {
  * Find object by property and return it.
  * @param prop {string} Property name
  * @param value {*} Property value
- * @returns {DV3D.Entry|null} Returns entry if found, or null
+ * @return {DV3D.Entry|null} Returns entry if found, or null
  */
 DV3D.Collection.prototype.getByProperty = function (prop, value) {
 	for(var key in this.list) {
@@ -82,10 +82,14 @@ DV3D.Collection.prototype.getByProperty = function (prop, value) {
 	}
 	return null;
 };
+/**
+ * Get all visible entries.
+ * @return {DV3D.Entry[]} Returns array of all visible entries.
+ */
 DV3D.Collection.prototype.getVisible = function () {
 	var array = [];
-	for(var key in this.list) {
-		if(this.list[key].visible)
+	for (var key in this.list) {
+		if (this.list[key].visible)
 			array.push(this.list[key]);
 	}
 	return array;
@@ -95,20 +99,20 @@ DV3D.Collection.prototype.getVisible = function () {
  * @param callback {function} Function to be executed
  * @param [onlyVisible] {boolean} Consider only visible items
  */
-DV3D.Collection.prototype.map = function (callback, onlyVisible) {
+DV3D.Collection.prototype.forEach = function (callback, onlyVisible) {
 	var filterVisible = onlyVisible || false;
-	for(var key in this.list) {
-		if((filterVisible && this.list[key].visible) || !filterVisible)
+	for (var key in this.list) {
+		if ((filterVisible && this.list[key].visible) || !filterVisible)
 			callback(this.list[key]);
 	}
 };
 /**
  * Toggle all entries.
- * @returns {DV3D.Collection}
+ * @return {DV3D.Collection}
  */
 DV3D.Collection.prototype.toggle = function () {
 	this.visible = !this.visible;
-	for(var key in this.list) {
+	for (var key in this.list) {
 		this.list[key].toggle(this.visible);
 	}
 	return this;
@@ -118,8 +122,8 @@ DV3D.Collection.prototype.toggle = function () {
  * @param value {number} New opacity value
  */
 DV3D.Collection.prototype.setOpacity = function (value) {
-	if(typeof value !== 'undefined') this.opacity = value;
-	for(var key in this.list) {
+	if (typeof value !== 'undefined') this.opacity = value;
+	for (var key in this.list) {
 		this.list[key].setOpacity(this.opacity);
 	}
 	DV3D.callFunc.animateAsync();

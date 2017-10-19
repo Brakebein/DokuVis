@@ -679,7 +679,7 @@ angular.module('dokuvis.models', [
 				 * @ngdoc event
 				 * @name versionDetail#modelQuerySuccess
 				 * @eventType broadcast on $rootScope
-				 * @param entries {Array<DigitalObject>} Entries returned from the database as array (in hierachical order).
+				 * @param entries {DigitalObject[]} Entries returned from the database as array (in hierachical order).
 				 */
 				function modelQuerySuccess(entries) {
 					$rootScope.$broadcast('modelQuerySuccess', entries);

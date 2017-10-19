@@ -1,0 +1,125 @@
+viewport {
+  display: block;
+  height: 100%;
+  border: 1px solid #000;
+  border-left: none;
+  background: radial-gradient(circle, #c4c4c4, #727272);
+  position: relative;
+  overflow: hidden; }
+  viewport, viewport * {
+    user-select: none; }
+  viewport > canvas.cursor_pointer {
+    cursor: pointer; }
+  viewport > canvas.cursor_orbit {
+    cursor: url(../../img/cursor/cursor_orbit.gif), auto !important; }
+  viewport > canvas.cursor_zoom {
+    cursor: url(../../img/cursor/cursor_zoom.gif), auto; }
+  viewport > canvas.cursor_pan {
+    cursor: url(../../img/cursor/cursor_pan.gif), auto; }
+  viewport > .viewport-extras {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; }
+    viewport > .viewport-extras > * {
+      pointer-events: auto; }
+  viewport > .select-rectangle {
+    position: absolute;
+    border: 1px dashed #ffff00;
+    background-color: rgba(255, 255, 0, 0.05);
+    pointer-events: none; }
+  viewport .ctrl-group {
+    float: left;
+    height: 100%;
+    padding: 0 4px;
+    border-left: 1px solid #999; }
+    viewport .ctrl-group:first-of-type {
+      border: none; }
+    viewport .ctrl-group.ctrl-group-text {
+      padding: 3px 4px; }
+    viewport .ctrl-group input {
+      margin: 2px 0;
+      padding: 0;
+      height: 22px; }
+      viewport .ctrl-group input.error {
+        border-color: #f00; }
+      viewport .ctrl-group input[disabled] {
+        cursor: default; }
+    viewport .ctrl-group select {
+      padding: 0;
+      margin: 2px 0;
+      height: 22px; }
+    viewport .ctrl-group .btn {
+      height: 26px;
+      padding: 1px 5px;
+      line-height: 1.5;
+      font-size: 12px; }
+  viewport .ctrl-btn {
+    color: #ffffff;
+    height: 100%;
+    border: 1px solid transparent;
+    margin: 0 1px;
+    padding: 0;
+    background-color: transparent;
+    -moz-border-radius: 3px;
+    border-radius: 3px; }
+    viewport .ctrl-btn:hover {
+      background-color: #555; }
+    viewport .ctrl-btn:focus {
+      outline: none; }
+    viewport .ctrl-btn[disabled] {
+      filter: alpha(opacity=30);
+      opacity: 0.3; }
+      viewport .ctrl-btn[disabled]:hover {
+        border: 1px solid #fff; }
+    viewport .ctrl-btn:active, viewport .ctrl-btn.active {
+      background-color: #555;
+      border-right: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      border-left: 1px solid #999;
+      border-top: 1px solid #999; }
+
+viewport-navigation {
+  position: absolute;
+  height: 33px;
+  top: 0;
+  left: 0;
+  padding: 3px 6px 3px 3px;
+  background-color: rgba(51, 51, 51, 0.8);
+  border-bottom-right-radius: 10px;
+  border-bottom: 1px solid #999;
+  border-right: 1px solid #999;
+  transition: top 0.5s; }
+  viewport-navigation.ng-hide {
+    top: -33px; }
+  viewport-navigation .ctrl-group:first-of-type {
+    border: none; }
+  viewport-navigation .ctrl-group > .btn-group {
+    margin-top: 2px; }
+
+viewport-axis {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  left: 10px;
+  bottom: 10px; }
+
+viewport-loadprogress > .loadprogress-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 5px;
+  background-color: #fc4e2a; }
+viewport-loadprogress > .loadprogress-label {
+  position: absolute;
+  left: 10px;
+  bottom: 6px;
+  font-size: 8pt;
+  color: #fafafa; }
+viewport-loadprogress > .loadprogress-bar.ng-hide, viewport-loadprogress > .loadprogress-label.ng-hide {
+  opacity: 0; }
+viewport-loadprogress > .loadprogress-bar.ng-hide-add, viewport-loadprogress > .loadprogress-label.ng-hide-add {
+  transition: opacity 2s linear 2s; }
+
+/*# sourceMappingURL=viewport.css.map */

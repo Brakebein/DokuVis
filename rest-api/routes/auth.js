@@ -85,6 +85,7 @@ var auth = {
 			.then(function(rows) {
 				if(rows.length === 0) return Promise.reject();
 				else {
+					// TODO: compare async with promises
 					if(bcrypt.compareSync(password, rows[0].password))
 						return rows[0];
 					else

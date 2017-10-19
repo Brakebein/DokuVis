@@ -594,6 +594,30 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
         ]
       },
       {
+        "name": "dokuvis.viewport",
+        "type": "groups",
+        "href": "api/dokuvis.viewport",
+        "navItems": [
+          {
+            "name": "directive",
+            "type": "section",
+            "href": "api/dokuvis.viewport/directive",
+            "navItems": [
+              {
+                "name": "viewport",
+                "type": "directive",
+                "href": "api/dokuvis.viewport/directive/viewport"
+              },
+              {
+                "name": "viewportNavigation",
+                "type": "directive",
+                "href": "api/dokuvis.viewport/directive/viewportNavigation"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "dokuvisApp",
         "type": "groups",
         "href": "api/dokuvisApp",

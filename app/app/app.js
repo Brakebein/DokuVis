@@ -61,6 +61,7 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'dokuvis.archives',
 	'dokuvis.authors',
 	'dokuvis.models',
+	'dokuvis.viewport',
 	'dokuvis.comments',
 	'dokuvis.categories',
 	'dokuvis.tasks',
@@ -297,6 +298,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				],
 				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
 					$translatePartialLoader.addPart('model');
+					$translatePartialLoader.addPart('viewport');
 					$translatePartialLoader.addPart('category');
 				}]
 			})

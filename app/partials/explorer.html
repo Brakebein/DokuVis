@@ -24,21 +24,27 @@
 	</div>-->
 	
 	<!-- 3D-Viewport -->
-	<div id="webglViewport"
-		 webgl-view="main"
-		 nav-toolbar="['focus','move','shading','camera']"
-		 axis
-		 option-toolbar>
-		<!--ng-class="{cursor_orbit: navigation.rotate, cursor_pan: navigation.pan, cursor_zoom: navigation.zoom}"-->
-		<!--unsafe-settings="unsafeSettings"-->
-		<!--call-func="callDirFunc"-->
-		<!--gizmo-Coords="coords"-->
-		<!--navigation="navigation"-->
-		<!--screenshot-callback="receiveScreenshot">-->
-		
-		<!--<category-legend></category-legend>-->
-		
-	</div>
+	<!--<div id="webglViewport"-->
+		 <!--viewport="main"-->
+		 <!--nav-toolbar="['focus','move','shading','camera']"-->
+		 <!--axis-->
+		 <!--option-toolbar>-->
+		<!--&lt;!&ndash;ng-class="{cursor_orbit: navigation.rotate, cursor_pan: navigation.pan, cursor_zoom: navigation.zoom}"&ndash;&gt;-->
+		<!--&lt;!&ndash;unsafe-settings="unsafeSettings"&ndash;&gt;-->
+		<!--&lt;!&ndash;call-func="callDirFunc"&ndash;&gt;-->
+		<!--&lt;!&ndash;gizmo-Coords="coords"&ndash;&gt;-->
+		<!--&lt;!&ndash;navigation="navigation"&ndash;&gt;-->
+		<!--&lt;!&ndash;screenshot-callback="receiveScreenshot">&ndash;&gt;-->
+		<!---->
+		<!--&lt;!&ndash;<category-legend></category-legend>&ndash;&gt;-->
+		<!---->
+	<!--</div>-->
+
+	<viewport id="mainViewport">
+		<viewport-navigation></viewport-navigation>
+		<viewport-axis></viewport-axis>
+		<viewport-loadprogress></viewport-loadprogress>
+	</viewport>
 </div>
 
 <!-- Seitenspalte -->
