@@ -53,16 +53,18 @@
 	<div class="sideNav sideNav-right">
 	
 		<div title="{{'model_versions'|translate}}" class="smBtn" ng-class="{'active': views.activeSide === 'versions'}" ng-click="views.activeSide = 'versions'" ng-include="'img/icons/fork.svg'"></div>
-		<div title="Objekte" class="smBtn" ng-class="{'active': views.activeSide === 'objlist'}" ng-click="views.activeSide = 'objlist'" ng-include="'img/icons/tree.svg'"></div>
+		<div title="{{'viewport_sceneobjects'|translate}}" class="smBtn" ng-class="{'active': views.activeSide === 'objlist'}" ng-click="views.activeSide = 'sceneobjects'" ng-include="'img/icons/tree.svg'"></div>
 		<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide === 'comments'}" ng-click="views.activeSide = 'comments'" ng-include="'img/icons/comment.svg'"></div>
 		<div title="Eigenschaften" class="smBtn" ng-class="{'active': views.activeSide === 'objproperties'}" ng-click="views.activeSide = 'objproperties'" ng-include="'img/icons/properties.svg'"></div>
 		
 	</div>
 
 	<div class="sideContainer" ng-show="views.activeSide === 'versions'" ng-include="'partials/explorer.versions.html'"></div>
+
+	<div class="sideContainer" ng-show="views.activeSide === 'sceneobjects'" ng-include="'partials/explorer.sceneobjects.html'"></div>
 	
 	<!--Objekthierarchie-->
-	<div ng-show="views.activeSide === 'objlist'" class="sideContainer">
+	<!--<div ng-show="views.activeSide === 'objlist'" class="sideContainer">
 		
 		<div class="sideHeader">
 			<h4>3D-Szene</h4>
@@ -75,8 +77,14 @@
 			<p ng-show="wi.selected.length > 1">{{wi.selected.length}} Objekte ausgewählt</p>
 		</div>
 		
-		<div class="sideContent smallFont">
-				
+		<div class="sideContent">
+
+			<h4>3D-Objekte</h4>
+			<viewport-object-tree></viewport-object-tree>
+			<hr/>
+
+			<h4>Pläne</h4>
+
 				<div class="listHeader">
 					<div class="listHeaderCaption">
 						<span>3D-Objekte</span>
@@ -153,7 +161,7 @@
 					
 				</div>
 
-				<!-- spatialImages -->
+				&lt;!&ndash; spatialImages &ndash;&gt;
 				<div class="listHeader">
 					<div class="listHeaderCaption">
 						<span>Verortete Bilder</span>
@@ -195,7 +203,7 @@
 			
 		</div>
 		
-	</div>
+	</div>-->
 
 	<!-- Screenshots und Kommentare -->
 	<div ng-show="views.activeSide === 'comments' && !wi.snapshot.active" class="sideContainer">

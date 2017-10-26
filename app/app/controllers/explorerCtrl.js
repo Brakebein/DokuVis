@@ -135,9 +135,15 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		$scope.categories = [];
 		$scope.activeCategory = null;
 		$scope.activeVersion = null;
-	
+		$scope.selectedObjects = [];
+
+		// listen to modelVersionActive event
 		$scope.$on('modelVersionActive', function (event, version) {
 			$scope.activeVersion = version;
+		});
+
+		$scope.$on('viewportSelectionChange', function (event, selected) {
+			$scope.selectedObjects = selected;
 		});
 
 		$scope.openScreenshotDetail = function(data) {

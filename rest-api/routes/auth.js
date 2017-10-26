@@ -110,7 +110,7 @@ var auth = {
 };
 
 function genToken(user) {
-	var expires = expiresIn(7);
+	var expires = expiresIn(31);
 	var token = jwt.encode({
 		exp: expires
 	}, config.secret());

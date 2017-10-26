@@ -120,8 +120,8 @@ dokuvisApp.constant('ComponentsPath', 'components');
  * @requires http://mgcrea.github.io/angular-strap/#/alerts $alertProvider
  * @requires http://mgcrea.github.io/angular-strap/#/tooltips $tooltipProvider
  */
-dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider', '$modalProvider', '$alertProvider', '$tooltipProvider', '$typeaheadProvider',
-	function($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider, $modalProvider, $alertProvider, $tooltipProvider, $typeaheadProvider) {
+dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider', '$modalProvider', '$alertProvider', '$tooltipProvider', '$typeaheadProvider', '$logProvider',
+	function($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider, $modalProvider, $alertProvider, $tooltipProvider, $typeaheadProvider, $logProvider) {
 		
 		// add interceptors
 		$httpProvider.interceptors.push('TokenInterceptor');
@@ -625,6 +625,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			minLength: 3
 		});
 
+		$logProvider.debugEnabled(true);
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 

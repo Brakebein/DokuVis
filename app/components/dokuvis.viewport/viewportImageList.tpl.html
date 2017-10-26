@@ -1,0 +1,37 @@
+<div class="list-header">
+	<div>
+		<div>
+			<button class="btn btn-default btn-xs">Explode</button>
+			<button class="btn btn-default btn-xs">Reset</button>
+		</div>
+	</div>
+	<div class="list-header-slim list-header-stretch">
+		<div>
+			<div>
+				<span class="toggle glyphicon"
+					  ng-class="{'glyphicon-eye-open': images.visible, 'glyphicon-eye-close': !images.visible}"
+					  ng-click="images.toggle()"></span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="list-content">
+
+	<p ng-hide="images.length" translate>viewport_list_noimages</p>
+
+	<div ng-repeat="image in images.asArray() | orderBy: 'label'">
+		<div class="list-item" ng-class="{'not-visible': !image.visible}">
+				<span class="toggle glyphicon"
+					  title="{{'viewport_list_toggle'|translate}}"
+					  ng-class="{'glyphicon-eye-open': image.visible, 'glyphicon-eye-close': !image.visible}"
+					  ng-click="image.toggle()"></span>
+			<div class="list-expand"></div>
+			<span class="list-label"><b>{{ image.name }}</b></span>
+			<div class="list-ctrls">
+				<i class="glyphicon glyphicon-search" title="{{'viewport_list_focus'|translate}}" ng-click="image.focus()"></i>
+			</div>
+		</div>
+	</div>
+
+</div>

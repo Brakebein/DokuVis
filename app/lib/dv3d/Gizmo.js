@@ -66,15 +66,15 @@ DV3D.GizmoMove.prototype = Object.create( THREE.Object3D.prototype );
 
 DV3D.GizmoMove.prototype.attachToObject = function ( object, refs ) {
 
-	if(this.object)
+	if (this.object)
 		this.object.remove( this );
 
 	this.object = object;
 
-	if(this.object)
+	if (this.object)
 		this.object.add( this );
 
-	if(refs)
+	if (refs)
 		this.refs = refs;
 	else
 		this.refs = [];

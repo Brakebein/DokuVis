@@ -1,7 +1,10 @@
 /**
  * Base class for items to be added to a DV3D.Collection.
- * @param obj {object} Item that is an instance of DV3D.Plan, DV3D.ImagePane, etc.
+ * @param obj {THREE.Object3D} Item that is an instance of DV3D.Plan, DV3D.ImagePane, etc.
  * @constructor
+ * @memberOf DV3D
+ * @extends THREE.EventDispatcher
+ * @author Brakebein
  */
 DV3D.Entry = function (obj) {
 
@@ -16,13 +19,13 @@ DV3D.Entry = function (obj) {
 	 */
 	this.name = obj.name;
 	/**
-	 * Title to be visible in the view.
+	 * Label/title to be visible in the view.
 	 * @type {string}
 	 */
-	this.title = (obj.userData.source && obj.userData.source.title) ? obj.userData.source.title : obj.name;
+	this.label = (obj.userData.source && obj.userData.source.title) ? obj.userData.source.title : obj.name;
 	/**
 	 * The actual object.
-	 * @type {Object}
+	 * @type {THREE.Object3D}
 	 */
 	this.object = obj;
 
@@ -32,69 +35,72 @@ DV3D.Entry = function (obj) {
 	 */
 	this.visible = true;
 	/**
-	 * Flag, if the object is selected.
+	 * Flag, if the object is selected/active.
 	 * @type {boolean}
 	 */
-	this.selected = false;
+	this.active = false;
 	/**
 	 * Opacity of the object.
 	 * @type {number}
 	 */
 	this.opacity = 1.0;
+
+	obj.entry = this;
 	
-};
-/**
- * Toggles the object in the scene.
- * @param [bool] {boolean} Object will be toggled regarding to this value. If not set, the `visible` property will be "inverted".
- */
-DV3D.Entry.prototype.toggle = function (bool) {
-	if(typeof bool !== 'undefined') this.visible = bool;
-	else this.visible = !this.visible;
-	if(!this.visible && this.selected)
-		DV3D.callFunc.setSelected(this.object, false, true);
-	DV3D.callFunc.toggle(this.object, this.visible);
-};
-/**
- * Calls external selection method.
- */
-DV3D.Entry.prototype.select = function () {
-	if(this.visible && event)
-		DV3D.callFunc.setSelected(this.object, event.ctrlKey, false);
-};
-/**
- * Sets the opacity of the object.
- * @param [value] {number} New opacity value. If not set, the `opacity` proptery will be used.
- */
-DV3D.Entry.prototype.setOpacity = function (value) {
-	if (typeof value !== 'undefined') this.opacity = value;
-	this.object.setOpacity(this.opacity);
-	DV3D.callFunc.animateAsync();
 };
 
-/**
- * Extended DV3D.Entry class for objects.
- * @param obj {DV3D.Object} Instance of a Plan object
- * @extends DV3D.Entry
- * @constructor
- */
-DV3D.ObjectEntry = function (obj) {
-	DV3D.Entry.call( this, obj );
-	
-	this.layer = obj.layer || 0;
-	
-	this.parent = obj.parent || null;
-	this.children = [];
-	
-	this.expand = false;
-	this.parentVisible = false;
-};
-DV3D.ObjectEntry.prototype = Object.create( DV3D.Entry.prototype );
-/**
- * Calls external function to focus the camera on object.
- */
-DV3D.ObjectEntry.prototype.focus = function () {
-	DV3D.callFunc.focusObject(this.object);
-};
+Object.assign(DV3D.Entry.prototype, THREE.EventDispatcher.prototype, {
+
+	/**
+	 * Toggle object in scene.
+	 * @param [bool] {boolean} Object will be toggled depending on this value. If not set, the visibility will be inverted.
+	 */
+	toggle: function (bool) {
+		if (typeof bool === 'boolean') this.visible = bool;
+		else this.visible = !this.visible;
+
+		this.dispatchEvent({ type: 'toggle', visible: this.visible });
+	},
+
+	/**
+	 * Activate/select the entry and dispatch `select` event.
+	 * @param event {MouseEvent|null} Event object of click event
+	 * @param [bool] {boolean} If not set, `active` property is inverted
+	 */
+	select: function (event, bool) {
+		if (typeof bool === 'boolean') this.active = bool;
+		else this.active = !this.active;
+
+		if (this.visible && event)
+			this.dispatchEvent({ type: 'select', active: this.active, originalEvent: event });
+	},
+
+	/**
+	 * Set the opacity of the object.
+	 * @param [value] {boolean} New opacity value. If not set, an `opacity` event will be dispatched with the old value.
+	 */
+	setOpacity: function (value) {
+		if (typeof value !== 'undefined') this.opacity = value;
+	},
+
+	/**
+	 * Remove any references to meshes and other entries, so this entry is ready for GC.
+	 */
+	dispose: function () {
+		if (this.object.entry)
+			delete this.object.entry;
+		delete this.object;
+	}
+
+});
+
+// DV3D.Entry.prototype.setOpacity = function (value) {
+// 	if (typeof value !== 'undefined') this.opacity = value;
+// 	this.object.setOpacity(this.opacity);
+// 	DV3D.callFunc.animateAsync();
+// };
+
+
 
 /**
  * Extended DV3D.Entry class for plans.
@@ -105,17 +111,26 @@ DV3D.ObjectEntry.prototype.focus = function () {
 DV3D.PlanEntry = function (obj) {
 	DV3D.Entry.call( this, obj );
 };
-DV3D.PlanEntry.prototype = Object.create( DV3D.Entry.prototype );
-/**
- * Calls external function to set/tween orthogonal view to fit plan to viewport.
- */
-DV3D.PlanEntry.prototype.setOrthoView = function () {
-	DV3D.callFunc.viewOrthoPlan(this.object);
-};
+DV3D.PlanEntry.prototype = Object.assign( Object.create( DV3D.Entry.prototype ), {
+
+	/**
+	 * Set/tween to orthogonal view to fit plan to viewport.
+	 */
+	setOrthoView: function () {
+
+	}
+
+});
+// /**
+//  * Calls external function to set/tween orthogonal view to fit plan to viewport.
+//  */
+// DV3D.PlanEntry.prototype.setOrthoView = function () {
+// 	DV3D.callFunc.viewOrthoPlan(this.object);
+// };
 
 /**
  * Extended DV3D.Entry class for images.
- * @param obj {DV3D.ImagePane} Instance of a ImagePane object
+ * @param obj {DV3D.ImagePane} Instance of an ImagePane object
  * @extends DV3D.Entry
  * @constructor
  */
@@ -124,10 +139,19 @@ DV3D.ImageEntry = function (obj) {
 
 	this.source = obj.userData.source;
 };
-DV3D.ImageEntry.prototype = Object.create( DV3D.Entry.prototype );
-/**
- * Calls external function to set/tween camera to position and orientation of the ImagePane.
- */
-DV3D.ImageEntry.prototype.setImageView = function () {
-	DV3D.callFunc.setImageView(this.object);
-};
+DV3D.ImageEntry.prototype = Object.assign( Object.create( DV3D.Entry.prototype ), {
+
+	/**
+	 * Set/tween camera to position and orientation of the ImagePane.
+	 */
+	setImageView: function () {
+
+	}
+
+});
+// /**
+//  * Calls external function to set/tween camera to position and orientation of the ImagePane.
+//  */
+// DV3D.ImageEntry.prototype.setImageView = function () {
+// 	DV3D.callFunc.setImageView(this.object);
+// };

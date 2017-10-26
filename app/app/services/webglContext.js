@@ -169,6 +169,10 @@ angular.module('dokuvisApp').factory('webglContext',
 			fonts['HelvetikerBold'] = font;
 		});
 
+		/**
+		 * @deprecated
+		 * @type {{defaults: {NEAR: number, FAR: number, initWidth: number, initHeight: number, backgroundColor: number, selectionColor: number, edgeColor: number}, scene: THREE.Scene, directionalLight: THREE.DirectionalLight, axisScene: THREE.Scene, geometries: {}, materials: {}, standardMaterials: Array, fonts: {}, objects: {}, plans: {}, spatialImages: {}}}
+		 */
 		THREE.DokuVisTray = {
 
 			defaults: {

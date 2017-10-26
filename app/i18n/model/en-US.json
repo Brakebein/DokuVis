@@ -1,4 +1,5 @@
 {
+  "model_version": "Version",
   "model_versions": "Versions",
   "model_version_graph": "Version graph",
   "model_version_new": "Add new version",

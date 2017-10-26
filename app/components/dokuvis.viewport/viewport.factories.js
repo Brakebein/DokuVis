@@ -1,21 +1,56 @@
 angular.module('dokuvis.viewport')
 
-.factory('viewportCache',[
+.factory('viewportSettings', [
 	function () {
 
-		// frustums
-		var NEAR = 1,
-			FAR = 4000;
-		// colors
-		var backgroundColor = 0x666666,
-			selectionColor = 0xfc4e2a,
-			defaultEdgeColor = 0x333333;
+		var shadings = [
+			{ value: 'color', label: 'Color' },
+			{ value: 'grey', label: 'Grey' },
+			{ value: 'transparent', label: 'Transparent' },
+			{ value: 'onlyEdges', label: 'Only edges' },
+			{ value: 'xray', label: 'X-Ray' },
+			{ value: 'custom', label: 'Custom' }];
+		var cameras = [
+			{ value: 'perspective', label: 'Perspective' },
+			{ value: 'top', label: 'Top' },
+			{ value: 'front', label: 'Front' },
+			{ value: 'back', label: 'Back' },
+			{ value: 'left', label: 'Left' },
+			{ value: 'right', label: 'Right' },
+			{ value: 'custom', label: 'Custom' }];
+
+		return {
+			defaults: {
+				NEAR: 1,
+				FAR: 4000,
+				initWidth: 800,
+				initHeight: 600,
+				backgroundColor: 0x666666,
+				selectionColor: 0xfc4e2a,
+				highlightColor: 0xffff44,
+				objectColor: 0xdddddd,
+				edgeColor: 0x333333
+			},
+
+			shadings: shadings,
+			cameras: cameras,
+			shading: shadings[0].value,
+			camera: cameras[0].value,
+
+			showEdges: true
+		};
+
+	}
+])
+
+.factory('viewportCache',['viewportSettings',
+	function (viewportSettings) {
 
 		///// SCENE
 
 		// Scene
 		var scene = new THREE.Scene();
-		scene.fog = new THREE.Fog(backgroundColor, FAR - 100, FAR);
+		scene.fog = new THREE.Fog(viewportSettings.defaults.backgroundColor, viewportSettings.defaults.FAR - 100, viewportSettings.defaults.FAR);
 
 		// Grid
 		scene.add(new THREE.GridHelper(100, 10));
@@ -38,10 +73,10 @@ angular.module('dokuvis.viewport')
 		// default mat
 		materials['defaultMat'] = new THREE.MeshLambertMaterial({
 			name: 'defaultMat',
-			color: 0xdddddd });
+			color: DV3D.Defaults.objectColor });
 		materials['defaultDoublesideMat'] = new THREE.MeshLambertMaterial({
 			name: 'defaultDoublesideMat',
-			color: 0xdddddd,
+			color: DV3D.Defaults.objectColor,
 			side: THREE.DoubleSide });
 		materials['defaultUnsafeMat'] = new THREE.MeshLambertMaterial({
 			name: 'defaultUnsafeMat',
@@ -53,7 +88,7 @@ angular.module('dokuvis.viewport')
 		// default selection mat
 		materials['selectionMat'] = new THREE.MeshLambertMaterial({
 			name: 'selectionMat',
-			color: selectionColor,
+			color: DV3D.Defaults.selectionColor,
 			side: THREE.DoubleSide });
 
 		// transparent mat
@@ -65,7 +100,7 @@ angular.module('dokuvis.viewport')
 			depthWrite: false });
 		materials['transparentSelectionMat'] = new THREE.MeshLambertMaterial({
 			name: 'transparentSelectionMat',
-			color: selectionColor,
+			color: DV3D.Defaults.selectionColor,
 			transparent: true,
 			opacity: 0.5,
 			depthWrite: false });
@@ -73,11 +108,11 @@ angular.module('dokuvis.viewport')
 		// wireframe mat
 		materials['wireframeMat'] = new THREE.MeshBasicMaterial({
 			name: 'wireframeMat',
-			color: 0x333333,
+			color: DV3D.Defaults.edgeColor,
 			wireframe: true });
 		materials['wireframeSelectionMat'] = new THREE.MeshBasicMaterial({
 			name: 'wireframeSelectionMat',
-			color: selectionColor,
+			color: DV3D.Defaults.selectionColor,
 			wireframe: true });
 
 		// highlight mat
@@ -114,17 +149,17 @@ angular.module('dokuvis.viewport')
 				"ambient": { type: "f", value: 0.05 },
 				"edgefalloff": {type: "f", value: 0.3 },
 				"intensity": {type: "f", value: 1.5},
-				"vColor": {type: "c" , value: new THREE.Color(selectionColor) } },
+				"vColor": {type: "c" , value: new THREE.Color(DV3D.Defaults.selectionColor) } },
 			vertexShader: THREE.XRayShader.vertexShader,
 			fragmentShader: THREE.XRayShader.fragmentShader });
 
 		// edges mat
 		materials['edgesMat'] = new THREE.LineBasicMaterial({
 			name: 'edgesMat',
-			color: defaultEdgeColor });
+			color: DV3D.Defaults.edgeColor });
 		materials['edgesSelectionMat'] = new THREE.LineBasicMaterial({
 			name: 'edgesSelectionMat',
-			color: selectionColor });
+			color: DV3D.Defaults.selectionColor });
 		materials['edgesHighlightMat'] = new THREE.LineBasicMaterial({
 			name: 'edgesHighlightMat',
 			color: 0xffff44 });
@@ -145,61 +180,22 @@ angular.module('dokuvis.viewport')
 
 		THREE.DokuVisTray = {
 
-			defaults: {
-				NEAR: NEAR,
-				FAR: FAR,
-				initWidth: 800,
-				initHeight: 600,
-				backgroundColor: backgroundColor,
-				selectionColor: selectionColor,
-				edgeColor: defaultEdgeColor
-			},
-
 			scene: scene,
 			directionalLight: directionalLight,
 
 			geometries: geometries,
 			materials: materials,
+			standardGeometries: Object.keys(geometries),
 			standardMaterials: Object.keys(materials),
 
 			fonts: fonts,
 
-			objects: {},
-			plans: {},
-			spatialImages: {}
+			objects: new DV3D.ObjectCollection(),
+			plans: new DV3D.Collection(),
+			spatialImages: new DV3D.Collection()
 
 		};
 
 		return THREE.DokuVisTray;
-	}
-])
-
-.factory('viewportSettings', [
-	function () {
-
-		var shadings = [
-			{ value: 'color', label: 'Color' },
-			{ value: 'grey', label: 'Grey' },
-			{ value: 'transparent', label: 'Transparent' },
-			{ value: 'onlyEdges', label: 'Only edges' },
-			{ value: 'xray', label: 'X-Ray' },
-			{ value: 'custom', label: 'Custom' }];
-		var cameras = [
-			{ value: 'perspective', label: 'Perspective' },
-			{ value: 'top', label: 'Top' },
-			{ value: 'front', label: 'Front' },
-			{ value: 'back', label: 'Back' },
-			{ value: 'left', label: 'Left' },
-			{ value: 'right', label: 'Right' },
-			{ value: 'custom', label: 'Custom' }];
-
-		return {
-			shadings: shadings,
-			cameras: cameras,
-			shading: shadings[0].value,
-			camera: cameras[0].value,
-			showEdges: true
-		};
-
 	}
 ]);

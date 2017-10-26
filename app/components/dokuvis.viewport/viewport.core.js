@@ -16,8 +16,8 @@ angular.module('dokuvis.viewport',[
  * @module dokuvis.viewport
  * @restrict E
  */
-.directive('viewport', ['$state', '$stateParams', '$window', '$timeout', 'viewportCache', 'viewportSettings', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', '$debounce', '$throttle', 'SpatializeInterface',
-	function($state, $stateParams, $window, $timeout, viewportCache, viewportSettings, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService, $debounce, $throttle, SpatializeInterface) {
+.directive('viewport', ['$state', '$stateParams', '$window', '$timeout', 'viewportCache', 'viewportSettings', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', '$debounce', '$throttle', 'SpatializeInterface', '$log',
+	function($state, $stateParams, $window, $timeout, viewportCache, viewportSettings, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService, $debounce, $throttle, SpatializeInterface, $log) {
 
 		function link(scope, element, attrs) {
 
@@ -62,8 +62,8 @@ angular.module('dokuvis.viewport',[
 			scope.unsafeSettings.autoTransparent = false;
 
 			// constants frustum clipping
-			var NEAR = viewportCache.defaults.NEAR;
-			var FAR = viewportCache.defaults.FAR;
+			var NEAR = viewportSettings.defaults.NEAR;
+			var FAR = viewportSettings.defaults.FAR;
 
 			// global variables
 			// general
@@ -152,7 +152,8 @@ angular.module('dokuvis.viewport',[
 				isRotatingView = false,
 				isZoomingView = false,
 				isPanningView = false;
-			var navigation = {'default': true, rotate: false, pan: false, zoom: false};
+			scope.navigation = {'default': true, rotate: false, pan: false, zoom: false};
+			var navigation = scope.navigation;
 
 			var isSelecting = false,
 				isPinning = false,
@@ -164,8 +165,8 @@ angular.module('dokuvis.viewport',[
 			// Übernahme aus viewportCache
 			var objects = viewportCache.objects;
 			var pointclouds = [];
-			var plans = webglInterface.plans;
-			var spatialImages = webglInterface.spatialImages;
+			var plans = viewportCache.plans;
+			var spatialImages = viewportCache.spatialImages;
 			var geometries = viewportCache.geometries;
 			var materials = viewportCache.materials;
 
@@ -175,8 +176,7 @@ angular.module('dokuvis.viewport',[
 			});
 			function init() {
 
-				// Auslesen von Höhe und Breite des Fensters
-				// element.height(element.parent().height() - element.position().top - 2*parseInt(element.css('border-top-width'),10));
+				// viewport width and height
 				SCREEN_WIDTH = element.width();
 				SCREEN_HEIGHT = element.height();
 				console.log('viewport size: ', SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -197,24 +197,18 @@ angular.module('dokuvis.viewport',[
 					preserveDrawingBuffer: true,
 					canvas: canvas.get(0)
 				});
-				renderer.setClearColor(0x666666, 1);
+				renderer.setClearColor(DV3D.Defaults.backgroundColor, 1);
 				renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 				element.append(renderer.domElement);
-				//canvas = angular.element(renderer.domElement);
-
-				// Stats
-				// if(viewportCache.stats) {
-				// 	stats = viewportCache.stats;
-				// 	stats.domElement.style.position = 'absolute';
-				// 	stats.domElement.style.top = '33px';
-				// 	//element.append( stats.domElement );
-				// }
 
 				// Controls (for navigation)
 				controls = new THREE.OrbitControls(camera, renderer.domElement);
 				controls.zoomSpeed = 1.0;
 				camera.target = controls.center;
-				controls.addEventListener('change', animate);
+				controls.addEventListener('change', function () {
+					animateThrottle20();
+					viewportCameraMove(camera);
+				});
 
 				// Light
 				dlight = viewportCache.directionalLight;
@@ -318,9 +312,9 @@ angular.module('dokuvis.viewport',[
 				//console.log(gizmo);
 
 				// Schnittebene
-				var planegeo = new THREE.PlaneGeometry(50, 50);
-				var planemat = new THREE.MeshBasicMaterial( {color: 0xffff00, opacity: 0.25, transparent: true, side: THREE.DoubleSide, depthTest: true, depthWrite: false});
-				plane = new THREE.Mesh(planegeo, planemat);
+				// var planegeo = new THREE.PlaneGeometry(50, 50);
+				// var planemat = new THREE.MeshBasicMaterial( {color: 0xffff00, opacity: 0.25, transparent: true, side: THREE.DoubleSide, depthTest: true, depthWrite: false});
+				// plane = new THREE.Mesh(planegeo, planemat);
 
 				//var pedges = new THREE.EdgesHelper(plane.clone(), '#dd8888');
 
@@ -328,15 +322,15 @@ angular.module('dokuvis.viewport',[
 
 				//plane.position.set(-20, 10, -99);
 				//plane.position.set(-20, 10, -20);
-				plane.position.set(20, 11, -38);
+				//plane.position.set(20, 11, -38);
 				//plane.translateZ(-20);
-				plane.rotateOnAxis(new THREE.Vector3(0,1,0), 1 * Math.PI);
+				//plane.rotateOnAxis(new THREE.Vector3(0,1,0), 1 * Math.PI);
 				//plane.rotateOnAxis(new THREE.Vector3(0,1,0), 0.7 * Math.PI);
 				//plane.rotateOnAxis(new THREE.Vector3(1,0,0), 0.5 * Math.PI);
 				//plane.geometry.computeBoundingBox();
 				//plane.add(pedges);
 				//scene.add(plane);
-				console.log(plane);
+				//console.log(plane);
 
 				//setGizmo(plane, 'move');
 
@@ -363,11 +357,8 @@ angular.module('dokuvis.viewport',[
 				// });
 
 
-				$timeout(function() {
-					//resizeViewport();
-				});
-
 				animate();
+				viewportCameraMove(camera);
 			}
 
 			/**
@@ -381,6 +372,17 @@ angular.module('dokuvis.viewport',[
 			 */
 			function viewportLoadProgress(item, loaded, total) {
 				scope.$broadcast('viewportLoadProgress', item, loaded, total);
+			}
+
+			/**
+			 * Event that gets fired, when camera has moved.
+			 * @ngdoc event
+			 * @name viewport#viewportCameraMove
+			 * @eventType broadcast on viewport
+			 * @param cam {THREE.Camera} Camera that has changed/moved
+			 */
+			function viewportCameraMove(cam) {
+				scope.$broadcast('viewportCameraMove', cam);
 			}
 
 
@@ -497,6 +499,7 @@ angular.module('dokuvis.viewport',[
 
 			/**
 			 * call animate() from outside
+			 * @deprecated
 			 */
 			webglInterface.callFunc.animate = function () {
 				animate();
@@ -505,11 +508,11 @@ angular.module('dokuvis.viewport',[
 			/**
 			 * Call animate() with debounce. Useful, when iterating over an array, so animate() isn't called a hundred times to update the changes in the viewport.
 			 */
-				// var animateAsync = debounce(animate, 50);
-			var animateAsync = $throttle(animate, 50);
-			webglInterface.callFunc.animateAsync = animateAsync;
-			//DV3D.callFunc.animateAsync = animateAsync;
+			var animateAsync = $debounce(animate, 50);
+			// var animateAsync = $throttle(animate, 50);
+			var animateThrottle20 = $throttle(animate, 20);
 			var animateThrottle500 = $throttle(animate, 500);
+			// var animateDebounce50 = $debounce(animate, 50);
 
 			/**
 			 * animation loop
@@ -528,63 +531,35 @@ angular.module('dokuvis.viewport',[
 				}
 
 				TWEEN.update();
-				if(controls) controls.update();
+				if (controls) controls.update();
 
 				//updatePointCloudsThrottle();
 
-				// Steinmetzzeichen zeigen immer zur Kamera
-				// for(var key in marks) {
-				// 	if(marks[key].visible) {
-				// 		for(var i=0; i<marks[key].mesh.children.length; i++)
-				// 			marks[key].mesh.children[i].lookAt(camera.position);
-				// 	}
-				// }
-
 				// position light depending on camera
-				if(dlight) {
+				if (dlight) {
 					dlight.position.set(4, 4, 4);
-					var lmat = new THREE.Matrix4().makeRotationFromQuaternion(camera.quaternion);
-					dlight.position.applyMatrix4(lmat);
-				}
-
-				// set transperancy depending on camera
-				if(scope.unsafeSettings && scope.unsafeSettings.autoTransparent) {
-					var lookV = new THREE.Vector3().subVectors(camera.position, controls.center).normalize();
-					var newOpacity = Math.pow( Math.abs(lookV.x) + Math.abs(lookV.y) + Math.abs(lookV.z), 2) / 5;
-					for(var key in objects) {
-						if(objects[key].mesh.userData.unsafe) {
-							objects[key].mesh.material.opacity = newOpacity;
-						}
-					}
+					var lightMatrix = new THREE.Matrix4().makeRotationFromQuaternion(camera.quaternion);
+					dlight.position.applyMatrix4(lightMatrix);
 				}
 
 				// update markers lookAt
-				if(scope.hud.spatialize && SpatializeInterface.markers3D.length) {
-					for(var i=0, l=SpatializeInterface.markers3D.length; i<l; i++) {
+				if (scope.hud.spatialize && SpatializeInterface.markers3D.length) {
+					for (var i=0, l=SpatializeInterface.markers3D.length; i<l; i++) {
 						SpatializeInterface.markers3D[i].object.lookAt(camera.position);
 					}
 				}
 
-				// update of axis helper
-				if (camera) viewportCameraMove(camera);
-
-
 				render();
-				//stats.update();
 			}
 
 			/**
 			 * render calls
 			 */
 			function render() {
-
 				if(renderer) renderer.render(scene, camera);
 				//postprocessing.composer.render();
 			}
 
-			function viewportCameraMove(cam) {
-				scope.$broadcast('viewportCameraMove', cam);
-			}
 
 			/**
 			 * set material for object
@@ -649,29 +624,34 @@ angular.module('dokuvis.viewport',[
 			 */
 			function selectRay(mouse, ctrlKey) {
 				var testObjects = [];
-				// TODO: objects to DV3D.Collection
-				for(var key in objects) {
-					if(objects[key].visible && objects[key].mesh.userData.type === 'object')
-						testObjects.push(objects[key].mesh);
-				}
+
+				// collect test objects
+				objects.forEach(function (obj) {
+					if (obj.type === 'object')
+						testObjects.push(obj.object);
+				}, true);
+
 				plans.forEach(function (plan) {
 					testObjects.push(plan.object.mesh);
 				}, true);
+
 				spatialImages.forEach(function (item) {
 					testObjects.push(item.object.collisionObject);
 				}, true);
 
+				// raycast
 				var intersection = raycast(mouse, testObjects, true);
 
 				if (intersection) {
-					console.log(intersection);
-					console.log(objects[intersection.object.id]);
-					if(intersection.object.parent instanceof DV3D.Plan)
-						setSelected(intersection.object.parent, ctrlKey);
-					else if(intersection.object.parent instanceof DV3D.ImagePane)
-						setSelected(intersection.object.parent, ctrlKey);
+					$log.debug(intersection);
+					$log.debug(objects.get(intersection.object.id));
+
+					if (intersection.object.entry instanceof DV3D.Entry)
+						setSelected(intersection.object.entry, ctrlKey);
+					else if (intersection.object.parent.entry instanceof DV3D.Entry)
+						setSelected(intersection.object.parent.entry, ctrlKey);
 					else
-						setSelected(intersection.object, ctrlKey);
+						$log.warn('Raycast hit unknown object', intersection);
 				}
 				else
 					setSelected(null, ctrlKey);
@@ -728,104 +708,83 @@ angular.module('dokuvis.viewport',[
 				if (!ctrlKey)
 					setSelected(null, false, true);
 
-				// TODO: forEach
-				for(var key in objects) {
-					if(objects[key].visible && objects[key].mesh.userData.type === 'object') {
-						if(selected.indexOf(objects[key].mesh) === -1 && frustum.intersectsObject(objects[key].mesh)) {
-							var position = objects[key].mesh.geometry.attributes.position.array;
-							var m = objects[key].mesh.matrixWorld;
-							for(var i=0, l=position.length; i<l; i+=3) {
-								var vertex = new THREE.Vector3(position[i], position[i+1], position[i+2]);
-								vertex.applyMatrix4(m);
-								if(frustum.containsPoint(vertex)) {
-									setSelected(objects[key].mesh, true);
-									break;
-								}
+				objects.forEach(function (obj) {
+					if (obj.type !== 'object') return;
+					if (selected.indexOf(obj.object) !== -1) return;
+
+					// first level check, `intersetcsObjects` only tests against boundingSphere
+					if (frustum.intersectsObject(obj.object)) {
+						var position = obj.object.geometry.attributes.position.array,
+							matrix = obj.object.matrixWorld;
+
+						// second level check, test if any points are within frustum
+						for (var i = 0, l = position.length; i < l; i += 3) {
+							var vertex = new THREE.Vector3(position[i], position[i+1], position[i+2]);
+							vertex.applyMatrix4(matrix);
+							if (frustum.containsPoint(vertex)) {
+								setSelected(obj, true);
+								break;
 							}
 						}
 					}
-				}
+				}, true);
 			}
 
 			/**
 			 * deselect any selected object and assign original material,
 			 * then select object and assign selection material
-			 * @param {THREE.Mesh} obj - object to be set
+			 * @param {DV3D.Entry} entry - entry to be set
 			 * @param {boolean} [onlySelect=false] - if true, no deselection
 			 * @param {boolean} [onlyDeselect=false] - if true, no selection
 			 */
-			function setSelected(obj, onlySelect, onlyDeselect) {
-				// TODO: revise
+			function setSelected(entry, onlySelect, onlyDeselect) {
 				onlySelect = onlySelect || false;
 				onlyDeselect = onlyDeselect || false;
 
-				dehighlight();
+				//dehighlight(); // TODO: revise dehighlight
+
 				// deselect all
-				if(selected.length > 0 && !onlySelect) {
-					for(var i=0; i<selected.length; i++) {
-						var o = selected[i];
-						if(o.userData.type === 'object')
-							rejectSelectionMat(o);
-						webglInterface.deselectListEntry(o.id, o.userData);
-						if(o.userData.type === 'plan') {
-							plans.get(o.id).selected = false;
-							o.deselect();
-						}
-						if(o.userData.type === 'image') {
-							spatialImages.get(o.id).selected = false;
-							o.deselect();
-						}
-						if(o.userData.type !== 'plan')
-							deselectChildren(o.children);
-						else
-							setGizmo();
-					}
+				if (selected.length && !onlySelect) {
+					selected.forEach(function (item) {
+						deselectEntry(item);
+					});
+
+					setGizmo();
 					selected = [];
 				}
-				// selection
-				if(obj && !onlyDeselect && selected.indexOf(obj) === -1) {
-					if(obj.userData.type === 'object')
-						assignSelectionMat(obj);
-					webglInterface.selectListEntry(obj.id, obj.userData);
-					if(obj.userData.type === 'plan') {
-						plans.get(obj.id).selected = true;
-						obj.select();
-					}
-					if(obj.userData.type === 'image') {
-						spatialImages.get(obj.id).selected = true;
-						obj.select();
-					}
-					if(obj.userData.type !== 'plan')
-						selectChildren(obj.children);
-					else
-					// setGizmo(obj, 'move', [plans[obj.id].edges]);
-						setGizmo(obj, 'move');
 
-					selected.push(obj);
-					//console.log(selected);
+				// select object/entry
+				if (entry && !onlyDeselect && selected.indexOf(entry) === -1) {
+					selectEntry(entry);
+					selected.push(entry);
+
+					if (entry instanceof DV3D.PlanEntry)
+						setGizmo(entry.object, 'move');
 				}
-				// deselect obj
-				else if(obj && !onlyDeselect && selected.indexOf(obj) !== -1) {
-					if(obj.userData.type === 'object')
-						rejectSelectionMat(obj);
-					webglInterface.deselectListEntry(obj.id, obj.userData);
-					if(obj.userData.type === 'plan') {
-						plans.get(obj.id).selected = false;
-						obj.deselect();
-					}
-					if(obj.userData.type === 'image') {
-						spatialImages.get(obj.id).selected = false;
-						obj.deselect();
-					}
-					if(obj.userData.type !== 'plan')
-						deselectChildren(obj.children);
-					else
-						setGizmo();
 
-					selected.splice(selected.indexOf(obj), 1);
+				// deselect single object/entry
+				else if (entry && !onlyDeselect && selected.indexOf(entry) !== -1) {
+					deselectEntry(entry);
+					selected.splice(selected.indexOf(entry), 1);
+
+					if (gizmo) {
+						if (gizmo.object === entry.object)
+							setGizmo();
+					}
 				}
 
 				$rootScope.$applyAsync();
+				animateAsync();
+			}
+
+			scope.$watch(function () {
+				return selected.length;
+			}, function () {
+				viewportSelectionChange();
+			});
+
+			function viewportSelectionChange() {
+				$rootScope.$broadcast('viewportSelectionChange', selected);
 			}
 
 			/**
@@ -833,151 +792,82 @@ angular.module('dokuvis.viewport',[
 			 * @param obj
 			 * @param ctrlKey
 			 * @param deselect
+			 * @deprecated
 			 */
 			webglInterface.callFunc.setSelected = function (obj, ctrlKey, deselect) {
 				setSelected(obj, ctrlKey, deselect);
 				animate();
 			};
 
-			/**
-			 * look for any children and select them
-			 * @param {Array} children
-			 */
-			function selectChildren(children) {
-				for(var i=0, l=children.length; i<l; i++) {
-					var o = children[i];
-					if(o.userData.type === 'object')
-						assignSelectionMat(o);
-					webglInterface.selectListEntry(o.id, o.userData);
-					selectChildren(o.children);
+			// apply selection material/color to entry's object and activate entry
+			function selectEntry(entry) {
+				if (entry instanceof DV3D.ObjectEntry) {
+					assignSelectionMaterial(entry);
+					entry.children.forEach(function (child) {
+						selectEntry(child);
+					});
 				}
+				else if (entry instanceof DV3D.PlanEntry) {
+					s.object.select();
+				}
+				else if (entry instanceof DV3D.ImageEntry) {
+					s.object.select();
+				}
+				entry.select(null, true);
+			}
+
+			// apply original material/color to entry's object and deactivate entry
+			function deselectEntry(entry) {
+				if (entry instanceof DV3D.ObjectEntry) {
+					rejectSelectionMaterial(entry);
+					entry.children.forEach(function (child) {
+						deselectEntry(child);
+					});
+				}
+				else if (entry instanceof DV3D.PlanEntry) {
+					s.object.deselect();
+				}
+				else if (entry instanceof DV3D.ImageEntry) {
+					s.object.deselect();
+				}
+				entry.select(null, false);
 			}
 
 			/**
-			 * look for any children and deselect them
-			 * @param {Array} children
+			 * Assign selection material to object.
+			 * @param {DV3D.ObjectEntry} entry - entry
 			 */
-			function deselectChildren(children) {
-				for(var i=0, l=children.length; i<l; i++) {
-					var o = children[i];
-					if(o.userData.type === 'object')
-						rejectSelectionMat(o);
-					webglInterface.deselectListEntry(o.id, o.userData);
-					deselectChildren(o.children);
-				}
-			}
+			function assignSelectionMaterial(entry) {
+				if (entry.type !== 'object') return;
 
-			/**
-			 * assign selection material to object
-			 * @param {THREE.Mesh} obj - object
-			 */
-			function assignSelectionMat(obj) {
-				// if(obj.material.map != null) {
-				// if(obj.userData.type == 'plan')
-				// obj.material.color.setHex(0xff8888);
-				// else
-				// obj.material.ambient.setHex(0xff8888);
-				// }
-				// else if(shading === 'transparent')
-				// obj.material = materials['transparentSelectionMat'];
-				// else if(shading === shading.WIRE)
-				// obj.material = materials['wireframeSelectionMat'];
-				// else if(shading == 'xray')
-				// obj.material = materials['xraySelectionMat'];
-				// else
-				// obj.material = materials['selectionMat'];
-				// if(scope.viewportSettings.shading == shading.EDGE && obj.userData.type === 'object' && objects[obj.id].edges)
-				// objects[obj.id].edges.material.color.setHex(0xff4444);
-				if(obj.userData.type === 'plan') {
-					//obj.material.color.setHex(0xffcccc);
-					plans.get(obj.id).edges.material = materials['edgesSelectionMat'];
-					return;
+				switch (viewportSettings.shading) {
+					case 'xray': entry.object.material = materials['xraySelectionMat']; break;
 				}
 
-				if(obj.userData.type === 'image') {
-					obj.pyramid.material.color.setHex(viewportCache.selectionColor);
-					return;
-				}
-
-				switch(currentShading) {
-					case 'xray': obj.material = materials['xraySelectionMat']; break;
-					case 'onlyEdges': objects[obj.id].edges.material = materials['edgesSelectionMat']; break;
-					case 'transparent':
-						if(obj.userData.modifiedMat)
-							obj.material.color = materials['transparentSelectionMat'].color;
-						else
-							obj.material = materials['transparentSelectionMat'];
-						break;
-					default:
-						if(obj.userData.modifiedMat)
-							obj.material.color = materials['selectionMat'].color;
-						else {
-							//obj.material = materials['selectionMat'];
-							if (objects[obj.id].edges)
-								objects[obj.id].edges.material = materials['edgesSelectionMat'];
-						}
-						break;
-				}
-			}
-
-			/**
-			 * reject selection material from object
-			 * @param {THREE.Mesh} obj - object
-			 */
-			function rejectSelectionMat(obj) {
-				// if(obj.material.map != null) {
-				// if(obj.userData.type == 'plan')
-				// obj.material.color.setHex(0xffffff);
-				// else
-				// obj.material.ambient.setHex(0xffffff);
-				// }
-				// else if(scope.viewportSettings.shading == shading.GREY_EDGE)
-				// obj.material = materials['defaultMat'];
-				// else if(scope.viewportSettings.shading == shading.TRANSPARENT_EDGE)
-				// obj.material = materials['transparentMat'];
-				// else if(scope.viewportSettings.shading == shading.WIRE)
-				// obj.material = materials['wireframeMat'];
-				// else if(scope.viewportSettings.shading == shading.XRAY)
-				// obj.material = materials['xrayMat'];
-				// else
-				// obj.material = materials[obj.userData.originalMat];
-				// if(obj.userData.type === 'object' && objects[obj.id].edges)
-				// objects[obj.id].edges.material.color.setHex(0x333333);
-				if(obj.userData.type === 'plan') {
-					//obj.material.color.setHex(0xffffff);
-					plans.get(obj.id).edges.material = materials['edgesMat'];
-					return;
-				}
-
-				if(obj.userData.type === 'image') {
-					obj.pyramid.material.color.setHex(0x0000ff);
-					return;
-				}
-
-				switch(currentShading) {
-					case 'xray': obj.material = materials['xrayMat']; break;
-					case 'onlyEdges': objects[obj.id].edges.material = materials['edgesMat']; break;
-					case 'transparent':
-						if(obj.userData.modifiedMat)
-							obj.material.color = materials['transparentMat'].color;
-						else
-							obj.material = materials['transparentMat'];
-						break;
-					/*case 'grey':
-					if(obj.userData.modifiedMat)
-						obj.material.color = materials['defaultDoublesideMat'].color;
+				if (entry.edges) {
+					if (entry.edges.material === materials['edgesMat'])
+						entry.edges.material = materials['edgesSelectionMat'];
 					else
-						obj.material = materials['defaultDoublesideMat'];
-					break;*/
-					default:
-						if(obj.userData.modifiedMat)
-							obj.material.color = materials[obj.userData.originalMat].color;
-						else {
-							//obj.material = materials[obj.userData.originalMat];
-							if (objects[obj.id].edges)
-								objects[obj.id].edges.material = materials['edgesMat'];
-						}
-						break;
+						entry.edges.material.color = materials['edgesSelectionMat'].color;
+				}
+			}
+
+			/**
+			 * Reject selection material from object.
+			 * @param {DV3D.ObjectEntry} entry - entry
+			 */
+			function rejectSelectionMaterial(entry) {
+				if (entry.type !== 'object') return;
+
+				switch (viewportSettings.shading) {
+					case 'xray': entry.object.material = materials['xrayMat']; break;
+				}
+
+				if (entry.edges) {
+					if (entry.edges.material === materials['edgesSelectionMat'])
+						entry.edges.material = materials['edgesMat'];
+					else
+						entry.edges.material.color = materials['edgesMat'].color;
 				}
 			}
 
@@ -1104,41 +994,41 @@ angular.module('dokuvis.viewport',[
 				var unhideEdges = viewportSettings.showEdges && lastMode === 'xray';
 				if (lastMode === 'custom') categoryDeactivate();
 
-				angular.forEach(objects, function (obj) {
+				objects.forEach(function (obj) {
 					if (obj.visible) {
 						if (hideObj) {
-							if (obj.parent) objects[obj.parent].mesh.remove(obj.mesh);
-							else scene.remove(obj.mesh);
+							if (obj.parent) obj.parent.object.remove(obj.object);
+							else scene.remove(obj.object);
 						}
 						if (unhideObj) {
-							if (obj.parent) objects[obj.parent].mesh.add(obj.mesh);
-							else scene.add(obj.mesh);
+							if (obj.parent) obj.parent.object.add(obj.object);
+							else scene.add(obj.object);
 						}
-						if (hideEdges)
+						if (hideEdges && obj.edges)
 							scene.remove(obj.edges);
-						if (unhideEdges)
+						if (unhideEdges && obj.edges)
 							scene.add(obj.edges);
 					}
 
 					// TODO: consider opacity
 					switch (mode) {
 						case 'color':
-							obj.mesh.material = materials[obj.mesh.userData.originalMat];
+							obj.object.material = materials[obj.object.userData.originalMat];
 							break;
 						case 'grey':
-							obj.mesh.material = materials['defaultDoublesideMat'];
+							obj.object.material = materials['defaultDoublesideMat'];
 							break;
 						case 'transparent':
-							obj.mesh.material = materials['transparentMat'];
+							obj.object.material = materials['transparentMat'];
 							break;
 						case 'xray':
-							if (selected.indexOf(obj.mesh) !== -1)
-								obj.mesh.material = materials['xraySelectionMat'];
+							if (selected.indexOf(obj) !== -1)
+								obj.object.material = materials['xraySelectionMat'];
 							else
-								obj.mesh.material = materials['xrayMat'];
+								obj.object.material = materials['xrayMat'];
 							break;
 						default:
-							obj.mesh.material = materials[obj.mesh.userData.originalMat];
+							obj.object.material = materials[obj.object.userData.originalMat];
 							break;
 					}
 				});
@@ -1146,9 +1036,9 @@ angular.module('dokuvis.viewport',[
 				animate();
 			}
 
-			// listen to viewportShadingChange
+			// listen to viewportShadingChange event
 			scope.$on('viewportShadingChange', function (event, mode, lastMode) {
-				console.log('viewportShading', mode, lastMode);
+				$log.log('viewportShading', mode, lastMode);
 				event.stopPropagation();
 				applyShading(mode, lastMode);
 			});
@@ -1281,6 +1171,11 @@ angular.module('dokuvis.viewport',[
 			});
 
 			// set opacity of objects
+			/**
+			 * @deprecated
+			 * @param item
+			 * @param value
+			 */
 			webglInterface.callFunc.setObjectOpacity = function(item, value) {
 				var mesh = objects[item.id].mesh;
 				var edges = objects[item.id].edges;
@@ -1321,6 +1216,7 @@ angular.module('dokuvis.viewport',[
 			 */
 			function setOpacity(mesh, edges, value) {
 				if(value === 1.0) {
+					// TODO: consider opacity
 					if(selected.indexOf(mesh) === -1) {
 						mesh.material = materials[mesh.userData.originalMat];
 						if(edges) edges.material = materials['edgesMat'] ;
@@ -1403,18 +1299,16 @@ angular.module('dokuvis.viewport',[
 
 				if (navigation.default) {
 					if (event.button === 0) {
-						if (event.ctrlKey && camera.inPerspectiveMode) {
-							controls.onMouseDown(event.originalEvent, 0);
-							canvas.addClass('cursor_orbit');
-							isRotatingView = true;
-						}
-						else if (event.shiftKey) {
+						if (event.shiftKey) {
 							var sr = angular.element('<div/>', {
 								id: 'select-rectangle',
 								'class': 'select-rectangle'
 							});
 							element.append(sr);
 							isSelecting = true;
+						}
+						else if (camera.inPerspectiveMode) {
+							// isRotatingView = true; -> disabled
 						}
 					}
 					else if (event.button === 1) {
@@ -1483,6 +1377,12 @@ angular.module('dokuvis.viewport',[
 					// area selection
 					else if (isSelecting) {
 						element.find('#select-rectangle').css(getSelectRectangleCSS(mouseDownCoord, mouse));
+					}
+
+					else if (isMouseDown === 0 && camera.inPerspectiveMode) {
+						controls.onMouseDown(mouseDownEvent.originalEvent, 0);
+						canvas.addClass('cursor_orbit');
+						isRotatingView = true;
 					}
 
 				}
@@ -2176,8 +2076,8 @@ angular.module('dokuvis.viewport',[
 
 				//console.log(pgeo);
 
-				var q = new THREE.Quaternion().setFromRotationMatrix(matWorld)
-				var normal = new THREE.Vector3(pgeo.attributes.normal.array[0], pgeo.attributes.normal.array[1], pgeo.attributes.normal.array[2]).applyQuaternionq(q);
+				var q = new THREE.Quaternion().setFromRotationMatrix(matWorld);
+				var normal = new THREE.Vector3(pgeo.attributes.normal.array[0], pgeo.attributes.normal.array[1], pgeo.attributes.normal.array[2]).applyQuaternion(q);
 
 				var boundingBox = pgeo.boundingBox.clone().applyMatrix4(matWorld);
 
@@ -2237,45 +2137,24 @@ angular.module('dokuvis.viewport',[
 
 			/**
 			 * attach gizmo to object
-			 * @param {THREE.Mesh} [obj] - object to be transformed
+			 * @param {THREE.Object3D} [obj] - object to be transformed
 			 * @param {string} [type] - type of gizmo ('move'|'rotate')
 			 * @param {THREE.Object3D[]} [refs] - references to objects which need to be transformed too
 			 */
 			function setGizmo(obj, type, refs) {
-				if(gizmo)
+				if (gizmo)
 					gizmo.attachToObject(null);
 
-				switch(type) {
+				switch (type) {
 					case 'move': gizmo = gizmoMove; break;
 					case 'rotate': gizmo = gizmoRotate; break;
 					default: gizmo = null; break;
 				}
 
-				if(gizmo)
+				if (gizmo)
 					gizmo.attachToObject(obj, refs);
 			}
 
-			function setGizmoCoords(type, apply) {
-				scope.gizmoCoords.enabled = true;
-				switch(type) {
-					case 'move':
-						scope.gizmoCoords.x = gizmo.object.position.x.toFixed(2);
-						scope.gizmoCoords.y = gizmo.object.position.y.toFixed(2);
-						scope.gizmoCoords.z = gizmo.object.position.z.toFixed(2);
-						break;
-					case 'rotate':
-						scope.gizmoCoords.x = THREE.Math.radToDeg(gizmo.object.rotation.x).toFixed(2);
-						scope.gizmoCoords.y = THREE.Math.radToDeg(gizmo.object.rotation.y).toFixed(2);
-						scope.gizmoCoords.z = THREE.Math.radToDeg(gizmo.object.rotation.z).toFixed(2);
-						break;
-					default:
-						scope.gizmoCoords.enabled = false;
-						break;
-				}
-				//console.log(scope.gizmoCoords);
-				if(apply)
-					scope.$apply();
-			}
 
 			// Funktionen, die auch von außen aufgerufen werden können
 			scope.internalCallFunc = scope.callFunc || {};
@@ -2620,7 +2499,7 @@ angular.module('dokuvis.viewport',[
 
 				loadHierarchyObjects(entries)
 					.then(function () {
-						console.log('objects loaded');
+						$log.debug('objects loaded');
 					})
 					.catch(function (err) {
 						Utilities.throwException('Loading Error', 'An error occurred while loading objects. See concole for details.', err);
@@ -2697,25 +2576,19 @@ angular.module('dokuvis.viewport',[
 				if (parent) parent.add(obj);
 				else scene.add(obj);
 
-				// add to list managing objects belonging together (e.g. mesh and edges)
-				objects[obj.id] = {
-					mesh: obj,
-					edges: null,
-					visible: true,
-					parent: parent ? parent.id : null
-				};
 
-				// Liste für die Anzeige auf der HTML-Seite
-				//webglInterface.insertIntoLists({ name: obj.name, id: obj.id, title: obj.userData.name, layer: obj.userData.layer, type: obj.userData.type, parent: parentid, parentVisible: true});
-				webglInterface.insertIntoLists({
-					name: obj.name,
-					id: obj.id,
-					title: obj.userData.name,
-					layer: obj.userData.layer,
-					type: obj.userData.type,
-					parent: parent ? parent.id : null,
-					parentVisible: true
+				// create ObjectEntry and add to collection
+				var objentry = new DV3D.ObjectEntry(obj);
+				objentry.addEventListener('change', animateAsync);
+				objentry.addEventListener('toggle', toggleObject);
+				objentry.addEventListener('focus', function (event) {
+					if (event.target.object)
+						focusSelection([event.target.object]);
 				});
+				objentry.addEventListener('select', function (event) {
+					setSelected(event.target, event.originalEvent.ctrlKey);
+				});
+				objects.add(objentry);
 
 
 				// load geometry / ctm file
@@ -2820,7 +2693,8 @@ angular.module('dokuvis.viewport',[
 
 								scene.add(edges);
 								geometries[geometry.name].edges = edgesGeo;
-								objects[obj.id].edges = edges;
+								// objects[obj.id].edges = edges;
+								objentry.addEdges(edges);
 								animateThrottle500();
 							})
 							.catch(function (err) {
@@ -2853,7 +2727,8 @@ angular.module('dokuvis.viewport',[
 
 								scene.add(edges);
 								geometries[geometry.name].edges = edgesGeo;
-								objects[obj.id].edges = edges;
+								// objects[obj.id].edges = edges;
+								objentry.addEdges(edges);
 								animateThrottle500();
 							})
 							.catch(function (err) {
@@ -2887,7 +2762,7 @@ angular.module('dokuvis.viewport',[
 						material.map = map;
 						material.needsUpdate = true;
 					}, null, function (xhr) {
-						console.warn('Couldn\'t load texture', xhr.path[0].src);
+						$log.warn('Couldn\'t load texture', xhr.path[0].src);
 					});
 				}
 
@@ -2898,7 +2773,7 @@ angular.module('dokuvis.viewport',[
 						material.transparent = true;
 						material.needsUpdate = true;
 					}, null, function (xhr) {
-						console.warn('Couldn\'t load texture', xhr.path[0].src);
+						$log.warn('Couldn\'t load texture', xhr.path[0].src);
 					});
 
 				}
@@ -2944,18 +2819,18 @@ angular.module('dokuvis.viewport',[
 
 			// clear scene and dispose geometries and materials
 			function resetScene() {
-				// remove from scene
-				for (var key in objects) {
-					if (!objects.hasOwnProperty(key)) continue;
-					var obj = objects[key];
-					obj.mesh.parent.remove(obj.mesh);
+				// remove from scene and collection
+				objects.asArray().forEach(function (obj) {
+					obj.object.parent.remove(obj.object);
 					if (obj.edges) scene.remove(obj.edges);
-					delete objects[key];
-				}
+					objects.remove(obj);
+					obj.dispose();
+				});
 
 				// dispose geometries
-				for (key in geometries) {
+				for (var key in geometries) {
 					if (!geometries.hasOwnProperty(key)) continue;
+					if (viewportCache.standardGeometries.indexOf(key) !== -1) continue;
 					if (geometries[key].mesh) geometries[key].mesh.dispose();
 					if (geometries[key].edges) geometries[key].edges.dispose();
 					delete geometries[key];
@@ -2972,9 +2847,12 @@ angular.module('dokuvis.viewport',[
 				}
 
 				animate();
-				webglInterface.clearLists();
+				webglInterface.clearLists(); // deprecated
 			}
 
+			/**
+			 * @deprecated
+			 */
 			webglInterface.callFunc.resetScene = function () {
 				for(var key in objects) {
 					if(!objects.hasOwnProperty(key)) continue;
@@ -3011,82 +2889,45 @@ angular.module('dokuvis.viewport',[
 			// 	}
 			// }
 
+			///// OBJECT EVENTS
+
+			// add or remove mesh and edges from parent or scene
+			function toggleObject(event) {
+				var target = event.target;
+				var parent = target.parent ? target.parent.object : scene;
+
+				// toggle parent if hidden
+				if (event.visible && target.parent && !target.parent.visible) {
+					target.parent.visible = true;
+					toggleObject({ target: target.parent, visible: true });
+				}
+
+				// add
+				if (event.visible) {
+					if (parent.getObjectById(target.object.id))
+						return; // already part of parent
+
+					parent.add(target.object);
+					if (viewportSettings.showEdges && target.edges)
+						scene.add(target.edges);
+				}
+				// remove
+				else {
+					parent.remove(target.object);
+					if (viewportSettings.showEdges && target.edges)
+						scene.remove(target.edges);
+					setSelected(target, false, true);
+				}
+
+				animateAsync();
+			}
+
 			/**
 			 * @deprecated
-			 * @param coords
+			 * @param id
+			 * @param ctrlKey
+			 * @param deselect
 			 */
-			scope.internalCallFunc.setCoordsFromInput = function(coords) {
-				if(gizmo instanceof DV3D.GizmoMove)
-					gizmo.object.position.set(parseFloat(coords.x), parseFloat(coords.y), parseFloat(coords.z));
-				else if(gizmo instanceof DV3D.GizmoRotate)
-					gizmo.object.rotation.set(THREE.Math.degToRad(coords.x), THREE.Math.degToRad(coords.y), THREE.Math.degToRad(coords.z));
-			};
-
-			// ziemlich alt
-			scope.internalCallFunc.saveSelected = function() {
-				console.log('saveFunc called');
-				console.log(selected);
-
-				if(!selected) return;
-
-				var obj = {v: [], f: [], uv: []};
-
-				for(var i=0; i<selected.geometry.vertices.length; i++) {
-					var v = selected.geometry.vertices[i];
-					//console.log(v);
-					obj.v.push( [ v.x, v.y, v.z ] );
-				}
-				for(var i=0; i<selected.geometry.vertices.length; i++) {
-					var f = selected.geometry.faces[i];
-					/*var face = {};
-				face.a = f.a;
-				face.b = f.b;
-				face.c = f.c;
-				//face.n = [f.normal.x, f.normal.y, f.normal.z];
-				face.vn = [ [f.vertexNormals[0].x, f.vertexNormals[0].y, f.vertexNormals[0].z],
-					[f.vertexNormals[1].x, f.vertexNormals[1].y, f.vertexNormals[1].z],
-					[f.vertexNormals[2].x, f.vertexNormals[2].y, f.vertexNormals[2].z] ];
-				*/
-					var face;
-					if(f.vertexNormals.length < 3)
-						face = [ f.a, f.b, f.c];
-					else {
-						face = [ f.a, f.b, f.c,
-							f.vertexNormals[0].x, f.vertexNormals[0].y, f.vertexNormals[0].z,
-							f.vertexNormals[1].x, f.vertexNormals[1].y, f.vertexNormals[1].z,
-							f.vertexNormals[2].x, f.vertexNormals[2].y, f.vertexNormals[2].z ];
-					}
-					obj.f.push(face);
-				}
-				for(var i=0; i<selected.geometry.faceVertexUvs[0].length; i++) {
-					var uvs = selected.geometry.faceVertexUvs[0][i];
-					obj.uv.push( [ uvs[0].x, uvs[0].y, uvs[1].x, uvs[1].y, uvs[2].x, uvs[2].y ] );
-				}
-
-				$.ajax({
-					type: 'POST',
-					url: 'php/jsonwrite.php',
-					datatype: 'json',
-					data: {
-						json: JSON.stringify(obj)
-						//json: obj
-					}
-				}).done(function() {console.log('ajax done')})
-					.fail(function() {console.log('ajax fail')});
-
-				/*
-			var json = JSON.stringify(obj);
-			//var encoded = btoa(json);
-
-			var blob = new Blob([json], {type: 'text/plain;charset=utf-8'});
-			saveAs(blob, 'selected.json');
-			*/
-				//var exporter = new THREE.OBJExporter();
-				//var blob = new Blob([exporter.parse(selected.geometry)], {type: 'text/plain;charset=utf-8'});
-				//saveAs(blob, 'selected.obj');
-
-			};
-
 			webglInterface.callFunc.selectObject = function(id, ctrlKey, deselect) {
 				if(objects[id].visible)
 					setSelected(objects[id].mesh, ctrlKey, deselect);
@@ -3099,6 +2940,7 @@ angular.module('dokuvis.viewport',[
 			 * get object by id and add or remove mesh and edges
 			 * @param item
 			 * @param {boolean} visible
+			 * @deprecated
 			 */
 			webglInterface.callFunc.toggleObject = function(item, visible) {
 				var p;
@@ -3229,6 +3071,11 @@ angular.module('dokuvis.viewport',[
 				animate();
 			};
 
+			/**
+			 * @deprecated
+			 * @param pos3D
+			 * @return {THREE.Vector2}
+			 */
 			function toScreenXY(pos3D) {
 				var v = pos3D.project(camera);
 				var left = SCREEN_WIDTH * (v.x + 1) / 2;
@@ -3370,6 +3217,7 @@ angular.module('dokuvis.viewport',[
 			/**
 			 * focus object (call from object list)
 			 * @param id
+			 * @deprecated
 			 */
 			webglInterface.callFunc.focusObject = function(id) {
 				var objs = [objects[id].mesh];
@@ -3391,14 +3239,14 @@ angular.module('dokuvis.viewport',[
 			scope.$on('viewportFocusStart', function (event, mode) {
 				if (camera.inOrthographicMode) return;
 				switch (mode) {
-					case 'selected': focusSelected(); break;
+					case 'selected': focusSelection(selected); break;
 					default: focusAll();
 				}
 			});
 
 			// focus selected objects
-			function focusSelected() {
-				if (selected.length < 1) return;
+			function focusSelection(array) {
+				if (array.length < 1) return;
 				var cc = [];
 				function collectChildren(children) {
 					for (var i = 0; i < children.length; i++) {
@@ -3408,7 +3256,7 @@ angular.module('dokuvis.viewport',[
 							cc.push(children[i]);
 					}
 				}
-				collectChildren(selected);
+				collectChildren(array);
 				focusObjects(cc);
 			}
 
@@ -3485,7 +3333,7 @@ angular.module('dokuvis.viewport',[
 			function resizeViewport() {
 				SCREEN_WIDTH = element.width();
 				SCREEN_HEIGHT = element.height();
-				console.log('resize called', SCREEN_WIDTH, SCREEN_HEIGHT);
+				$log.debug('resize called', SCREEN_WIDTH, SCREEN_HEIGHT);
 
 				camera.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 				camera.cameraP.updateProjectionMatrix();
@@ -3506,13 +3354,15 @@ angular.module('dokuvis.viewport',[
 				// unbind functions from callFunc
 				delete SpatializeInterface.callFunc[cfId];
 
+				controls.dispose();
+
 				// unbind event listeners
 				var windowElement = angular.element($window);
 				windowElement.off('keydown', keydown);
 				windowElement.off('keyup', keyup);
 				windowElement.off('resize', resizeViewport);
 
-				console.log('destroy webgl directive');
+				$log.debug('destroy webgl directive');
 			});
 		}
 
@@ -3520,14 +3370,10 @@ angular.module('dokuvis.viewport',[
 			restrict: 'E',
 			replace: false,
 			transclude: true,
-			template: '<canvas ng-class="{\'cursor_orbit\': navigation.rotate, \'cursor_pan\': navigation.pan, \'cursor_zoom\': navigation.zoom}"></canvas>\n<!--<canvas></canvas>-->\n<div class="viewport-extras" ng-transclude></div>',
+			template: '<canvas ng-class="{\'cursor_orbit\': navigation.rotate, \'cursor_pan\': navigation.pan, \'cursor_zoom\': navigation.zoom}"></canvas>\n<div class="viewport-extras" ng-transclude></div>',
 			//templateUrl: 'app/directives/webglView/webglView.html',
 			scope: {
-				navToolbar: '=',
-				//unsafeSettings: '=',
 				callFunc: '=',
-				gizmoCoords: '=',
-				//navigation: '=',
 				screenshotCallback: '='
 			},
 			link: link
