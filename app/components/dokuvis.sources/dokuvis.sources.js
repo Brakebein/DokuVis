@@ -777,6 +777,15 @@ angular.module('dokuvis.sources', [
 			console.log($scope.editorInput);
 		};
 
+		$scope.startSpatialize = function () {
+			$state.go('project.explorer');
+			spatializeManualStart($scope.item);
+		};
+
+		function spatializeManualStart(src) {
+			$rootScope.$broadcast('spatializeManualStart', src);
+		}
+
 		$scope.delete = function () {
 			ConfirmDialog({
 				headerText: 'Quelle löschen',

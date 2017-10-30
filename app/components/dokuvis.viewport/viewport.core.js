@@ -1915,6 +1915,13 @@ angular.module('dokuvis.viewport',[
 				animate();
 			};
 
+			scope.$on('spatializeFOVChange', function (event, value) {
+				event.stopPropagation();
+				camera.fov = value;
+				camera.updateProjectionMatrix();
+				animateThrottle20();
+			});
+
 			/**
 			 * Loads spatialized image into the scene.
 			 * @param img

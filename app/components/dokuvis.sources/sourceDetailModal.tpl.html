@@ -126,6 +126,7 @@
 
 		<div>
 			<button class="btn btn-default" ui-sref=".edit">{{'edit' | translate}}</button>
+			<button class="btn btn-default" ng-show="item.type === 'picture'" ng-click="startSpatialize()">Verorten</button>
 			<button class="btn btn-danger" ng-click="delete()">{{'delete' | translate}}</button>
 		</div>
 

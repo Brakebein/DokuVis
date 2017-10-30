@@ -5,6 +5,9 @@ angular.module('dokuvis.viewport')
  * @ngdoc directive
  * @name viewportNavigation
  * @module dokuvis.viewport
+ * @requires ComponentsPath
+ * @requires viewportSettings
+ * @restrict E
  */
 .directive('viewportNavigation', ['ComponentsPath', 'viewportSettings',
 	function (ComponentsPath, viewportSettings) {
@@ -14,6 +17,9 @@ angular.module('dokuvis.viewport')
 			restrict: 'E',
 			link: function (scope) {
 
+				var triggerCameraEvent = true,
+					triggerShadingEvent = true;
+
 				scope.navigation = {'default': true, rotate: false, pan: false, zoom: false};
 
 				scope.shadings = viewportSettings.shadings;
@@ -21,12 +27,17 @@ angular.module('dokuvis.viewport')
 
 				scope.vpSettings = viewportSettings;
 
-				// TODO: setNavigation method
-
 				scope.focus = function (mode) {
 					viewportFocusStart(mode);
 				};
 
+				/**
+				 * Event that gets fired, when user clicked one of the focus buttons.
+				 * @ngdoc event
+				 * @name viewportNavigation#viewportFocusStart
+				 * @eventType emit on viewportNavigation
+				 * @param mode {string} Focus mode, should be `all` or `selected`
+				 */
 				function viewportFocusStart(mode) {
 					scope.$emit('viewportFocusStart', mode);
 				}
@@ -49,11 +60,18 @@ angular.module('dokuvis.viewport')
 				}
 				scope.setNavigationMode = setNavigationMode;
 
-				// emit event
+				/**
+				 * Event that gets fired, when user changed navigation mode.
+				 * @ngdoc event
+				 * @name viewportNavigation#viewportNavigationChange
+				 * @eventType emit on viewportNavigation
+				 * @param mode {string} New navigation mode
+				 */
 				function viewportNavigationChange(mode) {
 					scope.$emit('viewportNavigationChange', mode);
 				}
 
+				// listen on viewportNavigationChange event
 				scope.$on('viewportNavigationChange', function (event, mode) {
 					if (event.targetScope === scope) return;
 					setNavigationMode(mode, false);
@@ -71,19 +89,47 @@ angular.module('dokuvis.viewport')
 					scope.$emit('viewportShadingChange', mode, lastMode);
 				}
 
-				// watch for shading changes
-				scope.$watch('vpSettings.shading', viewportShadingChange);
+				// listen to viewportShadingChange event
+				scope.$on('viewportShadingChange', function (event, mode, lastMode) {
+					if (event.targetScope === scope || mode === lastMode) return;
+					scope.vpSettings.shading = mode;
+					triggerShadingEvent = false;
+				});
 
+				// watch for shading changes
+				scope.$watch('vpSettings.shading', function (mode, lastMode) {
+					if (triggerShadingEvent)
+						viewportShadingChange(mode, lastMode);
+					else
+						triggerShadingEvent = true;
+				});
+
+				/**
+				 * Event that gets fired, when user changed camera mode.
+				 * @ngdoc event
+				 * @name viewportNavigation#viewportCameraChange
+				 * @eventType emit on viewportNavigation
+				 * @param mode {string} New camera mode
+				 * @param lastMode {string} Previous camera mode
+				 */
 				function viewportCameraChange(mode, lastMode) {
 					scope.$emit('viewportCameraChange', mode, lastMode);
 				}
 
-				// watch for camera changes
-				scope.$watch('vpSettings.camera', viewportCameraChange);
+				// listen to viewportCameraChange event
+				scope.$on('viewportCameraChange', function (event, mode, lastMode) {
+					if (event.targetScope === scope || mode === lastMode) return;
+					scope.vpSettings.camera = mode;
+					triggerCameraEvent = false;
+				});
 
-				scope.$on('viewportCameraChange', function (event, mode) {
-					console.log('listen to event in same scope', mode, event.targetScope === scope);
-				})
+				// watch for camera changes
+				scope.$watch('vpSettings.camera', function (mode, lastMode) {
+					if (triggerCameraEvent)
+						viewportCameraChange(mode, lastMode);
+					else
+						triggerCameraEvent = true;
+				});
 
 			}
 		};
@@ -91,6 +137,14 @@ angular.module('dokuvis.viewport')
 	}
 ])
 
+/**
+ * World axes for orientation.
+ * @ngdoc directive
+ * @name viewportAxis
+ * @module dokuvis.viewport
+ * @requires https://docs.angularjs.org/api/ng/service/$timeout $timeout
+ * @restrict E
+  */
 .directive('viewportAxis', ['$timeout',
 	function ($timeout) {
 
@@ -145,6 +199,13 @@ angular.module('dokuvis.viewport')
 	}
 ])
 
+/**
+ * Display of load progress while loading 3D objects.
+ * @ngdoc directive
+ * @name viewportLoadProgress
+ * @module dokuvis.viewport
+ * @restrict E
+ */
 .directive('viewportLoadprogress', function () {
 
 	return {
@@ -179,4 +240,59 @@ angular.module('dokuvis.viewport')
 		}
 	};
 
-});
+})
+
+.directive('viewportSpatializeManual', ['$rootScope', 'ComponentsPath',
+	function ($rootScope, ComponentsPath) {
+
+		return {
+			templateUrl: ComponentsPath + '/dokuvis.viewport/viewportSpatializeManual.tpl.html',
+			restrict: 'E',
+			link: function (scope) {
+
+				var source = null;
+				var camera = null;
+
+				scope.file = '';
+				scope.opacity = 50;
+				scope.fov = 35;
+
+				scope.$on('spatializeManualStart', function (event, src) {
+					scope.file = src.file.path + src.file.preview;
+					source = src;
+				});
+
+				scope.$on('viewportCameraMove', function (event, cam) {
+					scope.fov = cam.fov;
+					camera = cam;
+				});
+
+				scope.changeFOV = function () {
+					spatializeFOVChange(scope.fov);
+				};
+
+				scope.save = function () {
+
+				};
+
+				scope.abort = function () {
+					spatializeManualAbort();
+				};
+
+				function spatializeFOVChange(fov) {
+					scope.$emit('spatializeFOVChange', fov);
+				}
+
+				function spatializeManualSuccess(src) {
+					$rootScope.$broadcast('spatializeManualSuccess', src);
+				}
+
+				function spatializeManualAbort() {
+					$rootScope.$broadcast('spatializeManualAbort');
+				}
+
+			}
+		};
+
+	}
+]);

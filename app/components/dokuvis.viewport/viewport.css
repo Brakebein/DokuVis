@@ -29,6 +29,44 @@ viewport {
     background-color: rgba(255, 255, 0, 0.05);
     pointer-events: none; }
 
+viewport .ctrl-container, viewport-object-tree .ctrl-container {
+  position: absolute;
+  pointer-events: none;
+  display: flex; }
+  viewport .ctrl-container > div, viewport-object-tree .ctrl-container > div {
+    pointer-events: auto; }
+  viewport .ctrl-container.ctrl-center, viewport-object-tree .ctrl-container.ctrl-center {
+    width: 100%;
+    justify-content: center; }
+  viewport .ctrl-container.ctrl-top, viewport-object-tree .ctrl-container.ctrl-top {
+    top: 0; }
+    viewport .ctrl-container.ctrl-top > div, viewport-object-tree .ctrl-container.ctrl-top > div {
+      background-color: rgba(51, 51, 51, 0.8);
+      border: 1px solid #999;
+      color: #fafafa;
+      font-size: 12px;
+      border-top: none;
+      border-radius: 0 0 10px 10px; }
+  viewport .ctrl-container.ctrl-top-left, viewport-object-tree .ctrl-container.ctrl-top-left {
+    top: 0;
+    left: 0; }
+    viewport .ctrl-container.ctrl-top-left > div, viewport-object-tree .ctrl-container.ctrl-top-left > div {
+      background-color: rgba(51, 51, 51, 0.8);
+      border: 1px solid #999;
+      color: #fafafa;
+      font-size: 12px;
+      border-top: none;
+      border-left: none;
+      border-radius: 0 0 10px 0; }
+  viewport .ctrl-container.ctrl-bottom, viewport-object-tree .ctrl-container.ctrl-bottom {
+    bottom: 0; }
+    viewport .ctrl-container.ctrl-bottom > div, viewport-object-tree .ctrl-container.ctrl-bottom > div {
+      background-color: rgba(51, 51, 51, 0.8);
+      border: 1px solid #999;
+      color: #fafafa;
+      font-size: 12px;
+      border-bottom: none;
+      border-radius: 10px 10px 0 0; }
 viewport .ctrl-group, viewport-object-tree .ctrl-group {
   float: left;
   height: 100%;
@@ -75,22 +113,24 @@ viewport .ctrl-btn, viewport-object-tree .ctrl-btn {
       border: 1px solid #fff; }
   viewport .ctrl-btn:active, viewport .ctrl-btn.active, viewport-object-tree .ctrl-btn:active, viewport-object-tree .ctrl-btn.active {
     background-color: #555;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    border-left: 1px solid #999;
-    border-top: 1px solid #999; }
+    border: 1px solid #999;
+    border-right-color: #ddd;
+    border-bottom-color: #ddd; }
+viewport .ctrl-slider, viewport-object-tree .ctrl-slider {
+  padding: 3px; }
+  viewport .ctrl-slider > *, viewport-object-tree .ctrl-slider > * {
+    vertical-align: middle; }
+  viewport .ctrl-slider > input[type=range], viewport-object-tree .ctrl-slider > input[type=range] {
+    width: 200px;
+    margin: 0 5px;
+    display: inline-block; }
 
 viewport-navigation {
-  position: absolute;
-  height: 33px;
-  top: 0;
-  left: 0;
-  padding: 3px 6px 3px 3px;
-  background-color: rgba(51, 51, 51, 0.8);
-  border-bottom-right-radius: 10px;
-  border-bottom: 1px solid #999;
-  border-right: 1px solid #999;
   transition: top 0.5s; }
+  viewport-navigation > .ctrl-container > div {
+    height: 33px;
+    padding: 3px 6px 3px 3px;
+    z-index: 60; }
   viewport-navigation.ng-hide {
     top: -33px; }
   viewport-navigation .ctrl-group:first-of-type {
@@ -199,5 +239,17 @@ viewport-object-tree .list-item, viewport-plan-list .list-item, viewport-image-l
       flex: 0 0 auto; }
       viewport-object-tree .list-item > *.list-ctrls > *:not(:hover), viewport-plan-list .list-item > *.list-ctrls > *:not(:hover), viewport-image-list .list-item > *.list-ctrls > *:not(:hover) {
         color: #888; }
+
+viewport-spatialize-manual > .ctrl-container > div {
+  height: 33px;
+  padding: 3px 6px 3px; }
+viewport-spatialize-manual > .image-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none; }
 
 /*# sourceMappingURL=viewport.css.map */

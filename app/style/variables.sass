@@ -46,3 +46,40 @@ $taskPriorityHigh: #fd8d3c
 	@if $nowrap
 		white-space: nowrap
 	text-overflow: ellipsis
+
+=dark-panel($mode)
+	background-color: $panelBackground
+	border: $panelBorder
+	color: $panelFontColor
+	font-size: $panelFontSize
+
+	@if $mode == 'top'
+		border-top: none
+		border-radius: 0 0 $panelBorderRadius $panelBorderRadius
+	@else if $mode == 'left'
+		border-left: none
+		border-radius: 0 $panelBorderRadius $panelBorderRadius 0
+	@else if $mode == 'bottom'
+		border-bottom: none
+		border-radius: $panelBorderRadius $panelBorderRadius 0 0
+	@else if $mode == 'right'
+		border-right: none
+		border-radius: $panelBorderRadius 0 0 $panelBorderRadius
+	@else if $mode == 'top-left'
+		border-top: none
+		border-left: none
+		border-radius: 0 0 $panelBorderRadius 0
+	@else if $mode == 'top-right'
+		border-top: none
+		border-right: none
+		border-radius: 0 0 0 $panelBorderRadius
+	@else if $mode == 'bottom-left'
+		border-bottom: none
+		border-left: none
+		border-radius: 0 $panelBorderRadius 0 0
+	@else if $mode == 'bottom-left'
+		border-bottom: none
+		border-right: none
+		border-radius: $panelBorderRadius 0 0 0
+	@else
+		border-radius: $panelBorderRadius
