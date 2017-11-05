@@ -1,0 +1,72 @@
+<div class="tasks-main">
+
+	<div>
+		<h2>Aufgaben</h2>
+		<hr/>
+	</div>
+
+	<tasks-gantt></tasks-gantt>
+
+	<div class="optionsFooter"></div>
+
+</div>
+
+
+<div class="tasks-side sidePanel">
+
+	<div class="sideNav sideNav-right">
+	
+		<div title="Mitarbeiter" class="smBtn" ng-class="{'active': views.activeSide === 'staff'}" ng-click="views.activeSide = 'staff'" ng-include="'img/icons/staff.582e0335.svg'"></div>
+		<div title="Details" class="smBtn" ng-class="{'active': views.activeSide === 'details'}" ng-click="views.activeSide = 'details'" ng-include="'img/icons/task.64d322d4.svg'"></div>
+		
+	</div>
+	
+	<div ng-show="views.activeSide === 'staff'" class="sideContainer">
+
+		<div class="sideHeader">
+			<h4>Übersicht Mitarbeiter</h4>
+			<hr/>
+		</div>
+		
+		<div class="sideContent">
+			<staff-list></staff-list>
+			<p>Weitere Personen können über die <a href="#" ui-sref="project.config">Konfigurationsseite</a> dem Projekt hinzugefügt werden.</p>
+		</div>
+		
+		<div class="sideFooter">
+		</div>
+
+	</div>
+
+	<div ng-show="views.activeSide === 'details'" class="sideContainer">
+
+		<div class="sideHeader">
+			<h4>Aufgabendetails</h4>
+			<hr/>
+		</div>
+
+		<div class="sideContent">
+
+			<task-detail></task-detail>
+
+			<hr/>
+
+			<h4>Kommentare</h4>
+
+			<comment-section target="activeTask.id" type="activeTask.type"></comment-section>
+
+		</div>
+
+	</div>
+	 
+</div>	
+
+<!--<div class="resizer-vTask" resizer="vertical" resizer-width="6" resizer-left=".tasksLeft" resizer-left-min="780" resizer-right=".tasksRight" resizer-right-min="0" resizer-anim="resizerValue"></div>-->
+
+<div class="resizer-v"
+	 resizer="vertical"
+	 resizer-left=".tasks-main"
+	 resizer-left-min="780"
+	 resizer-right=".tasks-side"
+	 resizer-right-min="380"
+	 resizer-end="wi.callFunc.resize"></div>

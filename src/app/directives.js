@@ -47,7 +47,7 @@ angular.module('dokuvisApp').directive('alert', ['$timeout',
 	}]);
 
 // zum Anpassen des Layouts
-angular.module('dokuvisApp').directive('resizer',
+angular.module('dokuvisApp').directive('resizer', ['$document',
 	function($document) {
 		return {
 			scope: {
@@ -197,9 +197,9 @@ angular.module('dokuvisApp').directive('resizer',
 				});
 			}
 		};
-	});
+	}]);
 
-angular.module('dokuvisApp').directive('ngWheel',
+angular.module('dokuvisApp').directive('ngWheel', ['$parse',
 	function($parse) {
 		return {
 			restrict: 'A',
@@ -214,7 +214,7 @@ angular.module('dokuvisApp').directive('ngWheel',
 				element.bind('DOMMouseScroll', mousewheel); // firefox
 			}
 		};
-	});
+	}]);
 
 angular.module('dokuvisApp').directive('syncScroll',
 	function() {

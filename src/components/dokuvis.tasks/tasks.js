@@ -183,11 +183,12 @@ angular.module('dokuvis.tasks', [
  * @requires Subproject
  * @requires Staff
  * @requires Utilities
+ * @requires https://docs.angularjs.org/api/ng/service/$log $log
  * @restrict E
  * @scope
  */
-.directive('tasksGantt', ['$rootScope', '$timeout', '$q', 'moment', 'Task', 'Subproject', 'Staff', 'Utilities',
-	function ($rootScope, $timeout, $q, moment, Task, Subproject, Staff, Utilities) {
+.directive('tasksGantt', ['$rootScope', '$timeout', '$q', 'moment', 'Task', 'Subproject', 'Staff', 'Utilities', '$log',
+	function ($rootScope, $timeout, $q, moment, Task, Subproject, Staff, Utilities, $log) {
 
 		return {
 			restrict: 'E',
@@ -283,7 +284,7 @@ angular.module('dokuvis.tasks', [
 					apiGlobal = api;
 
 					api.core.on.ready(scope, function () {
-						console.log(api);
+						$log.debug(api);
 						apiHierarchy = api.tree.getHierarchy();
 						apiReady.resolve();
 
@@ -307,7 +308,7 @@ angular.module('dokuvis.tasks', [
 
 						else if (dName === 'ganttTask') {
 							dElement.on('click', function () {
-								console.log('task', dScope.task.model);
+								//console.log('task', dScope.task.model);
 
 								if (!deferredTaskActivate)
 									deferredTaskActivate = $q.defer();
@@ -320,7 +321,7 @@ angular.module('dokuvis.tasks', [
 
 						else if (dName === 'ganttRow') {
 							dElement.on('click', function () {
-								console.log('row', dScope);
+								//console.log('row', dScope);
 							});
 						}
 					});
@@ -334,7 +335,7 @@ angular.module('dokuvis.tasks', [
 							scope.data[i].data.editors = retrieveEditors(scope.data[i]);
 						}
 					}
-					console.log('final', scope.data);
+					$log.debug('final', scope.data);
 					// update table width
 					$timeout(function () {
 						apiGlobal.side.setWidth();
@@ -370,7 +371,7 @@ angular.module('dokuvis.tasks', [
 				function querySubprojects() {
 					return Subproject.query().$promise
 						.then(function (results) {
-							console.log('Projects', results);
+							$log.debug('Projects', results);
 							projects = results;
 						})
 						.catch(function (err) {
@@ -382,7 +383,7 @@ angular.module('dokuvis.tasks', [
 				function queryTasks() {
 					return Task.query().$promise
 						.then(function (results) {
-							console.log('Tasks', results);
+							$log.debug('Tasks', results);
 							tasks = results;
 						})
 						.catch(function (err) {
@@ -394,7 +395,7 @@ angular.module('dokuvis.tasks', [
 				function queryStaff() {
 					Staff.query().$promise
 						.then(function (results) {
-							console.log('Staff', results);
+							$log.debug('Staff', results);
 							staff = results;
 							scope.staff = staff;
 						})
@@ -611,7 +612,7 @@ angular.module('dokuvis.tasks', [
 
 				// event handler for task.move or task.resize
 				function onTaskDateChange(task) {
-					console.log(task);
+					$log.debug(task);
 					var taskResource = task.model.data.resource;
 					var newFrom = moment(task.model.from).format();
 					var newTo = moment(task.model.to).format();
@@ -622,8 +623,8 @@ angular.module('dokuvis.tasks', [
 					}
 					else return;
 
-					console.log(taskResource.from, taskResource.to);
-					console.log(taskResource);
+					$log.debug(taskResource.from, taskResource.to);
+					$log.debug(taskResource);
 					taskResource.$update()
 						.catch(function (err) {
 							Utilities.throwApiException('#Task.update', err);
@@ -720,7 +721,7 @@ angular.module('dokuvis.tasks', [
 
 				// listen to tasksUpdate event and update gantt
 				scope.$on('tasksUpdate', function () {
-					console.log('event tasksUpdate');
+					$log.debug('event tasksUpdate');
 					updateGantt(true);
 				});
 
@@ -746,11 +747,12 @@ angular.module('dokuvis.tasks', [
  * @module dokuvis.tasks
  * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
  * @requires Utilities
+ * @requires https://docs.angularjs.org/api/ng/service/$log $log
  * @restrict E
  * @scope
  */
-.directive('taskDetail', ['$rootScope', 'Utilities',
-	function ($rootScope, Utilities) {
+.directive('taskDetail', ['$rootScope', 'Utilities', '$log',
+	function ($rootScope, Utilities, $log) {
 
 		return {
 			restrict: 'E',
@@ -772,7 +774,7 @@ angular.module('dokuvis.tasks', [
 
 					taskResource.$update()
 						.then(function (result) {
-							console.log(result);
+							$log.debug(result);
 							taskRow.data.status = taskResource.status;
 							for (var i=0; i<taskRow.tasks.length; i++)
 								taskRow.tasks[i].status = taskResource.status;
@@ -785,7 +787,7 @@ angular.module('dokuvis.tasks', [
 
 				// listen to taskActivate event
 				scope.$on('taskActivate', function (event, task, row) {
-					console.log(task, row);
+					$log.debug(task, row);
 					scope.task = task;
 					taskRow = row;
 				});
@@ -823,9 +825,10 @@ angular.module('dokuvis.tasks', [
  * @requires Staff
  * @requires Utilities
  * @requires ConfirmService
+ * @requires https://docs.angularjs.org/api/ng/service/$log $log
  */
-.controller('taskModalCtrl', ['$scope', '$state', '$stateParams', 'moment', 'Task', 'Staff', 'Utilities', 'ConfirmService',
-	function ($scope, $state, $stateParams, moment, Task, Staff, Utilities, ConfirmService) {
+.controller('taskModalCtrl', ['$scope', '$state', '$stateParams', 'moment', 'Task', 'Staff', 'Utilities', 'ConfirmService', '$log',
+	function ($scope, $state, $stateParams, moment, Task, Staff, Utilities, ConfirmService, $log) {
 
 		var parent = null;
 		var task = null;
@@ -868,7 +871,7 @@ angular.module('dokuvis.tasks', [
 		function getTask() {
 			Task.get({ id: $stateParams.taskId }).$promise
 				.then(function (result) {
-					console.log(result);
+					$log.debug(result);
 					$scope.task = {
 						title: result.title,
 						description: result.description,
@@ -892,8 +895,6 @@ angular.module('dokuvis.tasks', [
 		 * @name taskModalCtrl#save
 		 */
 		$scope.save = function () {
-			console.log($scope.task);
-
 			if (!$scope.task.title.length) {
 				Utilities.dangerAlert('Geben Sie der Aufgabe einen Namen!');
 				return;
@@ -919,7 +920,7 @@ angular.module('dokuvis.tasks', [
 
 				task.$update()
 					.then(function (result) {
-						console.log(result);
+						$log.debug(result);
 						tasksUpdate(task);
 						$scope.close();
 					})
@@ -946,7 +947,7 @@ angular.module('dokuvis.tasks', [
 					parent: parent
 				}).$promise
 					.then(function (result) {
-						console.log(result);
+						$log.debug(result);
 						tasksUpdate(result);
 						$scope.close();
 					})
@@ -970,7 +971,7 @@ angular.module('dokuvis.tasks', [
 			}).then(function () {
 				task.$delete()
 					.then(function (result) {
-						console.log(result);
+						$log.debug(result);
 						tasksUpdate();
 						$scope.close();
 					})

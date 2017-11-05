@@ -396,7 +396,6 @@ angular.module('dokuvis.models', [
 		$scope.$watch(function () {
 			return ModelUploader.queue[0];
 		}, function (item) {
-			console.log(item);
 			if (item)
 				$scope.fileitem = ModelUploader.queue[0];
 			else
@@ -450,11 +449,12 @@ angular.module('dokuvis.models', [
  * @requires ModelVersion
  * @requires Utilities
  * @requires https://github.com/urish/angular-moment moment
+ * @requires https://docs.angularjs.org/api/ng/service/$log $log
  * @restrict E
  * @scope
  */
-.directive('versionGraph', ['$rootScope', '$state', 'ModelVersion', 'Utilities', 'moment',
-	function ($rootScope, $state, ModelVersion, Utilities, moment) {
+.directive('versionGraph', ['$rootScope', '$state', 'ModelVersion', 'Utilities', 'moment', '$log',
+	function ($rootScope, $state, ModelVersion, Utilities, moment, $log) {
 
 		return {
 			templateUrl: 'components/dokuvis.models/versionGraph.tpl.html',
@@ -468,7 +468,7 @@ angular.module('dokuvis.models', [
 				function queryVersions() {
 					ModelVersion.query().$promise
 						.then(function (results) {
-							console.log('versions:', results);
+							$log.debug('versions:', results);
 							// add root
 							results.unshift({ id: 'root', predecessor: null, summary: 'root', created: { date: 0 } });
 							versions = results;
@@ -604,7 +604,7 @@ angular.module('dokuvis.models', [
 
 				// activate clicked version
 				scope.select = function (vers) {
-					console.log(vers);
+					$log.debug(vers);
 					if (vers.id === 'blind') {
 						$state.go('.upload.model', { parent: activeVersion });
 						return;
@@ -643,11 +643,12 @@ angular.module('dokuvis.models', [
  * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
  * @requires DigitalObject
  * @requires Utilities
+ * @requires https://docs.angularjs.org/api/ng/service/$log $log
  * @restrict E
  * @scope
  */
-.directive('versionDetail', ['$rootScope', 'DigitalObject', 'Utilities',
-	function ($rootScope, DigitalObject, Utilities) {
+.directive('versionDetail', ['$rootScope', 'DigitalObject', 'Utilities', '$log',
+	function ($rootScope, DigitalObject, Utilities, $log) {
 
 		return {
 			templateUrl: 'components/dokuvis.models/versionDetail.tpl.html',
@@ -668,7 +669,7 @@ angular.module('dokuvis.models', [
 
 					DigitalObject.query({ versionId: scope.version.id }).$promise
 						.then(function (results) {
-							console.log(results);
+							$log.debug(results);
 							modelQuerySuccess(results);
 						})
 						.catch(function (reason) {

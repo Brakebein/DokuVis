@@ -1,0 +1,19 @@
+<p ng-hide="version" translate>model_version_none</p>
+
+<div ng-show="version">
+	<h3>{{ version.summary }}</h3>
+	<p class="small">{{'uploaded_by' | translate}} {{ version.created.name }} - {{ version.created.date | amCalendar }}</p>
+
+	<p ng-show="version.id === 'root'" translate>model_version_root</p>
+	<p ng-hide="version.id === 'root'">{{ version.note }}</p>
+
+	<dl class="dl-horizontal" ng-hide="version.id === 'root'">
+		<dt translate>model_form_software</dt>
+		<dd ng-show="version.software.length">{{ version.software | asList:', ' }}</dd>
+		<dd ng-hide="version.software.length">{{ 'not_specified' | translate }}</dd>
+	</dl>
+
+	<p ng-hide="version.id === 'root'">
+		<button class="btn btn-default" ng-click="load()"><i class="fa fa-refresh"></i> {{'load'|translate}}</button>
+	</p>
+</div>

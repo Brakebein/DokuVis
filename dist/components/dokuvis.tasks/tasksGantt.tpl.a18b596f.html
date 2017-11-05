@@ -1,0 +1,114 @@
+<div class="tasks-gantt-controls">
+
+	<div class="tasks-gantt-ctrl">
+		<button class="btn btn-primary" ui-sref=".detail({taskId: 'new'})">
+			<i class="fa fa-plus"></i> Add Task
+		</button>
+	</div>
+
+	<div class="tasks-gantt-ctrl">
+		<button ng-show="config.sort.primary === 'staff'" class="btn btn-default" ng-click="updateSort('task')">
+			<i class="glyphicon glyphicon-sort"></i> Sort by task
+		</button>
+		<button ng-show="config.sort.primary === 'task'" class="btn btn-default" ng-click="updateSort('staff')">
+			<i class="glyphicon glyphicon-sort"></i> Sort by staff
+		</button>
+	</div>
+
+	<div class="tasks-gantt-ctrl">
+		<select title="gantt.sortMode"
+				class="form-control"
+				data-ng-model="config.sort.sortMode"
+				ng-options="s.value as s.name for s in config.sort.secondary">
+		</select>
+	</div>
+
+	<div class="tasks-gantt-ctrl input-group">
+		<span class="input-group-btn">
+			<label class="btn btn-default" for="fromDate">
+				<i class="fa fa-angle-left"></i>
+			</label>
+		</span>
+		<input id="fromDate"
+			   name="fromDate"
+			   class="form-control"
+			   ng-model="config.date.from"
+			   ng-blur="updateViewScale()"
+			   bs-datepicker
+			   data-date-type="date"
+			   data-date-format="dd.MM.yy"
+			   data-max-date="{{config.date.to | amSubtract: '1':'w'}}"
+			   data-start-week="1"
+			   data-autoclose="1" />
+	</div>
+
+	<div class="tasks-gantt-ctrl">
+		<select title="gantt.viewScale"
+				class="form-control"
+				data-ng-model="config.date.viewScale"
+				ng-options="item for item in ['day', 'week', 'month', 'quarter']"></select>
+	</div>
+
+	<div class="tasks-gantt-ctrl input-group">
+		<input id="toDate"
+			   name="toDate"
+			   class="form-control"
+			   ng-model="config.date.to"
+			   ng-blur="updateViewScale()"
+			   bs-datepicker
+			   data-date-type="date"
+			   data-date-format="dd.MM.yy"
+			   data-min-date="{{config.date.from | amAdd: '1':'w'}}"
+			   data-start-week="1"
+			   data-placement="bottom-right"
+			   data-autoclose="1" />
+		<span class="input-group-btn">
+			<label class="btn btn-default" for="toDate">
+				<i class="fa fa-angle-right"></i>
+			</label>
+		</span>
+	</div>
+
+	<div class="tasks-gantt-ctrl">
+		<input class="form-control" placeholder="Nach Aufgaben suchen" ng-model="config.filter.row"/>
+	</div>
+
+</div>
+
+
+<div class="tasks-gantt-container">
+	<div gantt
+		 data-options="config.gantt"
+		 data-data="data"
+		 data-sort-mode="config.sort.sortMode"
+		 data-from-date="config.date.from"
+		 data-to-date="config.date.to"
+		 data-view-scale="config.date.viewScale"
+		 data-filter-row="{'name': config.filter.row}"
+		 data-api="registerApi">
+
+		<gantt-tree header-content="config.tree.header"
+					keep-ancestor-on-filter-row="true">
+		</gantt-tree>
+
+		<gantt-table enabled="config.sort.primary !== 'staff'"
+					 columns="config.table.columns"
+					 headers="config.table.headers"
+					 header-contents="config.table.headerContents"
+					 contents="config.table.contents">
+					<!--formatters="config.table.formatters">-->
+		</gantt-table>
+
+		<gantt-groups display="config.groups.display"></gantt-groups>
+
+		<!--<gantt-progress></gantt-progress>-->
+
+		<gantt-tooltips content="config.tooltips.content"></gantt-tooltips>
+
+		<!--<gantt-sortable enabled="false"></gantt-sortable>-->
+		<gantt-movable allow-row-switching="false"></gantt-movable>
+		<!--<gantt-overlap></gantt-overlap>-->
+		<!--<gantt-resize-sensor></gantt-resize-sensor>-->
+	</div>
+	<hr/>
+</div>

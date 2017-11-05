@@ -1,16 +1,17 @@
-angular.module('dokuvisApp').controller('projectCtrl', ['$scope', '$state', '$stateParams', '$window', '$translate',
-    function($scope, $state, $stateParams, $window, $translate) {
-
-        console.log('projectCtrl init');
-
-        console.log($stateParams);
+angular.module('dokuvisApp').controller('projectCtrl', ['$scope', '$state', '$stateParams', '$window', 'UserAuthFactory',
+    function($scope, $state, $stateParams, $window, UserAuthFactory) {
 
         $scope.project = $stateParams.project;
 
         $scope.toProjectList = function() {
-            var url = $state.href('projectlist');
+            var url = $state.href('root.projectlist');
             $window.open(url, '_blank');
         };
+
+		$scope.logout = function() {
+			UserAuthFactory.logout();
+			$state.go('root.home', {}, { reload: true });
+		};
 
         $scope.$on('modal.show', function(){
             console.log('modal show');
@@ -25,9 +26,5 @@ angular.module('dokuvisApp').controller('projectCtrl', ['$scope', '$state', '$st
             templateUrl: 'partials/popovers/languageConfig.html',
             html: true
         };
-
-        $scope.test = function () {
-            console.log('popover btn');
-		};
 
     }]);

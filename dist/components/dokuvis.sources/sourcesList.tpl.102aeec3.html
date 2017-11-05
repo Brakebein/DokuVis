@@ -1,0 +1,85 @@
+<div class="sources-header">
+	<div class="sources-controls">
+
+		<div class="ctrlGroup sources-ctrl-group">
+			<input class="form-control" ng-model="options.filterBy" type="search" placeholder="{{ 'search' | translate }}"/>
+		</div>
+
+		<div class="ctrlGroup sources-ctrl-group form-inline">
+			<span>{{ 'sort_by' | translate }}</span>
+			<select title="{{ 'sort_by' | translate }}" class="form-control input-sm" data-ng-model="options.orderBy">
+				<option value="title">Titel</option>
+				<option value="date">Jahr</option>
+				<option value="author">Autor</option>
+			</select>
+		</div>
+
+		<div class="ctrlGroup sources-ctrl-group">
+			<a title="{{ 'ascending' | translate }}" class="icon-btn" ng-class="{ active: !options.reverse }" ng-click="options.reverse = false"><span class="glyphicon glyphicon-sort-by-attributes"></span></a>
+			<a title="{{ 'descending' | translate }}" class="icon-btn" ng-class="{ active: options.reverse }" ng-click="options.reverse = true"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span></a>
+		</div>
+
+		<div class="ctrlGroup sources-ctrl-group">
+			<a title="Große Kacheln" class="icon-btn" ng-class="{ active: options.listSize === 'large' }" ng-click="options.listSize = 'large'"><span class="glyphicon glyphicon-th-large"></span></a>
+			<a title="Kleine Kacheln" class="icon-btn" ng-class="{ active: options.listSize == 'normal' }" ng-click="options.listSize = 'normal'"><span class="glyphicon glyphicon-th"></span></a>
+			<a title="Liste" class="icon-btn" ng-class="{ active: options.listSize == 'list' }" ng-click="options.listSize = 'list'"><span class="glyphicon glyphicon-th-list"></span></a>
+		</div>
+
+	</div>
+
+	<ul class="nav nav-tabs nav-tabs-sm">
+		<li ng-class="{ active: options.activeTab === '' }" ng-click="options.activeTab = ''"><a>Alle</a></li>
+		<li ng-class="{ active: options.activeTab === 'plan' }" ng-click="options.activeTab = 'plan'"><a>Pläne</a></li>
+		<li ng-class="{ active: options.activeTab === 'picture' }" ng-click="options.activeTab = 'picture'"><a>Bilder</a></li>
+		<li ng-class="{ active: options.activeTab === 'text' }" ng-click="options.activeTab = 'text'"><a>Texte</a></li>
+	</ul>
+</div>
+
+<div class="sources-body">
+
+	<div class="blindsource" ng-show="showUpload">
+		<div class="source-item">
+			<div class="thumbnail">
+				<div class="dropArea"
+					 ng-if="sourceUploader"
+					 data-uploader="sourceUploader"
+					 nv-file-over
+					 nv-file-drop
+					 ui-sref=".upload.source">
+					<div>Quellen einfügen</div>
+					<div class="plus" ng-include="'img/plus-sign.283c4c58.svg'"></div>
+					<div>Klicken oder hier ablegen</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="list" horizontal-scroll>
+		<div class="source-item"
+			 ng-repeat="p in sc.filtered = (sc.sources | filter: {type: options.activeTab} | filter: options.filterBy | filter: filterSelected | orderBy: [options.orderBy,'title'] : options.reverse)"
+			 ng-click="selectSource($event, p)">
+
+			<div class="thumbnail" ng-class="{ selected: p.selected }" title="{{p.title}}" ng-dblclick="openSource($event, p)">
+				<img ng-src="data/{{p.file.path + p.file.thumb}}"/>
+				<div class="caption">
+					<span>{{ p.title  }}</span>
+					<p>{{(p.author || 'unknown') | translate}} &ensp; {{p.date}}</p>
+				</div>
+
+				<div class="primaryIndicator" ng-show="p.primary"></div>
+				<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>
+
+				<div class="btn-bar">
+					<a title="Details ansehen" ui-sref=".source.id({ sourceId: p.id })"><i class="glyphicon glyphicon-zoom-in"></i></a>
+					<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="load3DPlan(p)"><i class="glyphicon glyphicon-open"></i></a>
+					<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><i class="glyphicon glyphicon-import"></i></a>
+					<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><i class="fa fa-link"></i></a>
+					<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><i class="fa fa-lightbulb-o"></i></a>
+					<a ng-if="p.type == 'picture' && p.spatial" title="Bild in 3D anzeigen" ng-click="load3DImage(p)"><i class="glyphicon glyphicon-object-align-left"></i></a>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+</div>

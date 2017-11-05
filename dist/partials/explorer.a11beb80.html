@@ -1,0 +1,83 @@
+﻿<div class="explorerUpperHalf">
+
+	<div class="viewportPanel">
+
+		<viewport id="mainViewport" spatialize-manual>
+			<viewport-navigation></viewport-navigation>
+			<viewport-axis></viewport-axis>
+			<viewport-loadprogress></viewport-loadprogress>
+		</viewport>
+
+	</div>
+
+	<div class="explorer-side sidePanel">
+
+		<div class="sideNav sideNav-right">
+
+			<div title="{{'model_versions'|translate}}" class="smBtn" ng-class="{'active': views.activeSide === 'versions'}" ng-click="views.activeSide = 'versions'" ng-include="'img/icons/fork.e9fbb19c.svg'"></div>
+			<div title="{{'viewport_sceneobjects'|translate}}" class="smBtn" ng-class="{'active': views.activeSide === 'objlist'}" ng-click="views.activeSide = 'sceneobjects'" ng-include="'img/icons/tree.ee7478e5.svg'"></div>
+			<!--<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide === 'comments'}" ng-click="views.activeSide = 'comments'" ng-include="'img/icons/comment.feb7ae74.svg'"></div>-->
+			<!--<div title="{{'viewport_objectproperties'|translate}}" class="smBtn" ng-class="{'active': views.activeSide === 'objproperties'}" ng-click="views.activeSide = 'objproperties'" ng-include="'img/icons/properties.2abcad20.svg'"></div>-->
+
+		</div>
+
+		<div class="sideContainer" ng-show="views.activeSide === 'versions'" ng-include="'partials/explorer.versions.0765aafe.html'"></div>
+
+		<div class="sideContainer" ng-show="views.activeSide === 'sceneobjects'" ng-include="'partials/explorer.sceneobjects.7519ce00.html'"></div>
+
+		<!--<div class="sideContainer" ng-show="views.activeSide === 'comments'" ng-include="'partials/explorer.comments.bd79a8d8.html'"></div>-->
+
+		<!--<div class="sideContainer" ng-show="views.activeSide === 'objproperties'" ng-include="'partials/explorer.properties.74cc2137.html'"></div>-->
+
+	</div>
+
+	<div class="resizer-v"
+		 resizer="vertical"
+		 resizer-left=".viewportPanel"
+		 resizer-left-min="780"
+		 resizer-right=".sidePanel"
+		 resizer-right-min="380"
+		 resizer-end="wi.callFunc.resize"></div>
+
+</div>
+
+<div class="explorerLowerHalf">
+
+	<div class="sourcesPanel">
+
+		<sources-list show-upload="true"></sources-list>
+
+	</div>
+
+	<div class="previewPanel">
+
+		<img src="img/navigation_legend200.86d2dfb9.png"/>
+
+		<!-- <p>Ansicht drehen: Alt + linke Maustaste<br/>
+		Ansicht verschieben: mittlere Maustaste<br/>
+		Zoomen: Mausrad
+		</p> -->
+
+	</div>
+
+	<div class="resizer-v"
+		 resizer="vertical"
+		 resizer-left=".sourcesPanel"
+		 resizer-left-min="780"
+		 resizer-right=".previewPanel"
+		 resizer-right-min="280"></div>
+
+</div>
+
+<div class="resizer-h"
+	 resizer="horizontal"
+	 resizer-top=".explorerUpperHalf"
+	 resizer-top-min="400"
+	 resizer-bottom=".explorerLowerHalf"
+	 resizer-bottom-min="234"
+	 resizer-end="wi.callFunc.resize"></div>
+
+<svg id="svgViz" class="svgViz">
+	<line ng-show="line" ng-attr-x1="{{line.x1}}" ng-attr-y1="{{line.y1}}" ng-attr-x2="{{line.x2}}" ng-attr-y2="{{line.y2}}" />
+	<path ng-show="path" ng-attr-d="{{path}}"/>
+</svg>

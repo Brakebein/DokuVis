@@ -125,9 +125,10 @@ angular.module('dokuvis.archives', [
  * @requires Archive
  * @requires Utilities
  * @requires ConfirmDialog
+ * @requires https://docs.angularjs.org/api/ng/service/$log $log
  */
-.controller('archiveModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'Archive', 'Utilities', 'ConfirmDialog',
-	function ($scope, $rootScope, $state, $stateParams, Archive, Utilities, ConfirmDialog) {
+.controller('archiveModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'Archive', 'Utilities', 'ConfirmDialog', '$log',
+	function ($scope, $rootScope, $state, $stateParams, Archive, Utilities, ConfirmDialog, $log) {
 
 		$scope.archive = {
 			institution: '',
@@ -140,7 +141,7 @@ angular.module('dokuvis.archives', [
 		function getArchive() {
 			Archive.get({ id: $stateParams.archiveId }).$promise
 				.then(function (result) {
-					console.log(result);
+					$log.debug(result);
 					$scope.archive.institution = result.institution.name;
 					$scope.archive.abbr = result.institution.abbr;
 					$scope.archive.collection = result.collection.name;
@@ -210,7 +211,7 @@ angular.module('dokuvis.archives', [
 			}).then(function () {
 				archive.$delete()
 					.then(function (response) {
-						console.log(response);
+						$log.debug(response);
 						archivesUpdate();
 						$scope.close();
 					})

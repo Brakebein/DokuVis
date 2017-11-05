@@ -1,4 +1,4 @@
-angular.module('dokuvisApp').factory('APIRequest',
+angular.module('dokuvisApp').factory('APIRequest', ['$http', 'API', '$stateParams',
 	function($http, API, $stateParams) {
 	
 		var requests = {};
@@ -14,7 +14,7 @@ angular.module('dokuvisApp').factory('APIRequest',
 		};
 		
 		return requests;
-	});
+	}]);
 
 angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 	function($http, Utilities) {
@@ -229,7 +229,7 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 		
 	}]);
 
-angular.module('dokuvisApp').factory('phpRequest',
+angular.module('dokuvisApp').factory('phpRequest', ['$http',
 	function($http) {
 	
 		var requests = {};
@@ -280,4 +280,4 @@ angular.module('dokuvisApp').factory('phpRequest',
 		
 		return requests;
 		
-	});
+	}]);

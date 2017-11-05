@@ -1,0 +1,10 @@
+{
+  "projects_title": "Projects",
+  "project_new": "New Project",
+  "project_edit": "Edit Project",
+  "project_delete": "Delete Project",
+  "project_delete_question": "Do you really want to delete project <strong>{{ proj_name }}</strong>? All data is going to be lost!",
+  "subprojects_title": "Subprojects",
+  "subproject_new": "New Subproject",
+  "subproject_edit": "Edit Subproject"
+}

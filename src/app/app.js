@@ -4,7 +4,7 @@
 /**
  * Dokuvis base module.
  *
- * @version 0.1.1-alpha.0
+ * @version 0.1.0
  * @ngdoc module
  * @name dokuvisApp
  * @module dokuvisApp
@@ -156,7 +156,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 
 		// states
 		$stateProvider
-			.state('home', {
+			.state('root', {
+				template: '<div ui-view="header"></div><div class="rootContent" ui-view></div><div ui-view="footer"></div>'
+			})
+			.state('root.home', {
 				url: '/home',
 				views: {
 					"": {
@@ -166,6 +169,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					header: {
 						templateUrl: 'partials/navbar.html',
 						controller: 'navCtrl'
+					},
+					footer: {
+						templateUrl: 'partials/footer.html'
 					}
 				},
 				resolve: {
@@ -174,7 +180,27 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					}]
 				}
 			})
-			.state('register', {
+			.state('root.impressum', {
+				url: '/impressum',
+				views: {
+					"": {
+						templateUrl: 'partials/impressum.html'
+					},
+					header: {
+						templateUrl: 'partials/navbar.html',
+						controller: 'navCtrl'
+					},
+					footer: {
+						templateUrl: 'partials/footer.html'
+					}
+				},
+				resolve: {
+					validate: ['ValidateResolve', function (ValidateResolve) {
+						return ValidateResolve();
+					}]
+				}
+			})
+			.state('root.register', {
 				url: '/register',
 				views: {
 					"": {
@@ -184,6 +210,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					header: {
 						templateUrl: 'partials/navbar.html',
 						controller: 'navCtrl'
+					},
+					footer: {
+						templateUrl: 'partials/footer.html'
 					}
 				},
 				resolve: {
@@ -192,7 +221,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					}]
 				}
 			})
-			.state('projectlist', {
+			.state('root.projectlist', {
 				url: '/list',
 				views: {
 					"": {
@@ -202,6 +231,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					header: {
 						templateUrl: 'partials/navbar.html',
 						controller: 'navCtrl'
+					},
+					footer: {
+						templateUrl: 'partials/footer.html'
 					}
 				},
 				resolve: {
@@ -213,7 +245,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					$translatePartialLoader.addPart('projects');
 				}]
 			})
-			.state('projectlist.project', {
+			.state('root.projectlist.project', {
 				url: '/project/:projectId',
 				resolve: {
 					projectModalInstance: ['$modal', function ($modal) {
@@ -321,7 +353,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				resolve: {
 					sourceDetailModalInstance: ['$translatePartialLoader', '$modal', function ($translatePartialLoader, $modal) {
 						$translatePartialLoader.addPart('source');
-						console.log('resolve');
 						return $modal({
 							templateUrl: 'partials/modals/_modalLargeTpl.html',
 							contentTemplate: 'components/dokuvis.sources/sourceDetailModal.tpl.html',
@@ -331,11 +362,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					}]
 				},
 				onEnter: ['sourceDetailModalInstance', function (sourceDetailModalInstance) {
-					console.log('onEnter');
 					sourceDetailModalInstance.$promise.then(sourceDetailModalInstance.show);
 				}],
 				onExit: ['sourceDetailModalInstance', function (sourceDetailModalInstance) {
-					console.log('onExit');
 					sourceDetailModalInstance.hide();
 					sourceDetailModalInstance.destroy();
 				}],
@@ -704,9 +733,9 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 		$rootScope.setTypeahead = function (label, from, prop) {
 			TypeaheadRequest.query(label, from, prop).then(function (response) {
 				$rootScope.typeaheads = response.data;
-				console.log('typeahead', $rootScope.typeaheads);
+				// console.log('typeahead', $rootScope.typeaheads);
 			}, function (err) {
-				
+				console.error(err);
 			});
 		};
 

@@ -1,0 +1,55 @@
+<div class="modal-content">
+	
+	<div class="modal-header" ng-show="title">
+		<button type="button" class="close" aria-label="Close" ng-click="$hide()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		<h4 class="modal-title" ng-bind="title"></h4>
+	</div>
+	
+	<div class="modal-body indexEdit">
+		
+		<div class="blacklist">
+			<div class="caption">
+				<strong>Blacklist:</strong>
+			</div>
+			<div class="list">
+				<ul>
+					<li ng-repeat="b in blacklist | orderBy: b" ng-click="addToWhitelist(b)">{{b}}</li>
+				</ul>
+			</div>
+		</div>
+		<div class="swapbtn">
+			<button class="btn btn-default btn-sm">hinzufügen</button>
+			<button class="btn btn-default btn-sm">entfernen</button>
+		</div>
+		<div class="whitelist">
+			<div class="caption">
+				<strong>Whitelist:</strong>
+			</div>
+			<div class="list">
+				<ul>
+					<li ng-repeat="w in whitelist | orderBy: w" ng-click="removeFromWhitelist(w)">{{w}}</li>
+				</ul>
+			</div>
+		</div>
+	
+	</div>
+	
+	<div class="modal-footer">
+		<div class="col-lg-4">
+			<button type="button" class="btn btn-default" ng-click="loadIndex()">reload</button>
+			<button type="button" class="btn btn-default" ng-click="logIndex()">logIndex</button>
+			<button type="button" class="btn btn-default" ng-click="indexDocuments()">indexDocuments</button>
+		</div>
+		<div class="col-lg-2">
+			<input class="form-control" ng-model="searchTerm"/>
+		</div>
+		<div class="col-lg-1">
+			<button type="button" class="btn btn-default" ng-click="searchIndex()"><i class="glyphicon glyphicon-search"></i></button>
+		</div>
+		<button type="button" class="btn btn-primary" ng-click="updateIndex()">Speichern</button>
+		<button type="button" class="btn btn-default" ng-click="$hide()">Abbrechen</button>
+	</div>
+	
+</div>

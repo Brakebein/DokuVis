@@ -1,0 +1,40 @@
+<div class="modal-content">
+
+	<div class="modal-header">
+		<h4 class="modal-title">{{ model.obj.name }}</h4>
+	</div>
+
+	<div class="modal-body">
+
+		<div>
+			<strong>Name:</strong>
+			<span editable-text="model.obj.name" e-form="xeditName" onaftersave="updateValue(model.obj.name)">{{model.obj.name}}</span>
+			<i class="fa fa-pencil" ng-click="xeditName.$show()" ng-hide="xeditName.$visibble"></i>
+		</div>
+		<div><strong>ID:</strong> {{model.obj.id}}</div>
+		<div><strong>Type:</strong> {{model.obj.type}}</div>
+		<div><strong>Scale:</strong> {{model.obj.unit}}</div>
+		<div><strong>Material:</strong>
+			<ul>
+				<li>ID: {{model.obj.materialId}}</li>
+				<li>Name: {{model.obj.materialName}}</li>
+				<li>Color: <input type="hidden" minicolors="minicolors" ng-model="color" ng-change="updateColor()"/></li>
+			</ul>
+		</div>
+
+		<div><strong>Categories:</strong>
+			<ul>
+				<li ng-repeat="cat in model.categories">{{cat.catValue}}: {{cat.attrValue}} </li>
+			</ul>
+		</div>
+
+		<p class="bg-warning" ng-show="updated">Some properties changed!</p>
+
+	</div>
+
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-show="updated" ng-click="save()">{{'save' | translate}}</button>
+		<button class="btn btn-default" ng-click="close()">{{'close' | translate}}</button>
+	</div>
+
+</div>

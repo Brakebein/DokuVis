@@ -1,0 +1,12 @@
+{
+  "archive_title": "Archives",
+  "archive_modal_title": "Add Archive",
+  "archive_new": "New archive",
+  "archive_edit": "Edit archive",
+  "archive_institution": "Institution",
+  "archive_preferred": "Preferred Name/Abbr.",
+  "archive_collection": "Collection",
+  "archive_tt_institution": "Name of the institution",
+  "archive_tt_preferred": "Abbreviation of the institution",
+  "archive_tt_collection": "Archive or collection"
+}

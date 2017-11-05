@@ -6,7 +6,7 @@
  * @author Brakebein
  * @requires http://mgcrea.github.io/angular-strap/#/alerts $alert
  */
-angular.module('dokuvisApp').factory('Utilities',
+angular.module('dokuvisApp').factory('Utilities', ['$alert', '$translate',
 	function($alert, $translate) {
 		
 		var f = {};
@@ -338,4 +338,4 @@ angular.module('dokuvisApp').factory('Utilities',
 		
 		return f;
 		
-	});
+	}]);

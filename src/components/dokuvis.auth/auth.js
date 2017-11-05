@@ -204,9 +204,10 @@ angular.module('dokuvis.auth', [
  * @requires https://docs.angularjs.org/api/ng/service/$timeout $timeout
  * @requires AuthenticationFactory
  * @requires https://github.com/mikemclin/angular-acl AclService
+ * @requires https://docs.angularjs.org/api/ng/service/$log $log
  */
-.factory('ValidateResolve', ['$q', 'AuthenticationFactory', 'AclService',
-	function ($q, AuthenticationFactory, AclService) {
+.factory('ValidateResolve', ['$q', 'AuthenticationFactory', 'AclService', '$log',
+	function ($q, AuthenticationFactory, AclService, $log) {
 		return function () {
 			var defer = $q.defer();
 
@@ -217,7 +218,7 @@ angular.module('dokuvis.auth', [
 					defer.resolve();
 				})
 				.catch(function (reason) {
-					console.log(reason);
+					$log.debug(reason);
 					defer.resolve();
 				});
 
@@ -244,14 +245,12 @@ angular.module('dokuvis.auth', [
 
 			ValidateResolve().then(function () {
 				if (AuthenticationFactory.isLogged) {
-					console.log('auth resolve');
 					defer.resolve();
 				}
 				else {
-					console.log('auth reject');
 					defer.reject();
 					$timeout(function () {
-						$state.go('home');
+						$state.go('root.home');
 					});
 				}
 			});
@@ -279,14 +278,12 @@ angular.module('dokuvis.auth', [
 
 			ValidateResolve().then(function () {
 				if (!AuthenticationFactory.isLogged) {
-					console.log('skip resolve');
 					defer.resolve();
 				}
 				else {
 					defer.reject();
-					console.log('skip reject');
 					$timeout(function () {
-						$state.go('home');
+						$state.go('root.home');
 					});
 				}
 			});

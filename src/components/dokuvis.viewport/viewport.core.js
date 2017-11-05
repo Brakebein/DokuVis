@@ -22,7 +22,7 @@ angular.module('dokuvis.viewport',[
 
 		function link(scope, element, attrs) {
 
-			console.log(scope, attrs);
+			//console.log(scope, attrs);
 
 			var cfId = attrs.id || 0;
 			webglInterface.callFunc[cfId] = {};
@@ -935,10 +935,7 @@ angular.module('dokuvis.viewport',[
 			}
 
 			// watch für die Einstellungen für Unsicheres Wissen
-			/**
-			 * @deprecated
-			 * @param value
-			 */
+
 			// scope.setUnsafe = function(value) {
 			// 	//console.log('watch unsafe', value);
 			// 	//if(/^-?[\d.]+(?:e-?\d+)?$/.test(value))
@@ -1045,7 +1042,6 @@ angular.module('dokuvis.viewport',[
 
 			// listen to viewportShadingChange event
 			scope.$on('viewportShadingChange', function (event, mode, lastMode) {
-				$log.log('viewportShading', mode, lastMode);
 				event.stopPropagation();
 				applyShading(mode, lastMode);
 			});
@@ -3140,7 +3136,7 @@ angular.module('dokuvis.viewport',[
 			// destroy
 			scope.$on('$destroy', function() {
 				setSelected(null, false, true);
-				if (scope.snapshot.active) scope.abortSnapshot();
+				//if (scope.snapshot.active) scope.abortSnapshot();
 
 				if (scope.spatialize)
 					clearMarkers();

@@ -16,8 +16,8 @@
 
 			<div title="{{'model_versions'|translate}}" class="smBtn" ng-class="{'active': views.activeSide === 'versions'}" ng-click="views.activeSide = 'versions'" ng-include="'img/icons/fork.svg'"></div>
 			<div title="{{'viewport_sceneobjects'|translate}}" class="smBtn" ng-class="{'active': views.activeSide === 'objlist'}" ng-click="views.activeSide = 'sceneobjects'" ng-include="'img/icons/tree.svg'"></div>
-			<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide === 'comments'}" ng-click="views.activeSide = 'comments'" ng-include="'img/icons/comment.svg'"></div>
-			<div title="{{'viewport_objectproperties'|translate}}" class="smBtn" ng-class="{'active': views.activeSide === 'objproperties'}" ng-click="views.activeSide = 'objproperties'" ng-include="'img/icons/properties.svg'"></div>
+			<!--<div title="Kommentare" class="smBtn" ng-class="{'active': views.activeSide === 'comments'}" ng-click="views.activeSide = 'comments'" ng-include="'img/icons/comment.svg'"></div>-->
+			<!--<div title="{{'viewport_objectproperties'|translate}}" class="smBtn" ng-class="{'active': views.activeSide === 'objproperties'}" ng-click="views.activeSide = 'objproperties'" ng-include="'img/icons/properties.svg'"></div>-->
 
 		</div>
 
@@ -25,9 +25,9 @@
 
 		<div class="sideContainer" ng-show="views.activeSide === 'sceneobjects'" ng-include="'partials/explorer.sceneobjects.html'"></div>
 
-		<div class="sideContainer" ng-show="views.activeSide === 'comments'" ng-include="'partials/explorer.comments.html'"></div>
+		<!--<div class="sideContainer" ng-show="views.activeSide === 'comments'" ng-include="'partials/explorer.comments.html'"></div>-->
 
-		<div class="sideContainer" ng-show="views.activeSide === 'objproperties'" ng-include="'partials/explorer.properties.html'"></div>
+		<!--<div class="sideContainer" ng-show="views.activeSide === 'objproperties'" ng-include="'partials/explorer.properties.html'"></div>-->
 
 	</div>
 

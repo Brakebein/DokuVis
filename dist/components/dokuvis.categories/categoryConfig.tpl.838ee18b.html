@@ -1,0 +1,44 @@
+<table class="table table-striped">
+	<thead>
+	<tr>
+		<th width="35%">{{'category' | translate}}</th>
+		<th width="55%">{{'attribute' | translate}}</th>
+		<th width="10%"></th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr ng-repeat="c in categories">
+		<td><div>
+			<span editable-text="c.value" e-form="xeditC" onaftersave="updateCategory(c)">{{c.value}}</span>
+			<i title="{{'category_update_btn' | translate}}" class="fa fa-pencil icon-btn" ng-click="xeditC.$show()" ng-hide="xeditC.$visible"></i>
+		</div></td>
+		<td>
+			<div ng-repeat="a in c.attributes" class="attribute">
+				<i title="{{'category_attr_remove_btn' | translate}}" class="pull-right fa fa-times icon-btn" ng-click="removeAttribute(c,a)"></i>
+				<input title="{{'category_attr_update_color' | translate}}"
+					   type="hidden"
+					   minicolors="minicolors"
+					   ng-model="a.color"
+					   ng-change="updateAttribute(a)"/>
+				<span editable-text="a.value" e-form="xeditValue" onaftersave="updateAttribute(a)">{{a.value}}</span>
+				<i title="{{'category_attr_update_btn' | translate}}" class="fa fa-pencil icon-btn" ng-click="xeditValue.$show()" ng-hide="xeditValue.$visible"></i>
+			</div>
+			<div class="addAttribute">
+				<input title="{{'category_attr_new_field' | translate}}" ng-model="c.newAttribute"/>
+				<i title="{{'category_attr_new_btn' | translate}}" class="fa fa-plus-circle icon-btn" ng-click="addAttribute(c)"></i>
+			</div>
+		</td>
+		<td>
+			<i title="{{'category_remove_btn' | translate}}" class="fa fa-trash icon-btn" ng-click="removeCategory(c)"></i>
+		</td>
+	</tr>
+	<tr>
+		<td class="addCategory">
+			<input title="{{'category_new_field' | translate}}" ng-model="newCategory"/>
+			<i title="{{'category_new_btn' | translate}}" class="fa fa-plus-circle icon-btn" ng-click="addCategory()"></i>
+		</td>
+		<td></td>
+		<td></td>
+	</tr>
+	</tbody>
+</table>

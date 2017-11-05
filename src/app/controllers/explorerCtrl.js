@@ -381,32 +381,32 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			});
 		};
 
-		$scope.loadModelsWithChildren = function() {
-			Model.getModels().then(function(response) {
-				//console.log(response.data);
-				//var root = Utilities.createHierarchy(response.data, ['file','obj','material','categories'], true)[0];
-				
-				var root = response.data[0];
-				console.log(root);
-				
-				function getNodes(nodes, parent, promise) {
-					var cdefer = $q.defer();
-					nodes.reduce(function(cur, next) {
-						return cur.then(function() {
-							var p = webglInterface.callFunc.loadCTMIntoScene(next, parent);
-							return getNodes(next.children, next.obj.content, p);
-						});
-					}, promise).then(function(){ cdefer.resolve(); });
-					return cdefer.promise;
-				}
-
-			if(root)
-					getNodes(root.children, 0, $q.resolve());
-				
-			}, function(err) {
-				Utilities.throwApiException('on getModels()', err);
-			});
-		};
+		// $scope.loadModelsWithChildren = function() {
+		// 	Model.getModels().then(function(response) {
+		// 		//console.log(response.data);
+		// 		//var root = Utilities.createHierarchy(response.data, ['file','obj','material','categories'], true)[0];
+		//
+		// 		var root = response.data[0];
+		// 		console.log(root);
+		//
+		// 		function getNodes(nodes, parent, promise) {
+		// 			var cdefer = $q.defer();
+		// 			nodes.reduce(function(cur, next) {
+		// 				return cur.then(function() {
+		// 					var p = webglInterface.callFunc.loadCTMIntoScene(next, parent);
+		// 					return getNodes(next.children, next.obj.content, p);
+		// 				});
+		// 			}, promise).then(function(){ cdefer.resolve(); });
+		// 			return cdefer.promise;
+		// 		}
+		//
+		// 	if(root)
+		// 			getNodes(root.children, 0, $q.resolve());
+		//
+		// 	}, function(err) {
+		// 		Utilities.throwApiException('on getModels()', err);
+		// 	});
+		// };
 
 
 
@@ -585,24 +585,24 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		 * Query categories
 		 * @deprecated
 		 */
-		function getAllCategories() {
-			Category.query().$promise.then(function (result) {
-				var cats = result;
-				for(var i=0; i<cats.length; i++) {
-					cats[i].attributes.push({id: 0, value: '<Nicht zugewiesen>'});
-					cats[i].attributes.push({id: -1, value: '<Beibehalten>'});
-					if(webglInterface.activeCategory && webglInterface.activeCategory.id === cats[i].id)
-						webglInterface.activeCategory = cats[i];
-				}
-				webglInterface.categories = cats;
-				if(webglInterface.activeCategory)
-					//webglInterface.visualizeCategory(webglInterface.activeCategory);
-					webglInterface.callFunc.colorByCategory(webglInterface.activeCategory);
-				console.log('Categories:', webglInterface.categories);
-			}, function(err) {
-				Utilities.throwApiException('on getAllCategories()', err);
-			});
-		}
+		// function getAllCategories() {
+		// 	Category.query().$promise.then(function (result) {
+		// 		var cats = result;
+		// 		for(var i=0; i<cats.length; i++) {
+		// 			cats[i].attributes.push({id: 0, value: '<Nicht zugewiesen>'});
+		// 			cats[i].attributes.push({id: -1, value: '<Beibehalten>'});
+		// 			if(webglInterface.activeCategory && webglInterface.activeCategory.id === cats[i].id)
+		// 				webglInterface.activeCategory = cats[i];
+		// 		}
+		// 		webglInterface.categories = cats;
+		// 		if(webglInterface.activeCategory)
+		// 			//webglInterface.visualizeCategory(webglInterface.activeCategory);
+		// 			webglInterface.callFunc.colorByCategory(webglInterface.activeCategory);
+		// 		console.log('Categories:', webglInterface.categories);
+		// 	}, function(err) {
+		// 		Utilities.throwApiException('on getAllCategories()', err);
+		// 	});
+		// }
 
 		/**
 		 * Assign new categorie to selection
@@ -688,7 +688,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			// $scope.queryDocuments().then(function () {
 			// 	$scope.queryComments();
 			// });
-			$scope.getScreenshots();
+			//$scope.getScreenshots();
 			//$scope.loadModelsWithChildren();
 		}, 500);
 

@@ -1,0 +1,28 @@
+<div class="sideHeader">
+	<h4 translate>viewport_sceneobjects</h4>
+	<hr/>
+
+	<p><b>{{'model_version' | translate}}:</b> {{ activeVersion.summary }} - {{ activeVersion.created.date | amCalendar }}</p>
+
+	<p><ng-pluralize count="selectedObjects.length" when="{
+		'0': '{{&quot;viewport_selection_0&quot;|translate}}.',
+		'one': '1 {{&quot;viewport_selection_one&quot;|translate}}.',
+		'other': '{} {{&quot;viewport_selection_other&quot;|translate}}.'
+	}"></ng-pluralize>
+	</p>
+</div>
+
+<div class="sideContent">
+
+	<h4 translate>viewport_3dobjects</h4>
+	<viewport-object-tree></viewport-object-tree>
+	<hr/>
+
+	<h4 translate>viewport_plans</h4>
+	<viewport-plan-list></viewport-plan-list>
+	<hr/>
+
+	<h4 translate>viewport_spatialimages</h4>
+	<viewport-image-list></viewport-image-list>
+
+</div>

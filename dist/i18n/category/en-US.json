@@ -1,0 +1,16 @@
+{
+  "category": "Category",
+  "categories": "Categories",
+  "attribute": "Attribute",
+  "category_config": "Configurate categories",
+  "category_none": "There are no categories!",
+  "category_new_field": "New category name",
+  "category_new_btn": "Add new category",
+  "category_update_btn": "Change category name",
+  "category_remove_btn": "Remove category",
+  "category_attr_new_field": "New attribute name",
+  "category_attr_new_btn": "Add new attribute",
+  "category_attr_update_btn": "Change attribute name",
+  "category_attr_update_color": "Change attribute color",
+  "category_attr_remove_btn": "Remove attribute"
+}

@@ -111,9 +111,10 @@ angular.module('dokuvis.projects', [
  * @requires Project
  * @requires Utilities
  * @requires ConfirmDialog
+ * @requires https://docs.angularjs.org/api/ng/service/$log $log
  */
-.directive('projectList', ['$window', '$state', 'Project', 'Utilities', 'ConfirmDialog',
-	function ($window, $state, Project, Utilities, ConfirmDialog) {
+.directive('projectList', ['$window', '$state', 'Project', 'Utilities', 'ConfirmDialog', '$log',
+	function ($window, $state, Project, Utilities, ConfirmDialog, $log) {
 
 		return {
 			restrict: 'E',
@@ -140,8 +141,9 @@ angular.module('dokuvis.projects', [
 
 				scope.deleteProject = function(p) {
 
-					console.log('delete ', p);
+					$log.log('delete ', p);
 
+					// TODO: tranlate alert
 					ConfirmDialog({
 						// headerText: $translate('project_delete'),
 						// bodyText: $translate('project_delete_question', { proj_name: p.name })
@@ -150,7 +152,7 @@ angular.module('dokuvis.projects', [
 					}).then(function () {
 						p.$delete()
 							.then(function(response) {
-								console.log(response);
+								$log.debug(response);
 								queryProjects();
 							})
 							.catch(function(err) {
@@ -184,9 +186,10 @@ angular.module('dokuvis.projects', [
  * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$stateParams $stateParams
  * @requires Project
  * @requires Utilities
+ * @requires https://docs.angularjs.org/api/ng/service/$log $log
  */
-.controller('projectModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'Project', 'Utilities',
-	function ($scope, $rootScope, $state, $stateParams, Project, Utilities) {
+.controller('projectModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'Project', 'Utilities', '$log',
+	function ($scope, $rootScope, $state, $stateParams, Project, Utilities, $log) {
 
 		$scope.project = {
 			name: '',
@@ -234,7 +237,7 @@ angular.module('dokuvis.projects', [
 			else {
 				Project.save( $scope.project ).$promise
 					.then(function(result) {
-						console.log(result);
+						$log.log(result);
 						projectsUpdate(result);
 						$scope.close();
 					})
@@ -278,9 +281,10 @@ angular.module('dokuvis.projects', [
  * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
  * @requires Project
  * @requires https://github.com/mikemclin/angular-acl AclService
+ * * @requires https://docs.angularjs.org/api/ng/service/$log $log
  */
-.factory('ProjectResolve', ['$q', '$state', '$rootScope', 'Project', 'AclService',
-	function ($q, $state, $rootScope, Project, AclService) {
+.factory('ProjectResolve', ['$q', '$state', '$rootScope', 'Project', 'AclService', '$log',
+	function ($q, $state, $rootScope, Project, AclService, $log) {
 		return function (params) {
 
 			return Project.get({ id: params.project }).$promise
@@ -288,7 +292,7 @@ angular.module('dokuvis.projects', [
 
 					if (result.status === 'NO_ENTRY') {
 
-						$state.go('projectlist');
+						$state.go('root.projectlist');
 						return $q.reject(result.status);
 
 					}
@@ -309,7 +313,7 @@ angular.module('dokuvis.projects', [
 					else if (result.role === 'modeler')
 						AclService.attachRole('modeler');
 
-					console.log(AclService.getRoles());
+					$log.debug(AclService.getRoles());
 				})
 				.catch(function (err) {
 					console.error('API Exception on Project.get()', err);

@@ -1,0 +1,16 @@
+{
+  "category": "Kategorie",
+  "categories": "Kategorien",
+  "attribute": "Attribut",
+  "category_config": "Kategorien verwalten",
+  "category_none": "Keine Kategorien vorhanden!",
+  "category_new_field": "Name für neue Kategorie",
+  "category_new_btn": "Neue Kategorie hinzufügen",
+  "category_update_btn": "Name der Kategorie ändern",
+  "category_remove_btn": "Kategorie entfernen",
+  "category_attr_new_field": "Name für neues Attribut",
+  "category_attr_new_btn": "Neues Attribut hinzufügen",
+  "category_attr_update_btn": "Name des Attributes ändern",
+  "category_attr_update_color": "Farbe des Attributes ändern",
+  "category_attr_remove_btn": "Attribut entfernen"
+}

@@ -1,0 +1,38 @@
+<p ng-hide="task">Keine Aufgabe ausgewählt.</p>
+
+<div ng-show="task">
+
+	<h3>{{ task.title }}</h3>
+
+	<dl class="dl-horizontal">
+		<dt>Von</dt>
+		<dd>{{ task.from | amDateFormat: 'DD.MM.YYYY' }}</dd>
+		<dt>Bis</dt>
+		<dd>{{ task.to | amDateFormat: 'DD.MM.YYYY' }}</dd>
+		<dt>Priorität</dt>
+		<dd ng-switch="task.priority">
+			<span ng-switch-when="0" class="label task-priority-low">Niedrig</span>
+			<span ng-switch-when="1" class="label task-priority-medium">Mittel</span>
+			<span ng-switch-when="2" class="label task-priority-high">Hoch</span>
+		</dd>
+		<dt>Editors</dt>
+		<dd>{{ task.editors | asList:', ':true:'name' }}
+		</dd>
+		<dt>Beschreibung</dt>
+		<dd>{{ task.description }}</dd>
+	</dl>
+
+	<div>
+		<div class="pull-right">
+			<button class="btn btn-default" ui-sref=".detail({taskId: task.id})">Bearbeiten</button>
+			<button class="btn btn-success" ng-hide="task.status" ng-click="setTaskStatus(true)">Abschließen</button>
+			<button class="btn btn-warning" ng-show="task.status" ng-click="setTaskStatus(false)">Wiedereröffnen</button>
+		</div>
+
+		<div class="small">
+			<div ng-show="task.created && task.created.id">created by {{task.created.name}} - {{task.created.date | amCalendar}}</div>
+			<div ng-show="task.modified && task.modified.id">modified by {{task.modified.name}} - {{task.modified.date | amCalendar}}</div>
+		</div>
+	</div>
+
+</div>

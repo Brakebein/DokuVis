@@ -1,0 +1,27 @@
+<div class="modal-content">
+
+	<div class="modal-header">
+		<h4 class="modal-title">Spatialize image: {{ source.title }}</h4>
+	</div>
+
+	<div class="modal-body spatializeModal">
+
+		<div class="split-screen">
+			<div class="scene"
+				 webgl-view="spatial"
+				 nav-toolbar="['focus','move','shading']"
+				 axis
+				 spatialize></div>
+			<!--<div class="image" image-viewer="'Proj_pUBaq8J/plans/pUHojvu_001_Foto_Sempersynagoge_frontal_Bildindex.jpg'">-->
+			<div class="image" image-viewer="'data/' + source.file.path + source.file.name" spatialize>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="save()">Speichern</button>
+		<button class="btn btn-default" ng-click="close()">Abbrechen</button>
+	</div>
+
+</div>

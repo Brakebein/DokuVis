@@ -39,7 +39,7 @@ angular.module('dokuvisApp').controller('navCtrl', ['$scope', '$state', 'UserAut
 
 			UserAuthFactory.login(email, password)
 				.then(function () {
-					$state.go('projectlist');
+					$state.go('root.projectlist');
 				})
 				.catch(function (err) {
 					Utilities.throwException('Login', 'failed', err);
@@ -53,7 +53,7 @@ angular.module('dokuvisApp').controller('navCtrl', ['$scope', '$state', 'UserAut
 		 */
 		$scope.logout = function() {
 			UserAuthFactory.logout();
-			$state.go('home', {}, { reload: true });
+			$state.go('root.home', {}, { reload: true });
 		};
 
 	}]);
