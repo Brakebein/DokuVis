@@ -286,6 +286,10 @@ function writeToDB(data, p) {
 		for (var i = 0; i < nodes.length; i++) {
 			var n = nodes[i];
 
+			// skip cameras and lights
+			if (n.type === 'camera' || n.type === 'light')
+				continue;
+
 			// create digital object
 			var q = 'MATCH (tmodel:E55:'+prj+' {content: "model"}),\
 				(devent:D7:'+prj+' {content: $deventId})\

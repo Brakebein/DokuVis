@@ -1,14 +1,12 @@
 angular.module('dokuvis.viewport')
 
-.directive('viewportObjectTree', ['ComponentsPath', 'viewportCache',
-	function (ComponentsPath, viewportCache) {
+.directive('viewportObjectTree', ['viewportCache',
+	function (viewportCache) {
 
 		return {
-			templateUrl: ComponentsPath + '/dokuvis.viewport/viewportObjectTree.tpl.html',
+			templateUrl: 'components/dokuvis.viewport/viewportObjectTree.tpl.html',
 			restrict: 'E',
 			link: function (scope) {
-
-				scope.componentsPath = ComponentsPath;
 
 				scope.objects = viewportCache.objects;
 				scope.layers = viewportCache.objects.layers;
@@ -35,11 +33,11 @@ angular.module('dokuvis.viewport')
 	}
 ])
 
-.directive('viewportPlanList', ['ComponentsPath', 'viewportCache',
-	function (ComponentsPath, viewportCache) {
+.directive('viewportPlanList', ['viewportCache',
+	function (viewportCache) {
 
 		return {
-			templateUrl: ComponentsPath + '/dokuvis.viewport/viewportPlanList.tpl.html',
+			templateUrl: 'components/dokuvis.viewport/viewportPlanList.tpl.html',
 			restrict: 'E',
 			link: function (scope) {
 
@@ -51,11 +49,11 @@ angular.module('dokuvis.viewport')
 	}
 ])
 
-.directive('viewportImageList', ['ComponentsPath', 'viewportCache',
-	function (ComponentsPath, viewportCache) {
+.directive('viewportImageList', ['viewportCache',
+	function (viewportCache) {
 
 		return {
-			templateUrl: ComponentsPath + '/dokuvis.viewport/viewportImageList.tpl.html',
+			templateUrl: 'components/dokuvis.viewport/viewportImageList.tpl.html',
 			restrict: 'E',
 			link: function (scope) {
 

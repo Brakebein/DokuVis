@@ -33,14 +33,6 @@ DV3D.ObjectEntry.prototype = Object.assign( Object.create(DV3D.Entry.prototype),
 	},
 
 	/**
-	 * Set camera to fit the object and its children. `focus` event is being dispatched.
-	 */
-	focus: function () {
-		if (!this.visible) return;
-		this.dispatchEvent({ type: 'focus' });
-	},
-
-	/**
 	 * Activate/select the entry and dispatch `select` event.
 	 * @param event {MouseEvent|null} Event object of click event
 	 * @param [bool] {boolean} If not set, `active` property is inverted

@@ -34,7 +34,7 @@ angular.module('dokuvisApp').directive('alert', ['$timeout',
 				alert: '='
 			},
 			template: '<span class="glyphicon glyphicon-exclamation-sign"></span> {{alert.message}}',
-			link: function(scope, element, attr) {
+			link: function(scope, element) {
 				element.hide().fadeIn(300);
 				$timeout(function() {
 					element.fadeOut({duration: 1000, done: function() {
@@ -46,76 +46,6 @@ angular.module('dokuvisApp').directive('alert', ['$timeout',
 		};
 	}]);
 
-
-angular.module('dokuvisApp').directive('dragMarker', ['$compile', '$timeout',
-	function($compile, $timeout) {
-		return {
-			restrict: 'A',
-			scope: {
-				dragData: '=',
-				dragEnabled: '=',
-				dragComplete: '=',
-				dragAbort: '=',
-				dragLeaveParent: '='
-			},
-			link: function(scope, element, attr) {
-				
-				var isEnabled = (typeof scope.dragEnabled === 'undefined') ? true : scope.dragEnabled;
-				var isDragging = false;
-				var oldPosition = null;
-				
-				function mousedown(event) {
-					event.preventDefault();
-					if(isEnabled && event.button === 0) {
-						isDragging = true;
-						element.parent().toggleClass('cursor_pointer', true);
-						oldPosition = element.position();
-					}
-				}
-				
-				function mousemove(event) {
-					
-					if(!isDragging) return;
-					
-					var movementX = event.originalEvent.movementX || event.originalEvent.mozMovementX || event.originalEvent.webkitMovementX || 0;
-					var movementY = event.originalEvent.movementY || event.originalEvent.mozMovementY || event.originalEvent.webkitMovementY || 0;
-					var offset = element.position();
-					element.css('left', offset.left+movementX);
-					element.css('top', offset.top+movementY);
-				}
-				
-				function mouseup(event) {
-					if(isDragging) {
-						event.preventDefault();
-						element.parent().toggleClass('cursor_pointer', false);
-						var newPosition = element.position();
-						if(oldPosition.left == newPosition.left && oldPosition.top == newPosition.top) {
-							if(scope.dragAbort) scope.dragAbort(scope.dragData);
-						}
-						else {
-							if(scope.dragComplete) scope.dragComplete(element.position(), scope.dragData);
-						}
-						isDragging = false;
-					}
-				}
-				
-				function mouseleave(event) {
-					if(isDragging) {
-						element.parent().toggleClass('cursor_pointer', false);
-						if(scope.dragLeaveParent) scope.dragLeaveParent(scope.dragData);
-						isDragging = false;
-					}
-				}
-				
-				element.bind('mousedown', mousedown);
-				element.parent().bind('mousemove', mousemove);
-				element.bind('mouseup', mouseup);
-				element.parent().bind('mouseleave', mouseleave);
-			
-			}	
-		};
-	}]);
-                                                                                                                                                                                                                                                                             
 // zum Anpassen des Layouts
 angular.module('dokuvisApp').directive('resizer',
 	function($document) {
@@ -133,12 +63,12 @@ angular.module('dokuvisApp').directive('resizer',
 				element.on('mousedown', function(event) {
 					event.preventDefault();
 					
-					if(!(attrs.resizer == 'vertical' || attrs.resizer == 'horizontal')) return;
+					if(!(attrs.resizer === 'vertical' || attrs.resizer === 'horizontal')) return;
 					
 					$document.bind('mousemove', rMousemove);
 					$document.bind('mouseup', rMouseup);
 					
-					if(attrs.resizer == 'vertical') {
+					if(attrs.resizer === 'vertical') {
 						offset = event.pageX - event.offsetX - event.delegateTarget.offsetLeft;
 						space = element.parent()[0].offsetWidth;
 					}
@@ -146,11 +76,10 @@ angular.module('dokuvisApp').directive('resizer',
 						offset = event.pageY - event.offsetY - event.delegateTarget.offsetTop;
 						space = element.parent()[0].offsetHeight;
 					}
-					console.log(event);
 				});
 
 				function init() {
-					if(attrs.resizer =='vertical') {
+					if(attrs.resizer ==='vertical') {
 						var x = $(attrs.resizerRight).css('left');
 						element.css({
 							left: x
@@ -166,7 +95,7 @@ angular.module('dokuvisApp').directive('resizer',
 				init();
 
 				function rMousemove(event) {
-					if(attrs.resizer == 'vertical') {
+					if(attrs.resizer === 'vertical') {
 						// handle vertical resizer
 						var x = event.pageX - offset;
 						
@@ -216,14 +145,14 @@ angular.module('dokuvisApp').directive('resizer',
 					$document.unbind('mousemove', rMousemove);
 					$document.unbind('mouseup', rMouseup);
 					if(scope.resizerEnd) scope.resizerEnd();
-					scope.resizerAnim = endPosition;
-					scope.$apply();
+					//scope.resizerAnim = endPosition;
+					//scope.$apply();
 				}
 				
 				scope.$watch('resizerAnim', function(newValue, oldValue) {
 					//console.log(newValue, oldValue);
 					
-					if(attrs.resizer == 'vertical') {
+					if(attrs.resizer === 'vertical') {
 						space = element.parent()[0].offsetWidth;
 						var x = newValue;
 						

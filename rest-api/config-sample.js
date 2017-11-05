@@ -13,7 +13,7 @@ module.exports = {
 		uriBolt: 'bolt://127.0.0.1:7687',
 		auth: 'Basic bmVvNGo6Y2F2YWxlcmE=',
 		user: 'neo4j',
-		password: 'cavalera'
+		password: 'pw'
 	},
 	
 	secret: function() {

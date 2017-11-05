@@ -132,7 +132,8 @@ module.exports = {
 				(tprime:E55:'+prj+' {content:"primarySource"}), \
 				(tsupl:E55:'+prj+' {content:"sourceUpload"}), \
 				(tsrepros:E55:'+prj+' {content:"sourceRepros"}), \
-				(tscomment:E55:'+prj+' {content:"sourceComment"}), '
+				(tscomment:E55:'+prj+' {content:"sourceComment"}), \
+				(tspatialize:E55:'+prj+' {content:"spatializeInfo"}), '
 				// screenshot
 			  + '(tscreen:E55:'+prj+' {content:"screenshot"}),\
 				(tscreencomment:E55:'+prj+' {content:"screenshotComment"}), \

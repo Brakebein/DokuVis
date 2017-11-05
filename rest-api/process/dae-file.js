@@ -51,7 +51,9 @@ var effects = {},
 	upAxis = '',
 	unit = {};
 
-/*	1. triangulation and optimization with Assimp
+
+/*	0. clean geometries from <lines>
+    1. triangulation and optimization with Assimp
 	2. extract geometries
 	3. parse DAE file
 	4. convert to CTM
@@ -59,24 +61,64 @@ var effects = {},
 	6. return nodes
 */
 
-// 1. convert with Assimp
+var cleanFile = path + 'clean_' + tid + '.dae';
 var assimpFile = path + 'assimp_' + tid + '.dae';
-exec(config.exec.Assimp, ['export', file, assimpFile, '-fi', '-tri', '-rrm', '-jiv'])
-	.then(function (result) {
-		if (result.stderr)
-			return Promise.reject(result.stderr);
-		else
-			return fs.existsAsync(assimpFile);
-	})
-	.then(function (exists) {
-		if (exists)
-			extractGeometries();
-		else
-			return Promise.reject('No assimp file generated');
-	})
-	.catch(function (err) {
-		process.send({ error: 'Assimp/fs', data: err });
+
+cleanGeometries();
+
+// 0. clean geometries from unwanted objects like <lines>
+function cleanGeometries() {
+	var linereader = new LineByLineReader( file );
+	var wstream = fs.createWriteStream( cleanFile );
+
+	var lineState = false;
+
+	linereader.on('error', function (err) {
+		process.send({ error: 'LineReader', data: err });
+		process.exit();
 	});
+
+	linereader.on('end', function () {
+		console.debug('lr clean finished');
+		wstream.end();
+		convertAssimp();
+	});
+
+	linereader.on('line', function (line) {
+		if (!lineState) {
+			if (/<lines/.test(line))
+				lineState = true;
+			else
+				wstream.write(line + "\n");
+		}
+		else {
+			if (/<\/lines>/.test(line))
+				lineState = false;
+		}
+	});
+}
+
+
+
+// 1. convert with Assimp
+function convertAssimp() {
+	exec(config.exec.Assimp, ['export', cleanFile, assimpFile, '-fi', '-tri', '-rrm', '-jiv'])
+		.then(function (result) {
+			if (result.stderr)
+				return Promise.reject(result.stderr);
+			else
+				return fs.existsAsync(assimpFile);
+		})
+		.then(function (exists) {
+			if (exists)
+				extractGeometries();
+			else
+				return Promise.reject('No assimp file generated');
+		})
+		.catch(function (err) {
+			process.send({error: 'Assimp/fs', data: err});
+		});
+}
 
 // 2. extract geometries
 function extractGeometries() {
@@ -84,7 +126,8 @@ function extractGeometries() {
 		NONE: 0,
 		GEOMETRY: 1,
 		MESH: 2,
-		POLYLIST: 3
+		POLYLIST: 3,
+		LINES: 4
 	};
 	var currentState = geoState.NONE;
 	var currentId = null;
@@ -100,7 +143,7 @@ function extractGeometries() {
 	});
 
 	linereader.on('end', function () {
-		console.debug('lr finished');
+		console.debug('lr extract finished');
 		parseDAE();
 	});
 
@@ -138,8 +181,12 @@ function extractGeometries() {
 			}
 		}
 		else if (currentState === geoState.MESH) {
+			// <lines>
+			if (/<lines/.test(line)) {
+				currentState = geoState.LINES;
+			}
 			// <polylist>
-			if (/<polylist/.test(line)) {
+			else if (/<polylist/.test(line)) {
 				tmpPolylist = line;
 				currentState = geoState.POLYLIST;
 			}
@@ -153,6 +200,11 @@ function extractGeometries() {
 			else {
 				wstream.write(line + "\n");
 			}
+		}
+		else if (currentState === geoState.LINES) {
+			// skip lines
+			if (/<\/lines>/.test(line))
+				currentState = geoState.MESH;
 		}
 		else if (currentState === geoState.POLYLIST) {
 			// </polylist>
@@ -290,7 +342,7 @@ function finalize() {
 				if (result.stderr)
 					return Promise.reject(result.stderr);
 
-				// delete dae file
+				// delete dae tmp file
 				return fs.unlinkAsync(path + geofile.dae);
 			})
 			.then(function () {
@@ -305,9 +357,14 @@ function finalize() {
 		.then(function () {
 			// 5. prepare nodes
 			prepareNodes(nodes, null);
+
 			// remove assimp dae file
 			fs.unlinkAsync(assimpFile).catch(function (err) {
 				console.error('Unlink failed:', assimpFile, err);
+			});
+			// remove clean dae file
+			fs.unlinkAsync(cleanFile).catch(function (err) {
+				console.error('Unlink failed:', cleanFile, err);
 			});
 		})
 		.then(function () {

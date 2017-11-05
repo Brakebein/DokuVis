@@ -1,3 +1,5 @@
+(function () {
+
 /**
  * This class is container for objects, plans, or images. There are properties that are useful for global settings. Methods like `toggle()` iterate over all items.
  * @constructor
@@ -7,10 +9,10 @@
 DV3D.Collection = function () {
 
 	/**
-	 * Associative array containing all entries.
-	 * @type {Object}
+	 * Array containing all entries.
+	 * @type {Array}
 	 */
-	this.list = {};
+	this.list = [];
 	/**
 	 * Global visibility.
 	 * @type {boolean}
@@ -26,10 +28,15 @@ DV3D.Collection = function () {
 	 * @type {number}
 	 */
 	this.scale = 1.0;
-	
+	/**
+	 * Amount of objects in this collection.
+	 * @type {number}
+	 */
+	this.count = 0;
+
 };
 
-Object.assign( DV3D.Collection.prototype, THREE.EventDispatcher.prototype, {
+Object.assign(DV3D.Collection.prototype, THREE.EventDispatcher.prototype, {
 
 	/**
 	 * Get an entry by the given id. If no id is specified, the whole list will be returned.
@@ -37,27 +44,31 @@ Object.assign( DV3D.Collection.prototype, THREE.EventDispatcher.prototype, {
 	 * @return {DV3D.Entry|Object} The entry with the given id or the whole list/map.
 	 */
 	get: function (id) {
-		if (id) return this.list[id];
+		if (id) return this.getByProperty('id', id);
 		else return this.list;
 	},
 
-	/**
-	 * Get the list as array.
-	 * @return {DV3D.Entry[]} All entries as array.
-	 */
-	asArray: function () {
-		var array = [];
-		for (var key in this.list)
-			array.push(this.list[key]);
-		return array;
-	},
+	// /**
+	//  * Get the list as array.
+	//  * @return {DV3D.Entry[]} All entries as array.
+	//  * @deprecated
+	//  */
+	// asArray: function () {
+	// 	var array = [];
+	// 	for (var key in this.list)
+	// 		array.push(this.list[key]);
+	// 	return array;
+	// },
 
 	/**
 	 * Add object to the collection (uses `obj.id` as id).
 	 * @param obj {DV3D.Entry} New entry
 	 */
 	add: function (obj) {
-		this.list[obj.id] = obj;
+		if (this.get(obj.id)) return;
+		this.list.push(obj);
+		obj.addEventListener('toggle', toggleHandler.bind(this));
+		this.count++;
 	},
 
 	/**
@@ -65,7 +76,12 @@ Object.assign( DV3D.Collection.prototype, THREE.EventDispatcher.prototype, {
 	 * @param obj {DV3D.Entry} Object to be removed
 	 */
 	remove: function (obj) {
-		delete this.list[obj.id];
+		var index = this.list.indexOf(obj);
+		if (index !== -1) {
+			this.list.splice(index, 1);
+			obj.removeEventListener('toggle', toggleHandler);
+			this.count--;
+		}
 	},
 
 	/**
@@ -84,11 +100,9 @@ Object.assign( DV3D.Collection.prototype, THREE.EventDispatcher.prototype, {
 	 * @return {DV3D.Entry|null} Entry or null, if not found.
 	 */
 	getByProperty: function (prop, value) {
-		for (var key in this.list) {
-			if (this.list[key][prop] === value)
-				return this.list[key];
-		}
-		return null;
+		return this.list.find(function (item) {
+			return item[prop] === value;
+		});
 	},
 
 	/**
@@ -96,12 +110,9 @@ Object.assign( DV3D.Collection.prototype, THREE.EventDispatcher.prototype, {
 	 * @return {DV3D.Entry[]} Array of all visible entries.
 	 */
 	getVisible: function () {
-		var array = [];
-		for (var key in this.list) {
-			if (this.list[key].visible)
-				array.push(this.list[key]);
-		}
-		return array;
+		return this.list.filter(function (item) {
+			return item.visible;
+		});
 	},
 
 	/**
@@ -111,20 +122,20 @@ Object.assign( DV3D.Collection.prototype, THREE.EventDispatcher.prototype, {
 	 */
 	forEach: function (callback, onlyVisible) {
 		var filterVisible = onlyVisible || false;
-		for (var key in this.list) {
-			if (!filterVisible || (filterVisible && this.list[key].visible))
-				callback(this.list[key]);
-		}
+		this.list.forEach(function (item) {
+			if (!filterVisible || (filterVisible && item.visible))
+				callback(item);
+		});
 	},
 
 	/**
 	 * Toggle all entries (set visibility).
 	 */
 	toggle: function () {
-		this.visible = !this.visible;
-		for (var key in this.list) {
-			this.list[key].toggle(this.visible, false);
-		}
+		var visible = this.visible = !this.visible;
+		this.list.forEach(function (item) {
+			item.toggle(visible, false);
+		});
 	},
 
 	/**
@@ -132,12 +143,12 @@ Object.assign( DV3D.Collection.prototype, THREE.EventDispatcher.prototype, {
 	 * @param value {number} New opacity value (0.0 .. 1.0)
 	 */
 	setOpacity: function (value) {
-		value = +value;
+		value = +value || +this.opacity;
 		if (typeof value === 'number' && value >= 0.0 && value <= 1.0) this.opacity = value;
 		else return;
-		for (var key in this.list) {
-			this.list[key].setOpacity(this.opacity);
-		}
+		this.list.forEach(function (item) {
+			item.setOpacity(value);
+		});
 		// TODO: dispatchEvent animate
 	},
 
@@ -156,10 +167,9 @@ Object.assign( DV3D.Collection.prototype, THREE.EventDispatcher.prototype, {
 
 });
 
-/**
- * @deprecated
- * @param cb
- */
-DV3D.Collection.prototype.then = function (cb) {
-	if(cb) cb();
-};
+function toggleHandler(event) {
+	if (event.visible)
+		this.visible = true;
+}
+
+})();

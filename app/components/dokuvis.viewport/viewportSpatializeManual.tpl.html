@@ -1,5 +1,5 @@
 <div class="image-layer"
-	 ng-style="{'background-image': 'url(data/' + file + ')', opacity: opacity / 100}"></div>
+	 ng-style="{'background-image': 'url(data/' + source.file.path + source.file.preview + ')', opacity: opacity / 100}"></div>
 
 <div class="ctrl-container ctrl-bottom ctrl-center">
 	<div>
@@ -22,7 +22,7 @@
 
 		<div class="ctrl-group">
 			<button class="btn btn-primary" ng-click="save()"><i class="fa fa-save"></i> {{'save'|translate}}</button>
-			<button class="btn btn-default" ng-click="abort()" translate>abort</button>
+			<button class="btn btn-default" ng-click="closeSpatializeManual()" translate>abort</button>
 		</div>
 
 	</div>

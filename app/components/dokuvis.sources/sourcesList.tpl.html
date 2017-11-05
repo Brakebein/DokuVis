@@ -62,8 +62,8 @@
 			<div class="thumbnail" ng-class="{ selected: p.selected }" title="{{p.title}}" ng-dblclick="openSource($event, p)">
 				<img ng-src="data/{{p.file.path + p.file.thumb}}"/>
 				<div class="caption">
-					<span>{{ p.title | characters:23:true }}</span>
-					<p>{{p.author || 'unbekannt'}} &ensp; {{p.date}}</p>
+					<span>{{ p.title  }}</span>
+					<p>{{(p.author || 'unknown') | translate}} &ensp; {{p.date}}</p>
 				</div>
 
 				<div class="primaryIndicator" ng-show="p.primary"></div>
@@ -75,8 +75,7 @@
 					<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><i class="glyphicon glyphicon-import"></i></a>
 					<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><i class="fa fa-link"></i></a>
 					<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><i class="fa fa-lightbulb-o"></i></a>
-					<a ng-if="p.type == 'picture' && p.spatial" title="Bild in 3D anzeigen" ng-click="loadImage(p)"><i class="glyphicon glyphicon-object-align-left"></i></a>
-					<a ng-if="p.type == 'picture' && !p.spatial" title="Bild verorten" ng-click="spatializeImage(p)"><i class="glyphicon glyphicon-camera"></i></a>
+					<a ng-if="p.type == 'picture' && p.spatial" title="Bild in 3D anzeigen" ng-click="load3DImage(p)"><i class="glyphicon glyphicon-object-align-left"></i></a>
 				</div>
 			</div>
 

@@ -32,23 +32,18 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		$scope.views.activeMain = '3dview';
 		$scope.views.activeSide = 'versions';
 		//$scope.views.activeSide = 'comments';
-								
-		$scope.overlayParams = {url: '', params: {}};
-		
-		$scope.alert = {};
-		$scope.alert.showing = false;
-		$scope.alert.message = '';
+
 		
 		// Einstellungen für Quellenanzeige
-		$scope.sourcesSettings = {};
-		$scope.sourcesSettings.listSize = 'normal';
-		$scope.sourcesSettings.orderBy = 'title';
-		$scope.sourcesSettings.reverse = false;
-		$scope.sourcesSettings.filterBy = '';
-		$scope.sourcesSettings.filterSelected = false;
-		$scope.sourcesSettings.activeTab = '';
+		// $scope.sourcesSettings = {};
+		// $scope.sourcesSettings.listSize = 'normal';
+		// $scope.sourcesSettings.orderBy = 'title';
+		// $scope.sourcesSettings.reverse = false;
+		// $scope.sourcesSettings.filterBy = '';
+		// $scope.sourcesSettings.filterSelected = false;
+		// $scope.sourcesSettings.activeTab = '';
 		
-		$scope.sourceResults = [];
+		//$scope.sourceResults = [];
 		
 		// Liste mit Objekten (Outliner)
 		$scope.listTabs = 'objects';
@@ -102,9 +97,9 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 		
 		//Balken
-		$scope.baulk = {};
-		$scope.baulk.minAge = 1250;
-		$scope.baulk.maxAge = 1750;
+		// $scope.baulk = {};
+		// $scope.baulk.minAge = 1250;
+		// $scope.baulk.maxAge = 1750;
 		
 		//controls slider
 		/*$scope.top = 35;
@@ -142,37 +137,38 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			$scope.activeVersion = version;
 		});
 
+		// listen to viewportSelectionChange
 		$scope.$on('viewportSelectionChange', function (event, selected) {
 			$scope.selectedObjects = selected;
 		});
 
-		$scope.openScreenshotDetail = function(data) {
-			$scope.modalParams = {
-				modalType: 'xlarge',
-				data: data
-			};
-			$modal({
-				//title: 'Source Detail',
-				templateUrl: 'partials/modals/_modalTpl.html',
-				contentTemplate: 'partials/modals/screenshotDetailModal.html',
-				controller: 'screenshotCtrl',
-				scope: $scope,
-				show: true
-			});
-		};
-		$scope.openIndexEdit = function() {
-			$scope.modalParams = {
-				modalType: 'large'
-			};
-			$modal({
-				title: 'Index editieren',
-				templateUrl: 'partials/modals/_modalTpl.html',
-				contentTemplate: 'partials/modals/indexEditModal.html',
-				controller: 'indexEditCtrl',
-				scope: $scope,
-				show: true
-			});
-		};
+		// $scope.openScreenshotDetail = function(data) {
+		// 	$scope.modalParams = {
+		// 		modalType: 'xlarge',
+		// 		data: data
+		// 	};
+		// 	$modal({
+		// 		//title: 'Source Detail',
+		// 		templateUrl: 'partials/modals/_modalTpl.html',
+		// 		contentTemplate: 'partials/modals/screenshotDetailModal.html',
+		// 		controller: 'screenshotCtrl',
+		// 		scope: $scope,
+		// 		show: true
+		// 	});
+		// };
+		// $scope.openIndexEdit = function() {
+		// 	$scope.modalParams = {
+		// 		modalType: 'large'
+		// 	};
+		// 	$modal({
+		// 		title: 'Index editieren',
+		// 		templateUrl: 'partials/modals/_modalTpl.html',
+		// 		contentTemplate: 'partials/modals/indexEditModal.html',
+		// 		controller: 'indexEditCtrl',
+		// 		scope: $scope,
+		// 		show: true
+		// 	});
+		// };
 
 
 		/**
@@ -180,37 +176,37 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		 * @param update
 		 * @deprecated
 		 */
-		$scope.closeModal = function(update) {
-			if(update === 'screenshot')
-				$scope.getScreenshots();
-			
-			$scope.overlayParams.params = {};
-			$scope.overlayParams.url = '';
-			$scope.sourcesUploader.clearQueue();
-		};
+		// $scope.closeModal = function(update) {
+		// 	if(update === 'screenshot')
+		// 		$scope.getScreenshots();
+		//
+		// 	$scope.overlayParams.params = {};
+		// 	$scope.overlayParams.url = '';
+		// 	$scope.sourcesUploader.clearQueue();
+		// };
 
 		/**
 		 * get all sources/documents
 		 */
-		$scope.queryDocuments = function() {
-			return Source.query().$promise.then(function (data) {
-				$scope.sourceResults = data;
-				for(var i=0; i<$scope.sourceResults.length; i++) {
-					$scope.sourceResults[i].selected = false;
-				}
-				console.log('Dokuments:', $scope.sourceResults);
-			}, function (err) {
-				Utilities.throwApiException('on Source.query()', err);
-			})
-		};
-
-		$scope.$watch('filteredSourceResults', function (newVal) {
-			console.log('filteredSourceResults', newVal);
-			if($state.includes('project.explorer.source')) {
-				$state.go('.', { selection: newVal });
-			}
-
-		});
+		// $scope.queryDocuments = function() {
+		// 	return Source.query().$promise.then(function (data) {
+		// 		$scope.sourceResults = data;
+		// 		for(var i=0; i<$scope.sourceResults.length; i++) {
+		// 			$scope.sourceResults[i].selected = false;
+		// 		}
+		// 		console.log('Dokuments:', $scope.sourceResults);
+		// 	}, function (err) {
+		// 		Utilities.throwApiException('on Source.query()', err);
+		// 	})
+		// };
+		//
+		// $scope.$watch('filteredSourceResults', function (newVal) {
+		// 	console.log('filteredSourceResults', newVal);
+		// 	if($state.includes('project.explorer.source')) {
+		// 		$state.go('.', { selection: newVal });
+		// 	}
+		//
+		// });
 		
 		// lädt alle Screenshots in Liste
 		$scope.getScreenshots = function() {
@@ -413,101 +409,78 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		};
 
 
-		///// SPATIALIZE IMAGE
 
-		/**
-		 * Open spatialize modal
-		 * @param obj
-		 */
-		$scope.spatializeImage = function (obj, type) {
-			console.log(obj);
-			if (type === 'DLT')
-				$state.go('.spatialize', { source: obj });
-			else
-				webglInterface.callFunc.openSpatializeImage(obj);
-		};
-
-		$scope.loadImage = function (source) {
-			Source.getSpatial({ id: source.eid, type: 'picture' }).$promise.then(function (result) {
-				result.spatial.source = source;
-				webglInterface.callFunc['main'].loadSpatializeImage(result.spatial);
-			}, function (err) {
-				Utilities.throwApiException('on Source.getSpatial()', err);
-			});
-
-		};
-
-		$scope.loadAllImages = function () {
-			for(var i=0; i<$scope.sourceResults.length; i++) {
-				var source = $scope.sourceResults[i];
-				if(source.type === 'picture' && source.spatial)
-					$scope.loadImage(source);
-			}
-		};
-
-		$scope.load3DPlan = function (plan) {
-			Source.getSpatial({ id: plan.eid, type: 'plan' }).$promise.then(function (result) {
-				result.source = plan;
-				webglInterface.callFunc.load3DPlan(result);
-			}, function (err) {
-				Utilities.throwApiException('on Source.getSpatial()', err);
-			});
-		};
-
-		$scope.loadAll3DPlans = function () {
-			for(var i=0; i<$scope.sourceResults.length; i++) {
-				var source = $scope.sourceResults[i];
-				if(source.type === 'plan' && source.plan3d)
-					$scope.load3DPlan(source);
-			}
-		};
+		// $scope.loadAllImages = function () {
+		// 	for(var i=0; i<$scope.sourceResults.length; i++) {
+		// 		var source = $scope.sourceResults[i];
+		// 		if(source.type === 'picture' && source.spatial)
+		// 			$scope.loadImage(source);
+		// 	}
+		// };
+		//
+		// $scope.load3DPlan = function (plan) {
+		// 	Source.getSpatial({ id: plan.eid, type: 'plan' }).$promise.then(function (result) {
+		// 		result.source = plan;
+		// 		webglInterface.callFunc.load3DPlan(result);
+		// 	}, function (err) {
+		// 		Utilities.throwApiException('on Source.getSpatial()', err);
+		// 	});
+		// };
+		//
+		// $scope.loadAll3DPlans = function () {
+		// 	for(var i=0; i<$scope.sourceResults.length; i++) {
+		// 		var source = $scope.sourceResults[i];
+		// 		if(source.type === 'plan' && source.plan3d)
+		// 			$scope.load3DPlan(source);
+		// 	}
+		// };
 		
-		$scope.reloadModels = function () {
-			webglInterface.callFunc.resetScene();
-			$scope.loadModelsWithChildren();
-		};
-		
-		$scope.logModels = function() {
-			console.log(webglInterface.hierarchList);
-			console.log(webglInterface.layerList);
-		};
+		// $scope.reloadModels = function () {
+		// 	webglInterface.callFunc.resetScene();
+		// 	$scope.loadModelsWithChildren();
+		// };
+		//
+		// $scope.logModels = function() {
+		// 	console.log(webglInterface.hierarchList);
+		// 	console.log(webglInterface.layerList);
+		// };
 
 		// deprecated
 		$scope.callDirFunc = {};
 		
 		//ein- und ausklappen des unteren Containers // DEPRECATED ?
-		$scope.expandPanelContainerHorizontal = function(e) {
-			var btn = $(e.delegateTarget);
-			//console.log(btn.parent().css('right'));
-			if(btn.parent().css('bottom') == '-85px') {
-				btn.children('span').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
-				btn.parent().animate({ bottom: '0px' }, 500);
-			}
-			else {
-				btn.children('span').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-				btn.parent().animate({ bottom: '-85px' }, 500);
-			}
-		};
+		// $scope.expandPanelContainerHorizontal = function(e) {
+		// 	var btn = $(e.delegateTarget);
+		// 	//console.log(btn.parent().css('right'));
+		// 	if(btn.parent().css('bottom') == '-85px') {
+		// 		btn.children('span').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+		// 		btn.parent().animate({ bottom: '0px' }, 500);
+		// 	}
+		// 	else {
+		// 		btn.children('span').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+		// 		btn.parent().animate({ bottom: '-85px' }, 500);
+		// 	}
+		// };
 		
 		//ein- und ausklappen des unsicheren Wissens
-		$scope.expandPanelContainerPhases = function(e) {
-			var btn = $(e.delegateTarget);
-			console.log(btn.siblings(".timeSlider").css('top'));
-			
-			if(btn.siblings(".timeSlider").css('top') == '20px') {
-				btn.children('span').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-				console.log(btn.siblings(".row2").css('visibility'));
-				btn.siblings(".timeSlider").animate({ top: '43px' }, 500);
-				btn.siblings(".row2").animate({opacity: '1.0'},500) ;
-				
-			}
-			else {
-				btn.children('span').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
-				btn.siblings(".timeSlider").animate({ top: '20px' }, 500);
-				btn.siblings(".row2").css({opacity: '0.0'},500);
-				
-			}
-		};
+		// $scope.expandPanelContainerPhases = function(e) {
+		// 	var btn = $(e.delegateTarget);
+		// 	console.log(btn.siblings(".timeSlider").css('top'));
+		//
+		// 	if(btn.siblings(".timeSlider").css('top') == '20px') {
+		// 		btn.children('span').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+		// 		console.log(btn.siblings(".row2").css('visibility'));
+		// 		btn.siblings(".timeSlider").animate({ top: '43px' }, 500);
+		// 		btn.siblings(".row2").animate({opacity: '1.0'},500) ;
+		//
+		// 	}
+		// 	else {
+		// 		btn.children('span').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+		// 		btn.siblings(".timeSlider").animate({ top: '20px' }, 500);
+		// 		btn.siblings(".row2").css({opacity: '0.0'},500);
+		//
+		// 	}
+		// };
 		
 		$scope.addSlider = function(event){
 			//console.log(event);
@@ -523,9 +496,9 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			});
 		};
 		
-		$scope.tooltip = function(event) {
-			console.log(event);
-		};
+		// $scope.tooltip = function(event) {
+		// 	console.log(event);
+		// };
 
 		//old
 		/*$scope.selectResultItem = function(event, item) {
@@ -555,12 +528,12 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 			$scope.sourcesSettings.filterSelected = false;
 		};*/
 		
-		$scope.filterSelected = function (value) {
-			if($scope.sourcesSettings.filterSelected)
-				return value.selected;
-			else
-				return true;
-		};
+		// $scope.filterSelected = function (value) {
+		// 	if($scope.sourcesSettings.filterSelected)
+		// 		return value.selected;
+		// 	else
+		// 		return true;
+		// };
 		
 		//$scope.$watch('selected', function(value) {
 			
@@ -574,36 +547,36 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 
 		
-		$scope.validateCoord = function(coord, value, event) {
-			console.log('validate');
-			
-			event = event || 0;
-			if(event) {
-				if(event.keyCode !== 13)
-					return;
-			}
-			
-			if(!value || value == '')
-				value = 0;
-			else
-				value = value.replace(',', '.');
-			
-			var error = false;
-			if(!isNaN(value))
-				value = parseFloat(value).toFixed(2);
-			else
-				error = true;
-			
-			switch(coord) {
-				case 'x': $scope.coords.x = value; $scope.coords.xError = error; break;
-				case 'y': $scope.coords.y = value; $scope.coords.yError = error; break;
-				case 'z': $scope.coords.z = value; $scope.coords.zError = error; break;
-			}
-			if(!error)
-				$scope.callDirFunc.setCoordsFromInput($scope.coords);
-			
-			console.log($scope.coords);
-		};
+		// $scope.validateCoord = function(coord, value, event) {
+		// 	console.log('validate');
+		//
+		// 	event = event || 0;
+		// 	if(event) {
+		// 		if(event.keyCode !== 13)
+		// 			return;
+		// 	}
+		//
+		// 	if(!value || value == '')
+		// 		value = 0;
+		// 	else
+		// 		value = value.replace(',', '.');
+		//
+		// 	var error = false;
+		// 	if(!isNaN(value))
+		// 		value = parseFloat(value).toFixed(2);
+		// 	else
+		// 		error = true;
+		//
+		// 	switch(coord) {
+		// 		case 'x': $scope.coords.x = value; $scope.coords.xError = error; break;
+		// 		case 'y': $scope.coords.y = value; $scope.coords.yError = error; break;
+		// 		case 'z': $scope.coords.z = value; $scope.coords.zError = error; break;
+		// 	}
+		// 	if(!error)
+		// 		$scope.callDirFunc.setCoordsFromInput($scope.coords);
+		//
+		// 	console.log($scope.coords);
+		// };
 
 
 		///// CATEGORIES
@@ -666,35 +639,35 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		/**
 		 * Watch selected and show assigned categories of the objects
 		 */
-		$scope.$watch('wi.selected', function(newValue) {
-			if(newValue.length) {
-				for(var i=0; i<newValue.length; i++) {
-					var selObj = newValue[i];
-					if(selObj.type === 'plan') continue;
-					for(var j=0; j<webglInterface.categories.length; j++) {
-						if(i === 0) {
-							if(selObj.categories[webglInterface.categories[j].id])
-								webglInterface.categories[j].selected = selObj.categories[webglInterface.categories[j].id].attrId;
-							else {
-								webglInterface.categories[j].selected = 0;
-							}
-						}
-						else {
-							if( selObj.categories[webglInterface.categories[j].id] && 
-								selObj.categories[webglInterface.categories[j].id].attrId !== webglInterface.categories[j].selected || 
-								!selObj.categories[webglInterface.categories[j].id] &&
-								webglInterface.categories[j].selected !== 0 )
-								webglInterface.categories[j].selected = -1;
-						}
-					}
-				}
-			}
-			else {
-				for(var i=0; i<webglInterface.categories.length; i++) {
-					webglInterface.categories[i].selected = null;
-				}
-			}
-		}, true);
+		// $scope.$watch('wi.selected', function(newValue) {
+		// 	if(newValue.length) {
+		// 		for(var i=0; i<newValue.length; i++) {
+		// 			var selObj = newValue[i];
+		// 			if(selObj.type === 'plan') continue;
+		// 			for(var j=0; j<webglInterface.categories.length; j++) {
+		// 				if(i === 0) {
+		// 					if(selObj.categories[webglInterface.categories[j].id])
+		// 						webglInterface.categories[j].selected = selObj.categories[webglInterface.categories[j].id].attrId;
+		// 					else {
+		// 						webglInterface.categories[j].selected = 0;
+		// 					}
+		// 				}
+		// 				else {
+		// 					if( selObj.categories[webglInterface.categories[j].id] &&
+		// 						selObj.categories[webglInterface.categories[j].id].attrId !== webglInterface.categories[j].selected ||
+		// 						!selObj.categories[webglInterface.categories[j].id] &&
+		// 						webglInterface.categories[j].selected !== 0 )
+		// 						webglInterface.categories[j].selected = -1;
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// 	else {
+		// 		for(var i=0; i<webglInterface.categories.length; i++) {
+		// 			webglInterface.categories[i].selected = null;
+		// 		}
+		// 	}
+		// }, true);
 
 
 		/**
@@ -702,31 +675,31 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		 * @param list
 		 * @returns {Array}
 		 */
-		$scope.toRepeatArray = function (list) {
-			var array = [];
-			angular.forEach(list, function (val) {
-				array.push(val);
-			});
-			return array;
-		};
+		// $scope.toRepeatArray = function (list) {
+		// 	var array = [];
+		// 	angular.forEach(list, function (val) {
+		// 		array.push(val);
+		// 	});
+		// 	return array;
+		// };
 		
 		// oninit Funktionsaufrufe
 		$timeout(function() {
-			$scope.queryDocuments().then(function () {
-				$scope.queryComments();
-			});
+			// $scope.queryDocuments().then(function () {
+			// 	$scope.queryComments();
+			// });
 			$scope.getScreenshots();
 			//$scope.loadModelsWithChildren();
 		}, 500);
 
-		// nach Upload aktualisieren
-		$scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
-			//console.log('stateChange', fromState, fromParams);
-			if(fromState.name === 'project.explorer.upload.type' && fromParams.uploadType === 'source')
-				$scope.queryDocuments();
-			else if(fromState.name === 'project.explorer.categoryedit')
-				getAllCategories();
-		});
+		// // nach Upload aktualisieren
+		// $scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
+		// 	//console.log('stateChange', fromState, fromParams);
+		// 	if(fromState.name === 'project.explorer.upload.type' && fromParams.uploadType === 'source')
+		// 		//$scope.queryDocuments();
+		// 	else if(fromState.name === 'project.explorer.categoryedit')
+		// 		getAllCategories();
+		// });
 		
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function() {

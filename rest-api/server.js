@@ -6,13 +6,14 @@ const app = express();
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.all('/*', function(req, res, next) {
+app.all('/*', function (req, res, next) {
 	// CORS headers
 	res.header("Access-Control-Allow-Origin", "*");	// restrict it to the required domain
 	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELELTE,OPTIONS');
 	// set custom headers for CORS
 	res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key');
-	if(req.method === 'OPTIONS') {
+
+	if (req.method === 'OPTIONS') {
 		res.status(200).end();
 	}
 	else {
@@ -29,8 +30,7 @@ app.all('/auth/*', [require('./middlewares/validateRequest')]);
 app.use('/', require('./routes'));
 
 // if no route is matched by now, it must be 404
-app.use(function(req, res) {
-	//var err = new Error('Not Found');
+app.use(function (req, res) {
 	res.status = 404;
 	res.json({
 		"status": 404,
@@ -41,7 +41,7 @@ app.use(function(req, res) {
 // start server
 app.set('port', process.env.PORT || 3000);
 
-const server = app.listen(app.get('port'), function() {
+const server = app.listen(app.get('port'), function () {
 	console.log('Express server listening on port ' + server.address().port);
 });
 server.timeout = 600000; // 10 minutes

@@ -5,15 +5,14 @@ angular.module('dokuvis.viewport')
  * @ngdoc directive
  * @name viewportNavigation
  * @module dokuvis.viewport
- * @requires ComponentsPath
  * @requires viewportSettings
  * @restrict E
  */
-.directive('viewportNavigation', ['ComponentsPath', 'viewportSettings',
-	function (ComponentsPath, viewportSettings) {
+.directive('viewportNavigation', ['viewportSettings',
+	function (viewportSettings) {
 
 		return {
-			templateUrl: ComponentsPath + '/dokuvis.viewport/viewportNavigation.tpl.html',
+			templateUrl: 'components/dokuvis.viewport/viewportNavigation.tpl.html',
 			restrict: 'E',
 			link: function (scope) {
 
@@ -181,7 +180,7 @@ angular.module('dokuvis.viewport')
 				}
 
 				// listen to viewportCameraMove event
-				scope.$on('viewportCameraMove', function (event, cam) {
+				var cleanOnCameraMove = scope.$on('viewportCameraMove', function (event, cam) {
 					camera.rotation.copy(cam.rotation);
 					camera.position.copy(cam.getWorldDirection().negate().setLength(50));
 					render();
@@ -191,6 +190,9 @@ angular.module('dokuvis.viewport')
 				scope.$on('$destroy', function () {
 					axis.geometry.dispose();
 					axis.material.dispose();
+
+					// unregister events
+					cleanOnCameraMove();
 				});
 
 			}
@@ -220,7 +222,7 @@ angular.module('dokuvis.viewport')
 			scope.progress = 0;
 
 			// listen to viewportLoadProgress event
-			scope.$on('viewportLoadProgress', function (event, item, loaded, total) {
+			var cleanOnLoadProgress = scope.$on('viewportLoadProgress', function (event, item, loaded, total) {
 				if (!scope.visible) {
 					scope.progress = loaded / total * 100;
 					scope.visible = true;
@@ -237,30 +239,28 @@ angular.module('dokuvis.viewport')
 				}
 			});
 
+			scope.$on('$destroy', function () {
+				// unregister events
+				cleanOnLoadProgress();
+			});
+
 		}
 	};
 
 })
 
-.directive('viewportSpatializeManual', ['$rootScope', 'ComponentsPath',
-	function ($rootScope, ComponentsPath) {
+.directive('viewportSpatializeManual', ['$rootScope', 'Utilities',
+	function ($rootScope, Utilities) {
 
 		return {
-			templateUrl: ComponentsPath + '/dokuvis.viewport/viewportSpatializeManual.tpl.html',
+			templateUrl: '/components/dokuvis.viewport/viewportSpatializeManual.tpl.html',
 			restrict: 'E',
-			link: function (scope) {
+			link: function (scope, element) {
 
-				var source = null;
 				var camera = null;
 
-				scope.file = '';
 				scope.opacity = 50;
-				scope.fov = 35;
-
-				scope.$on('spatializeManualStart', function (event, src) {
-					scope.file = src.file.path + src.file.preview;
-					source = src;
-				});
+				scope.fov = scope.setCameraFOV().fov;
 
 				scope.$on('viewportCameraMove', function (event, cam) {
 					scope.fov = cam.fov;
@@ -268,28 +268,35 @@ angular.module('dokuvis.viewport')
 				});
 
 				scope.changeFOV = function () {
-					spatializeFOVChange(scope.fov);
+					camera = scope.setCameraFOV(scope.fov);
 				};
 
 				scope.save = function () {
+					if (!scope.source) return;
 
+					scope.source.spatialize = {
+						matrix: camera.matrixWorld.toArray(),
+						offset: [0,0],
+						ck: 1 / Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * 0.5
+					};
+
+					scope.source.$spatialize({ method: 'manual' })
+						.then(function (result) {
+							console.log(result);
+							scope.closeSpatializeManual();
+						})
+						.catch(function (reason) {
+							Utilities.throwApiException('#Source.spatialize', reason);
+						});
 				};
-
-				scope.abort = function () {
-					spatializeManualAbort();
-				};
-
-				function spatializeFOVChange(fov) {
-					scope.$emit('spatializeFOVChange', fov);
-				}
 
 				function spatializeManualSuccess(src) {
 					$rootScope.$broadcast('spatializeManualSuccess', src);
 				}
 
-				function spatializeManualAbort() {
-					$rootScope.$broadcast('spatializeManualAbort');
-				}
+				element.on('$destroy', function () {
+					scope.$destroy();
+				});
 
 			}
 		};

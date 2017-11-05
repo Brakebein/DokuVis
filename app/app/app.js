@@ -17,7 +17,6 @@
 
 var dokuvisApp = angular.module('dokuvisApp', [
 	'ui.router',
-	'ui.router.css',
 	'ct.ui.router.extras.sticky',
 	'ct.ui.router.extras.previous',
 	'ngResource',
@@ -32,7 +31,6 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'textAngular',
 	'ngTagsInput',
 	'minicolors',
-	'uiSlider',
 	'angularFileUpload',
 	'pw.canvas-painter',
 
@@ -103,7 +101,7 @@ dokuvisApp.factory('ApiParams', ['$stateParams', function ($stateParams) {
 	}
 }]);
 
-dokuvisApp.constant('ComponentsPath', 'components');
+// dokuvisApp.constant('ComponentsPath', 'components');
 
 /**
  * Configures ui.router states, state resolve functions, and some defaults.
@@ -119,9 +117,11 @@ dokuvisApp.constant('ComponentsPath', 'components');
  * @requires http://mgcrea.github.io/angular-strap/#/modals $modalProvider
  * @requires http://mgcrea.github.io/angular-strap/#/alerts $alertProvider
  * @requires http://mgcrea.github.io/angular-strap/#/tooltips $tooltipProvider
+ * @requires https://docs.angularjs.org/api/ng/provider/$logProvider $logProvider
+ * @requires https://docs.angularjs.org/api/ng/provider/$compileProvider $compileProvider
  */
-dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider', '$modalProvider', '$alertProvider', '$tooltipProvider', '$typeaheadProvider', '$logProvider',
-	function($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider, $modalProvider, $alertProvider, $tooltipProvider, $typeaheadProvider, $logProvider) {
+dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider', '$modalProvider', '$alertProvider', '$tooltipProvider', '$typeaheadProvider', '$logProvider', '$compileProvider',
+	function($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider, $modalProvider, $alertProvider, $tooltipProvider, $typeaheadProvider, $logProvider, $compileProvider) {
 		
 		// add interceptors
 		$httpProvider.interceptors.push('TokenInterceptor');
@@ -158,8 +158,16 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 		$stateProvider
 			.state('home', {
 				url: '/home',
-				templateUrl: 'partials/home.html',
-				controller: 'homeCtrl',
+				views: {
+					"": {
+						templateUrl: 'partials/home.html',
+						controller: 'homeCtrl'
+					},
+					header: {
+						templateUrl: 'partials/navbar.html',
+						controller: 'navCtrl'
+					}
+				},
 				resolve: {
 					validate: ['ValidateResolve', function (ValidateResolve) {
 						return ValidateResolve();
@@ -168,8 +176,16 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			})
 			.state('register', {
 				url: '/register',
-				templateUrl: 'partials/register.html',
-				controller: 'registerCtrl',
+				views: {
+					"": {
+						templateUrl: 'partials/register.html',
+						controller: 'registerCtrl'
+					},
+					header: {
+						templateUrl: 'partials/navbar.html',
+						controller: 'navCtrl'
+					}
+				},
 				resolve: {
 					skipIfLogged: ['SkipResolve', function (SkipResolve) {
 						return SkipResolve();
@@ -178,8 +194,16 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			})
 			.state('projectlist', {
 				url: '/list',
-				templateUrl: 'partials/projects.html',
-				controller: 'projectlistCtrl',
+				views: {
+					"": {
+						templateUrl: 'partials/projects.html',
+						controller: 'projectlistCtrl'
+					},
+					header: {
+						templateUrl: 'partials/navbar.html',
+						controller: 'navCtrl'
+					}
+				},
 				resolve: {
 					authenticate: ['AuthenticateResolve', function (AuthenticateResolve) {
 						return AuthenticateResolve();
@@ -216,7 +240,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				url: '/:project/:subproject',
 				templateUrl: 'partials/project.html',
 				controller: 'projectCtrl',
-				css: 'style/project.css',
 				resolve: {
 					authenticate: ['AuthenticateResolve', function (AuthenticateResolve) {
 						return AuthenticateResolve();
@@ -233,8 +256,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			.state('project.home', {
 				url: '/home',
 				templateUrl: 'partials/projHome.html',
-				controller: 'projHomeCtrl',
-				css: 'style/projHome.css'
+				controller: 'projHomeCtrl'
 			})
 			.state('project.home.subproject', {
 				url: '/subproject/:subprojectId',
@@ -287,22 +309,13 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				templateUrl: 'partials/explorer.html',
 				controller: 'explorerCtrl',
 				reloadOnSearch: false,
-				css: [
-					'style/explorer.css',
-					'style/panelContainer.css',
-					'style/snapshot.css',
-					'style/spatialize.css',
-					// 'style/modals/screenshotDetail.min.css',
-					'style/modals/indexEdit.min.css'
-					// 'style/modals/categoryEdit.css'
-				],
 				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
 					$translatePartialLoader.addPart('model');
 					$translatePartialLoader.addPart('viewport');
 					$translatePartialLoader.addPart('category');
 				}]
 			})
-			// // modal showing source, metadata and comments
+			// modal showing source, metadata and comments
 			.state('project.explorer.source', {
 				url: '/source',
 				resolve: {
@@ -373,12 +386,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				url: '/upload',
 				abstract: true
 			})
-			// .state('project.explorer.upload.type', {
-			// 	url: '/:uploadType',
-			// 	params: {
-			// 		attachTo: null
-			// 	}
-			// })
 			.state('project.explorer.upload.model', {
 				url: '/model',
 				resolve: {
@@ -457,7 +464,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 						show: true
 					})
 				}],
-				css: 'style/modals/spatializeModal.css',
 				params: {
 					source: null
 				},
@@ -477,8 +483,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			.state('project.tasks', {
 				url: '/tasks',
 				templateUrl: 'partials/tasks.html',
-				controller: 'tasksCtrl',
-				css: 'style/tasks.css'
+				controller: 'tasksCtrl'
 			})
 			.state('project.tasks.detail', {
 				url: '/:taskId',
@@ -510,27 +515,26 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			.state('project.graph.node', {
 				url: '/:startNode'
 			})
-			.state('project.graph.source', {
-				url: '/source',
-				onEnter: ['$modal', function ($modal) {
-					$modal({
-						templateUrl: 'partials/modals/_modalLargeTpl.html',
-						contentTemplate: 'partials/modals/sourceDetailModal.html',
-						controller: 'sourceDetailCtrl',
-						show: true
-					});
-				}],
-				css: 'style/modals/sourceDetail.min.css',
-				abstract: true
-			})
-			.state('project.graph.source.id', {
-				url: '/:sourceId'
-			})
+			// .state('project.graph.source', {
+			// 	url: '/source',
+			// 	onEnter: ['$modal', function ($modal) {
+			// 		$modal({
+			// 			templateUrl: 'partials/modals/_modalLargeTpl.html',
+			// 			contentTemplate: 'partials/modals/sourceDetailModal.html',
+			// 			controller: 'sourceDetailCtrl',
+			// 			show: true
+			// 		});
+			// 	}],
+			// 	css: 'style/modals/sourceDetail.min.css',
+			// 	abstract: true
+			// })
+			// .state('project.graph.source.id', {
+			// 	url: '/:sourceId'
+			// })
 			.state('project.resources', {
 				url: '/resources?foo',
 				templateUrl: 'partials/resources.html',
 				controller: 'resourcesCtrl',
-				css: 'style/resources.css',
 				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
 					$translatePartialLoader.addPart('archive');
 					$translatePartialLoader.addPart('author');
@@ -564,7 +568,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				url: '/config',
 				templateUrl: 'partials/config.html',
 				controller: 'configCtrl',
-				css: 'style/config.css',
 				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
 					$translatePartialLoader.addPart('config');
 				}]
@@ -625,7 +628,12 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			minLength: 3
 		});
 
+		// switch between debug and production mode
 		$logProvider.debugEnabled(true);
+		$compileProvider.debugInfoEnabled(true);
+		$compileProvider.commentDirectivesEnabled(false);
+		$compileProvider.cssClassDirectivesEnabled(false);
+
 		//$locationProvider.html5Mode({enabled: false, requireBase: false, rewriteLinks: false});
 	}]);
 

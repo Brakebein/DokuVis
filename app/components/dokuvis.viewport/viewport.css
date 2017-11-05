@@ -175,11 +175,11 @@ viewport-object-tree > .list-header, viewport-plan-list > .list-header, viewport
       background-color: #ddd;
       border-bottom: 1px dotted #aaa;
       border-top-right-radius: 5px; }
-    viewport-object-tree > .list-header > *:first-child > *, viewport-plan-list > .list-header > *:first-child > *, viewport-image-list > .list-header > *:first-child > * {
-      border-top-left-radius: 5px; }
     viewport-object-tree > .list-header > *:last-child > *, viewport-plan-list > .list-header > *:last-child > *, viewport-image-list > .list-header > *:last-child > * {
       border: none;
       border-radius: 0 5px 5px; }
+    viewport-object-tree > .list-header > *:first-child > *, viewport-plan-list > .list-header > *:first-child > *, viewport-image-list > .list-header > *:first-child > * {
+      border-top-left-radius: 5px; }
     viewport-object-tree > .list-header > *.list-header-caption > *, viewport-plan-list > .list-header > *.list-header-caption > *, viewport-image-list > .list-header > *.list-header-caption > * {
       font-size: 14px;
       font-weight: bold; }
@@ -193,7 +193,7 @@ viewport-object-tree > .list-header, viewport-plan-list > .list-header, viewport
         viewport-object-tree > .list-header > *.list-header-stretch > * > *:first-child, viewport-plan-list > .list-header > *.list-header-stretch > * > *:first-child, viewport-image-list > .list-header > *.list-header-stretch > * > *:first-child {
           border: none; }
   viewport-object-tree > .list-header .toggle, viewport-plan-list > .list-header .toggle, viewport-image-list > .list-header .toggle {
-    width: 15px;
+    width: 16px;
     top: 2px;
     cursor: pointer;
     margin: 0 5px 0 1px; }
@@ -240,6 +240,10 @@ viewport-object-tree .list-item, viewport-plan-list .list-item, viewport-image-l
       viewport-object-tree .list-item > *.list-ctrls > *:not(:hover), viewport-plan-list .list-item > *.list-ctrls > *:not(:hover), viewport-image-list .list-item > *.list-ctrls > *:not(:hover) {
         color: #888; }
 
+viewport-spatialize-manual.ng-enter {
+  animation: fadeIn 0.5s; }
+viewport-spatialize-manual.ng-leave {
+  animation: fadeOut 0.5s; }
 viewport-spatialize-manual > .ctrl-container > div {
   height: 33px;
   padding: 3px 6px 3px; }

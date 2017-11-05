@@ -176,6 +176,16 @@ END
 DELIMITER ;
 ```
 
+Insert the roles into table:
+```sql
+INSERT INTO `roles` (`id`, `role`) VALUES
+(1, 'admin'),
+(2, 'superadmin'),
+(3, 'visitor'),
+(4, 'modeler'),
+(5, 'historian');
+```
+
 
 ## Neo4J
 

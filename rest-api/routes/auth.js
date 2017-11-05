@@ -1,12 +1,12 @@
-var jwt = require('jwt-simple');
-var Promise = require('bluebird');
-var bcrypt = require('bcryptjs');
-var config = require('../config');
-var mysql = require('../mysql-request');
+const jwt = require('jwt-simple');
+const Promise = require('bluebird');
+const bcrypt = require('bcryptjs');
+const config = require('../config');
+const mysql = require('../mysql-request');
 
 var auth = {
 	
-	login: function(req, res) {
+	login: function (req, res) {
 		
 		var email = req.body.email || '';
 		var password = req.body.password || '';
@@ -22,21 +22,31 @@ var auth = {
 		
 		// Fire a query to your DB and check if the credentials are valid
 		auth.validate(email, password)
-			.then(function(dbUserObj) {
+			.then(function (dbUserObj) {
 				// If authentication is success, we will generate a token
 				// and dispatch it to the client
-				if(dbUserObj)
+				if (dbUserObj)
 					res.json(genToken(dbUserObj));
-			}, function() {
-				res.status(401);
-				res.json({
-					"status": 401,
-					"message": 'Invalid credentials #7'
-				});
+			})
+			.catch(function (reason) {
+				if (reason) {
+					res.status(500);
+					res.json({
+						"status": 500,
+						"message": reason
+					});
+				}
+				else {
+					res.status(401);
+					res.json({
+						"status": 401,
+						"message": 'Invalid credentials #7'
+					});
+				}
 			});
 	},
 	
-	register: function(req, res) {
+	register: function (req, res) {
 		
 		var email = req.body.email || '';
 		var username = req.body.username || '';
@@ -44,7 +54,7 @@ var auth = {
 		
 		console.log('email: ' + email);
 		
-		if(email === '' || username === '' || password === '') {
+		if (email === '' || username === '' || password === '') {
 			res.status(401);
 			res.json({
 				"status": 401,
@@ -57,59 +67,72 @@ var auth = {
 		var hash = bcrypt.hashSync(password, salt);
 		
 		mysql.query('INSERT INTO users(email, name, password) VALUES(?,?,?)', [email, username, hash])
-			.then(function(result) {
+			.then(function (result) {
 				console.log('id: ' + result.insertId);
 				
 				// Fire a query to your DB and check if the credentials are valid
 				return auth.validate(email, password);
 			})
-			.then(function(dbUserObj) {
+			.then(function (dbUserObj) {
 				// If authentication is success, we will generate a token
 				// and dispatch it to the client
-				if(dbUserObj)
+				if (dbUserObj)
 					res.json(genToken(dbUserObj));
-			}, function() {
-				res.status(401);
-				res.json({
-					"status": 401,
-					"message": 'Invalid credentials #7'
-				});
 			})
-			.catch(function(err) {
-				if(err) throw err;
-			});
-	},
-	
-	validate: function(email, password) {
-		return mysql.query('SELECT email, name, password FROM users WHERE email = ?', [email])
-			.then(function(rows) {
-				if(rows.length === 0) return Promise.reject();
+			.catch(function (reason) {
+				if (reason) {
+					res.status(500);
+					res.json({
+						"status": 500,
+						"message": reason
+					});
+				}
 				else {
-					// TODO: compare async with promises
-					if(bcrypt.compareSync(password, rows[0].password))
-						return rows[0];
-					else
-						return Promise.reject();
+					res.status(401);
+					res.json({
+						"status": 401,
+						"message": 'Invalid credentials #7'
+					});
 				}
 			});
 	},
 	
-	validateUser: function(email) {
+	validate: function (email, password) {
 		return mysql.query('SELECT email, name, password FROM users WHERE email = ?', [email])
-			.then(function(rows) {
-				if(rows.length === 0) return Promise.reject();
-				else return rows[0];
+			.then(function (rows) {
+				if (rows.length === 0) return Promise.reject();
+				else {
+					return bcrypt.compare(password, rows[0].password)
+						.then(function (result) {
+							if (result) return rows[0];
+							else return Promise.reject();
+						});
+				}
+			})
+			.catch(function (err) {
+				return Promise.reject(err);
 			});
 	},
 	
-	checkJWT: function(req, res) {
+	validateUser: function (email) {
+		return mysql.query('SELECT email, name, password FROM users WHERE email = ?', [email])
+			.then(function (rows) {
+				if(rows.length === 0) return Promise.reject();
+				else return rows[0];
+			})
+			.catch(function (err) {
+				return Promise.reject(err);
+			});
+	},
+	
+	checkJWT: function (req, res) {
 		res.status(200);
 		res.send(null);
 	}
 	
 };
 
-function genToken(user) {
+function genToken (user) {
 	var expires = expiresIn(31);
 	var token = jwt.encode({
 		exp: expires

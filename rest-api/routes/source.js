@@ -28,7 +28,7 @@ module.exports = {
 			OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61) \
 			OPTIONAL MATCH (e84)-[:P48]->(archivenr:E42) \
 			OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36) \
-			OPTIONAL MATCH (e31)-[:P70]->(:E36)-[:P106]->(spatial:E73)\
+			OPTIONAL MATCH (e31)-[:P106]->(spatial:E73)-[:P2]->(:E55 {content: "spatializeInfo"})\
 			OPTIONAL MATCH (e31)-[:P3]->(note:E62)-[:P3_1]->({content: "sourceComment"}) \
 			OPTIONAL MATCH (e31)-[:P3]->(repros:E62)-[:P3_1]->({content: "sourceRepros"}) \
 			OPTIONAL MATCH (e84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41), \
@@ -47,9 +47,9 @@ module.exports = {
 				pname.value AS place, \
 				date.value AS date, \
 				{identifier: archivenr.value, collection: coll.value, institution: inst.value, institutionAbbr: inst.abbr} AS archive, \
-				{name: file.content, path: file.path, display: file.preview, thumb: file.thumb} AS file, \
+				file AS file, \
 				plan3d.content AS plan3d, \
-				spatial.content AS spatial, \
+				spatial AS spatial, \
 				note.value AS note, \
 				repros.value AS repros, \
 				tags, \
@@ -87,6 +87,7 @@ module.exports = {
 			OPTIONAL MATCH (e65)-[:P4]->(:E52)-[:P82]->(date:E61) \
 			OPTIONAL MATCH (e84)-[:P48]->(archivenr:E42) \
 			OPTIONAL MATCH (e31)<-[:P138]-(plan3d:E36) \
+			OPTIONAL MATCH (e31)-[:P106]->(spatial:E73)-[:P2]->(:E55 {content: "spatializeInfo"})\
 			OPTIONAL MATCH (e31)-[:P3]->(note:E62)-[:P3_1]->({content: "sourceComment"}) \
 			OPTIONAL MATCH (e31)-[:P3]->(repros:E62)-[:P3_1]->({content: "sourceRepros"}) \
 			OPTIONAL MATCH (e84)<-[:P46]-(e78:E78)-[:P1]->(coll:E41), \
@@ -107,7 +108,8 @@ module.exports = {
 				date.value AS date, \
 				{identifier: archivenr.value, collection: coll.value, institution: inst.value, institutionAbbr: inst.abbr} AS archive, \
 				file AS file, \
-				plan3d.content AS plan3d, \
+				plan3d.content AS plan3d,\
+				spatial AS spatial, \
 				note.value AS note, \
 				repros.value AS repros, \
 				tags, \
@@ -770,9 +772,9 @@ module.exports = {
 	},
 	
 	setSpatial: function (req, res) {
-		var prj = req.params.id;
+		var prj = req.params.prj;
 		var promise;
-		// TODO: convert image to 1024x1024 map
+		// TODO: update DLT processing
 
 		if (req.query.method === 'DLT') {
 			console.debug('DLT method');
@@ -809,8 +811,8 @@ module.exports = {
 						0, 0, 0, 1);
 
 					return Promise.resolve({
-						sourceId: req.params.sourceId,
-						e73id: 'spatial_' + req.params.sourceId,
+						sourceId: req.params.id,
+						e73id: 'spatial_' + req.params.id,
 						e73value: {
 							path: req.body.file.path,
 							map: req.body.file.display,
@@ -824,15 +826,18 @@ module.exports = {
 		else if (req.query.method === 'manual') {
 			console.debug('manual method');
 
+			if (!req.body.spatialize || !req.body.spatialize.matrix || !req.body.spatialize.offset || !req.body.spatialize.ck) {
+				utils.abort.missingData(res, '#source.setSpatial spatialize');
+				return;
+			}
+
 			promise = Promise.resolve({
-				sourceId: req.params.sourceId,
-				e73id: 'spatial_' + req.params.sourceId,
+				sourceId: req.params.id,
 				e73value: {
-					path: req.body.file.path,
-					map: req.body.file.display,
-					matrix: req.body.matrix,
-					offset: req.body.offset,
-					ck: req.body.ck
+					content: 'spatial_' + req.params.id,
+					matrix: req.body.spatialize.matrix,
+					offset: req.body.spatialize.offset,
+					ck: req.body.spatialize.ck
 				}
 			});
 		}
@@ -842,20 +847,23 @@ module.exports = {
 
 		promise
 			.then(function (params) {
-				var q = 'MATCH (e31:E31:' + prj + ' {content: {sourceId}})-[:P70]->(e36:E36) \
-					MERGE (e36)-[:P106]->(e73:E73:' + prj + ' {content: {e73id}}) \
-					SET e73 += {e73value} \
+				var q = 'MATCH (e31:E31:' + prj + ' {content: $sourceId}), (t:E55:' + prj + ' {content: "spatializeInfo"}) \
+					MERGE (e73:E73:' + prj + ' {content: $e73value.content}) \
+					SET e73 += $e73value \
+					MERGE (e31)-[:P106]->(e73) \
+					MERGE (e73)-[:P2]->(t) \
 					RETURN e73 AS spatial';
 
-				return neo4j.transaction(q, params);
+				return neo4j.writeTransaction(q, params);
 			})
-			.then(function (response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#source.setSpatial'); return; }
-				res.json(neo4j.extractTransactionData(response.results[0])[0]);
-				//res.send();
+			.then(function (results) {
+				var result = req.body;
+				result.spatial = results[0].spatial;
+				delete result.spatialize;
+				res.json(result);
 			})
 			.catch(function (err) {
-				utils.error.neo4j(res, err, '#cypher');
+				utils.error.neo4j(res, err, '#source.setSpatial');
 			});
 	},
 	

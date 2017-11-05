@@ -30,11 +30,12 @@ DV3D.ObjectCollection.prototype = Object.assign( Object.create(DV3D.Collection.p
 	 */
 	add: function (obj) {
 		// cancel if already in collection
-		if (this.list[obj.id]) return;
+		if (this.get(obj.id)) return;
 
 		// add to normal list
-		this.list[obj.id] = obj;
+		this.list.push(obj);
 		obj.addEventListener('toggle', toggleHandler.bind(this));
+		this.count++;
 		
 		// add to layers
 		var layer = this.getLayer(obj.layer);
@@ -65,7 +66,8 @@ DV3D.ObjectCollection.prototype = Object.assign( Object.create(DV3D.Collection.p
 	 */
 	remove: function (obj) {
 		// cancel if not in collection
-		if (!this.list[obj.id]) return;
+		var index = this.list.indexOf(obj);
+		if (index === -1) return;
 
 		// remove from layer
 		var layer = obj.layer;
@@ -83,7 +85,8 @@ DV3D.ObjectCollection.prototype = Object.assign( Object.create(DV3D.Collection.p
 
 		obj.removeEventListener('toggle', toggleHandler);
 		// remove from normal list
-		delete this.list[obj.id];
+		this.list.splice(index, 1);
+		this.count--;
 	},
 
 	/**
@@ -96,7 +99,6 @@ DV3D.ObjectCollection.prototype = Object.assign( Object.create(DV3D.Collection.p
 		this.layers.push(layer);
 
 		layer.addEventListener('removed', (function (event) {
-			console.warn(this);
 			if (event.target.list.length === 0)
 				this.removeLayer(event.target);
 		}).bind(this));

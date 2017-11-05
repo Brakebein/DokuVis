@@ -196,11 +196,11 @@ viewport-object-tree, viewport-plan-list, viewport-image-list
 				background-color: #ddd
 				border-bottom: 1px dotted #aaa
 				border-top-right-radius: $listHeaderBorderRadius
-			&:first-child > *
-				border-top-left-radius: $listHeaderBorderRadius
 			&:last-child > *
 				border: none
 				border-radius: 0 $listHeaderBorderRadius $listHeaderBorderRadius
+			&:first-child > *
+				border-top-left-radius: $listHeaderBorderRadius
 
 			&.list-header-caption > *
 				font-size: 14px
@@ -215,7 +215,7 @@ viewport-object-tree, viewport-plan-list, viewport-image-list
 					&:first-child
 						border: none
 		.toggle
-			width: 15px
+			width: 16px
 			top: 2px
 			cursor: pointer
 			margin: 0 5px 0 1px
@@ -267,6 +267,11 @@ viewport-object-tree, viewport-plan-list, viewport-image-list
 					color: #888
 
 viewport-spatialize-manual
+	&.ng-enter
+		animation: fadeIn 0.5s
+	&.ng-leave
+		animation: fadeOut 0.5s
+
 	& > .ctrl-container > div
 		height: 33px
 		padding: 3px 6px 3px

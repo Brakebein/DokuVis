@@ -4,7 +4,6 @@
 	<!--</div>-->
 	<div>
 		<div>
-			<button class="btn btn-default btn-xs">Alle Objekte laden</button>
 			<div class="btn-group btn-group-xs">
 				<button class="btn"
 						ng-class="{'btn-default': !showHierarchy, 'btn-primary': showHierarchy}"
@@ -44,7 +43,7 @@
 	<div ng-if="showHierarchy">
 		<div ng-repeat="data in hierarchy | orderBy: 'label'"
 			 ng-init="depth = 0"
-			 ng-include="componentsPath + '/dokuvis.viewport/treeItem.tpl.html'"></div>
+			 ng-include="'components/dokuvis.viewport/treeItem.tpl.html'"></div>
 	</div>
 
 	<div ng-if="showLayers">

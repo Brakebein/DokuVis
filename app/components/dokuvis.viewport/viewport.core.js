@@ -15,9 +15,10 @@ angular.module('dokuvis.viewport',[
  * @name viewport
  * @module dokuvis.viewport
  * @restrict E
+ * @param spatializeManual {boolean} Enable image spatialization functionality
  */
-.directive('viewport', ['$state', '$stateParams', '$window', '$timeout', 'viewportCache', 'viewportSettings', 'webglInterface', '$rootScope', 'phpRequest', 'neo4jRequest', '$http', '$q', 'Utilities', 'Comment', 'ConfirmService', '$debounce', '$throttle', 'SpatializeInterface', '$log',
-	function($state, $stateParams, $window, $timeout, viewportCache, viewportSettings, webglInterface, $rootScope, phpRequest, neo4jRequest, $http, $q, Utilities, Comment, ConfirmService, $debounce, $throttle, SpatializeInterface, $log) {
+.directive('viewport', ['$state', '$window', '$timeout', 'viewportCache', 'viewportSettings', 'webglInterface', '$rootScope', '$q', 'Utilities', 'Comment', 'ConfirmService', '$debounce', '$throttle', 'SpatializeInterface', '$log', '$compile', '$animate',
+	function($state, $window, $timeout, viewportCache, viewportSettings, webglInterface, $rootScope, $q, Utilities, Comment, ConfirmService, $debounce, $throttle, SpatializeInterface, $log, $compile, $animate) {
 
 		function link(scope, element, attrs) {
 
@@ -44,22 +45,22 @@ angular.module('dokuvis.viewport',[
 			});
 
 			//scope.spatialize = 'spatialize' in attrs;
+			var enableSpatializeManual = 'spatializeManual' in attrs;
 
-			//scope.$applyAsync();
 
 			//scope.wi = webglInterface;
-			scope.viewportSettings = webglInterface.viewportSettings;
-			scope.vPanel = webglInterface.vPanel;
-			scope.vizSettings = webglInterface.vizSettings;
-			scope.snapshot = webglInterface.snapshot;
-			scope.spatialize = webglInterface.spatialize;
-			scope.$applyAsync();
+			// scope.viewportSettings = webglInterface.viewportSettings;
+			// scope.vPanel = webglInterface.vPanel;
+			// scope.vizSettings = webglInterface.vizSettings;
+			// scope.snapshot = webglInterface.snapshot;
+			// scope.spatialize = webglInterface.spatialize;
+			// scope.$applyAsync();
 
 
-			scope.unsafeSettings = {};
-			scope.unsafeSettings.opacity = 50;
-			scope.unsafeSettings.edges = true;
-			scope.unsafeSettings.autoTransparent = false;
+			// scope.unsafeSettings = {};
+			// scope.unsafeSettings.opacity = 50;
+			// scope.unsafeSettings.edges = true;
+			// scope.unsafeSettings.autoTransparent = false;
 
 			// constants frustum clipping
 			var NEAR = viewportSettings.defaults.NEAR;
@@ -69,52 +70,34 @@ angular.module('dokuvis.viewport',[
 			// general
 			var SCREEN_WIDTH, SCREEN_HEIGHT;
 			var canvas;
-			var renderer, scene, controls, stats;
+			var renderer, scene, controls;
 			var camera;
 			var raycaster = new THREE.Raycaster();
 			var dlight;
 
-			var postprocessing = {};
-
+			//var postprocessing = {};
 
 			var selected = [], highlighted = [];
 			var pins = [];
 
-			var objloader, ctmloader, textureLoader;
-			scope.loading = { item: '', loaded: 0, total: 0, percent: 100, visible: false };
-
-			var plane;
+			var ctmloader, textureLoader;
 
 			// Gizmo, Slice, Messen
 			var gizmo, gizmoMove, gizmoRotate;
-			var activeGizmo = false;
 
 			var measureTool, pin;
 
-			var navigationState = {
-				SELECT: 0,
-				ROTATE: 2,
-				PAN: 3,
-				ZOOM: 4
-			};
-			var interactionState = {
-				SELECT: 0,
-				MEASURE: 1,
-				PIN: 2,
-				SLICE: 3
-			};
-
 			// Shading-Konstanten
-			var shading = {
-				COLOR_EDGE: 'color+edges',
-				GREY_EDGE: 'grey+edges',
-				COLOR: 'color-edges',
-				EDGE: 'edges',
-				TRANSPARENT_EDGE: 'transparent+edges',
-				COLOR_WIRE: 'color+wireframe',
-				WIRE: 'wireframe',
-				XRAY: 'xray'
-			};
+			// var shading = {
+			// 	COLOR_EDGE: 'color+edges',
+			// 	GREY_EDGE: 'grey+edges',
+			// 	COLOR: 'color-edges',
+			// 	EDGE: 'edges',
+			// 	TRANSPARENT_EDGE: 'transparent+edges',
+			// 	COLOR_WIRE: 'color+wireframe',
+			// 	WIRE: 'wireframe',
+			// 	XRAY: 'xray'
+			// };
 			var currentShading = webglInterface.viewportSettings.shadingSel;
 
 			var pcConfig = {
@@ -216,6 +199,9 @@ angular.module('dokuvis.viewport',[
 				// loading progress bar
 				var manager = new THREE.LoadingManager();
 				manager.onProgress = viewportLoadProgress;
+				manager.onLoad = function () {
+					focusAll();
+				};
 
 				// objloader = new THREE.OBJMTLLoader(manager);
 				ctmloader = new THREE.CTMLoader(manager);
@@ -356,6 +342,20 @@ angular.module('dokuvis.viewport',[
 				// 	pc.position.set(newPos.x, newPos.y, newPos.z);
 				// });
 
+				// add event listeners to entries
+				objects.forEach(function (entry) {
+					entry.addEventListener('change', animateAsync);
+					entry.addEventListener('toggle', toggleObjectHandler);
+					entry.addEventListener('focus', focusHandler);
+					entry.addEventListener('select', selectHandler);
+				});
+
+				spatialImages.forEach(function (entry) {
+					entry.addEventListener('change', animateAsync);
+					entry.addEventListener('toggle', toggleSourceHandler);
+					entry.addEventListener('select', selectHandler);
+					entry.addEventListener('focus', focusHandler);
+				});
 
 				animate();
 				viewportCameraMove(camera);
@@ -535,6 +535,11 @@ angular.module('dokuvis.viewport',[
 
 				//updatePointCloudsThrottle();
 
+				// update image resolution
+				spatialImages.forEach(function (img) {
+					img.object.updateTexture(img.object.withinLODRange(camera.position));
+				}, true);
+
 				// position light depending on camera
 				if (dlight) {
 					dlight.position.set(4, 4, 4);
@@ -665,11 +670,11 @@ angular.module('dokuvis.viewport',[
 			 */
 			function selectArea(mStart, mEnd, ctrlKey) {
 				// viewport coordinates into world coordinates in front of camera
-				var s0 = new THREE.Vector3(mStart.x, mStart.y, NEAR).unproject(camera);
-				var s1 = new THREE.Vector3(mStart.x, mEnd.y, NEAR).unproject(camera);
-				var s2 = new THREE.Vector3(mEnd.x, mEnd.y, NEAR).unproject(camera);
-				var s3 = new THREE.Vector3(mEnd.x, mStart.y, NEAR).unproject(camera);
-				var s4 = new THREE.Vector3(0, 0, NEAR).unproject(camera);
+				var s0 = new THREE.Vector3(mStart.x, mStart.y, 0.5).unproject(camera);
+				var s1 = new THREE.Vector3(mStart.x, mEnd.y, 0.5).unproject(camera);
+				var s2 = new THREE.Vector3(mEnd.x, mEnd.y, 0.5).unproject(camera);
+				var s3 = new THREE.Vector3(mEnd.x, mStart.y, 0.5).unproject(camera);
+				var s4 = new THREE.Vector3(0, 0, 0.5).unproject(camera);
 				// direction vectors from camera through those points
 				var v0 = new THREE.Vector3().subVectors(s0, camera.position);
 				var v1 = new THREE.Vector3().subVectors(s1, camera.position);
@@ -677,7 +682,7 @@ angular.module('dokuvis.viewport',[
 				var v3 = new THREE.Vector3().subVectors(s3, camera.position);
 				var v4 = new THREE.Vector3().subVectors(s4, camera.position);
 
-				var s5 = new THREE.Vector3(0, 0, FAR).unproject(camera).add(v4.clone().setLength(FAR));
+				var s5 = new THREE.Vector3(0, 0, 0.5).unproject(camera).add(v4.clone().setLength(FAR));
 				var v5 = new THREE.Vector3().subVectors(s5, camera.position);
 
 				// plane normals
@@ -714,6 +719,7 @@ angular.module('dokuvis.viewport',[
 
 					// first level check, `intersetcsObjects` only tests against boundingSphere
 					if (frustum.intersectsObject(obj.object)) {
+						console.log('first check');
 						var position = obj.object.geometry.attributes.position.array,
 							matrix = obj.object.matrixWorld;
 
@@ -722,6 +728,7 @@ angular.module('dokuvis.viewport',[
 							var vertex = new THREE.Vector3(position[i], position[i+1], position[i+2]);
 							vertex.applyMatrix4(matrix);
 							if (frustum.containsPoint(vertex)) {
+								console.log('second check');
 								setSelected(obj, true);
 								break;
 							}
@@ -808,10 +815,10 @@ angular.module('dokuvis.viewport',[
 					});
 				}
 				else if (entry instanceof DV3D.PlanEntry) {
-					s.object.select();
+					entry.object.select();
 				}
 				else if (entry instanceof DV3D.ImageEntry) {
-					s.object.select();
+					entry.object.select();
 				}
 				entry.select(null, true);
 			}
@@ -825,10 +832,10 @@ angular.module('dokuvis.viewport',[
 					});
 				}
 				else if (entry instanceof DV3D.PlanEntry) {
-					s.object.deselect();
+					entry.object.deselect();
 				}
 				else if (entry instanceof DV3D.ImageEntry) {
-					s.object.deselect();
+					entry.object.deselect();
 				}
 				entry.select(null, false);
 			}
@@ -932,56 +939,56 @@ angular.module('dokuvis.viewport',[
 			 * @deprecated
 			 * @param value
 			 */
-			scope.setUnsafe = function(value) {
-				//console.log('watch unsafe', value);
-				//if(/^-?[\d.]+(?:e-?\d+)?$/.test(value))
-				if(typeof materials['defaultUnsafeMat'] == 'undefined') return;
-				materials['defaultUnsafeMat'].opacity = value.opacity/100;
-				for(var key in objects) {
-					if(objects[key].mesh.userData.unsafe) {
-						objects[key].mesh.material.opacity = value.opacity/100;
-						if(objects[key].visible) {
-							if(value.edges && scope.shading != shading.COLOR) {
-								if(!scene.getObjectById(objects[key].edges.id))
-									scene.add(objects[key].edges);
-							}
-							else {
-								scene.remove(objects[key].edges);
-							}
-						}
-					}
-				}
-				animate();
-			};
+			// scope.setUnsafe = function(value) {
+			// 	//console.log('watch unsafe', value);
+			// 	//if(/^-?[\d.]+(?:e-?\d+)?$/.test(value))
+			// 	if(typeof materials['defaultUnsafeMat'] == 'undefined') return;
+			// 	materials['defaultUnsafeMat'].opacity = value.opacity/100;
+			// 	for(var key in objects) {
+			// 		if(objects[key].mesh.userData.unsafe) {
+			// 			objects[key].mesh.material.opacity = value.opacity/100;
+			// 			if(objects[key].visible) {
+			// 				if(value.edges && scope.shading != shading.COLOR) {
+			// 					if(!scene.getObjectById(objects[key].edges.id))
+			// 						scene.add(objects[key].edges);
+			// 				}
+			// 				else {
+			// 					scene.remove(objects[key].edges);
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// 	animate();
+			// };
 
 			// set edges settings
-			scope.toggleEdges = function(value) {
-				for(var key in objects) {
-					var obj = objects[key];
-					if(obj.visible && obj.edges) {
-						if(value) scene.add(obj.edges);
-						else scene.remove(obj.edges);
-					}
-				}
-				animate();
-			};
-			scope.setEdgesOpacity = function(value) {
-				//scope.$watch('vizSettings.edgesOpacity', function (value) {
-
-				console.log(value);
-				if(!materials['edges']) return;
-				if(value === 100) {
-					materials['edgesMat'].transparent = false;
-					materials['edgesSelectionMat'].transparent = false;
-				}
-				else {
-					materials['edgesMat'].transparent = true;
-					materials['edgesMat'].opacity = value/100;
-					materials['edgesSelectionMat'].transparent = true;
-					materials['edgesSelectionMat'].opacity = value/100;
-				}
-				animate();
-			};
+			// scope.toggleEdges = function(value) {
+			// 	for(var key in objects) {
+			// 		var obj = objects[key];
+			// 		if(obj.visible && obj.edges) {
+			// 			if(value) scene.add(obj.edges);
+			// 			else scene.remove(obj.edges);
+			// 		}
+			// 	}
+			// 	animate();
+			// };
+			// scope.setEdgesOpacity = function(value) {
+			// 	//scope.$watch('vizSettings.edgesOpacity', function (value) {
+			//
+			// 	console.log(value);
+			// 	if(!materials['edges']) return;
+			// 	if(value === 100) {
+			// 		materials['edgesMat'].transparent = false;
+			// 		materials['edgesSelectionMat'].transparent = false;
+			// 	}
+			// 	else {
+			// 		materials['edgesMat'].transparent = true;
+			// 		materials['edgesMat'].opacity = value/100;
+			// 		materials['edgesSelectionMat'].transparent = true;
+			// 		materials['edgesSelectionMat'].opacity = value/100;
+			// 	}
+			// 	animate();
+			// };
 
 			///// VIEWPORT SETTINGS / SHADING / CAMERA
 
@@ -1167,7 +1174,7 @@ angular.module('dokuvis.viewport',[
 					edges.material.opacity = value/100;
 
 				}
-				animate();
+				//animate();
 			});
 
 			// set opacity of objects
@@ -1379,7 +1386,7 @@ angular.module('dokuvis.viewport',[
 						element.find('#select-rectangle').css(getSelectRectangleCSS(mouseDownCoord, mouse));
 					}
 
-					else if (isMouseDown === 0 && camera.inPerspectiveMode) {
+					else if (isMouseDown === 0 && camera.inPerspectiveMode && !mouseDownCoord.equals(mouse)) {
 						controls.onMouseDown(mouseDownEvent.originalEvent, 0);
 						canvas.addClass('cursor_orbit');
 						isRotatingView = true;
@@ -1857,80 +1864,70 @@ angular.module('dokuvis.viewport',[
 				scope.$applyAsync();
 			}
 
-			/**
-			 * @deprecated
-			 * @param img
-			 */
-			webglInterface.callFunc.openSpatializeImage = function (img) {
-				scope.spatialize.active = true;
-				scope.spatialize.source = img;
-				scope.spatialize.image = img.file.path + img.file.display;
-				scope.spatialize.fov = camera.fov;
-			};
+
+			// add viewportSpatializeManual directive depending on spatializeManual attribute
+			if (enableSpatializeManual) {
+				var spatializeManualElement = null;
+
+				// listen to spatializeManualStart event
+				scope.$on('spatializeManualStart', function (event, src) {
+					if (angular.element(element).find('viewport-spatialize-manual').length)
+						return;
+
+					var elScope = scope.$new(false);
+					elScope.source = src;
+
+					spatializeManualElement = $compile('<viewport-spatialize-manual></viewport-spatialize-manual>')(elScope);
+					$animate.enter(spatializeManualElement, element);
+				});
+
+				scope.closeSpatializeManual = function () {
+					$animate.leave(spatializeManualElement);
+					spatializeManualElement = null;
+				};
+			}
 
 			/**
-			 * @deprecated
+			 * Set field of view of camera.
+			 * @param [value] {number} New fov value
+			 * @return {THREE.CombinedCamera} Effected camera.
 			 */
-			scope.abortSpatializeImage = function () {
-				scope.spatialize.active = false;
-				scope.spatialize.source = null;
-				scope.spatialize.fov = 35;
+			scope.setCameraFOV = function (value) {
+				if (value) {
+					camera.fov = value;
+					camera.updateProjectionMatrix();
+					animateThrottle20();
+				}
+				return camera;
 			};
 
-			/**
-			 * @deprecated
-			 */
-			scope.saveSpatializeImage = function () {
-				// scope.spatialize.source.matrix = camera.matrixWorld.toArray();
-				// scope.spatialize.source.fov = parseInt(camera.fov);
-				// scope.spatialize.source.$spatialize().then(function (response) {
-				// 	console.log('source.spatialize', response);
-				// 	scope.spatialize.active = false;
-				// 	scope.spatialize.source = null;
-				// 	scope.spatialize.fov = 35;
-				// }, function (err) {
-				// 	Utilities.throwApiException('on Source.spatialize()', err);
-				// });
-				scope.spatialize.source.matrix = camera.matrixWorld.toArray();
-				scope.spatialize.source.offset = [0,0];
-				scope.spatialize.source.ck = 1 / Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * 0.5;
-				scope.spatialize.source.$spatialize({ method: 'manual' })
-					.then(function (response) {
-						console.log('source.spatialize', response);
-						scope.spatialize.active = false;
-						scope.spatialize.source = null;
-						scope.spatialize.fov = 35;
-					})
-					.catch(function (err) {
-						Utilities.throwApiException('#Source.spatialize', err);
+
+			///// SPATIAL IMAGES
+
+			// listen to spatialImageLoad event
+			scope.$on('spatialImageLoad', function (event, images) {
+				if (Array.isArray(images)) {
+					images.forEach(function (img) {
+						loadSpatialImage(img);
 					});
-			};
-
-			/**
-			 * @deprecated
-			 */
-			scope.changeFOV = function () {
-				camera.fov = scope.spatialize.fov;
-				camera.updateProjectionMatrix();
-				animate();
-			};
-
-			scope.$on('spatializeFOVChange', function (event, value) {
-				event.stopPropagation();
-				camera.fov = value;
-				camera.updateProjectionMatrix();
-				animateThrottle20();
+				}
+				else
+					loadSpatialImage(images);
 			});
 
 			/**
 			 * Loads spatialized image into the scene.
 			 * @param img
-			 * @param replace If true and the image exists, image will be reloaded. If false, loading will be skipped.
+			 * @param [replace=false] {boolean} If true and the image exists, image will be reloaded. If false, loading will be skipped.
 			 */
-			function loadSpatializeImage(img, replace) {
+			function loadSpatialImage(img, replace) {
+				if (!img.spatial)
+					return $q.reject('No spatial information');
+
 				var oldImg = spatialImages.getByName(img.content);
 
-				if(oldImg && replace) {
+				if (oldImg && replace) {
+					// remove existing one
 					spatialImages.remove(oldImg);
 					scene.remove(oldImg.object);
 					oldImg.object.dispose();
@@ -1938,65 +1935,44 @@ angular.module('dokuvis.viewport',[
 				else if(oldImg && !replace)
 					return $q.reject('Already loaded');
 
-				console.log(img);
+				$log.debug(img);
+
 				var defer = $q.defer();
 
-				// var imagepane = new DV3D.ImagePane('data/' + img.path + img.map, img.fov, 10, 0, 0);
-				var imagepane = new DV3D.ImagePane('data/' + img.path + img.map, {
-					ck: img.ck,
-					offset: img.offset
+				// ImagePane instance
+				var imagepane = new DV3D.ImagePane('data/' + img.file.path + img.file.texture, {
+					width: img.file.width,
+					height: img.file.height,
+					ck: img.spatial.ck,
+					offset: img.spatial.offset,
+					preview: 'data/' + img.file.path + img.file.texturePreview
 				}, 10);
+
 				imagepane.onComplete = function () {
-					animate();
+					animateAsync();
 					defer.resolve(entry);
 				};
 
-				if(img.content === 'spatial_e31_pUHojvu_001_Foto_Sempersynagoge_frontal_Bildindex.jpguuzh') {
-					// var t = new THREE.Vector3(-17.1933882556237, 8.9275666620915, -108.8334119635676)
-					var matrix = new THREE.Matrix4();
-					matrix.set(-0.991897944533968, 0.008821377859359, -0.126379869703684, -17.1933882556237,
-						0.021874329907168, -0.997559247974068, -0.069825111273152, 8.9275666620915,
-						0.125139847052815, 0.069265648586247, -0.989521390556754, -108.8334119635676,
-						0, 0, 0, 1);
-					// matrix.set(-0.991897944533968, 0.021874329907168, 0.125139847052815, -17.1933882556237,
-					// 			0.008821377859359, -0.997559247974068, 0.069265648586247, 8.9275666620915,
-					// 			-0.126379869703684, -0.069825111273152, -0.989521390556754, -108.8334119635676,
-					// 			0, 0, 0, 1);
-					//var sm = new THREE.Matrix4().makeScale(-1,-1,-1);
-					// matrix.multiply(sm);
-					//imagepane.pyramid.geo
-					var euler = new THREE.Euler().setFromRotationMatrix(matrix);
-					console.log('matrix', matrix);
-					console.log('img.matrix', img.matrix);
-					console.log('rotation', euler);
-					imagepane.applyMatrix(matrix);
-					imagepane.fov = 28;
-				}
-				else {
-					var m = new THREE.Matrix4().fromArray(img.matrix);
-					// var m = new THREE.Matrix4().set(
-					// 	img.matrix[0], img.matrix[1], img.matrix[2], img.matrix[12],
-					// 	img.matrix[4], img.matrix[5], img.matrix[6], img.matrix[13],
-					// 	img.matrix[8], img.matrix[9], img.matrix[10], img.matrix[14],
-					// 	img.matrix[3], img.matrix[7], img.matrix[11], img.matrix[15]
-					// );
-					imagepane.applyMatrix(m);
-				}
+				var matrix = new THREE.Matrix4().fromArray(img.spatial.matrix);
+				imagepane.applyMatrix(matrix);
 
 				scene.add(imagepane);
 
-				imagepane.name = img.content;
-				imagepane.userData.source = img.source;
+				imagepane.name = img.spatial.content;
+				imagepane.userData.source = img;
 				imagepane.userData.type = 'image';
 
-				var entry = new DV3D.ImageEntry(imagepane);
-				imagepane.entry = entry;
+				var entry = new DV3D.ImageEntry(imagepane, img.title);
+				entry.addEventListener('change', animateAsync);
+				entry.addEventListener('toggle', toggleSourceHandler);
+				entry.addEventListener('select', selectHandler);
+				entry.addEventListener('focus', focusHandler);
+
 				spatialImages.add(entry);
-				console.log('ImagePane', imagepane);
+				$log.debug('ImagePane', imagepane);
 
 				return defer.promise;
 			}
-			webglInterface.callFunc[cfId].loadSpatializeImage = loadSpatializeImage;
 
 			/**
 			 * Sets camera to position and angle of the image pane object.<br/>
@@ -2008,9 +1984,9 @@ angular.module('dokuvis.viewport',[
 				end.applyQuaternion(obj.quaternion);
 				end.add(obj.position);
 
-				var line = new THREE.Line3(obj.position, end);
-				var plane = new THREE.Plane(new THREE.Vector3(0,1,0));
-				var lookAt = plane.intersectLine(line);
+				// var line = new THREE.Line3(obj.position, end);
+				// var plane = new THREE.Plane(new THREE.Vector3(0,1,0));
+				// var lookAt = plane.intersectLine(line);
 
 				new TWEEN.Tween(camera.position.clone())
 					.to(obj.position, 500)
@@ -2031,7 +2007,7 @@ angular.module('dokuvis.viewport',[
 					})
 					.start();
 
-				enableAnimationRequest();
+				startAnimation();
 			}
 			webglInterface.callFunc[cfId].setImageView = setImageView;
 
@@ -2076,7 +2052,8 @@ angular.module('dokuvis.viewport',[
 			 * set camera to orthogonal view to fit plan to viewport
 			 * @param obj
 			 */
-			webglInterface.callFunc.viewOrthoPlan = function(obj) {
+			function viewOrthoPlan(obj) {
+				// TODO: revise
 
 				var pgeo = obj.mesh.geometry;
 				var matWorld = obj.mesh.matrixWorld;
@@ -2127,12 +2104,33 @@ angular.module('dokuvis.viewport',[
 					.start();
 
 				enableAnimationRequest();
-			};
+			}
+			webglInterface.callFunc.viewOrthoPlan = viewOrthoPlan;
+
+			// add or remove plan or spatialImage from scene
+			function toggleSourceHandler(event) {
+				var target = event.target;
+				// add
+				if (event.visible) {
+					if (scene.getObjectById(target.object.id))
+						return; // already part of scene
+
+					scene.add(target.object);
+				}
+				// remove
+				else {
+					scene.remove(target.object);
+					setSelected(target, false, true);
+				}
+
+				animateAsync();
+			}
 
 			/**
 			 * toggle plan or spatialImage
 			 * @param obj
 			 * @param {boolean} visible
+			 * @deprecated
 			 */
 			webglInterface.callFunc.toggle = function(obj, visible) {
 				if(visible)
@@ -2272,230 +2270,6 @@ angular.module('dokuvis.viewport',[
 				animate();
 			};
 
-			/**
-			 * loads .ctm file into the scene
-			 * via weblInterface.callFunc
-			 * @memberof webglView
-			 * @param child {Object} child information object
-			 * @param parent {Object} parent information object
-			 * @returns {Promise} resolved promise when object is set
-			 */
-			webglInterface.callFunc.loadCTMIntoScene = function(child, parent) {
-
-				var defer = $q.defer();
-
-				var info = child.obj;
-				var file = child.file;
-
-				var m = info.matrix;
-				var mat = new THREE.Matrix4();
-				mat.set(m[0],m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8],m[9],m[10],m[11],m[12],m[13],m[14],m[15]);
-
-				// transformation from z-up-world to y-up-world
-				if(info.upAxis == 'Z_UP' && !parent) {
-					var ymat = new THREE.Matrix4();
-					ymat.set(1,0,0,0, 0,0,1,0, 0,-1,0,0, 0,0,0,1);
-					mat.multiplyMatrices(ymat,mat);
-				}
-
-				var t = new THREE.Vector3();
-				var q = new THREE.Quaternion();
-				var s = new THREE.Vector3();
-				mat.decompose(t,q,s);
-
-				var scale;
-				switch(info.unit) {
-					case 'decimeter': scale = 0.1; break;
-					case 'centimeter': scale = 0.01; break;
-					case 'millimeter': scale = 0.001; break;
-					default: typeof info.unit === 'number' ? scale = info.unit : scale = 1.0;
-				}
-
-				var obj = info.type === 'group' ? new THREE.Object3D() : new THREE.Mesh(geometries['initgeo'], materials['defaultMat']);
-
-				obj.name = info.content;
-				obj.userData.name = info.name;
-				obj.userData.eid = info.content;
-				obj.userData.type = info.type;
-				obj.userData.layer = info.layer;
-				obj.userData.categories = child.categories;
-
-				// only scale translation
-				if(!parent) {
-					t.multiplyScalar(scale);
-					s.multiplyScalar(scale);
-				}
-				mat.compose(t,q,s);
-				obj.applyMatrix(mat);
-				obj.matrixAutoUpdate = false;
-
-				var parentid = null;
-				if(parent && (p = scene.getObjectByName(parent, true))) {
-					p.add(obj);
-					parentid = p.id;
-				}
-				else
-					scene.add(obj);
-
-				// Liste, um zusammengehörige Objekte zu managen
-				objects[obj.id] = {mesh: obj, edges: null, slicedMesh: null, slicedEdges: null, sliceLine: null, sliceFaces: null, visible: true, parent: parentid};
-
-				// Liste für die Anzeige auf der HTML-Seite
-				webglInterface.insertIntoLists({ name: obj.name, id: obj.id, title: obj.userData.name, layer: obj.userData.layer, type: obj.userData.type, parent: parentid, parentVisible: true});
-
-				// if(scope.layers.indexOf(obj.userData.layer) === -1)
-				// scope.layers.push(obj.userData.layer);
-
-				if(info.type === 'object') {
-					if(geometries[file.content])
-						ctmHandler(geometries[file.content].meshGeo);
-					else
-						ctmloader.load('data/' + file.path + file.content, ctmHandler, {useWorker: false});
-				}
-
-				defer.resolve();
-
-				function ctmHandler(geo) {
-					//defer.resolve();
-
-					geo.computeBoundingBox();
-
-					if(!geometries[file.content]) {
-						geo.name = file.content;
-						geometries[file.content] = {meshGeo: geo};
-					}
-					//defer.resolve();
-
-					var isUnsafe = /unsicher/.test(info.name);
-
-					obj.geometry = geo;
-
-					//var mesh;
-					if(child.material) {
-						var material = new THREE.MeshLambertMaterial();
-						material.name = child.material.id;
-						if(child.material.diffuse instanceof Array)
-							material.color = new THREE.Color(child.material.diffuse[0], child.material.diffuse[1], child.material.diffuse[2]);
-						else
-							material.map = textureLoader.load('data/' + child.material.path + child.material.diffuse);
-						if(child.material.alpha) {
-							material.alphaMap = textureLoader.load('data/' + child.material.path + child.material.alpha);
-							material.transparent = true;
-						}
-						material.side = THREE.DoubleSide;
-
-						obj.material = material;
-						setObjectMaterial(obj, true, false, true);
-						console.log(material);
-					}
-					else if(info.materialId) {
-						var material = new THREE.MeshLambertMaterial();
-						//material.color = new THREE.Color(Math.pow(info.materialColor[0], 1/2.2), Math.pow(info.materialColor[1], 1/2.2), Math.pow(info.materialColor[2], 1/2.2));
-						material.color = new THREE.Color(info.materialColor[0], info.materialColor[1], info.materialColor[2]);
-						//material.ambient = material.color.clone();
-						material.name = info.materialId;
-						//materials[info.materialId] = material;
-						//mesh = new THREE.Mesh(geo, material);
-						obj.material = material;
-						setObjectMaterial(obj, true, false, true, isUnsafe);
-					}
-					else {
-						//mesh = new THREE.Mesh(geo, materials['defaultDoublesideMat']);
-						obj.material = materials['defaultDoublesideMat'];
-						obj.userData.originalMat = 'defaultDoublesideMat';
-					}
-
-					// edges
-					var edges = null;
-
-					if (geometries[file.content].edgesGeo) {
-						edges = new THREE.LineSegments(geometries[file.content].edgesGeo, materials['edgesMat']);
-						edges.matrix = mesh.matrixWorld;
-						edges.matrixAutoUpdate = false;
-						scene.add(edges);
-					}
-					else {
-						if (file.edges) {
-							// lade und entpacke geometry für edges
-							JSZipUtils.getBinaryContent('data/' + file.path + file.edges, function (err, data) {
-								// var worker = new Worker('lib/jszip/JSZipWorker.js');
-								// worker.onmessage = function (event) {
-								// 	if(event.data == 0) return;
-								// 	var egeo = new THREE.BufferGeometry();
-								// 	egeo.addAttribute('position', new THREE.BufferAttribute(event.data, 3));
-								// 	edges = new THREE.LineSegments(egeo, materials['edgesMat']);
-								// 	edges.matrix = obj.matrixWorld;
-								// 	edges.matrixAutoUpdate = false;
-								// 	scene.add(edges);
-								// 	geometries[file.content].edgesGeo = egeo;
-								// 	objects[obj.id].edges = edges;
-								// };
-								// worker.postMessage({ data: data, file: file.content });
-								JSZip.loadAsync(data)
-									.then(function (zip) {
-										return zip.file(file.content + '.json').async('text');
-									})
-									.catch(function (err) {
-										Utilities.throwException('JSZip Error', 'Failed to load or extract zip file.', err);
-									})
-									.then(function (zipcontent) {
-										// var zip = new JSZip(data);
-										// var vobj = JSON.parse(zip.file(file.content + '.json').asText());
-										var vobj = JSON.parse(zipcontent);
-										if (vobj.data.attributes.position.array.length === 0)
-											return;
-										var floatarray = new Float32Array(vobj.data.attributes.position.array);
-										var egeo = new THREE.BufferGeometry();
-										egeo.addAttribute('position', new THREE.BufferAttribute(floatarray, 3));
-										edges = new THREE.LineSegments(egeo, materials['edgesMat']);
-										edges.matrix = obj.matrixWorld;
-										edges.matrixAutoUpdate = false;
-										scene.add(edges);
-										geometries[file.content].edgesGeo = egeo;
-										objects[obj.id].edges = edges;
-									});
-							});
-						}
-						else {
-							// wenn noch keine geometry für edges da, berechne und speichere edges
-							edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), materials['edgesMat']);
-							edges.matrix = obj.matrixWorld;
-							edges.matrixAutoUpdate = false;
-							scene.add(edges);
-							geometries[file.content].edgesGeo = edges.geometry;
-							objects[obj.id].edges = edges;
-
-							// Kommastellen kürzen
-							var json = edges.geometry.toJSON();
-							var array = json.data.attributes.position.array;
-							for(var i=0, l=array.length; i<l; i++) {
-								array[i] = parseFloat(array[i].toFixed(3));
-							}
-
-							var zip = new JSZip();
-							zip.file(file.content + '.json', JSON.stringify(json));
-							var zipdata = zip.generate({compression: 'DEFLATE'});
-							phpRequest.saveGeoToJson(file.path, file.content, zipdata).then(function (response) {
-								if (response.data !== 'SUCCESS') {
-									console.error('phpRequest failed on saveGeoToJson()', response.data);
-									return $q.reject();
-								}
-								return neo4jRequest.addEdgesFile($stateParams.project, file.content, file.content + '.zip');
-							}).then(function (response) {
-								if (response.data.exception) {
-									console.error('neo4j failed on addEdgesFile()', response);
-									return;
-								}
-								file.edges = file.content + '.zip';
-							});
-						}
-					}
-
-				}
-
-				return defer.promise;
-
-			};
 
 			///// LOADING
 
@@ -2587,16 +2361,11 @@ angular.module('dokuvis.viewport',[
 				// create ObjectEntry and add to collection
 				var objentry = new DV3D.ObjectEntry(obj);
 				objentry.addEventListener('change', animateAsync);
-				objentry.addEventListener('toggle', toggleObject);
-				objentry.addEventListener('focus', function (event) {
-					if (event.target.object)
-						focusSelection([event.target.object]);
-				});
-				objentry.addEventListener('select', function (event) {
-					setSelected(event.target, event.originalEvent.ctrlKey);
-				});
-				objects.add(objentry);
+				objentry.addEventListener('toggle', toggleObjectHandler);
+				objentry.addEventListener('focus', focusHandler);
+				objentry.addEventListener('select', selectHandler);
 
+				objects.add(objentry);
 
 				// load geometry / ctm file
 				if (entry.obj.type === 'object') {
@@ -2618,7 +2387,7 @@ angular.module('dokuvis.viewport',[
 								ctmloader.load('data/' + entry.file.path + file, function (geo) {
 									geoParts.push(geo);
 									deferGeo.resolve();
-								}, { useWorker: true });
+								}, { useWorker: false });
 
 								return deferGeo.promise;
 							});
@@ -2630,7 +2399,7 @@ angular.module('dokuvis.viewport',[
 
 					// load normal objects
 					else
-						ctmloader.load('data/' + entry.file.path + entry.file.content, ctmHandler, { useWorker: true });
+						ctmloader.load('data/' + entry.file.path + entry.file.content, ctmHandler, { useWorker: false });
 				}
 
 				defer.resolve();
@@ -2827,7 +2596,7 @@ angular.module('dokuvis.viewport',[
 			// clear scene and dispose geometries and materials
 			function resetScene() {
 				// remove from scene and collection
-				objects.asArray().forEach(function (obj) {
+				[].concat(objects.list).forEach(function (obj) {
 					obj.object.parent.remove(obj.object);
 					if (obj.edges) scene.remove(obj.edges);
 					objects.remove(obj);
@@ -2854,7 +2623,7 @@ angular.module('dokuvis.viewport',[
 				}
 
 				animate();
-				webglInterface.clearLists(); // deprecated
+				//webglInterface.clearLists(); // deprecated
 			}
 
 			/**
@@ -2899,14 +2668,14 @@ angular.module('dokuvis.viewport',[
 			///// OBJECT EVENTS
 
 			// add or remove mesh and edges from parent or scene
-			function toggleObject(event) {
+			function toggleObjectHandler(event) {
 				var target = event.target;
 				var parent = target.parent ? target.parent.object : scene;
 
 				// toggle parent if hidden
 				if (event.visible && target.parent && !target.parent.visible) {
 					target.parent.visible = true;
-					toggleObject({ target: target.parent, visible: true });
+					toggleObjectHandler({ target: target.parent, visible: true });
 				}
 
 				// add
@@ -2927,6 +2696,24 @@ angular.module('dokuvis.viewport',[
 				}
 
 				animateAsync();
+			}
+
+			// focus event handler
+			function focusHandler(event) {
+				if (event.target.object) {
+					var obj = event.target.object;
+					if (obj instanceof DV3D.ImagePane)
+						setImageView(obj);
+					else if (obj instanceof DV3D.Plan)
+						viewOrthoPlan(obj);
+					else
+						focusSelection([event.target.object]);
+				}
+			}
+
+			// select event handler
+			function selectHandler(event) {
+				setSelected(event.target, event.originalEvent.ctrlKey);
 			}
 
 			/**
@@ -3270,10 +3057,10 @@ angular.module('dokuvis.viewport',[
 			// focus all objects
 			function focusAll() {
 				var cc = [];
-				angular.forEach(objects, function (obj) {
-					if (obj.mesh.userData.type === 'object')
-						cc.push(obj.mesh);
-				});
+				objects.forEach(function (obj) {
+					if (obj.type === 'object')
+						cc.push(obj.object);
+				}, true);
 				if (cc.length < 1) return;
 				focusObjects(cc);
 			}
@@ -3369,7 +3156,22 @@ angular.module('dokuvis.viewport',[
 				windowElement.off('keyup', keyup);
 				windowElement.off('resize', resizeViewport);
 
-				$log.debug('destroy webgl directive');
+				// remove event listeners from entries
+				objects.forEach(function (entry) {
+					entry.removeEventListener('change', animateAsync);
+					entry.removeEventListener('toggle', toggleObjectHandler);
+					entry.removeEventListener('focus', focusHandler);
+					entry.removeEventListener('select', selectHandler);
+				});
+
+				spatialImages.forEach(function (entry) {
+					entry.removeEventListener('change', animateAsync);
+					entry.removeEventListener('toggle', toggleSourceHandler);
+					entry.removeEventListener('focus', focusHandler);
+					entry.removeEventListener('select', selectHandler);
+				});
+
+				$log.debug('destroy viewport directive');
 			});
 		}
 
@@ -3378,7 +3180,6 @@ angular.module('dokuvis.viewport',[
 			replace: false,
 			transclude: true,
 			template: '<canvas ng-class="{\'cursor_orbit\': navigation.rotate, \'cursor_pan\': navigation.pan, \'cursor_zoom\': navigation.zoom}"></canvas>\n<div class="viewport-extras" ng-transclude></div>',
-			//templateUrl: 'app/directives/webglView/webglView.html',
 			scope: {
 				callFunc: '=',
 				screenshotCallback: '='

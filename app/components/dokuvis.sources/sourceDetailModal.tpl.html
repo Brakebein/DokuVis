@@ -60,7 +60,7 @@
 				<div class="info-display">
 					<div>
 						<strong>{{'source_author' | translate}}</strong>
-						<p>{{item.author || 'unbekannt'}}</p>
+						<p>{{(item.author || 'unbekannt') | translate}}</p>
 					</div>
 					<div ng-show="item.archive && (item.archive.institution || item.archive.identifier)">
 						<strong>{{'source_archive' | translate}}</strong>
@@ -93,7 +93,7 @@
 						<strong>Links</strong>
 						<p ng-show="item.file.link"><a ng-href="{{item.file.link}}" target="_blank">SLUB-Link</a></p>
 						<p><a ng-href="data/{{item.file.path + item.file.content}}" target="_blank">Originaldatei</a></p>
-						<p><a ui-sref="project.graph.node({ startNode: item.nId })">Graphensuche</a></p>
+						<!--<p><a ui-sref="project.graph.node({ startNode: item.nId })">Graphensuche</a></p>-->
 					</div>
 					<div ng-show="item.type == 'text'">
 						<button class="btn btn-default btn-sm" ng-click="nextPage(-1)">vorige Seite</button>

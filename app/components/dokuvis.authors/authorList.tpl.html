@@ -13,7 +13,7 @@
 			<tr ng-repeat="a in authors | orderBy: 'name'">
 				<td>{{ a.name }}</td>
 				<td>{{ a.linkStats.documents }}</td>
-				<td><a ui-sref="project.graph.node({ startNode: a.nodeId })">Graphensuche</a>
+				<td><!--<a ui-sref="project.graph.node({ startNode: a.nodeId })">Graphensuche</a>-->
 					<button class="btn btn-default btn-xs" ui-sref=".author({ authorId: a.id })">{{'edit' | translate}}</button>
 				</td>
 			</tr>
