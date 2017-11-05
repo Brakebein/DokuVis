@@ -1,0 +1,15 @@
+{
+  "model_version": "Version",
+  "model_versions": "Versions",
+  "model_version_graph": "Version graph",
+  "model_version_new": "Add new version",
+  "model_version_none": "No version chosen.",
+  "model_version_root": "This is the <b>root</b> version and does not contain any objects. Choose a version or add a new one.",
+  "model_upload_heading": "Upload model",
+  "model_upload_hint": "Currently, only <b>DAE</b> files or DAE + textures packed as <b>ZIP</b> are processed.",
+  "model_upload_parent": "The new version will be saved as a successor of <b>{{parent}}</b>.",
+  "model_form_summary": "Summary",
+  "model_form_summary_missing": "At least, fill in the summary field!",
+  "model_form_note": "Additional notes",
+  "model_form_software": "Software used"
+}

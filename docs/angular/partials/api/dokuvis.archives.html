@@ -1,0 +1,93 @@
+
+
+<h1>
+  <code>dokuvis.archives</code>
+</h1>
+
+<p>Components to integrate archive/repositorie information.</p>
+<h3 id="module-dependencies">Module Dependencies</h3>
+<ul>
+<li><a href="https://docs.angularjs.org/api/ngResource">ngResource</a></li>
+<li><a href="https://ui-router.github.io/ng1/docs/0.3.2/#/api">ui.router</a></li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<p>In your application, define a constant named <code>ApiArchive</code> to specify the REST-API url.</p>
+<pre><code>app.constant(&#39;ApiArchive&#39;, &#39;api/auth/project/:project/archive&#39;);
+</code></pre>
+<h3 id="archive-object">Archive object</h3>
+<pre><code>{
+  collection: {
+    id: &lt;id&gt;,
+    name: &lt;string&gt;,       // name of the collection
+    nodeId: &lt;integer&gt;     // internal Neo4j id
+  },
+  institution: {
+    abbr: &lt;string|null&gt;,  // abbreviation of the institution
+    id: &lt;id&gt;,
+    name: &lt;string&gt;        // name if the institution
+  }
+}
+</code></pre>
+
+
+
+<div class="component-breakdown">
+  <h2>Module Components</h2>
+  
+  <div>
+    <h3 class="component-heading" id="factory">Factory</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.archives/factory/Archive">Archive</a></td>
+        <td><p>$resource for archives.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="controller">Controller</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.archives/controller/archiveModalCtrl">archiveModalCtrl</a></td>
+        <td><p>This controller handles the modal to enter a new archive to the system.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="directive">Directive</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.archives/directive/archivesList">archivesList</a></td>
+        <td><p>List of all archives and their detailed information.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+</div>
+
+
+
+
+

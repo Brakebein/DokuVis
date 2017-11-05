@@ -42,7 +42,7 @@ DV3D.Plan = function ( fileUrl, imageUrl, scale, ctmloader ) {
 		geo.rotateY(angleY);
 		var normalYZ = new THREE.Vector3(0, geo.attributes.normal.array[1], geo.attributes.normal.array[2]).normalize();
 		var angleX = 0;
-		if(normalYZ.length()) {
+		if (normalYZ.length()) {
 			angleX = normalYZ.angleTo(zAxis);
 			angleX *= normalYZ.dot(yAxis) > 0 ? 1 : -1;
 		}
@@ -52,7 +52,7 @@ DV3D.Plan = function ( fileUrl, imageUrl, scale, ctmloader ) {
 		geo.computeBoundingSphere();
 
 		// material
-		if(imageUrl) {
+		if (imageUrl) {
 			var texture = new THREE.TextureLoader().load(imageUrl, function () {
 				if(scope.onComplete) scope.onComplete();
 			});
@@ -85,45 +85,50 @@ DV3D.Plan = function ( fileUrl, imageUrl, scale, ctmloader ) {
 	
 };
 
-DV3D.Plan.prototype = Object.create( THREE.Object3D.prototype );
+DV3D.Plan.prototype = Object.assign( Object.create( THREE.Object3D.prototype ), {
 
-/**
- * Applies selection color to the material of the edges.
- */
-DV3D.Plan.prototype.select = function () {
-	this.edges.material.color.set(THREE.DokuVisTray.defaults.selectionColor);
-};
-/**
- * Applies default color to the material of the edges.
- */
-DV3D.Plan.prototype.deselect = function () {
-	this.edges.material.color.set(THREE.DokuVisTray.defaults.edgeColor);
-};
-/**
- * Sets the opacity of the plan.
- * @param value {number} New opacity value
- */
-DV3D.Plan.prototype.setOpacity = function (value) {
-	if(value < 1) {
-		this.mesh.material.transparent = true;
-		this.mesh.material.opacity = value;
-		this.edges.material.transparent = true;
-		this.edges.material.opacity = value;
+	/**
+	 * Apply selection color to the material of the edges.
+	 */
+	select: function () {
+		this.edges.material.color.set(DV3D.Defaults.selectionColor);
+	},
+
+	/**
+	 * Apply default color to the material of the edges.
+	 */
+	deselect: function () {
+		this.edges.material.color.set(DV3D.Defaults.edgeColor);
+	},
+
+	/**
+	 * Set the opacity of the plan.
+	 * @param value {number} New opacity value
+	 */
+	setOpacity: function (value) {
+		if (value < 1) {
+			this.mesh.material.transparent = true;
+			this.mesh.material.opacity = value;
+			this.edges.material.transparent = true;
+			this.edges.material.opacity = value;
+		}
+		else {
+			this.mesh.material.transparent = false;
+			this.mesh.material.opacity = 1;
+			this.edges.material.transparent = false;
+			this.edges.material.opacity = 1;
+		}
+	},
+
+	/**
+	 * Dispose geometries, materials, and textures.
+	 */
+	dispose: function () {
+		this.edges.material.dispose();
+		this.edges.geometry.dispose();
+		this.mesh.material.map.dispose();
+		this.mesh.material.dispose();
+		this.mesh.geometry.dispose();
 	}
-	else {
-		this.mesh.material.transparent = false;
-		this.mesh.material.opacity = 1;
-		this.edges.material.transparent = false;
-		this.edges.material.opacity = 1;
-	}
-};
-/**
- * Disposes geometries, materials, and textures.
- */
-DV3D.Plan.prototype.dispose = function () {
-	this.edges.material.dispose();
-	this.edges.geometry.dispose();
-	this.mesh.material.map.dispose();
-	this.mesh.material.dispose();
-	this.mesh.geometry.dispose();
-};
+
+});

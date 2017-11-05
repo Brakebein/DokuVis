@@ -1,0 +1,219 @@
+
+
+<h1>
+  <code>dokuvisApp</code>
+</h1>
+
+<p>Dokuvis base module.</p>
+
+
+
+<div class="component-breakdown">
+  <h2>Module Components</h2>
+  
+  <div>
+    <h3 class="component-heading" id="object">Object</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/object/API">API</a></td>
+        <td><p>Constant defining the base url to API. It is injectable like any other service.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/object/config">config</a></td>
+        <td><p>Configures ui.router states, state resolve functions, and some defaults.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/object/run">run</a></td>
+        <td><p>Code execution after bootstrapping AngularJS.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="factory">Factory</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/AuthenticationFactory">AuthenticationFactory</a></td>
+        <td><p>Service responsible for checking the user status.<br/>
+From tutorial: <a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/UserAuthFactory">UserAuthFactory</a></td>
+        <td><p>Service responsible for contacting the login endpoint and validating the user (and logging out the user).<br/>
+From tutorial: <a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/TokenInterceptor">TokenInterceptor</a></td>
+        <td><p>Service responsible for sending in the access token and the key along with each request to the server.<br/>
+From tutorial: <a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/ConfirmService">ConfirmService</a></td>
+        <td><p>Service providing a dialog with two buttons to confirm or abort an action.</p>
+<pre><code>// default values
+alertDefaults = {
+    backdrop: &#39;static&#39;,
+    templateUrl: &#39;partials/alerts/confirmAlert.html&#39;,
+    show: true
+};
+alertOptions = {
+    abortButtonText: &#39;Abbrechen&#39;,
+    actionButtonText: &#39;OK&#39;,
+    headerText: &#39;Fortfahren?&#39;,
+    bodyText: &#39;Sind Sie sicher?&#39;,
+    type: &#39;warning&#39;
+};
+</code></pre>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/SpatializeInterface">SpatializeInterface</a></td>
+        <td><p>Interface between <code>imageViewer</code> and <code>webglView</code> directives and <code>spatializeModalCtrl</code> to manage interaction across their different scopes.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/Utilities">Utilities</a></td>
+        <td><p>This factory provides some helpful functions.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/webglContext">webglContext</a></td>
+        <td><p>This service initializes standard objects and materials for the 3D viewport and holds all mesh/geometry instances. So the 3D content is kept in the memory, even if the viewport (respectively webglView directive) gets destroyed, and doesn&#39;t need to be reloaded when the user returns to the 3D viewport. Materials etc. are also globally availlable via <code>THREE.DokuVisTray</code>.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="controller">Controller</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/controller/configCtrl">configCtrl</a></td>
+        <td><p>Controller for configuration view.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/controller/explorerCtrl">explorerCtrl</a></td>
+        <td><p>Controller for main explorer view.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/controller/navCtrl">navCtrl</a></td>
+        <td><p>Controller for the navbar (visible at start page and project list page).</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/controller/projectlistCtrl">projectlistCtrl</a></td>
+        <td><p>Controller for view to list and organize all projects.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/controller/projHomeCtrl">projHomeCtrl</a></td>
+        <td><p>Controller of the Project Home view, organizing subprojects and project/subproject information.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/controller/registerCtrl">registerCtrl</a></td>
+        <td><p>Controller for register view.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/controller/sourceDetailCtrl">sourceDetailCtrl</a></td>
+        <td><p>Controller for the modal to display detailed information about sources.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/controller/tasksCtrl">tasksCtrl</a></td>
+        <td><p>Controller for the project management view.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/controller/uploadCtrl">uploadCtrl</a></td>
+        <td><p>Controller of the Upload modal. The modal can be used to upload either a source with its metadata, or a 3D model.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="directive">Directive</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/directive/horizontalScroll">horizontalScroll</a></td>
+        <td><p>Translates mousewheel event into horizontal scroll movement.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/directive/imageViewer">imageViewer</a></td>
+        <td><p>A viewer to inspect an image in detail. The user is able to zoom and pan. It builds on three.js with a <code>WebGLRenderer</code>.
+An optional feature is to set markers on the image.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/directive/rampSlider">rampSlider</a></td>
+        <td><p>A slider visualized as a box with a color ramp as background.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/directive/webglView">webglView</a></td>
+        <td><p>Directive implementing the 3D viewport and all 3D functionalities using <a href="http://threejs.org/">http://threejs.org/</a>.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+</div>
+
+
+
+
+

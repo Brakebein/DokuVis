@@ -1,0 +1,103 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">versionDetail</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+  
+
+    <li>
+      - factory in module <a href="api/dokuvis.models">dokuvis.models</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>Directive displaying details of a version.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ng/service/$rootScope">$rootScope</a></li><li><a href="ComponentsPath">ComponentsPath</a></li><li><a href="api/dokuvis.models/factory/DigitalObject">DigitalObject</a></li><li><a href="Utilities">Utilities</a></li>
+  </ul>
+  
+
+  
+<h2>Events</h2>
+<ul class="events">
+  <li id="modelQuerySuccess">
+    <h3 class="">
+      <span class="title"><code>modelQuerySuccess</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when all models/3D object entries has been successfully retrieved from the database.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">$rootScope</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        entries
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-array"><a href="api/dokuvis.models/factory/DigitalObject">Array.&lt;DigitalObject&gt;</a></span>
+      </td>
+      <td>
+        <p>Entries returned from the database as array (in hierachical order).</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>$rootScope.$on(&#39;modelQuerySuccess&#39;, function (evt, entries) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  </ul>
+
+
+  
+</div>
+
+

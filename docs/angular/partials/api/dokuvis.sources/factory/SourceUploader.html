@@ -1,0 +1,69 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">SourceUploader</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+  
+
+    <li>
+      - factory in module <a href="api/dokuvis.sources">dokuvis.sources</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p><code>FileUploader</code> instance for sources.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ng/service/$window">$window</a></li><li><a href="https://docs.angularjs.org/api/ng/service/$rootScope">$rootScope</a></li><li><a href="guide/ApiParams">ApiParams</a></li><li><a href="ApiSource">ApiSource</a></li><li><a href="https://github.com/nervgh/angular-file-upload">FileUploader</a></li><li><a href="Utilities">Utilities</a></li><li><a href="https://github.com/urish/angular-moment">moment</a></li>
+  </ul>
+  
+
+  
+<h2>Events</h2>
+<ul class="events">
+  <li id="sourcesUpdate">
+    <h3 class="">
+      <span class="title"><code>sourcesUpdate</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when the upload process of all sources has finished.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">$rootScope</div>
+    </div>
+    
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>$rootScope.$on(&#39;sourcesUpdate&#39;, function (evt) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  </ul>
+
+
+  
+</div>
+
+

@@ -1,57 +1,59 @@
 <!-- Achsen-Viewport -->
-<div id="axis" ng-if="hud.axis"></div>
+<!--<div id="axis" ng-if="hud.axis"></div>-->
 <!-- Ladebalken und Ladeinfo -->
-<div class="loadprogressitem fadeLoadprogress ng-hide" ng-show="loading.visible">{{loading.item}} &ndash; {{loading.loaded}} / {{loading.total}}</div>
-<div class="loadprogressbar fadeLoadprogress ng-hide" ng-show="loading.visible" ng-style="{ width: loading.percent + '%' }"></div>
+<!--<div class="loadprogressitem fadeLoadprogress ng-hide" ng-show="loading.visible">{{loading.item}} &ndash; {{loading.loaded}} / {{loading.total}}</div>-->
+<!--<div class="loadprogressbar fadeLoadprogress ng-hide" ng-show="loading.visible" ng-style="{ width: loading.percent + '%' }"></div>-->
 
 <!-- spatialize feature -->
 <div class="spatialize" ng-if="hud.spatialize" ng-include="'partials/spatializeDLT.html'"></div>
 <div class="spatialize" ng-if="spatialize.active" ng-include="'partials/spatialize.html'"></div>
 
 <!-- Kontrollleiste -->
-<div class="vpNaviContainer" ng-if="hud.navigation" ng-hide="snapshot.active">
-	<!-- Buttons - auf Objekt fokusieren -->
-	<div class="ctrlGroup" ng-show="hud.focus">
-		<button title="Focus All" class="ctrlBtn" ng-click="focusAll()"><img src="img/icons/zoom_all_w.png"/></button>
-		<button title="Focus Selection" class="ctrlBtn" ng-click="focusSelected()"><img src="img/icons/zoom_sel_w.png"/></button>
-	</div>
-	
-	<!-- Buttons - navigieren -->
-	<div class="ctrlGroup" ng-show="hud.move">
-		<button title="Auswahl-Werkzeug" class="ctrlBtn" ng-class="{ active: navigation.select }" ng-click="setNavigationMode('select')"><img src="img/icons/cursor80_w.svg" width="24"/></button>
-		<button title="Ansicht drehen" class="ctrlBtn" ng-class="{ active: navigation.rotate }" ng-click="setNavigationMode('rotate')"><img src="img/icons/orbit_w.svg" width="24"/></button>
-		<button title="Ansicht verschieben" class="ctrlBtn" ng-class="{ active: navigation.pan }" ng-click="setNavigationMode('pan')"><img src="img/icons/move_w.svg" width="24"/></button>
-		<button title="Ansicht zoomen" class="ctrlBtn" ng-class="{ active: navigation.zoom }" ng-click="setNavigationMode('zoom')"><img src="img/icons/zoom2_w.svg" width="24"/></button>
-	</div>
-	
-	<!-- Dropdown-Liste Rendermode und Kamera -->
-	<div class="ctrlGroup form-inline">
-		<select class="form-control input-sm" ng-show="hud.shading" ng-options="s for s in viewportSettings.shading" ng-model="viewportSettings.shadingSel" ng-change="setShading(viewportSettings.shadingSel)"></select>
-		<select class="form-control input-sm" ng-show="hud.camera" ng-options="c for c in viewportSettings.camera" ng-model="viewportSettings.cameraSel" ng-change="setCamera(viewportSettings.cameraSel)"></select>
-	</div>
+<!--<div class="vpNaviContainer" ng-if="hud.navigation" ng-hide="snapshot.active">-->
+	<!--&lt;!&ndash; Buttons - auf Objekt fokusieren &ndash;&gt;-->
+	<!--<div class="ctrlGroup" ng-show="hud.focus">-->
+		<!--<button title="Focus All" class="ctrlBtn" ng-click="focusAll()"><img src="img/icons/zoom_all_w.png"/></button>-->
+		<!--<button title="Focus Selection" class="ctrlBtn" ng-click="focusSelected()"><img src="img/icons/zoom_sel_w.png"/></button>-->
+	<!--</div>-->
+	<!---->
+	<!--&lt;!&ndash; Buttons - navigieren &ndash;&gt;-->
+	<!--<div class="ctrlGroup" ng-show="hud.move">-->
+		<!--<button title="Auswahl-Werkzeug" class="ctrlBtn" ng-class="{ active: navigation.select }" ng-click="setNavigationMode('select')"><img src="img/icons/cursor80_w.svg" width="24"/></button>-->
+		<!--<button title="Ansicht drehen" class="ctrlBtn" ng-class="{ active: navigation.rotate }" ng-click="setNavigationMode('rotate')"><img src="img/icons/orbit_w.svg" width="24"/></button>-->
+		<!--<button title="Ansicht verschieben" class="ctrlBtn" ng-class="{ active: navigation.pan }" ng-click="setNavigationMode('pan')"><img src="img/icons/move_w.svg" width="24"/></button>-->
+		<!--<button title="Ansicht zoomen" class="ctrlBtn" ng-class="{ active: navigation.zoom }" ng-click="setNavigationMode('zoom')"><img src="img/icons/zoom2_w.svg" width="24"/></button>-->
+	<!--</div>-->
+	<!---->
+	<!--&lt;!&ndash; Dropdown-Liste Rendermode und Kamera &ndash;&gt;-->
+	<!--<div class="ctrlGroup form-inline">-->
+		<!--<select class="form-control input-sm" ng-show="hud.shading" ng-options="s for s in viewportSettings.shading" ng-model="viewportSettings.shadingSel" ng-change="setShading(viewportSettings.shadingSel)"></select>-->
+		<!--<select class="form-control input-sm" ng-show="hud.camera" ng-options="c for c in viewportSettings.camera" ng-model="viewportSettings.cameraSel" ng-change="setCamera(viewportSettings.cameraSel)"></select>-->
+	<!--</div>-->
 
-	<div class="ctrlGroup">
-		<!--<button title="Screenshot-Pin" class="ctrlBtn" ng-click="startMarking()"><i class="fa fa-thumb-tack"></i></button>-->
-		<button title="Snapshot" class="ctrlBtn" ng-click="openSnapshot()"><i class="fa fa-camera"></i></button>
-	</div>
-	
-	<!--<div class="ctrlGroup">
-		<div class="btn-group btn-group-xs">
-			<button type="button" class="btn" ng-class="viewportSettings.ssao == 'ssao' ? 'btn-primary' : 'btn-default'" ng-init="viewportSettings.ssao = 'aa'" ng-click="viewportSettings.ssao = 'ssao'">SSAO</button>
-			<button type="button" class="btn" ng-class="viewportSettings.ssao == 'aa' ? 'btn-primary' : 'btn-default'" ng-click="viewportSettings.ssao = 'aa'">AA</button>
-		</div>
-	</div>-->
-	
-	<!--<div class="ctrlGroup">
-		<button title="Viewport settings" class="ctrlBtn" ng-class="(activeBtn == 'vpsettings') ? 'active' : ''" ng-click="callDirFunc.focusAll()" ng-mousedown="activeBtn = 'vpsettings'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><span class="glyphicon glyphicon-cog"></span></button>
-	</div>-->
-</div>
+	<!--<div class="ctrlGroup">-->
+		<!--&lt;!&ndash;<button title="Screenshot-Pin" class="ctrlBtn" ng-click="startMarking()"><i class="fa fa-thumb-tack"></i></button>&ndash;&gt;-->
+		<!--<button title="Snapshot" class="ctrlBtn" ng-click="openSnapshot()"><i class="fa fa-camera"></i></button>-->
+	<!--</div>-->
+	<!---->
+	<!--&lt;!&ndash;<div class="ctrlGroup">-->
+		<!--<div class="btn-group btn-group-xs">-->
+			<!--<button type="button" class="btn" ng-class="viewportSettings.ssao == 'ssao' ? 'btn-primary' : 'btn-default'" ng-init="viewportSettings.ssao = 'aa'" ng-click="viewportSettings.ssao = 'ssao'">SSAO</button>-->
+			<!--<button type="button" class="btn" ng-class="viewportSettings.ssao == 'aa' ? 'btn-primary' : 'btn-default'" ng-click="viewportSettings.ssao = 'aa'">AA</button>-->
+		<!--</div>-->
+	<!--</div>&ndash;&gt;-->
+	<!---->
+	<!--&lt;!&ndash;<div class="ctrlGroup">-->
+		<!--<button title="Viewport settings" class="ctrlBtn" ng-class="(activeBtn == 'vpsettings') ? 'active' : ''" ng-click="callDirFunc.focusAll()" ng-mousedown="activeBtn = 'vpsettings'" ng-mouseup="activeBtn = ''" ng-mouseleave="activeBtn = ''"><span class="glyphicon glyphicon-cog"></span></button>-->
+	<!--</div>&ndash;&gt;-->
+<!--</div>-->
 
 <!-- Erweiterte Optionen im Viewport -->
 <div ng-if="hud.options" ng-include="'partials/enhanced_options.html'" class="vpPanelContainer" ng-hide="snapshot.active" ng-class="{ expand: vPanel.expand }" bs-collapse ng-model="vPanel.activeTab"></div>
 <!--<div ng-include="'partials/enhanced_options_horizontal.html'" class="vpPanelContainerHorizontal"></div>-->
 
-<div class="ng-hide" legend="activeCategory" ng-show="activeCategory"></div>
+<!--<div class="ng-hide" legend="activeCategory" ng-show="activeCategory"></div>-->
+
+<category-legend></category-legend>
 
 <div class="snapshot" ng-if="snapshot.active" ng-include="'partials/snapshot.html'"></div>
 

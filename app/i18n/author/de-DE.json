@@ -1,0 +1,8 @@
+{
+  "author_title": "Autoren",
+  "author_btn_add": "Autor hinzufügen",
+  "author_new": "Neuer Autor",
+  "author_edit": "Autor bearbeiten",
+  "author_delete": "Autor löschen",
+  "author_delete_confirm": "Soll der Autor <b>{{name}}</b> wirklich gelöscht werden? Verknüpfungen zu Quellen u.ä. gehen dabei verloren."
+}

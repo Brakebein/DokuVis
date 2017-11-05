@@ -1,0 +1,21 @@
+<table class="table table-striped">
+	<thead>
+	<tr>
+		<th>{{'name' | translate}}</th>
+		<th>{{'email' | translate}}</th>
+		<th>{{'role' | translate}}</th>
+		<th ng-show="configArray"></th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr ng-repeat="s in staff" >
+		<td>{{s.name}}</td>
+		<td>{{s.email}}</td>
+		<td>{{s.role}}</td>
+		<td ng-show="configArray">
+			<button ng-show="config.remove" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i></button>
+		</td>
+	</tr>
+
+	</tbody>
+</table>

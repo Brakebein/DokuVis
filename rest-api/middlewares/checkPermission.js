@@ -1,10 +1,11 @@
+const utils = require('../utils');
 const mysql = require('../mysql-request');
 
 module.exports = function(role) {
 	return function (req, res, next) {
 
 		var user = req.headers['x-key'] || '';
-		var prj = req.params.id;
+		var prj = req.params.id; //TODO: change id to prj
 
 		if (!(role instanceof Array)) role = [role];
 

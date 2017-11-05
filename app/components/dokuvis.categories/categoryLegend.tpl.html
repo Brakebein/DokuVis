@@ -1,0 +1,10 @@
+<h5>Legende</h5>
+
+<p>{{'category' | translate}}: {{category.value}}</p>
+
+<div class="attribute" ng-repeat="a in category.attributes" ng-hide="a.id === -1">
+	<div class="color">
+		<div class="minicolors-sprite"><div ng-style="{background: (a.id === 0) ? '#ddd' : a.color}"></div></div>
+	</div>
+	<div class="value">{{a.value}}</div>
+</div>

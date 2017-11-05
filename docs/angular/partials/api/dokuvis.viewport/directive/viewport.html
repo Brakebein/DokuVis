@@ -1,0 +1,153 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">viewport</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+    <li>
+      - directive in module <a href="api/dokuvis.viewport">dokuvis.viewport</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>Main directive, core element</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+
+  
+  <h2>Directive Info</h2>
+  <ul>
+    
+    <li>This directive executes at priority level 0.</li>
+    
+  </ul>
+
+  
+  <h2 id="usage">Usage</h2>
+  <div class="usage">
+  
+    <ul>
+    
+      <li>as element:
+      
+      <pre><code>&lt;viewport&gt;&#10;  ...&#10;&lt;/viewport&gt;</code></pre>
+      </li>
+    
+  </div>
+  
+  
+<h2>Events</h2>
+<ul class="events">
+  <li id="viewportLoadProgress">
+    <h3 class="">
+      <span class="title"><code>viewportLoadProgress</code></span>
+      
+  
+    </h3>
+    <div><p>Event that broadcasts the progress of the loading manager.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">viewport</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        item
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Name/url of the last loaded item.</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        loaded
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-number"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" _target="blank">Number</a></span>
+      </td>
+      <td>
+        <p>Number of already loaded items.</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        total
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-number"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" _target="blank">Number</a></span>
+      </td>
+      <td>
+        <p>Total number of items.</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>viewport.$on(&#39;viewportLoadProgress&#39;, function (evt, item, loaded, total) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  </ul>
+
+  
+
+
+  
+</div>
+
+

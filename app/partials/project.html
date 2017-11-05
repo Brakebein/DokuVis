@@ -5,32 +5,32 @@
 		<img src="img/dokuvis_logo-mini.png"/>
 	</div>
 	
-	<div title="Home" class="smBtn" ui-sref="project.home" ui-sref-active="active" ng-include="'img/icons/home_b.svg'">
-	</div>
-	<div title="Explorer" class="smBtn" ui-sref="project.explorer" ui-sref-active="active" ng-include="'img/icons/3d_b.svg'">
-	</div>
-	<div title="Aufgaben" class="smBtn" ui-sref="project.tasks" ui-sref-active="active" ng-include="'img/icons/tasks_b.svg'">
-	</div>
-	<div class="smBtn" title="Graphensuche" ui-sref="project.graph" ui-sref-active="active" ng-include="'img/icons/graph_w.svg'">
-	</div>
-	<div class="smBtn" title="Ressourcen" ui-sref="project.resources" ui-sref-active="active" ng-include="'img/icons/database_b.svg'">
-	</div>
-	<div class="smBtn" title="Einstellungen" ui-sref="project.config" ui-sref-active="active" ng-include="'img/icons/config_b.svg'">
-	</div>
+	<div title="Home" class="smBtn" ui-sref="project.home" ui-sref-active="active" ng-include="'img/icons/home.svg'"></div>
+
+	<div title="Explorer" class="smBtn" ui-sref="project.explorer" ui-sref-active="active" ng-include="'img/icons/cube.svg'"></div>
+
+	<div title="Aufgaben" class="smBtn" ui-sref="project.tasks" ui-sref-active="active" ng-include="'img/icons/tasks.svg'"></div>
+
+	<!--<div class="smBtn" title="Graphensuche" ui-sref="project.graph" ui-sref-active="active" ng-include="'img/icons/graph.svg'"></div>-->
+
+	<div class="smBtn" title="Ressourcen" ui-sref="project.resources" ui-sref-active="active" ng-include="'img/icons/database.svg'"></div>
+
+	<div class="smBtn" title="Einstellungen" ui-sref="project.config" ui-sref-active="active" ng-include="'img/icons/config.svg'"></div>
 	
 	<div class="smSpace"></div>
-	
-	<div class="smBtn" title="Hilfe">
-		<i class="glyphicon glyphicon-question-sign"></i>
+
+	<div class="smBtn smBtn-lang"
+		 title="Sprache"
+		 bs-popover
+		 data-template-url="partials/popovers/languageConfig.html"
+		 data-auto-close="1">
+		{{ $root.currentLanguage.shortKey | uppercase }}
 	</div>
-	<div class="smBtn" title="Projektübersicht" ng-click="toProjectList()">
-		<i class="glyphicon glyphicon-menu-hamburger"></i>
-	</div>
-	<div class="smBtn" title="Ausloggen">
-		<i class="glyphicon glyphicon-log-out"></i>
-	</div>
+
+	<div class="smBtn" title="Hilfe" ng-include="'img/icons/help.svg'"></div>
+	<div class="smBtn" title="Projektübersicht" ng-click="toProjectList()" ng-include="'img/icons/list.svg'"></div>
+	<div class="smBtn" title="Ausloggen" ng-include="'img/icons/signout.svg'"></div>
 
 </div>
 
-<!-- Seite -->
 <div class="prjMainContainer" ui-view></div>

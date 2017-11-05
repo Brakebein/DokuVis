@@ -28,7 +28,7 @@
     .sideNav .smBtn:hover, .sideNav .smBtn.active {
       cursor: pointer;
       color: #ddd; }
-      .sideNav .smBtn:hover path, .sideNav .smBtn.active path {
+      .sideNav .smBtn:hover svg, .sideNav .smBtn.active svg {
         fill: #ddd; }
     .sideNav .smBtn:hover {
       background-color: #444; }
@@ -38,10 +38,13 @@
       font-size: 20px; }
     .sideNav .smBtn svg {
       width: 25px;
-      height: 25px; }
-    .sideNav .smBtn path {
+      height: 25px;
       fill: #999;
       transition: fill 0.3s; }
+    .sideNav .smBtn.smBtn-lang {
+      font-size: 18px;
+      text-align: center;
+      padding: 5px 0; }
   .sideNav .smSpace {
     flex: 1 1 35px; }
   .sideNav.sideNav-left {
@@ -54,9 +57,14 @@
     order: 2;
     border-left: 1px solid #000; }
     .sideNav.sideNav-right .smBtn {
+      display: block;
       border-left: 2px solid rgba(252, 78, 42, 0.5); }
       .sideNav.sideNav-right .smBtn:hover, .sideNav.sideNav-right .smBtn.active {
         border-left-color: #fc4e2a; }
+    .sideNav.sideNav-right[bs-radio-group] > label {
+      margin: 0; }
+      .sideNav.sideNav-right[bs-radio-group] > label > input {
+        display: none; }
 
 .sideContainer {
   flex: 1 1 auto;
@@ -67,7 +75,7 @@
   .sideContainer .sideHeader {
     flex: 0 0 auto;
     width: 100%;
-    padding: 20px; }
+    padding: 20px 20px 0; }
   .sideContainer .sideContent {
     flex: 1 1 auto;
     width: 100%;
@@ -88,7 +96,7 @@
   right: 0;
   z-index: 30; }
 
-.resizer-h {
+[resizer="horizontal"] {
   position: absolute;
   left: 0;
   right: 0;
@@ -96,7 +104,7 @@
   height: 6px;
   cursor: n-resize; }
 
-.resizer-v {
+[resizer="vertical"] {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -104,40 +112,9 @@
   width: 6px;
   cursor: e-resize; }
 
-.resizer-h, .resizer-v {
+[resizer="horizontal"], [resizer="vertical"] {
   background-color: #333; }
-
-.resizer-h:hover, .resizer-v:hover {
-  background-color: #789; }
-
-.resizer-vTask {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 100%;
-  width: 6px;
-  cursor: e-resize; }
-
-.resizer-vTask {
-  background-color: #333; }
-
-.resizer-vTask:hover {
-  background-color: #789; }
-
-.closeXBtn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 25px;
-  height: 25px;
-  padding: 3px 5px;
-  background-color: #e68f8d;
-  border-bottom: 1px solid #888;
-  border-left: 1px solid #888;
-  border-bottom-left-radius: 4px;
-  color: #fff;
-  cursor: pointer; }
-  .closeXBtn:hover {
-    background-color: #d2322d; }
+  [resizer="horizontal"]:hover, [resizer="vertical"]:hover {
+    background-color: #789; }
 
 /*# sourceMappingURL=project.css.map */

@@ -1,0 +1,53 @@
+
+<h1>Factory components in <code>dokuvis.auth</code></h1>
+
+
+
+<div class="component-breakdown">
+  <div>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/AuthenticationFactory">AuthenticationFactory</a></td>
+        <td><p>Service responsible for checking the user status.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/UserAuthFactory">UserAuthFactory</a></td>
+        <td><p>Service responsible for contacting the login endpoint and validating the user (and logging out the user).</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/TokenInterceptor">TokenInterceptor</a></td>
+        <td><p>Service responsible for sending in the access token and the key along with each request to the server.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/ValidateResolve">ValidateResolve</a></td>
+        <td><p>Resolver: Check for valid token and user data.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/AuthenticateResolve">AuthenticateResolve</a></td>
+        <td><p>Resolver: No access, if user is not logged in.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.auth/factory/SkipResolve">SkipResolve</a></td>
+        <td><p>Resolver: If the user is already logged in, take him to the home page.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+</div>
+

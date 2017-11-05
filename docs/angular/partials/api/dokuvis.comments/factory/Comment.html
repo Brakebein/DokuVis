@@ -1,0 +1,242 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">Comment</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+  
+
+    <li>
+      - factory in module <a href="api/dokuvis.comments">dokuvis.comments</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>$resource for comments.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ngResource/service/$resource">$resource</a></li><li><a href="guide/ApiParams">ApiParams</a></li><li><a href="ApiComment">ApiComment</a></li><li><a href="Utilities">Utilities</a></li><li><a href="https://github.com/urish/angular-moment">moment</a></li>
+  </ul>
+  
+
+  
+<h2>Methods</h2>
+<ul class="methods">
+  <li id="save">
+    <h3 class="">
+      <span class="title"><p><code>save(data);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Save a new comment with following post parameters.</p>
+<pre><code>Comment.save({
+  type: &#39;model&#39;|&#39;source&#39;|&#39;answer&#39;|&#39;task&#39;,
+  text: &lt;string&gt;,
+  title: &lt;string&gt;,               // (optional)
+  targets: &lt;id&gt;|&lt;Array&gt;,         // ids of the items the comment is attached to
+  refs: &lt;id&gt;|&lt;Array&gt;,            // ids of any references (optional)
+  screenshots: &lt;Object&gt;|&lt;Array&gt;  // screenshots and user drawings (optional)
+}).$promise.then(...);
+</code></pre>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        data
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Object with data</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="queryTarget">
+    <h3 class="">
+      <span class="title"><p><code>queryTarget(targetId);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Get all comments of an element specified by its id.</p>
+<pre><code>Comment.queryTarget({ targetId: &lt;id&gt; }).$promise.then(...);
+</code></pre>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        targetId
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Object with targetId</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="query">
+    <h3 class="">
+      <span class="title"><p><code>query();</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Get all comments within the current project/subproject.</p>
+<pre><code>Comment.query().$promise.then(function (comments) {...});
+</code></pre>
+</div>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  
+  <li id="get">
+    <h3 class="">
+      <span class="title"><p><code>get(id);</code></p>
+
+</span>
+      
+      
+  
+    </h3>
+    <div><p>Get a specific comment by id.</p>
+<pre><code>Comment.get({ id: &lt;id&gt; }).$promise.then(...);
+</code></pre>
+</div>
+
+    
+    <h4>Parameters</h4>
+    
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        id
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>Object with comment id</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    
+
+    
+    
+    
+
+    
+  </li>
+  </ul>
+
+  
+</div>
+
+

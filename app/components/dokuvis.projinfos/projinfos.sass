@@ -1,0 +1,27 @@
+projinfo-list
+	.projinfo
+		display: flex
+
+		& > .projinfo-text
+			flex: 1 0 200px
+
+		& > .projinfo-ctrls
+			flex: 0 0 30px
+			padding: 5px
+			display: flex
+			flex-direction: column
+			justify-content: center
+
+			& > i
+				flex: 0 0 18px
+				font-size: 18px
+				color: #eee
+				margin-bottom: 3px
+				text-align: center
+				cursor: pointer
+				transition: color 0.2s
+
+		&:hover > .projinfo-ctrls > i
+			color: #c3c3c3
+			&:hover
+				color: #888

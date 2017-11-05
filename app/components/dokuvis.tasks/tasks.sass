@@ -1,0 +1,117 @@
+@import "../../style/variables"
+
+tasks-gantt
+	& > .tasks-gantt-controls
+		padding-bottom: 20px
+		display: flex
+
+		& > .tasks-gantt-ctrl
+			flex: 0 0 auto
+			padding: 0 20px
+			&.input-group
+				max-width: 200px
+
+	// ganttRow custom
+	.gantt-row
+		.gantt-task-truncated-left, .gantt-task-truncated-right
+			color: #333
+		.gantt-task-overview
+			.gantt-task-truncated-left, .gantt-task-truncated-right
+				margin-top: -2px
+				font-size: 13px
+			&.gantt-task.active > .gantt-task-background
+				border: none
+		&.task-group
+			.gantt-task-overview
+				height: 10%
+				top: 90%
+				.gantt-task-truncated-left, .gantt-task-truncated-right
+					display: none
+		&.staff-row:nth-child(n+2)
+			border-top: 2px solid #bbb
+
+	.gantt-row-label
+		.gantt-label-text
+			.label-highlight
+				cursor: pointer
+				&:hover
+					color: $dvPrimaryColor
+			.btn-row
+				cursor: pointer
+				opacity: 0.5
+				&:hover
+					opacity: 1
+
+		&.active .gantt-label-text
+			.label-highlight
+				color: $dvPrimaryColor
+		&.staff-row:nth-child(n+2)
+			border-top: 2px solid #bbb
+
+
+	// ganttTask custom
+	$ganttTaskBorder: 2px solid $dvPrimaryColor
+
+	.gantt-task
+		&.active > .gantt-task-background
+			border: $ganttTaskBorder
+
+
+	.gantt-task-content
+		.btn-task
+			cursor: pointer
+			opacity: 0
+
+		&:hover .btn-task
+			opacity: 0.5
+			&:hover
+				opacity: 1
+
+
+// task specific classes
+.task-priority-low
+	&.label
+		background-color: $taskPriorityLow
+		color: #333
+	&.btn
+		background: $taskPriorityLow
+		color: #333 !important
+		&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
+			background-color: $taskPriorityLow * 0.93
+	&.gantt-task > .gantt-task-background
+		background-color: $taskPriorityLow
+	&.gantt-task-overview
+		z-index: 9
+
+.task-priority-medium
+	&.label
+		background-color: $taskPriorityMedium
+		color: #333
+	&.btn
+		background: $taskPriorityMedium
+		color: #333 !important
+		&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
+			background-color: $taskPriorityMedium * 0.93
+	&.gantt-task > .gantt-task-background
+		background-color: $taskPriorityMedium
+	&.gantt-task-overview
+		z-index: 8
+
+.task-priority-high
+	&.label
+		background-color: $taskPriorityHigh
+	&.btn
+		background: $taskPriorityHigh
+		color: #333 !important
+		&.active, &:active, &:hover, &.active:hover, &:active:hover, &.active:focus, &:active:focus
+			background-color: $taskPriorityHigh * 0.93
+	&.gantt-task > .gantt-task-background
+		background-color: $taskPriorityHigh
+	&.gantt-task-overview
+		z-index: 7
+
+.task-status-done
+	&.gantt-task > .gantt-task-background
+		background-color: lighten($dvGreenColor, 20%)
+	&.gantt-task-overview
+		z-index: 6

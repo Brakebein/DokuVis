@@ -806,20 +806,20 @@
 		this.dispose = function() {
 
 			this.domElement.removeEventListener( 'contextmenu', contextmenu, false );
-			this.domElement.removeEventListener( 'mousedown', onMouseDown, false );
-			this.domElement.removeEventListener( 'mousewheel', onMouseWheel, false );
-			this.domElement.removeEventListener( 'MozMousePixelScroll', onMouseWheel, false ); // firefox
+			// this.domElement.removeEventListener( 'mousedown', onMouseDown, false );
+			// this.domElement.removeEventListener( 'mousewheel', onMouseWheel, false );
+			// this.domElement.removeEventListener( 'MozMousePixelScroll', onMouseWheel, false ); // firefox
 
 			this.domElement.removeEventListener( 'touchstart', touchstart, false );
 			this.domElement.removeEventListener( 'touchend', touchend, false );
 			this.domElement.removeEventListener( 'touchmove', touchmove, false );
 
-			document.removeEventListener( 'mousemove', onMouseMove, false );
-			document.removeEventListener( 'mouseup', onMouseUp, false );
+			// document.removeEventListener( 'mousemove', onMouseMove, false );
+			// document.removeEventListener( 'mouseup', onMouseUp, false );
 
-			window.removeEventListener( 'keydown', onKeyDown, false );
+			// window.removeEventListener( 'keydown', onKeyDown, false );
 
-		}
+		};
 
 		//this.domElement.addEventListener( 'contextmenu', contextmenu, false );
 

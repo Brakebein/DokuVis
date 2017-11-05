@@ -1,21 +1,21 @@
 <div class="config">
 
 	<div>
-		<h2>{{'config_title' | translate}}</h2>
+		<h2 translate>config_title</h2>
 		<hr/>
 	</div>
 
 	<div class="col-lg-4">
 
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h4 class="panel-title">{{'config_general_title' | translate}}</h4>
-			</div>
+		<!--<div class="panel panel-default">-->
+			<!--<div class="panel-heading">-->
+				<!--<h4 class="panel-title">{{'config_general_title' | translate}}</h4>-->
+			<!--</div>-->
 
-			<div class="panel-body">
-				{{'config_general_public' | translate}} on/off
-			</div>
-		</div>
+			<!--<div class="panel-body">-->
+				<!--{{'config_general_public' | translate}} on/off-->
+			<!--</div>-->
+		<!--</div>-->
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -25,48 +25,15 @@
 			</div>
 
 			<div class="panel-body">
-				<table class="table table-striped">
-					<thead>
-						<tr>
-							<th width="30%">{{'name' | translate}}</th>
-							<th width="30%">{{'email' | translate}}</th>
-							<th width="20%">{{'role' | translate}}</th>
-							<th width="20%"></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr ng-repeat="s in staff" >
-							<td>{{s.name}}</td>
-							<td>{{s.email}}</td>
-							<td>{{s.role}}</td>
-							<td><button class="btn btn-danger btn-xs" ng-click=removeStaff(s.sid,s.rid)>
-								<i class="fa fa-trash"></i>
-								</button>
-							</td>
-						</tr>
-
-					</tbody>
-				</table>
+				<!--<staff-list config="['remove']"></staff-list>-->
+				<staff-list></staff-list>
 
 				<p>
-					<button class="btn btn-primary" title="Entfernen" ng-show="can('edit_staff')" ui-sref="project.config.staffedit"><i class="fa fa-plus"></i> {{'config_staff_button_add' | translate}}</button>
+					<button class="btn btn-primary" ng-show="can('edit_staff')" ui-sref="project.config.staffedit"><i class="fa fa-plus"></i> {{'config_staff_button_add' | translate}}</button>
 				</p>
-
 
 			</div>
 		</div>
-
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						Rechteverwaltung
-					</h4>
-				</div>
-
-					<div class="panel-body">
-
-					</div>
-			</div>
 
 
 	</div>

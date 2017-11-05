@@ -1,150 +1,0 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <title>JSDoc: source : rampSlider.js</title>
-    <link href="css/prettify-tomorrow.css" type="text/css" rel="stylesheet">
-    <link href="css/site.css" type="text/css" rel="stylesheet">
-  </head>
-  <body ng-app="">
-    <nav id="toc">
-      <input placeholder="Filter" id="filter-input" class="col12 block field" type="text">
-      <div class="nav-wrapper">
-      <h2><a href="index.html">Index</a></h2>
-      <ul class="module">
-        <!-- dokuvis_pp -->
-        <h2 class="module">
-          <a chref="" ng-click="moduledokuvis_pp = !moduledokuvis_pp">
-            module: dokuvisApp
-          </a>
-          <i ng-cloak="" ng-show="moduledokuvis_pp">+</i>
-        </h2>
-        <li id="dokuvisApp" ng-hide="moduledokuvis_pp">
-          <ul class="group">
-            <h2>
-              <a href="" ng-click="dokuvis_ppservice = !dokuvis_ppservice">
-                service
-              </a>
-              <i ng-cloak="" ng-show="dokuvis_ppservice">+</i>
-            </h2>
-            <ul ng-hide="dokuvis_ppservice">
-              <li>
-                <a href="dokuvisApp.Archive.html">Archive</a>
-              </li><li>
-                <a href="dokuvisApp.AuthenticationFactory.html">AuthenticationFactory</a>
-              </li><li>
-                <a href="dokuvisApp.Category.html">Category</a>
-              </li><li>
-                <a href="dokuvisApp.CategoryAttribute.html">CategoryAttribute</a>
-              </li><li>
-                <a href="dokuvisApp.Comment.html">Comment</a>
-              </li><li>
-                <a href="dokuvisApp.ConfirmService.html">ConfirmService</a>
-              </li><li>
-                <a href="dokuvisApp.Project.html">Project</a>
-              </li><li>
-                <a href="dokuvisApp.ProjInfo.html">ProjInfo</a>
-              </li><li>
-                <a href="dokuvisApp.Source.html">Source</a>
-              </li><li>
-                <a href="dokuvisApp.Subproject.html">Subproject</a>
-              </li><li>
-                <a href="dokuvisApp.TokenInterceptor.html">TokenInterceptor</a>
-              </li><li>
-                <a href="dokuvisApp.UserAuthFactory.html">UserAuthFactory</a>
-              </li><li>
-                <a href="dokuvisApp.Utilities.html">Utilities</a>
-              </li><li>
-                <a href="dokuvisApp.weblgContext.html">weblgContext</a>
-              </li>
-            </ul>
-          </ul><ul class="group">
-            <h2>
-              <a href="" ng-click="dokuvis_ppconfig = !dokuvis_ppconfig">
-                config
-              </a>
-              <i ng-cloak="" ng-show="dokuvis_ppconfig">+</i>
-            </h2>
-            <ul ng-hide="dokuvis_ppconfig">
-              <li>
-                <a href="dokuvisApp.config.html">config</a>
-              </li>
-            </ul>
-          </ul><ul class="group">
-            <h2>
-              <a href="" ng-click="dokuvis_ppcontroller = !dokuvis_ppcontroller">
-                controller
-              </a>
-              <i ng-cloak="" ng-show="dokuvis_ppcontroller">+</i>
-            </h2>
-            <ul ng-hide="dokuvis_ppcontroller">
-              <li>
-                <a href="dokuvisApp.navCtrl.html">navCtrl</a>
-              </li><li>
-                <a href="dokuvisApp.newArchiveModalCtrl.html">newArchiveModalCtrl</a>
-              </li><li>
-                <a href="dokuvisApp.newProjectModalCtrl.html">newProjectModalCtrl</a>
-              </li><li>
-                <a href="dokuvisApp.newSubprojectModalCtrl.html">newSubprojectModalCtrl</a>
-              </li><li>
-                <a href="dokuvisApp.projectlistCtrl.html">projectlistCtrl</a>
-              </li><li>
-                <a href="dokuvisApp.projHomeCtrl.html">projHomeCtrl</a>
-              </li><li>
-                <a href="dokuvisApp.registerCtrl.html">registerCtrl</a>
-              </li><li>
-                <a href="dokuvisApp.sourceDetailCtrl.html">sourceDetailCtrl</a>
-              </li><li>
-                <a href="dokuvisApp.uploadCtrl.html">uploadCtrl</a>
-              </li>
-            </ul>
-          </ul><ul class="group">
-            <h2>
-              <a href="" ng-click="dokuvis_ppdirective = !dokuvis_ppdirective">
-                directive
-              </a>
-              <i ng-cloak="" ng-show="dokuvis_ppdirective">+</i>
-            </h2>
-            <ul ng-hide="dokuvis_ppdirective">
-              <li>
-                <a href="dokuvisApp.rampSlider.html">rampSlider</a>
-              </li><li>
-                <a href="dokuvisApp.webglView.html">webglView</a>
-              </li>
-            </ul>
-          </ul>
-        </li>
-      </ul>
-      </div>
-    </nav>
-    <div id="content" class="page-wrap">
-      <h1 class="title">
-        source : rampSlider.js
-      </h1>
-      <div id="main" class="big-container">
-        <!-- source code html -->
-        <article>
-          <pre class="prettyprint source linenums"><code>/** * A slider visualized as a box with a color ramp as background. * @memberof dokuvisApp * @ngdoc directive * @name rampSlider * @author Brakebein * @requires $document * @attr ng-model {Number} Value the directive is bound to [0..1] * @attr [ng-change] {Expression} Expression to be evaluated after the value has changed * @attr [rs-color] {string} Left (or base) color as hexadecimal color value * @attr [rs-color-end] {string} Right color as hexadecimal color value * @example * &lt;div ramp-slider *     ng-model="opacity" *     ng-change="setOpacity()" *     rs-color="#ddd" *     rs-color-end="#bbb" > * &lt;/div> */angular.module('dokuvisApp').directive('rampSlider', ['$document',	function($document) {		return {			require: 'ngModel',			template: '&lt;div ng-style="{width: rsModel*100+\'%\'}">&lt;/div>',			link: function(scope, element, attrs, ngModelCtrl) {				var colorStart = attrs.rsColor || '#aaa';				var colorEnd = attrs.rsColorEnd || colorStart;				element.css('position', 'relative');				element.find('div').css({					position: 'absolute',					top: 0,					bottom: 0,					background: 'linear-gradient(to right, '+colorStart+', '+colorEnd+')'				});				element.on('mousedown', function(event) {					event.preventDefault();					$document.bind('mousemove', jQuery.throttle(100, rampSliderMousemove) );					$document.bind('mouseup', rampSliderMouseup);				});				function rampSliderMousemove(event) {					applyChange(event);				}				function rampSliderMouseup() {					applyChange(event);					$document.unbind('mousemove', rampSliderMousemove);					$document.unbind('mouseup', rampSliderMouseup);				}				function applyChange(event) {					scope.rsModel = parseFloat(((event.pageX - element.offset().left) / element[0].offsetWidth ).toFixed(2));					if(scope.rsModel > 0.9) scope.rsModel = 1.0;					else if(scope.rsModel &lt; 0.1) scope.rsModel = 0.0;					ngModelCtrl.$setViewValue(scope.rsModel);				}				scope.$watch(function () {					return ngModelCtrl.$modelValue;				}, function (newValue) {					scope.rsModel = newValue;				});			}		};	}]);</code></pre>
-        </article>
-        <!-- index.html -->
-        <!-- class files -->
-      </div>
-      <footer style="clear:both">
-        Documentation generated by
-        <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a>
-        using
-        <a href="https://github.com/allenhwkim/angular-jsdoc">Angular-JSDoc template</a>
-      </footer>
-    </div>
-    <script src="js/prettify.js"></script>
-    <script src="js/angular.min.js"></script>
-    <script src="js/site.js"></script>
-    <!--%= prettyJson %-->
-    <script>
-      prettyPrint();
-      var lineNo = window.location.hash.match(/#line([0-9]+)$/);
-      lineNo && document.querySelector("ol li:nth-child("+(lineNo[1])+")").scrollIntoView();
-    </script>
-  </body>
-</html>

@@ -1,0 +1,243 @@
+@import "../../style/variables"
+
+.model-upload-form
+	position: relative
+	padding: 25px 40px
+	//display: flex
+	//flex-direction: column
+
+	.file-section
+		height: 100px
+		margin-bottom: 18px
+		display: flex
+		align-items: center
+		& file-drop-area
+			flex: 1 1 50%
+			height: 100%
+		& > div
+			flex: 1 1 50%
+			padding: 0 10px
+
+	.file-metadata
+		strong
+			word-break: break-all
+
+	.progress-area
+		position: absolute
+		left: 0
+		top: 0
+		bottom: 0
+		right: 0
+		& > div
+			height: 100%
+			display: flex
+			flex-direction: column
+			justify-content: center
+			text-align: center
+			padding: 100px
+			background-color: rgba(240,240,240,0.5)
+			//background-color: rgba(70,148,8,0.5)
+			& > .progress
+				border: 1px solid #2e2f2f
+
+	//& > .upload-header
+	//	flex: 0 0 auto
+	//	width: 100%
+	//	padding-right: 17px
+	//
+	//& > .upload-body
+	//	position: relative
+	//	flex: 1 1 auto
+	//	width: 100%
+	//
+	//& > .upload-footer
+	//	flex: 0 0 auto
+	//	width: 100%
+	//	padding-top: 20px
+	//	padding-right: 17px
+	//	text-align: center
+
+	//.dropArea
+	//	height: 80px
+	//	width: 300px
+	//	font-size: 16px
+	//	.plus
+	//		flex: 0 0 60px
+	//		height: 40px
+	//		padding: 0 10px
+	//	svg
+	//		width: 40px
+
+	//.queue-header
+	//	margin-top: 10px
+	//	& > table
+	//		margin: 0
+	//
+	//.queue-body
+	//	position: absolute
+	//	width: 100%
+	//	height: 100%
+	//	overflow-y: scroll
+
+
+
+
+// versionList
+version-list
+	& > file-drop-area
+		margin-bottom: 18px
+	& > .panel
+		& > .panel-body
+			padding: 10px 15px
+		& > .panel-footer
+			font-size: 12px
+
+
+// versionGraph
+$vGraphCellWidth: 30px
+$vGraphCellHeight: 40px
+$vGraphNodeSize: 26px
+$vGraphLineWidth: 4px
+$vGraphLineStd: $vGraphLineWidth solid blue
+$vGraphLineDotted: $vGraphLineWidth dotted blue
+$vGraphLineRadius: $vGraphCellWidth / 2 - 3px
+
+$vGraphColRoot: #c3c3c3
+$vGraphColBlind: #ddc700
+$vGraphCol0: #7bccc4
+$vGraphCol1: #0868ac
+$vGraphCol2: #8856a7
+$vGraphCol3: #c51b8a
+$vGraphCol4: #31a354
+
+version-graph
+	.vgraph
+		.vgraph-row
+			cursor: pointer
+			display: flex
+			align-items: center
+			& > .vgraph-nodes
+				flex: 0 0 auto
+				position: relative
+				height: $vGraphCellHeight
+				& > .vgraph-nodes-bg
+					position: absolute
+					right: 0
+					margin: ($vGraphCellHeight - $vGraphNodeSize) / 2 0
+					top: 0
+					bottom: 0
+					opacity: 0.2
+					&.bg-blind
+						opacity: 0.1
+				& > .vgraph-cell
+					width: $vGraphCellWidth
+					height: $vGraphCellHeight
+					float: left
+					position: relative
+					& > div
+						position: absolute
+						&.node
+							width: $vGraphNodeSize
+							height: $vGraphNodeSize
+							border-radius: $vGraphNodeSize / 2
+							margin: ($vGraphCellHeight - $vGraphNodeSize) / 2 ($vGraphCellWidth - $vGraphNodeSize) / 2
+							z-index: 50
+							&.bg-blind
+								border: $vGraphLineWidth solid mix($vGraphColBlind, #fff, 50%)
+								background-color: mix($vGraphColBlind, #fff, 10%)
+						&.hline
+							width: $vGraphCellWidth
+							height: ($vGraphCellHeight +  + $vGraphLineWidth) / 2
+							border-bottom: $vGraphLineStd
+						&.vline
+							width: ($vGraphCellWidth + $vGraphLineWidth) / 2
+							top: 0
+							bottom: 0
+							border-right: $vGraphLineStd
+							margin-right: ($vGraphCellWidth + $vGraphLineWidth) / 2
+						&.corner
+							width: ($vGraphCellWidth + $vGraphLineWidth) / 2
+							height: ($vGraphCellHeight +  + $vGraphLineWidth) / 2
+							border-right: $vGraphLineStd
+							border-bottom: $vGraphLineStd
+							border-bottom-right-radius: $vGraphLineRadius
+							margin-right: ($vGraphCellWidth + $vGraphLineWidth) / 2
+						&.downtick
+							width: ($vGraphCellWidth + $vGraphLineWidth) / 2
+							height: $vGraphCellHeight / 2
+							border-right: $vGraphLineStd
+							margin-top: $vGraphCellHeight / 2
+							margin-right: ($vGraphCellWidth + $vGraphLineWidth) / 2
+						&.uptick
+							width: ($vGraphCellWidth + $vGraphLineWidth) / 2
+							height: $vGraphCellHeight / 2
+							border-right: $vGraphLineStd
+							margin-right: ($vGraphCellWidth + $vGraphLineWidth) / 2
+						&.sidetick
+							width: $vGraphCellWidth / 2
+							height: ($vGraphCellHeight + $vGraphLineWidth) / 2
+							border-bottom: $vGraphLineStd
+							margin-left: $vGraphCellWidth / 2
+
+			& > .vgraph-text
+				flex: 1 1 auto
+				position: relative
+				height: $vGraphNodeSize
+				padding: 3px 0
+				border-left: 2px solid blue
+				display: flex
+				& > div
+					flex: 0 0 auto
+					padding: 0 6px
+					&:first-child
+						flex: 1 1 auto
+						+text-truncate(true)
+				&.italic
+					font-style: italic
+
+			&:hover
+				& > .vgraph-nodes > .vgraph-cell > .node
+					box-shadow: 0 0 5px 1px #aaa
+				& > .vgraph-text
+					background-color: #efefef
+			&.active
+				& > .vgraph-nodes
+					& > .vgraph-nodes-bg
+						opacity: 0.5
+					& > .vgraph-cell > .node
+						box-shadow: 0 0 5px 1px #aaa
+				& > .vgraph-text
+					background-color: #e5e5e5
+
+
+	.bg-0
+		background-color: $vGraphCol0
+	.bg-1
+		background-color: $vGraphCol1
+	.bg-2
+		background-color: $vGraphCol2
+	.bg-3
+		background-color: $vGraphCol3
+	.bg-4
+		background-color: $vGraphCol4
+
+	.line-0
+		border-color: $vGraphCol0 !important
+	.line-1
+		border-color: $vGraphCol1 !important
+	.line-2
+		border-color: $vGraphCol2 !important
+	.line-3
+		border-color: $vGraphCol3 !important
+	.line-4
+		border-color: $vGraphCol4 !important
+
+	.bg-root
+		background-color: $vGraphColRoot
+	.line-root
+		border-color: $vGraphColRoot !important
+	.bg-blind
+		background-color: $vGraphColBlind
+	.line-blind
+		border-color: $vGraphColBlind !important
+		opacity: 0.5

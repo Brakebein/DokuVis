@@ -1,0 +1,172 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">ModelUploader</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+  
+
+    <li>
+      - factory in module <a href="api/dokuvis.models">dokuvis.models</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>This factory provides an instance of <a href="https://github.com/nervgh/angular-file-upload">FileUploader</a> specified to upload models/3D files.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ng/service/$window">$window</a></li><li><a href="https://docs.angularjs.org/api/ng/service/$rootScope">$rootScope</a></li><li><a href="guide/ApiParams">ApiParams</a></li><li><a href="ApiModelVersion">ApiModelVersion</a></li><li><a href="https://github.com/nervgh/angular-file-upload">FileUploader</a></li><li><a href="Utilities">Utilities</a></li><li><a href="https://github.com/urish/angular-moment">moment</a></li>
+  </ul>
+  
+
+  <h2 id="usage">Usage</h2>
+    <p><code>ModelUploader();</code></p>
+
+
+    <h3>Returns</h3>
+<table class="variables-matrix return-arguments">
+  <tr>
+    <td><span class="label type-hint type-hint-fileuploader"><a href="FileUploader">FileUploader</a></span></td>
+    <td><p>An instance of FileUploader.</p>
+</td>
+  </tr>
+</table>
+<h2>Events</h2>
+<ul class="events">
+  <li id="modelUploadSuccess">
+    <h3 class="">
+      <span class="title"><code>modelUploadSuccess</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when the the file was successfully uploaded and processed.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">$rootScope</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        response
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>HTTP request response object.</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>$rootScope.$on(&#39;modelUploadSuccess&#39;, function (evt, response) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  
+  <li id="modelUploadError">
+    <h3 class="">
+      <span class="title"><code>modelUploadError</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when an error occured while uploading or processing the file server-side.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">$rootScope</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        response
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-object"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" _target="blank">Object</a></span>
+      </td>
+      <td>
+        <p>HTTP request response object.</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>$rootScope.$on(&#39;modelUploadError&#39;, function (evt, response) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  </ul>
+
+
+  
+</div>
+
+

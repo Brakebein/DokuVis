@@ -1,0 +1,122 @@
+
+
+<h1>
+  <code>dokuvis.tasks</code>
+</h1>
+
+<p>Components to integrate tasks and project management.</p>
+<h3 id="module-dependencies">Module Dependencies</h3>
+<ul>
+<li><a href="https://docs.angularjs.org/api/ngResource">ngResource</a></li>
+<li><a href="https://ui-router.github.io/ng1/docs/0.3.2/#/api">ui.router</a></li>
+<li><a href="https://github.com/urish/angular-moment">angularMoment</a></li>
+<li><a href="https://www.angular-gantt.com/">gantt</a></li>
+<li>gantt.table</li>
+<li>gantt.tree</li>
+<li>gantt.groups</li>
+<li>gantt.movable</li>
+<li>gantt.tooltips</li>
+<li>gantt.sortable</li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<p>Add <code>dokuvis.tasks.js</code> and <code>dokuvis.tasks.css</code> to your <code>index.html</code> and add <code>dokuvis.tasks</code> as dependency.</p>
+<p>In your application, define a constant named <code>ApiTask</code> to specify the REST-API url. The url will be extended by <code>/:id</code>. Don&#39;t forget to set your <a href="guide/ApiParams">ApiParams</a>.</p>
+<pre><code>// example
+var myApp = angular.module(&#39;myApp&#39;, [&#39;dokuvis.tasks&#39;]);
+myApp.constant(&#39;ApiTask&#39;, &#39;api/auth/project/:project/:subproject/task&#39;);
+</code></pre>
+<p>Also, the path to the components should be defined, so directives can find their templates (see <a href="ComponentsPath">ComponentsPath</a>).</p>
+<h3 id="task-object">Task object</h3>
+<pre><code>{
+  children: &lt;Array&lt;id&gt;&gt;,     // ids of child tasks
+  created: {                 // who created the task?
+    id: &lt;id&gt;,                // user id
+    name: &lt;string&gt;,          // user name
+    date: &lt;string&gt;           // creation date
+  },
+  description: &lt;string&gt;,     // what is the content of this task
+  editors: &lt;Array&lt;Object&gt;&gt;,  // array of persons who are assigned to this task ({ id: &lt;id&gt;, name: &lt;string&gt; })
+  from: &lt;string&gt;,            // when starts the task?
+  id: &lt;id&gt;,                  // id of the task (string)
+  modified: {                // who modified the task?
+    id: &lt;id&gt;,                // user id
+    name: &lt;string&gt;,          // user name
+    date: &lt;string&gt;           // modification date
+  },
+  parent: &lt;id&gt;,              // id of parent task or subproject
+  priority: &lt;integer&gt;,       // priority low: 0, medium: 1, high: 2
+  status: &lt;integer&gt;,         // status to do: 0, done: 1
+  title: &lt;string&gt;,           // title (should always be set)
+  to: &lt;string&gt;,              // when ends the task?
+  type: &lt;string&gt;             // task or subproject
+}
+</code></pre>
+
+
+
+<div class="component-breakdown">
+  <h2>Module Components</h2>
+  
+  <div>
+    <h3 class="component-heading" id="factory">Factory</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.tasks/factory/Task">Task</a></td>
+        <td><p>$resource for tasks to interact with RESTful server-side data sources.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="directive">Directive</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.tasks/directive/tasksGantt">tasksGantt</a></td>
+        <td><p>Directive showing the gantt chart with controls.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.tasks/directive/taskDetail">taskDetail</a></td>
+        <td><p>Directive showing details of a task.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="controller">Controller</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.tasks/controller/taskModalCtrl">taskModalCtrl</a></td>
+        <td><p>Controller for modal to create new task or edit an existing one.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+</div>
+
+
+
+
+

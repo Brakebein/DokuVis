@@ -13,25 +13,6 @@ THREE.CTMLoader = function ( manager ) {
 	THREE.Loader.call( this );
 
 	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
-	
-	// Deprecated
-	
-	Object.defineProperties( this, {
-		statusDomElement: {
-			get: function () {
-
-				if ( this._statusDomElement === undefined ) {
-
-					this._statusDomElement = document.createElement( 'div' );
-
-				}
-
-				console.warn( 'THREE.BinaryLoader: .statusDomElement has been removed.' );
-				return this._statusDomElement;
-
-			}
-		},
-	} );
 
 };
 
@@ -86,7 +67,7 @@ THREE.CTMLoader.prototype.loadParts = function( url, callback, parameters ) {
 				// load joined CTM file
 
 				var partUrl = basePath + jsonObject.data;
-				var parametersPart = { useWorker: parameters.useWorker, offsets: jsonObject.offsets };
+				var parametersPart = { useWorker: parameters.useWorker, worker:parameters.worker, offsets: jsonObject.offsets };
 				scope.load( partUrl, callbackFinal, parametersPart );
 
 			}

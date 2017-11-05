@@ -37,78 +37,6 @@ angular.module('dokuvisApp').factory('neo4jRequest', ['$http', 'Utilities',
 				}
 			});
 		};
-		
-		// alte Suchanfrage für autocomplete
-		/**
-		 * @deprecated
-		 */
-		requests.searchForExistingNodes = function(prj, label, input) {
-			return $http.post(phpUrl, {
-				query: 'MATCH (n:'+label+':'+prj+')'
-					+' WHERE n.content =~ "(?i).*'+input+'.*"'
-					+' RETURN n.content AS content',
-				params: {}
-			});
-		};
-		
-		// neue Suchanfrage für typeahead
-		/**
-		 * @deprecated
-		 */
-		requests.getAllLabelProps = function(prj, label, prop) {
-			return $http.post(phpUrl, {
-				query:
-					'MATCH (n:'+label+':'+prj+') \
-					RETURN n.'+prop+' AS content',
-				params: {}
-			});
-		};
-
-		/**
-		 * @deprecated
-		 */
-		requests.findNodeWithSpecificContent = function(prj, label, input) {
-			return $http.post(phpUrl, {
-				query: 'MATCH (n:'+label+':'+prj+')'
-					+' WHERE n.content =~ "(?i)'+input+'"'
-					+' RETURN n.content AS content',
-				params: {}
-			});
-		};
-
-		/**
-		 * @deprecated
-		 */
-		requests.testInputsForExistingNodes = function(values) {
-			var q = '', r = 'RETURN ';
-			for(var i=0; i<values.length; i++) {
-				q += 'OPTIONAL MATCH (n'+i+':'+values[i].label+' {content:"'+values[i].content+'"})<--(m'+i+') ';
-				r += 'm'+i+'.content';
-				if(i < values.length-1)
-					r += ', ';
-			}
-			console.log(q+r);
-			return $http.post(phpUrl, {
-				query: q + r,
-				params: {}
-			});
-		};
-		
-
-		/**
-		 * @deprecated
-		 */
-		requests.addEdgesFile = function(prj, file, edges) {
-			return $http.post(phpUrl, {
-				query:
-					'MATCH (e75:E75:'+prj+' {content: {file}}) \
-					SET e75.edges = {edges}',
-				params: {
-					file: file,
-					edges: edges
-				}
-			});
-		};
 
 		/**
 		 * @deprecated
@@ -305,42 +233,6 @@ angular.module('dokuvisApp').factory('phpRequest',
 	function($http) {
 	
 		var requests = {};
-
-		/**
-		 * @deprecated
-		 * @param file
-		 * @returns {*}
-		 */
-		requests.getSvgContent = function(file) {
-			return $http.post('php/getSvgContent.php', {
-				file: file
-			});
-		};
-
-		/**
-		 * @deprecated
-		 * @param path
-		 * @param filename
-		 * @param base64
-		 * @param thumb
-		 * @returns {*}
-		 */
-		requests.saveBase64Image = function(path, filename, base64, thumb) {
-			return $http.post('php/saveBase64Image.php', {
-				path: path,
-				filename: filename,
-				imgdata: base64,
-				thumbnail: thumb
-			});
-		};
-		
-		requests.saveGeoToJson = function(path, filename, data) {
-			return $http.post('php/saveGeoToJson.php', {
-				path: path,
-				filename: filename,
-				data: data
-			});
-		};
 		
 		// indexing and searching
 		requests.indexDocuments = function(prj) {

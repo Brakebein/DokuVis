@@ -1,20 +1,13 @@
 <div class="leftHalf" ng-show="!isMaster">
 	<div class="page-header">
-		<h1>{{projInfo.name}} <small>{{projInfo.description}}</small></h1>
+		<h1>{{projectName}} <small>{{projectDesc}}</small></h1>
 	</div>
 
-	<div class="projInfos" ng-repeat="info in projInfo.notes | orderBy: 'order' as filteredInfos">
-		<div class="infoText" ng-bind-html="info.info"></div>
-		<div class="infoCtrls">
-			<i class="fa fa-sort-asc" ng-hide="$first" ng-click="swapInfoOrder($index, $index-1)"></i>
-			<i class="fa fa-pencil" ui-sref="project.home.projinfo({ note: info })"></i>
-			<i class="fa fa-trash" ng-click="removeProjInfo(info)"></i>
-			<i class="fa fa-sort-desc" ng-hide="$last" ng-click="swapInfoOrder($index, $index+1)"></i>
-		</div>
-	</div>
+	<projinfo-list></projinfo-list>
 
+	<hr/>
 	<p>
-		<button class="btn btn-primary" ui-sref="project.home.projinfo"><i class="fa fa-plus"></i> Info hinzufügen</button>
+		<button class="btn btn-primary" ui-sref=".projinfo"><i class="fa fa-plus"></i> Info hinzufügen</button>
 	</p>
 
 </div>
@@ -22,7 +15,7 @@
 <div class="leftHalf" ng-if="isMaster">
 
 	<div class="page-header">
-		<h1>{{projInfo.name}} <small>{{projInfo.description}}</small></h1>
+		<h1>{{projectName}} <small>{{projectDesc}}</small></h1>
 	</div>
 
 	<div class="panel panel-default">
@@ -31,38 +24,15 @@
 		</div>
 		<div class="panel-body">
 
-			<div ng-show="!subprojects.length">
-				<p>Keine Unterprojekte vorhanden.</p>
-				<p>Unterprojekte können helfen, das Projekt zu strukturieren, z.B. wenn das Projekt mehrere Zeitschnitte aufweißt.</p>
-			</div>
+			<subproject-list></subproject-list>
 
-			<table class="table table-striped" ng-show="subprojects.length">
-				<thead>
-					<tr>
-						<th width="300">{{'name' | translate}}</th>
-						<th>{{'description' | translate}}</th>
-						<th width="300"></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="sp in subprojects | orderBy: 'name'">
-						<td>{{sp.name}}</td>
-						<td>{{sp.desc}}</td>
-						<td>
-							<button class="btn btn-primary btn-xs" ui-sref="project.home({ subproject: sp.id })"><i class="fa fa-folder-open"></i> {{'open' | translate}}</button>
-							<button class="btn btn-default btn-xs" ng-show="can('edit_subproject')" ui-sref="project.home.subproject({ sub: sp })"><i class="fa fa-pencil"></i> {{'edit' | translate}}</button>
-							<button class="btn btn-danger btn-xs" ng-show="can('edit_subproject')"><i class="fa fa-trash"></i> {{'delete' | translate}}</button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
 		</div>
 	</div>
 
-	<button class="btn btn-primary" ng-show="can('edit_subproject')" ui-sref="project.home.subproject"><i class="fa fa-plus"></i> {{'subproject_new' | translate}}</button>
+	<button class="btn btn-primary" ng-show="can('edit_subproject')" ui-sref=".subproject"><i class="fa fa-plus"></i> {{'subproject_new' | translate}}</button>
 
 </div>
 
-<div class="rightHalf" ng-if="isMaster">
+<div class="rightHalf">
 
 </div>

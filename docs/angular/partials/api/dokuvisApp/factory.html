@@ -1,0 +1,76 @@
+
+<h1>Factory components in <code>dokuvisApp</code></h1>
+
+
+
+<div class="component-breakdown">
+  <div>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/AuthenticationFactory">AuthenticationFactory</a></td>
+        <td><p>Service responsible for checking the user status.<br/>
+From tutorial: <a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/UserAuthFactory">UserAuthFactory</a></td>
+        <td><p>Service responsible for contacting the login endpoint and validating the user (and logging out the user).<br/>
+From tutorial: <a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/TokenInterceptor">TokenInterceptor</a></td>
+        <td><p>Service responsible for sending in the access token and the key along with each request to the server.<br/>
+From tutorial: <a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/ConfirmService">ConfirmService</a></td>
+        <td><p>Service providing a dialog with two buttons to confirm or abort an action.</p>
+<pre><code>// default values
+alertDefaults = {
+    backdrop: &#39;static&#39;,
+    templateUrl: &#39;partials/alerts/confirmAlert.html&#39;,
+    show: true
+};
+alertOptions = {
+    abortButtonText: &#39;Abbrechen&#39;,
+    actionButtonText: &#39;OK&#39;,
+    headerText: &#39;Fortfahren?&#39;,
+    bodyText: &#39;Sind Sie sicher?&#39;,
+    type: &#39;warning&#39;
+};
+</code></pre>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/SpatializeInterface">SpatializeInterface</a></td>
+        <td><p>Interface between <code>imageViewer</code> and <code>webglView</code> directives and <code>spatializeModalCtrl</code> to manage interaction across their different scopes.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/Utilities">Utilities</a></td>
+        <td><p>This factory provides some helpful functions.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvisApp/factory/webglContext">webglContext</a></td>
+        <td><p>This service initializes standard objects and materials for the 3D viewport and holds all mesh/geometry instances. So the 3D content is kept in the memory, even if the viewport (respectively webglView directive) gets destroyed, and doesn&#39;t need to be reloaded when the user returns to the 3D viewport. Materials etc. are also globally availlable via <code>THREE.DokuVisTray</code>.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+</div>
+

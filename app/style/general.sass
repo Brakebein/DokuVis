@@ -9,9 +9,28 @@ html, body
 	position: relative
 	height: 100%
 
-.navFormMargin
-	margin-top: 10px
-	margin-bottom: 10px
+.navbar-form-sm
+	margin: 5px 0 5px
+
+// nav-tabs small
+.nav-tabs.nav-tabs-sm
+	a
+		padding: 3px 15px
+		cursor: pointer
+
+// icon buttons
+.icon-btn
+	color: $clickElementColor
+	padding: 2px 2px
+	font-size: 18px
+	cursor: pointer
+	& > span
+		padding-top: 1px
+	&:hover
+		color: $clickElementColorHover
+	&.active
+		color: $clickElementColorActive
+		cursor: default
 
 // ng-scrollbars Anpassungen
 .mCSB_inside>.mCSB_container
@@ -51,10 +70,21 @@ html, body
 			& > .modal-body
 				flex: 1 1 auto
 
-	.modal-footer > .modal-metadata
-		float: left
-		text-align: left
-		font-size: 12px
+	.modal-footer
+		&.spread
+			display: flex
+			justify-content: space-between
+			& > div
+				flex: 1 1 auto
+				text-align: center
+				&:first-of-type
+					text-align: left
+				&:last-of-type
+					text-align: right
+		& > .modal-metadata
+			//float: left
+			//text-align: left
+			font-size: 12px
 
 
 // Tooltip Anpassungen

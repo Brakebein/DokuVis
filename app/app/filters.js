@@ -22,7 +22,10 @@ angular.module('dokuvisApp').filter('amJSDate', ['moment', function (moment) {
 angular.module('dokuvisApp').filter('asList', function () {
 	return function (items, separator, sort, key) {
 		if (!Array.isArray(items)) return;
-		if (!key) return items.join(separator);
+		if (!key) {
+			items.sort();
+			return items.join(separator);
+		}
 
 		var list = [];
 		items.forEach(function (item) {

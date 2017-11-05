@@ -132,7 +132,8 @@ module.exports = {
 				(tprime:E55:'+prj+' {content:"primarySource"}), \
 				(tsupl:E55:'+prj+' {content:"sourceUpload"}), \
 				(tsrepros:E55:'+prj+' {content:"sourceRepros"}), \
-				(tscomment:E55:'+prj+' {content:"sourceComment"}), '
+				(tscomment:E55:'+prj+' {content:"sourceComment"}), \
+				(tspatialize:E55:'+prj+' {content:"spatializeInfo"}), '
 				// screenshot
 			  + '(tscreen:E55:'+prj+' {content:"screenshot"}),\
 				(tscreencomment:E55:'+prj+' {content:"screenshotComment"}), \
@@ -220,11 +221,14 @@ module.exports = {
 				utils.error.mysql(res, err, '#projects.create on ' + prj);
 			}
 		});
+
+		// TODO: delete folder and remove nodes, if something went wrong
 		
 	},
 
 	update: function (req, res) {
 		// TODO: check, if user is superadmin
+		// TODO: return name, description (see #project.get)
 		
 		if(!req.body.name) { utils.abort.missingData(res, 'body.name'); return; }
 		

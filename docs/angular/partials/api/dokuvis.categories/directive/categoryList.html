@@ -1,0 +1,124 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">categoryList</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+    <li>
+      - directive in module <a href="api/dokuvis.categories">dokuvis.categories</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>Directive displaying all categories and their attributes. Categories can be activated to color the 3D objects respectively.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ng/service/$rootScope">$rootScope</a></li><li><a href="ComponentsPath">ComponentsPath</a></li><li><a href="api/dokuvis.categories/factory/Category">Category</a></li><li><a href="Utilities">Utilities</a></li>
+  </ul>
+  
+
+  
+  <h2>Directive Info</h2>
+  <ul>
+    <li>This directive creates new scope.</li>
+    <li>This directive executes at priority level 0.</li>
+    
+  </ul>
+
+  
+  <h2 id="usage">Usage</h2>
+  <div class="usage">
+  
+    <ul>
+    
+      <li>as element:
+      
+      <pre><code>&lt;category-list&gt;&#10;  ...&#10;&lt;/category-list&gt;</code></pre>
+      </li>
+    
+  </div>
+  
+  
+<h2>Events</h2>
+<ul class="events">
+  <li id="categoryActivate">
+    <h3 class="">
+      <span class="title"><code>categoryActivate</code></span>
+      
+  
+    </h3>
+    <div><p>This event signals that the given category has been activated.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">$rootScope</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        category
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-category"><a href="api/dokuvis.categories/factory/Category">Category</a></span>
+      </td>
+      <td>
+        <p>Activated category</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>$rootScope.$on(&#39;categoryActivate&#39;, function (evt, category) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  </ul>
+
+  
+
+
+  
+</div>
+
+

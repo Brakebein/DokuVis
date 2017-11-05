@@ -7,9 +7,25 @@ html, body {
   position: relative;
   height: 100%; }
 
-.navFormMargin {
-  margin-top: 10px;
-  margin-bottom: 10px; }
+.navbar-form-sm {
+  margin: 5px 0 5px; }
+
+.nav-tabs.nav-tabs-sm a {
+  padding: 3px 15px;
+  cursor: pointer; }
+
+.icon-btn {
+  color: #aaa;
+  padding: 2px 2px;
+  font-size: 18px;
+  cursor: pointer; }
+  .icon-btn > span {
+    padding-top: 1px; }
+  .icon-btn:hover {
+    color: #888; }
+  .icon-btn.active {
+    color: #fc4e2a;
+    cursor: default; }
 
 .mCSB_inside > .mCSB_container {
   margin-right: 6px;
@@ -41,9 +57,17 @@ html, body {
       flex: 0 0 auto; }
     .modal-dialog.large > .modal-content > .modal-body, .modal-dialog.xlarge > .modal-content > .modal-body {
       flex: 1 1 auto; }
+.modal-dialog .modal-footer.spread {
+  display: flex;
+  justify-content: space-between; }
+  .modal-dialog .modal-footer.spread > div {
+    flex: 1 1 auto;
+    text-align: center; }
+    .modal-dialog .modal-footer.spread > div:first-of-type {
+      text-align: left; }
+    .modal-dialog .modal-footer.spread > div:last-of-type {
+      text-align: right; }
 .modal-dialog .modal-footer > .modal-metadata {
-  float: left;
-  text-align: left;
   font-size: 12px; }
 
 .tooltip-inner {

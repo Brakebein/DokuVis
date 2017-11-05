@@ -1,0 +1,127 @@
+
+
+
+
+<header class="api-profile-header">
+  <h1 class="api-profile-header-heading">projinfoList</h1>
+  <ol class="api-profile-header-structure naked-list step-list">
+    
+    <li>
+      - directive in module <a href="api/dokuvis.projinfos">dokuvis.projinfos</a>
+    </li>
+  </ol>
+</header>
+
+
+
+<div class="api-profile-description">
+  <p>Directive displaying all project information assets of the project/subproject.</p>
+
+</div>
+
+
+
+
+
+
+<div>
+  
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="https://docs.angularjs.org/api/ng/service/$rootScope">$rootScope</a></li><li><a href="ComponentsPath">ComponentsPath</a></li><li><a href="api/dokuvis.projinfos/factory/ProjInfo">ProjInfo</a></li><li><a href="Utilities">Utilities</a></li><li><a href="api/dokuvis.utils/factory/ConfirmDialog">ConfirmDialog</a></li>
+  </ul>
+  
+
+  
+  <h2>Directive Info</h2>
+  <ul>
+    
+    <li>This directive executes at priority level 0.</li>
+    
+  </ul>
+
+  
+  <h2 id="usage">Usage</h2>
+  <div class="usage">
+  
+    <ul>
+    
+      <li>as element:
+      
+      <pre><code>&lt;projinfo-list&gt;&#10;  ...&#10;&lt;/projinfo-list&gt;</code></pre>
+      </li>
+    <li>as attribute:
+        <pre><code>&lt;ANY&gt;&#10;...&#10;&lt;/ANY&gt;</code></pre>
+      </li>
+    
+  </div>
+  
+  
+<h2>Events</h2>
+<ul class="events">
+  <li id="projinfosUpdate">
+    <h3 class="">
+      <span class="title"><code>projinfosUpdate</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when project information has been created, edited, or deleted.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">$rootScope</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        info
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
+        <span class="label type-hint type-hint-projinfo"><a href="api/dokuvis.projinfos/factory/ProjInfo">ProjInfo</a></span>
+      </td>
+      <td>
+        <p>New/edited project information</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>$rootScope.$on(&#39;projinfosUpdate&#39;, function (evt, info) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  </ul>
+
+  
+
+
+  
+</div>
+
+

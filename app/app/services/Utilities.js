@@ -7,7 +7,7 @@
  * @requires http://mgcrea.github.io/angular-strap/#/alerts $alert
  */
 angular.module('dokuvisApp').factory('Utilities',
-	function($alert) {
+	function($alert, $translate) {
 		
 		var f = {};
 		
@@ -239,6 +239,27 @@ angular.module('dokuvisApp').factory('Utilities',
 			return undefined;
 		}
 
+		/**
+		 * Replace url parameters with the values from the `params` object.
+		 * @ngdoc method
+		 * @name Utilities#setUrlParams
+		 * @param url {string} Url with parameters
+		 * @param params {Object} Object with values or function for each parameter
+		 * @return {string} Url without parameters
+		 */
+		f.setUrlParams = function (url, params) {
+			var newUrl = url;
+			var regex = /:([^:\/]+)/g;
+			var match;
+			while ((match = regex.exec(url)) !== null) {
+				if (typeof params[match[1]] === 'function')
+					newUrl = newUrl.replace(match[0], params[match[1]]());
+				else
+					newUrl = newUrl.replace(match[0], params[match[1]]);
+			}
+			return newUrl;
+		};
+
 		// Alerts
 		/**
 		 * Shows a danger alert for 5 seconds.
@@ -247,10 +268,18 @@ angular.module('dokuvisApp').factory('Utilities',
 		 * @param message {string} Message to show
 		 */
 		f.dangerAlert = function(message) {
-			$alert({
-				content: message,
-				type: 'danger',
-				duration: 5
+			$translate(message).then(function (translation) {
+				$alert({
+					content: translation,
+					type: 'danger',
+					duration: 5
+				});
+			}, function (translationId) {
+				$alert({
+					content: translationId,
+					type: 'danger',
+					duration: 5
+				});
 			});
 		};
 

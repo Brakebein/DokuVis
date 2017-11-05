@@ -1,5 +1,4 @@
 const shortid = require('shortid');
-const config = require('../config');
 const utils = require('../utils');
 const neo4j = require('../neo4j-request');
 
@@ -11,29 +10,15 @@ module.exports = {
 		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55) \
 			OPTIONAL MATCH (c)<-[:P127]-(a:E55) \
 			RETURN c.content AS id, c.value AS value, collect({id: a.content, value: a.value, color: a.color}) AS attributes';
-			//RETURN c.content AS id, c.value AS value, collect(a) AS attributes';
-			
-		neo4j.transaction(q)
-			.then(function (response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#category.query'); return; }
-				var results = neo4j.extractTransactionData(response.results[0]);
-				res.json(neo4j.removeEmptyArrays(results, 'attributes', 'id'));
+
+		neo4j.readTransaction(q)
+			.then(function (results) {
+				neo4j.removeEmptyArrays(results, 'attributes', 'id');
+				return res.json(results);
 			})
 			.catch(function (err) {
-				utils.error.neo4j(res, err, '#cypher');
+				utils.error.neo4j(res, err, '#category.query');
 			});
-		
-		// neo4j.cypher(q)
-		// 	.then(function(response) {
-		// 		if(response.exception) { utils.error.neo4j(res, response, '#category.getAll'); return; }
-		// 		// null objekte rausfiltern
-		// 		for(var i=0; i<response.data.length; i++) {
-		// 			if(!response.data[i][2][0].id) response.data[i][2] = [];
-		// 		}
-		// 		res.json(response);
-		// 	}).catch(function(err) {
-		// 		utils.error.neo4j(res, err, '#cypher');
-		// 	});
 	},
 	
 	create: function(req, res) {
@@ -42,8 +27,8 @@ module.exports = {
 		var prj = req.params.id;
 		
 		var q = 'MATCH (tc:E55:'+prj+' {content:"category"}) \
-			CREATE (tc)<-[:P127]-(c:E55:'+prj+' {newValues}) \
-			RETURN c';
+			CREATE (tc)<-[:P127]-(c:E55:'+prj+' $newValues) \
+			RETURN c.content AS id, c.value AS value';
 		var params = {
 			newValues: {
 				content: shortid.generate() + '_category',
@@ -51,14 +36,13 @@ module.exports = {
 			}
 		};
 		
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#category.create'); return; }
-				var data = neo4j.extractTransactionData(response.results[0])[0].c;
+		neo4j.writeTransaction(q, params)
+			.then(function(results) {
+				var data = results[0];
 				data.attributes = [];
 				res.json(data);
 			}).catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+				utils.error.neo4j(res, err, '#category.create');
 			});
 	},
 	
@@ -67,41 +51,39 @@ module.exports = {
 
 		var prj = req.params.id;
 		
-		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55 {content: {cid}}) \
+		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55 {content: $cid}) \
 			OPTIONAL MATCH (c)<-[:P127]-(a:E55) \
-			SET c.value = {newValue} \
+			SET c.value = $newValue \
 			RETURN c.content AS id, c.value AS value, collect({id: a.content, value: a.value, color: a.color}) AS attributes';
 		var params = {
 			cid: req.params.cid,
 			newValue: req.body.value
 		};
 		
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#category.update'); return; }
-				var results = neo4j.extractTransactionData(response.results[0]);
-				res.json(neo4j.removeEmptyArrays(results, 'attributes', 'id')[0]);
+		neo4j.writeTransaction(q, params)
+			.then(function(results) {
+				neo4j.removeEmptyArrays(results, 'attributes', 'id');
+				res.json(results[0]);
 			}).catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+				utils.error.neo4j(res, err, '#categorie.update');
 			});
 	},
 	
 	delete: function(req, res) {
 		var prj = req.params.id;
 		
-		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55 {content: {cid}}) \
+		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55 {content: $cid}) \
 			OPTIONAL MATCH (c)<-[:P127]-(a:E55) \
 			DETACH DELETE c, a';
 		var params = {
 			cid: req.params.cid
 		};
 		
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#category.delete'); return; }
+		neo4j.writeTransaction(q, params)
+			.then(function() {
 				res.json({ message: 'Category deleted' });
 			}).catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+				utils.error.neo4j(res, err, '#category.delete');
 			});
 	},
 	
@@ -110,9 +92,9 @@ module.exports = {
 		
 		var prj = req.params.id;
 		
-		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55 {content: {cid}}) \
-			CREATE (c)<-[:P127]-(a:E55:'+prj+' {newValues}) \
-			RETURN a';
+		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55 {content: $cid}) \
+			CREATE (c)<-[:P127]-(a:E55:'+prj+' $newValues) \
+			RETURN a.content AS id, a.value AS value, a.color AS color, c.content AS cid';
 		var params = {
 			cid: req.params.cid,
 			newValues: {
@@ -121,12 +103,11 @@ module.exports = {
 				color: req.body.color
 			}
 		};
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#category.createAttr'); return; }
-				res.json(neo4j.extractTransactionData(response.results[0])[0].a);
+		neo4j.writeTransaction(q, params)
+			.then(function(results) {
+				res.json(results[0]);
 			}).catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+				utils.error.neo4j(res, err, '#category.createAttr');
 			});
 	},
 	
@@ -135,11 +116,11 @@ module.exports = {
 		var value = req.body.value;
 		var color = req.body.color;
 		
-		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55 {content: {cid}})<-[:P127]-(a:E55 {content: {aid}})';
+		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55 {content: $cid})<-[:P127]-(a:E55 {content: $aid})';
 			if(value || color) q += ' SET ';
-			if(value) q += 'a.value = {newValue}';
+			if(value) q += 'a.value = $newValue';
 			if(value && color) q += ', ';
-			if(color) q += 'a.color = {newColor}';
+			if(color) q += 'a.color = $newColor';
 			q += ' RETURN a.content AS id, a.value AS value, a.color AS color, c.content AS cid';
 		var params = {
 			cid: req.params.cid,
@@ -148,30 +129,28 @@ module.exports = {
 			newColor: color
 		};
 		
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#category.updateAttr'); return; }
-				res.json(neo4j.extractTransactionData(response.results[0])[0]);
+		neo4j.writeTransaction(q, params)
+			.then(function(results) {
+				res.json(results[0]);
 			}).catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+				utils.error.neo4j(res, err, '#category.updateAttr');
 			});
 	},
 	
 	deleteAttr: function(req, res) {
 		var prj = req.params.id;
 		
-		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55 {content: {cid}})<-[:P127]-(a:E55 {content: {aid}}) \
+		var q = 'MATCH (:E55:'+prj+' {content:"category"})<-[:P127]-(c:E55 {content: $cid})<-[:P127]-(a:E55 {content: $aid}) \
 			DETACH DELETE a';
 		var params = {
 			cid: req.params.cid,
 			aid: req.params.aid
 		};
-		neo4j.transaction(q, params)
-			.then(function(response) {
-				if(response.errors.length) { utils.error.neo4j(res, response, '#category.deleteAttr'); return; }
+		neo4j.writeTransaction(q, params)
+			.then(function() {
 				res.json({ message: 'CategoryAttribute deleted' });
 			}).catch(function(err) {
-				utils.error.neo4j(res, err, '#cypher');
+				utils.error.neo4j(res, err, '#category.delete');
 			});
 	}
 	

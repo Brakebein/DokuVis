@@ -3,91 +3,134 @@ const utils = require('../utils');
 const neo4j = require('../neo4j-request');
 const fork = require('child_process').fork;
 const fs = require('fs-extra-promise');
+const shortid = require('shortid');
+const uuid = require('uuid/v4');
 const Promise = require('bluebird');
-const util = require('util');
 const JSZip = require('jszip');
 const mime = require('mime-types');
 
 module.exports = function (req, res) {
 		
-	utils.log.fileupload(req.files);
-	var file = req.files[0];
+	utils.log.fileupload(req.file);
+	var file = req.file;
 
 	// check for essential data
 	// if missing then delete file and abort
-	if (!req.body.tid || !req.body.sourceType || !req.body.date) {
-		utils.abort.missingData(res, '#upload.model tid|sourceType|date');
-		unlinkFile(req.file.path);
+	if (!req.body.date || !req.body.summary) {
+		utils.abort.missingData(res, '#upload.model date|summary');
+		fs.unlinkAsync(req.file.path)
+			.then(function () {
+				console.warn('Unlink upload file:', req.file.path);
+			})
+			.catch(function () {
+				console.error('Unlink upload file failed:', req.file.path);
+			});
 		return;
 	}
 
+	var tid = shortid.generate();
+	var shortPath = req.params.prj + '/models/' + uuid() + '/';
+	var path = config.path.data + '/' + shortPath;
+	var filename = tid + '_' + utils.replace(req.file.originalname);
+
 	var params = {
-		prj: req.params.id,
+		prj: req.params.prj,
 		subprj: req.params.subprj,
-		tid: req.body.tid,
-		path: config.path.data + '/' + req.params.id + '/' + req.body.sourceType + 's/'
+		tid: tid,
+		filename: filename,
+		shortPath: shortPath,
+		path: path,
+		user: req.headers['x-key'],
+		body: req.body
 	};
 
-	switch (mime.lookup(file.originalname)) {
+	// create folder
+	fs.ensureDirAsync(path + 'maps/')
+		.then(function () {
+			// move uploaded file into folder
+			return fs.renameAsync(file.path, path + filename);
+		})
+		.catch(function (err) {
+			utils.error.server(res, err, '#source.create fs/exec @ ' + path + filename);
+			return Promise.reject();
+		})
+		.then(function () {
+			// lookup mime type and start processing
+			switch (mime.lookup(file.originalname)) {
 
-		case 'model/vnd.collada+xml':
-			processDae(file, params)
-				.then(function (result) {
-					return writeToDB(result, file, params);
-				})
-				.then(function (response) {
-					res.json(response);
-				})
-				.catch(function (err) {
-					switch (err.code) {
-						case 'DAE-PROCESS':
-							utils.error.general(res, err);
-							break;
-						case 'NEO4J':
-							utils.error.neo4j(res, err, '#upload.model');
-							break;
-						default:
-							utils.error.general(res, err);
-					}
-				});
-			break;
+				case 'model/vnd.collada+xml':
+					return processDae(params)
+						.then(function (result) {
+							return writeToDB(result, params);
+						});
+					break;
 
-		case 'application/zip':
-			processZip(file, params)
-				.then(function (result) {
-					return writeToDB(result, file, params);
-				})
-				.then(function (response) {
-					res.json(response);
-				})
-				.catch(function (err) {
-					switch (err.code) {
-						case 'DAE-PROCESS':
-							utils.error.general(res, err);
-							break;
-						case 'NEO4J':
-							utils.error.neo4j(res, err, '#upload.model');
-							break;
-						case 'IMAGE-EXTRACT':
-							utils.error.general(res, err);
-							break;
-						default:
-							utils.error.general(res, err);
-					}
-				});
-			break;
+				case 'application/zip':
+					return processZip(params)
+						.then(function (result) {
+							return writeToDB(result, params);
+						});
+					break;
 
-		default:
-			utils.abort.unsupportedFile(res, '#upload.model ' + file.originalname);
+				default:
+					utils.abort.unsupportedFile(res, '#upload.model ' + file.originalname);
+					return Promise.reject();
 
-	}
+			}
+		})
+		.then(function (response) {
+			// everything went well
+			res.json(response);
+		})
+		.catch(function (err) {
+			// error notification
+			if (err) {
+				switch (err.code) {
+					case 'DAE-PROCESS':
+						utils.error.general(res, err);
+						break;
+					case 'NEO4J':
+						utils.error.neo4j(res, err, '#upload.model');
+						break;
+					case 'IMAGE-EXTRACT':
+						utils.error.general(res, err);
+						break;
+					default:
+						utils.error.general(res, err);
+				}
+			}
+
+			// remove files/directory
+			return fs.existsAsync(path);
+		})
+		.then(function (exists) {
+			if (exists) {
+				console.warn('Unlink directory:', path);
+				return fs.removeAsync(path);
+			}
+		})
+		.catch(function (err) {
+			console.error('Unlink directory failed:', path, err);
+		})
+		.then(function () {
+			return fs.existsAsync(file.path);
+		})
+		.then(function (exists) {
+			if (exists) {
+				console.warn('Unlink temp file:', file.path);
+				return fs.unlinkAsync(file.path);
+			}
+		})
+		.catch(function (err) {
+			console.error('Unlink temp file failed:', file.path, err);
+		});
 	
 };
 
-function processDae(file, params) {
+function processDae(params) {
 	return new Promise(function (resolve, reject) {
-
-		var forkDae = fork('process/dae-file', [ file.path, params.tid, params.path ]);
+		// initialize process to handle dae file
+		var forkDae = fork('process/dae-file', [ params.path + params.filename, params.tid, params.path ]);
 
 		forkDae.on('message', function (response) {
 			console.debug('PARENT got message');
@@ -111,11 +154,11 @@ function processDae(file, params) {
 	});
 }
 
-function processZip(file, params) {
-	var daeFile = file.destination + '/' + params.tid + '_model.dae';
+function processZip(params) {
+	var daeTmpFile = params.path + params.tid + '_tmp.dae';
 	var zipObj;
 
-	return fs.readFileAsync(file.path)
+	return fs.readFileAsync(params.path + params.filename)
 		.then(function (data) {
 			return JSZip.loadAsync(data);
 		})
@@ -123,22 +166,22 @@ function processZip(file, params) {
 			// extract dae file
 			zipObj = zip;
 			var daeResults = zip.file(/.+\.dae$/i);
-			if(daeResults[0])
+			if (daeResults[0])
 				return daeResults[0].async('nodebuffer');
 			else
 				return Promise.reject({
 					code: 'DAE-PROCESS',
-					message: 'No dae file found in zip file!'
+					message: 'No DAE file found in zip file!'
 				});
 		})
 		.then(function (buffer) {
-			return fs.writeFileAsync(daeFile, buffer);
+			return fs.writeFileAsync(daeTmpFile, buffer);
 		})
 		.then(function () {
 			// process dae
 			return new Promise(function (resolve, reject) {
 
-				var forkDae = fork('process/dae-file', [daeFile, params.tid, params.path]);
+				var forkDae = fork('process/dae-file', [daeTmpFile, params.tid, params.path]);
 
 				forkDae.on('message', function (response) {
 					console.debug('PARENT got message');
@@ -162,34 +205,38 @@ function processZip(file, params) {
 			});
 		})
 		.then(function (result) {
-			// extract and process images/textures
-			return new Promise(function (resolve, reject) {
-
-				var imgUrls = [];
-				for (var key in result.images) {
-					imgUrls.push(result.images[key]);
-				}
-
-				Promise.each(imgUrls, function (value) {
-					return extractImage(zipObj, value, file, params)
-						.then(function (fnames) {
-							updateMapValues(result.nodes, fnames.oldName, fnames.newName);
-							return fs.renameAsync(file.destination + '/' + fnames.newName, params.path + 'maps/' + fnames.newName);
-						});
-				}).then(function () {
-					return fs.renameAsync(file.path, params.path + file.filename);
-				}).then(function () {
-					resolve(result);
-				}).catch(function (err) {
-					reject(err);
-				});
-
+			// remove tmp dae file
+			fs.unlinkAsync(daeTmpFile).catch(function (err) {
+				console.error('Unlink failed:', daeTmpFile, err);
 			});
+			
+			// extract and process images/textures
+			var imgUrls = [];
+			for (var key in result.images) {
+				if (result.images.hasOwnProperty(key))
+					// console.debug(result.images[key]);
+					imgUrls.push(result.images[key]);
+			}
+
+			return Promise.each(imgUrls, function (url) {
+				return extractImage(zipObj, url, params)
+					.then(function (fnames) {
+						updateMapValues(result.nodes, fnames.oldName, fnames.newName);
+						return Promise.resolve();
+					})
+			})
+				.then(function () {
+					return Promise.resolve(result);
+				})
+				.catch(function (err) {
+					return Promise.reject(err);
+				});
 		});
 }
 
-function extractImage(zipObj, imageUrl, file, params) {
-	var imgFile = file.destination + '/' + params.tid + '_' + imageUrl;
+// extract image from zip and resize
+function extractImage(zipObj, imageUrl, params) {
+	var imgFile = params.path + 'maps/' + params.tid + '_' + imageUrl;
 	var imgResults = zipObj.file(new RegExp("^(.*\\/)?" + imageUrl + "$"));
 
 	if(!imgResults[0])
@@ -203,10 +250,12 @@ function extractImage(zipObj, imageUrl, file, params) {
 				return fs.writeFileAsync(imgFile, buffer);
 			})
 			.then(function () {
-				return utils.resizeToNearestPowerOf2(file.destination + '/', params.tid + '_' + imageUrl);
+				return utils.resizeToNearestPowerOf2(params.path + 'maps/', params.tid + '_' + imageUrl);
 			})
 			.then(function (resizeOutput) {
-				fs.unlink(imgFile);
+				fs.unlinkAsync(imgFile).catch(function (err) {
+					console.error('Unlink failed:', imgFile, err);
+				});
 				return Promise.resolve({
 					oldName: imageUrl,
 					newName: resizeOutput.name
@@ -215,83 +264,123 @@ function extractImage(zipObj, imageUrl, file, params) {
 	}
 }
 
+// set map properties to new image url
 function updateMapValues(objs, oldName, newName) {
-	for(var i=0; i<objs.length; i++) {
-		var o = objs[i];
-		if(o.material) {
-			if(o.material.map === oldName) o.material.map = newName;
-			if(o.material.alphaMap === oldName) o.material.alphaMap = newName;
+	objs.forEach(function (o) {
+		if (o.material) {
+			if (o.material.map === oldName) o.material.map = newName;
+			if (o.material.alphaMap === oldName) o.material.alphaMap = newName;
 		}
-		if(o.children)
+		if (o.children)
 			updateMapValues(o.children, oldName, newName);
-	}
+	});
 }
 
-function writeToDB(data, file, p) {
+function writeToDB(data, p) {
+	var prj = p.prj;
 	var statements = [];
 
+	statements.push(createEventStatement(p));
+
 	function prepareStatements(nodes) {
-		for(var i=0; i<nodes.length; i++) {
+		for (var i = 0; i < nodes.length; i++) {
 			var n = nodes[i];
 
-			var q = 'MATCH (tmodel:E55:' + p.prj + ' {content: "model"})';
-			if (!n.parentid)
-				q += ', (parent:E22:' + p.prj + ' {content: "e22_root_"+{subprj}})';
-			else
-				q += ' MERGE (parent:E22:' + p.prj + ' {content: {parentid}})';
+			// skip cameras and lights
+			if (n.type === 'camera' || n.type === 'light')
+				continue;
 
-			q += ' MERGE (e22:E22:' + p.prj + ' {content: "e22_"+{contentid}}) \
-						MERGE (parent)-[:P46]->(e22) \
-						\
-						CREATE (e22)<-[:P138]-(e36:E36:' + p.prj + ' {content: "e36_"+{contentid}})-[:P2]->(tmodel) \
-						MERGE (e75:E75:' + p.prj + ' {content:{e75content}.content}) \
-						ON CREATE SET e75 = {e75content} \
-						CREATE (e73:E73:' + p.prj + ' {e73content})-[:P1]->(e75) \
-						CREATE (e36)-[:P106]->(e73)';
+			// create digital object
+			var q = 'MATCH (tmodel:E55:'+prj+' {content: "model"}),\
+				(devent:D7:'+prj+' {content: $deventId})\
+			OPTIONAL MATCH path = (devent)-[:P134*1..]->(:D7)-[:L11]->(dobjOld:D1 {id: $obj.id})<-[:P106]-(dglobOld:D1)-[:P2]->(tmodel)\
+			WITH devent, dobjOld, dglobOld, tmodel, path\
+			ORDER BY length(path)\
+			LIMIT 1\
+			\
+			MERGE (dobj:D1:'+prj+' {content: $obj.content})\
+				ON CREATE SET dobj = $obj\
+			MERGE (file:E75:'+prj+' {content: $file.content})\
+				ON CREATE SET file = $file\
+			CREATE (devent)-[:L11]->(dobj),\
+				(dobj)-[:P1]->(file)\
+			\
+			FOREACH (parentId IN $parentId |\
+				MERGE (parent:D1:'+prj+' {content: parentId})\
+				CREATE (parent)-[:P106]->(dobj)\
+			)\
+			FOREACH (ignoreMe IN CASE WHEN dobjOld IS NOT NULL THEN [1] ELSE [] END |\
+				CREATE (devent)-[:L10]->(dobjOld),\
+				(dobj)<-[:P106]-(dglobOld)\
+			)\
+			FOREACH (ignoreMe IN CASE WHEN dobjOld IS NULL THEN [1] ELSE [] END |\
+				CREATE (dobj)<-[:P106]-(dglob:D1:'+prj+' {content: $dglobid})-[:P2]->(tmodel),\
+					(dglob)-[:P67]->(e22:E22:'+prj+' {content: $e22id})\
+			)\
+			\
+			WITH dobj\
+			UNWIND range(0, size($materials) - 1) AS i\
+			MERGE (e57:E57:'+prj+' {content: $materials[i].content})\
+				ON CREATE SET e57 = $materials[i]\
+			CREATE (dobj)-[:P2 {order: i}]->(e57)\
+			\
+			RETURN DISTINCT dobj';
 
-			if(n.material)
-				q += ' MERGE (e57:E57:' + p.prj + ' {content:{e57content}.content}) \
-							ON CREATE SET e57 = {e57content} \
-							CREATE (e73)-[:P2]->(e57)';
-
-			q += ' RETURN e22.content';
+			var ctm = p.filename;
+			var edges = undefined;
+			if (n.files) {
+				if (Array.isArray(n.files)) {
+					ctm = n.files.map(function (f) { return f.ctm; });
+					edges = n.files.map(function (f) { return f.edges; });
+				}
+				else {
+					ctm = n.files.ctm;
+					edges = n.files.edges;
+				}
+			}
 
 			var params = {
-				subprj: p.subprj,
-				contentid: p.tid + '_' + utils.replace(n.id),
-				parentid: n.parentid ? 'e22_' + p.tid + '_' + utils.replace(n.parentid) : '',
-				e73content: {
-					content: 'e73_' + p.tid + '_' + utils.replace(n.id),
+				deventId: 'd7_' + p.tid,
+				parentId: n.parentid ? ['d1_' + p.tid + '_' + utils.replace(n.parentid)] : [],
+				dglobid: 'd1_glob_' + p.tid + '_' + utils.replace(n.id),
+				e22id: 'e22_' + p.tid + utils.replace(n.id),
+				obj: {
+					content: 'd1_' + p.tid + '_' + utils.replace(n.id),
 					id: n.id,
 					name: n.name,
 					type: n.type,
 					layer: n.layer,
-					// materialId: n.material ? n.material.id : '',
-					// materialName: n.material ? n.material.name : '',
-					// materialColor: n.material ? n.material.color : '',
 					unit: n.unit,
-					upAxis: n.upAxis,
+					up: n.up,
 					matrix: n.matrix
 				},
-				e75content: {
-					content: n.files ? n.files.ctm : file.filename,
-					path: p.prj + '/models/',
-					edges: n.files ? n.files.edges : undefined,
-					type: file.filename.split('.').pop(),
-					original: file.filename,
+				file: {
+					content: ctm,
+					path: p.shortPath,
+					edges: edges,
+					type: p.filename.split('.').pop(),
+					original: p.filename,
 					geometryId: n.geometryUrl
-				}
+				},
+				materials: []
 			};
 
-			if(n.material)
-				params.e57content = {
-					content: 'e57_' + p.tid + '_' + utils.replace(n.material.id),
-					id: n.material.id,
-					name: n.material.name,
-					path: p.prj + '/models/maps/',
-					diffuse: n.material.map || n.material.color,
-					alpha: n.material.alphaMap || null
-				};
+			if (n.material) {
+				var mats = Array.isArray(n.material) ? n.material : [n.material];
+				params.materials = mats.map(function (m) {
+					return {
+						content: 'e57_' + p.tid + '_' + utils.replace(m.id),
+						id: m.id,
+						name: m.name,
+						path: p.shortPath + 'maps/',
+						diffuse: m.map || m.color,
+						alpha: m.alphaMap || null
+						// ambient: m.ambientMap || null,
+						// specular: m.alphaMap || null,
+						// shininess: m.shininess || null
+					};
+				});
+			}
 
 			statements.push({ statement: q, parameters: params });
 
@@ -300,10 +389,9 @@ function writeToDB(data, file, p) {
 	}
 	prepareStatements(data.nodes);
 
-	return neo4j.transactionArray(statements)
-		.then(function (response) {
-			if(response.errors.length) return Promise.reject(response);
-			return Promise.resolve(neo4j.extractTransactionArrayData(response.results));
+	return neo4j.multipleStatements(statements)
+		.then(function (results) {
+			return Promise.resolve(results);
 		})
 		.catch(function (err) {
 			return Promise.reject({
@@ -313,12 +401,50 @@ function writeToDB(data, file, p) {
 		});
 }
 
-function unlinkFile(filepath) {
-	fs.unlinkAsync(filepath)
-		.then(function () {
-			console.warn('File unlink:', filepath);
-		})
-		.catch(function () {
-			console.error('File unlink failed:', filepath);
-		});
+function createEventStatement(p) {
+	var prj = p.prj;
+
+	// create event
+	var q = 'MATCH (user:E21:'+prj+' {content: $user}),\
+			(subprj:E7:'+prj+' {content: $subprj})\
+		OPTIONAL MATCH (pre:D7:'+prj+' {content: $predecessor})\
+		CREATE (devent:D7:'+prj+' {content: $deventId})-[:P14]->(user),\
+			(devent)-[:P4]->(:E52:'+prj+' {content: $e52id})-[:P82]->(:E61:'+prj+' {value: $date}),\
+			(devent)<-[:P15]-(subprj),\
+			(devent)-[:P1]->(:E41:'+prj+' $summary),\
+			(devent)-[:P3]->(:E62:'+prj+' $note)\
+		FOREACH (sw IN $software |\
+			MERGE (software:D14:'+prj+' {value: sw.value})\
+				ON CREATE SET software.content = sw.content\
+			CREATE (devent)-[:L23]->(software)\
+		)\
+		FOREACH (ignoreMe IN CASE WHEN pre IS NOT NULL THEN [1] ELSE [] END |\
+			CREATE (devent)-[:P134]->(pre)\
+		)\
+		RETURN devent';
+
+	var params = {
+		user: p.user,
+		subprj: p.subprj,
+		predecessor: p.body.predecessor || '_',// ? p.body.predecessor : null,
+		deventId: 'd7_' + p.tid,
+		e52id: 'e52_d7_' + p.tid,
+		date: p.body.date,
+		summary: {
+			content: 'e41_d7_' + p.tid,
+			value: p.body.summary
+		},
+		note: {
+			content: 'e62_d7_' + p.tid,
+			value: p.body.note
+		},
+		software: p.body.software ? p.body.software.split(',').map(function (sw) {
+			return {
+				constent: p.tid + '_' + utils.replace(sw),
+				value: sw
+			};
+		}) : []
+	};
+
+	return { statement: q, parameters: params };
 }

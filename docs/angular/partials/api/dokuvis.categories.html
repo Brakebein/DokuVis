@@ -1,0 +1,79 @@
+
+
+<h1>
+  <code>dokuvis.categories</code>
+</h1>
+
+<p>Components to integrate categories for 3D objects.</p>
+<h3 id="module-dependencies">Module Dependencies</h3>
+<ul>
+<li><a href="https://docs.angularjs.org/api/ngResource">ngResource</a></li>
+<li><a href="https://ui-router.github.io/ng1/docs/0.3.2/#/api">ui.router</a></li>
+<li><a href="https://vitalets.github.io/angular-xeditable">xeditable</a></li>
+<li><a href="https://github.com/kaihenzler/angular-minicolors">minicolors</a></li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<p>Add <code>dokuvis.categories.js</code> and <code>dokuvis.categories.css</code> to your <code>index.html</code> and add <code>dokuvis.categories</code> as dependency.</p>
+<p>In your application, define a constant named <code>ApiCategory</code> to specify the REST-API url. The url will be extended by <code>/:cid</code> for <code>Category</code> and <code>/:cid/attribute/:aid</code> for <code>CategoryAttribute</code>. Don&#39;t forget to set your <a href="guide/ApiParams">ApiParams</a>.</p>
+<pre><code>// example
+var myApp = angular.module(&#39;myApp&#39;, [&#39;dokuvis.categories&#39;]);
+myApp.constant(&#39;ApiCategory&#39;, &#39;api/auth/project/:project/category&#39;);
+</code></pre>
+
+
+
+<div class="component-breakdown">
+  <h2>Module Components</h2>
+  
+  <div>
+    <h3 class="component-heading" id="factory">Factory</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.categories/factory/Category">Category</a></td>
+        <td><p>$resource for Category. A category can have multiple attributes (<a href="api/dokuvis.categories/factory/CategoryAttribute">CategoryAttribute</a>), which can be assigned to models.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.categories/factory/CategoryAttribute">CategoryAttribute</a></td>
+        <td><p>$resource for CategoryAttribute, that can be assigned to models. Usually in combination with <a href="api/dokuvis.categories/factory/Category">Category</a>.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+  <div>
+    <h3 class="component-heading" id="directive">Directive</h3>
+    <table class="definition-table">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.categories/directive/categoryList">categoryList</a></td>
+        <td><p>Directive displaying all categories and their attributes. Categories can be activated to color the 3D objects respectively.</p>
+</td>
+      </tr>
+      
+      <tr>
+        <td><a href="api/dokuvis.categories/directive/categoryConfig">categoryConfig</a></td>
+        <td><p>Directive showing all categories and their attributes. It is possible to add/remove new categories and attributes and to change name and colors.</p>
+</td>
+      </tr>
+      
+    </table>
+  </div>
+  
+</div>
+
+
+
+
+

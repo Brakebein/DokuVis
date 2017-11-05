@@ -20,7 +20,7 @@ module.exports = {
 		q += ' MATCH (p:E22:'+prj+')-[:P46]->(c)<-[:P138]-(:E36)-[:P106]->(cobj:E73)-[:P1]->(cfile:E75)';
 		q += ' OPTIONAL MATCH (cobj)-[:P2]->(cmat:E57)';
 		q += ' OPTIONAL MATCH (c)-[:P2]->(attr:E55)-[:P127]->(cat:E55)-[:P127]->(tcat)';
-		q += ' WITH p, c, cobj, cfile, cmat, collect({catId: cat.content, catValue: cat.value, attrId: attr.content, attrValue: attr.value}) AS categories';
+		q += ' WITH p, c, cobj, cfile, cmat, collect({id: cat.content, value: cat.value, attrId: attr.content, attrValue: attr.value}) AS categories';
 		
 		q += ' RETURN p AS parent, collect({content: c.content, obj: cobj, file: cfile, material: cmat, categories: categories}) AS children';
 
@@ -30,7 +30,16 @@ module.exports = {
 
 		neo4j.readTransaction(q, params)
 			.then(function (data) {
-				neo4j.removeEmptyArrays(data, 'categories', 'catId');
+				neo4j.removeEmptyArrays(data, 'categories', 'id');
+				data.forEach(function (d) {
+					d.children.forEach(function (child) {
+						var categories = {};
+						child.categories.forEach(function (c) {
+							categories[c.id] = c;
+						});
+						child.categories = categories;
+					});
+				});
 				res.json(neo4j.createHierarchy(data));
 			})
 			.catch(function (err) {
@@ -44,7 +53,7 @@ module.exports = {
 		var q = 'MATCH (obj:E73:'+prj+' {content: {e73id}})-[:P1]->(file:E75), \
 			(obj)<-[:P106]-(:E36)-[:P138]->(e22) \
 			OPTIONAL MATCH (e22)-[:P2]->(attr:E55)-[:P127]->(cat:E55)-[:P127]->(:E55 {content:"category"}) \
-			RETURN obj, file, collect({catId: cat.content, catValue: cat.value, attrId: attr.content, attrValue: attr.value, attrColor: attr.color}) AS categories';
+			RETURN obj, file, collect({id: cat.content, value: cat.value, attrId: attr.content, attrValue: attr.value, attrColor: attr.color}) AS categories';
 		
 		var params = {
 			e73id: req.params.modelId
@@ -54,8 +63,16 @@ module.exports = {
 			.then(function (response) {
 				if(response.errors.length) { utils.error.neo4j(res, response, '#models.get'); return; }
 				var data = neo4j.extractTransactionData(response.results[0]);
-				neo4j.removeEmptyArrays(data, 'categories', 'catId');
-				res.json(data[0]);
+				neo4j.removeEmptyArrays(data, 'categories', 'id');
+
+				var d = data[0];
+				var categories = {};
+				d.categories.forEach(function (c) {
+					categories[c.id] = c;
+				});
+				d.categories = categories;
+
+				res.json(d);
 			})
 			.catch(function (err) {
 				utils.error.neo4j(res, err, '#cypher');

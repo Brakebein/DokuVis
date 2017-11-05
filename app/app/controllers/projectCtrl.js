@@ -1,5 +1,5 @@
-angular.module('dokuvisApp').controller('projectCtrl', ['$scope', '$state', '$stateParams', '$window',
-    function($scope, $state, $stateParams, $window) {
+angular.module('dokuvisApp').controller('projectCtrl', ['$scope', '$state', '$stateParams', '$window', '$translate',
+    function($scope, $state, $stateParams, $window, $translate) {
 
         console.log('projectCtrl init');
 
@@ -18,5 +18,16 @@ angular.module('dokuvisApp').controller('projectCtrl', ['$scope', '$state', '$st
             $(this).css('z-index', zIndex);
             $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
         });
+
+        // language
+        $scope.languagePopover = {
+            title: 'Sprache',
+            templateUrl: 'partials/popovers/languageConfig.html',
+            html: true
+        };
+
+        $scope.test = function () {
+            console.log('popover btn');
+		};
 
     }]);

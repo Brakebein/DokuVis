@@ -1,0 +1,137 @@
+<div ng-show="!wi.snapshot.active">
+
+	<div class="sideHeader">
+		<h4>Screenshots & Kommentare</h4>
+		<hr/>
+
+		<div class="dropArea screenshot" ng-click="wi.callFunc.openSnapshot()">
+			<i class="plus fa fa-plus"></i> <div>Snapshot erstellen</div>
+			<!--<div class="plus" ng-include="'img/plus-sign.svg'"></div> <div>Screenshot erstellen</div>-->
+		</div>
+
+		<!--<div class="checkbox">
+			<label>
+				<input type="checkbox" ng-model="screenshotPins.isVisible" ng-change="togglePins()"/> Pins anzeigen
+			</label>
+		</div>-->
+
+	</div>
+
+	<div class="sideContent smallFont">
+
+
+		<div class="media screenshotItem" ng-repeat="s in screenshots" ng-click="openScreenshotDetail(s)" ng-mouseenter="!screenshotPins.isVisible && s.pin.matrix && addPin(s.id,s.pin, $event)" ng-mouseleave="!screenshotPins.isVisible && removePin(s.id)">
+			<div class="media-left pull-left">
+				<img class="media-object" ng-src="{{'data/' + s.path + '_thumbs/t_' + s.file}}"/>
+			</div>
+			<div class="media-body">
+				<h4 class="media-heading">{{s.title}}</h4>
+				<ol>
+					<li ng-repeat="m in s.markers">{{m.comment | characters:90:false }}</li>
+				</ol>
+				<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="wi.callFunc.setScreenshotView(s.camera);$event.stopPropagation()"></span>
+			</div>
+		</div>
+
+		<div class="media" ng-repeat="c in comments | orderBy: 'date':true" ng-switch="c.type">
+
+			<div class="media screenshotItem" ng-switch-when="commentModel" ng-mouseenter="!screenshotPins.isVisible && c.pins.length && addPin(c.eid,c.pins[0], $event)" ng-mouseleave="!screenshotPins.isVisible && removePin(c.eid)">
+				<div ng-class="c.type" title="Modellkommentar"></div>
+
+				<div class="media-left pull-left">
+					<img class="media-object" ng-src="{{'data/' + c.screenshots[0].path + '_thumbs/t_' + c.screenshots[0].file}}"/>
+				</div>
+
+				<div class="media-body">
+					<h4 class="media-heading">{{c.title}}</h4>
+					<p>{{c.text}}</p>
+					<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="wi.callFunc.setScreenshotView(c.screenshots[0]);$event.stopPropagation()"></span>
+
+					<div class="media-footer">
+						<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answerLength}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+						{{c.author.name}} - {{c.date | amCalendar}}
+					</div>
+
+				</div>
+
+			</div>
+
+			<div class="media screenshotItem" ng-switch-when="commentSource" ui-sref="project.explorer.source.id({ sourceId: c.targets[0].eid })">
+				<div ng-class="c.type" title="Quellenkommentar"></div>
+
+				<div class="media-left pull-left">
+					<img class="media-object" ng-src="{{'data/' + c.targets[0].file.path + c.targets[0].file.thumb}}"/>
+				</div>
+
+				<div class="media-body">
+					<h4 class="media-heading">{{c.targets[0].title}}</h4>
+					<p>{{c.text}}</p>
+
+					<div class="media-footer">
+						<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answerLength}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+						{{c.author.name}} - {{c.date | amCalendar}}
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<div class="sideFooter">
+		<!--<button class="btn btn-default" ng-click="makeScreenshot()">Screenshot erstellen</button>-->
+	</div>
+
+</div>
+
+<div ng-show="wi.snapshot.active">
+
+	<div class="sideHeader">
+		<h4>Neuer Modellkommentar</h4>
+		<hr/>
+	</div>
+
+	<div class="sideContent">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-2 control-label">Titel</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" ng-model="wi.snapshot.title" />
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-12">
+					<textarea class="form-control" rows="6" ng-model="wi.snapshot.text"></textarea>
+				</div>
+			</div>
+		</div>
+
+		<div>
+			<div class="form-group">
+				<label>Gepinnte Objekte</label>
+				<div>
+						<span class="tag-item" ng-repeat="ro in wi.snapshot.refObj">
+						{{ ro.name }} <a class="remove-button" ng-click="wi.snapshot.refObj.splice($index, 1)">×</a>
+						</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label>Referenzierte Quellen</label>
+				<div>
+					<div class="src-item" ng-repeat="rs in wi.snapshot.refSrc">
+						<img ng-src="data/{{rs.file.path}}_thumbs/{{rs.file.thumb}}" ng-attr-title="{{rs.title}}"/>
+						<a class="remove-button" ng-click="wi.snapshot.refSrc.splice($index, 1)">×</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="sideFooter">
+		<button class="btn btn-primary" ng-click="wi.callFunc.saveSnapshot()">Kommentar erstellen</button>
+		<button class="btn btn-default" ng-click="wi.callFunc.abortSnapshot()">Verwerfen</button>
+	</div>
+
+</div>

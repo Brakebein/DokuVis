@@ -14,13 +14,11 @@
  * @requires API
  * @requires Archive
  * @requires Utilities
- * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translatePartialLoader $translatePartialLoader
  */
-angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$timeout', 'Uploader', 'neo4jRequest', 'API', 'Archive', 'Utilities', '$translatePartialLoader',
-	function ($scope, $state, $stateParams, $previousState, $timeout, Uploader, neo4jRequest, API, Archive, Utilities, $translatePartialLoader) {
+angular.module('dokuvisApp').controller('uploadCtrl', ['$scope', '$state', '$stateParams', '$previousState', '$timeout', 'Uploader', 'neo4jRequest', 'API', 'Archive', 'Utilities',
+	function ($scope, $state, $stateParams, $previousState, $timeout, Uploader, neo4jRequest, API, Archive, Utilities) {
 
         $previousState.memo('modalInvoker');
-		$translatePartialLoader.addPart('source');
 
 		// init
 		var isInserting = false;
