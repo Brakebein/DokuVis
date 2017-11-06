@@ -22,7 +22,7 @@
 		<dd>{{ task.description }}</dd>
 	</dl>
 
-	<div>
+	<div class="clearfix">
 		<div class="pull-right">
 			<button class="btn btn-default" ui-sref=".detail({taskId: task.id})">Bearbeiten</button>
 			<button class="btn btn-success" ng-hide="task.status" ng-click="setTaskStatus(true)">Abschließen</button>

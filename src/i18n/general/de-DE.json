@@ -40,7 +40,7 @@
   "filedrop_file": "Hier Datei ablegen",
   "filedrop_files": "Hier Dateien ablegen",
   "processing": "Verarbeitung",
-  "upload_sucess": "Upload erfolgreich",
+  "upload_success": "Upload erfolgreich",
   "upload_fail": "Upload fehlgeschlagen",
   "error_file_nosupport": "Nicht unterstütztes Dateiformat!",
   "error_unknown": "Unbekannter Fehler! Siehe Konsole für weitere Details."

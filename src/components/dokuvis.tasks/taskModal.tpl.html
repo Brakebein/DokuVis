@@ -41,6 +41,7 @@
 				<tags-input ng-model="task.editors"
 							on-tag-adding="checkEditor($tag)"
 							display-property="name"
+							replace-spaces-with-dashes="false"
 							placeholder="Namen eingeben">
 					<auto-complete source="searchEditors($query)"
 								   display-property="name"

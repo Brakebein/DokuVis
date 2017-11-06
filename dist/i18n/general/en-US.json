@@ -40,7 +40,7 @@
   "filedrop_file": "Drop file here",
   "filedrop_files": "Drop files here",
   "processing": "Processing",
-  "upload_sucess": "Upload successful",
+  "upload_success": "Upload successful",
   "upload_fail": "Upload failed",
   "error_file_nosupport": "File format not supportet!",
   "error_unknown": "Unknown failure! See console for more details."

@@ -90,7 +90,8 @@ module.exports = function (grunt) {
 				flow: {
 					html: {
 						steps: {
-							js: ['concat', 'uglify'],
+							// js: ['concat', 'uglify'],
+							js: ['concat'],
 							css: ['cssmin']
 						},
 						post: {}
@@ -118,6 +119,23 @@ module.exports = function (grunt) {
 					css: [
 						[/url\((?:\.\.\/)*((?!\.\.\/)[^:'"?#()]+)(?:[?#][^:'"?()]+)?\)/img, 'Url replacement in css files']
 					]
+				}
+			}
+		},
+
+		uglify: {
+			vendor: {
+				files: {
+					'dist/script/lib.js': 'dist/script/lib.js',
+					'dist/script/threejs-bundle.js': 'dist/script/threejs-bundle.js'
+				}
+			},
+			app: {
+				options: {
+					mangle: false
+				},
+				files: {
+					'dist/script/app.js': 'dist/script/app.js'
 				}
 			}
 		},
@@ -213,7 +231,9 @@ module.exports = function (grunt) {
 		'useminPrepare',
 		'concat:generated',
 		'cssmin:generated',
-		'uglify:generated',
+		//'uglify:generated',
+		'uglify:vendor',
+		'uglify:app',
 		'filerev',
 		'usemin',
 		'string-replace:dist',
