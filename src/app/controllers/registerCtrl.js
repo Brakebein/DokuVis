@@ -47,11 +47,11 @@ angular.module('dokuvisApp').controller('registerCtrl', ['$scope', '$state', 'Us
 			if (password1 !== password2) { Utilities.dangerAlert('Die Passwörter stimmen nicht überein!'); return; }
 			if (email.length === 0) { Utilities.dangerAlert('Bitte geben Sie eine Emailadresse ein!'); return; }
 			if (username.length === 0) { Utilities.dangerAlert('Bitte geben Sie einen Nutzernamen ein!'); return; }
-			if (password1.length < 5) { Utilities.dangerAlert('Passwort hat nicht genügend Zeichen (mind. 6)!'); return; }
+			if (password1.length < 6) { Utilities.dangerAlert('Passwort hat nicht genügend Zeichen (mind. 6)!'); return; }
 
 			UserAuthFactory.register(email, username, password1)
 				.then(function() {
-					$state.go('projectlist');
+					$state.go('root.projectlist');
 				}, function(err) {
 					Utilities.throwException('Register', 'failed', err);
 				});

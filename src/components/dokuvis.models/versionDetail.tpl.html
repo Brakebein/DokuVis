@@ -2,7 +2,7 @@
 
 <div ng-show="version">
 	<h3>{{ version.summary }}</h3>
-	<p class="small">{{'uploaded_by' | translate}} {{ version.created.name }} - {{ version.created.date | amCalendar }}</p>
+	<p class="small" ng-hide="version.id === 'root'">{{'uploaded_by' | translate}} {{ version.created.name }} - {{ version.created.date | amCalendar }}</p>
 
 	<p ng-show="version.id === 'root'" translate>model_version_root</p>
 	<p ng-hide="version.id === 'root'">{{ version.note }}</p>

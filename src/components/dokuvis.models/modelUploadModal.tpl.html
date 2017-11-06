@@ -44,7 +44,7 @@
 
 		<div class="progress-area" ng-show="fileitem && fileitem.showProgress">
 			<div ng-show="fileitem.isUploading && !fileitem.isProcessing">
-				<h4>40 %</h4>
+				<h4>{{ fileitem.progress }} %</h4>
 				<div class="progress">
 					<div class="progress-bar" role="progressbar" ng-style="{ 'width': fileitem.progress + '%' }"></div>
 				</div>

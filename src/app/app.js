@@ -63,7 +63,8 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'dokuvis.comments',
 	'dokuvis.categories',
 	'dokuvis.tasks',
-	'dokuvis.staff'
+	'dokuvis.staff',
+	'dokuvis.imageViewer'
 ]);
 
 /**
