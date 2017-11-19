@@ -1,3 +1,5 @@
+@import "../../style/variables"
+
 comment-section
 	.comment
 		padding: 2px 10px 5px
@@ -30,3 +32,37 @@ comment-section
 
 	.post-section > textarea
 		margin: 5px 0
+
+comment-list
+	.comment-item
+		margin-bottom: 10px
+		& > .media
+			position: relative
+			padding: 4px
+			border: 1px solid #ddd
+			border-radius: 4px
+			cursor: pointer
+			transition: border-color 0.3s
+
+			&:hover
+				border-color: $dvPrimaryColor
+			& > .media-body
+				padding-right: 20px
+				& > p:first-line
+					font-size: 17px
+				& > .media-footer
+					font-size: 12px
+
+		.commentType
+			position: absolute
+			top: 0
+			bottom: 0
+			right: 0
+			width: 10px
+			background-color: #aaa
+		.commentModel
+			@extend .commentType
+			background-color: #74add1
+		.commentSource
+			@extend .commentType
+			background-color: #a6d96a

@@ -77,7 +77,7 @@ angular.module('dokuvis.viewport',[
 
 			//var postprocessing = {};
 
-			var selected = [], highlighted = [];
+			var selected = [], highlighted = [], marked = [];
 			var pins = [];
 
 			var ctmloader, textureLoader;
@@ -879,59 +879,89 @@ angular.module('dokuvis.viewport',[
 			}
 
 			function highlightObject(obj) {
+				// if object is marked, do nothing
+				if (marked.indexOf(obj) !== -1) return;
 
-				for(var i=0; i<highlighted.length; i++) {
-					if(highlighted[i] === obj) continue;
+				// reject highlight material of all current highlighted objects, but exclude object which is to be set highlighted again
+				for (var i = 0; i < highlighted.length; i++) {
+					if (highlighted[i] === obj) continue;
+					if (marked.indexOf(highlighted[i]) !== -1) continue;
+
 					rejectHighlightMat(highlighted[i]);
-					highlighted.splice(i,1);
+					highlighted.splice(i, 1);
 					--i;
 				}
 
+				// assign highlight material only to those objects, which aren't part of highlighted yet
 				if(obj && highlighted.indexOf(obj) === -1) {
-					if(obj.userData.type === 'object')
+					if (obj.userData.type === 'object')
 						assignHighlightMat(obj);
 					highlighted.push(obj);
 				}
-
 			}
 
 			function assignHighlightMat(obj) {
-
 				obj.material = obj.material.clone();
 				var hcolor = new THREE.Color(0xffff00); //materials['highlightMat'].color.clone();
-
-				obj.material.color.lerp(hcolor, 0.2);
-
-				/*
-			switch(currentShading) {
-				case 'xray': obj.material = materials['xrayHighlightMat']; break;
-				case 'onlyEdges': objects[obj.id].edges.material = materials['edgesHighlightMat']; break;
-				case 'transparent':
-					if(obj.userData.modifiedMat)
-						obj.material.color = materials['transparentHighlightMat'].color;
-					else
-						obj.material = materials['transparentHighlightMat'];
-					break;
-				default:
-					if(obj.userData.modifiedMat)
-						obj.material.color = materials['highlightMat'].color;
-					else
-						//obj.material = materials['selectionMat'];
-						objects[obj.id].edges.material = materials['edgesHighlightMat'];
-					break;
-			}*/
+				obj.material.color.lerp(hcolor, 0.5);
+				obj.material.name += '_highlight';
 			}
 
 			function rejectHighlightMat(obj) {
+				// be sure not to dispose standard or original material
+				if (obj.material === materials[obj.userData.originalMat] ||
+					viewportCache.standardMaterials.indexOf(obj.material.name) !== -1)
+					return;
+
 				obj.material.dispose();
-				switch(currentShading) {
+				switch (viewportSettings.shading) {
 					case 'grey':
 						obj.material = materials['defaultDoublesideMat'];
+						break;
+					case 'transparent':
+						obj.material = materials['transparentMat'];
 						break;
 					default:
 						obj.material = materials[obj.userData.originalMat];
 						break;
 				}
+			}
+
+			function markObject(obj, remove) {
+				if (remove === true) {
+					if (obj && marked.indexOf(obj) !== -1) {
+						rejectMarkMat(obj);
+						marked.splice(marked.indexOf(obj), 1);
+					}
+				}
+				else {
+					if (obj && marked.indexOf(obj) === -1) {
+						highlightObject();
+						if (obj.userData.type === 'object')
+							assignMarkmat(obj);
+						marked.push(obj);
+					}
+				}
+			}
+
+			function clearMarked() {
+				marked.forEach(function (obj) {
+					rejectMarkMat(obj);
+				});
+				marked = [];
+			}
+
+			function assignMarkmat(obj) {
+				rejectHighlightMat(obj);
+
+				obj.material = obj.material.clone();
+				var mcolor = new THREE.Color(0xff0000);
+				obj.material.color.lerp(mcolor, 0.5);
+				obj.material.name += '_mark';
+			}
+
+			function rejectMarkMat(obj) {
+				rejectHighlightMat(obj);
 			}
 
 			// watch für die Einstellungen für Unsicheres Wissen
@@ -1685,64 +1715,65 @@ angular.module('dokuvis.viewport',[
 			}
 
 
-			/**
-			 * @deprecated
-			 * @param event
-			 */
-			scope.mousemoveOnPinLayer = function (event) {
-				if(isPinning && pin) {
-					var mouse = mouseToViewportCoords(event);
-					var testObjects = [];
-					for(var key in objects) {
-						if(objects[key].visible)
-							testObjects.push(objects[key].mesh);
-					}
-					var obj = pin.mousehit(mouse.x, mouse.y, camera, testObjects);
-					highlightObject(obj);
-				}
-			};
+			// /**
+			//  * @deprecated
+			//  * @param event
+			//  */
+			// scope.mousemoveOnPinLayer = function (event) {
+			// 	console.log('juhu');
+			// 	if(isPinning && pin) {
+			// 		var mouse = mouseToViewportCoords(event);
+			// 		var testObjects = [];
+			// 		for(var key in objects) {
+			// 			if(objects[key].visible)
+			// 				testObjects.push(objects[key].mesh);
+			// 		}
+			// 		var obj = pin.mousehit(mouse, camera, testObjects);
+			// 		highlightObject(obj);
+			// 	}
+			// };
 
-			/**
-			 * @deprecated
-			 * @param event
-			 */
-			scope.mouseupOnPinLayer = function (event) {
-				event.preventDefault();
-				if(isPinning && pin && event.button === 0) {
-					// make screenshot
-					//var sData = getScreenshot();
-					if (highlighted[0]) {
-						//sData.pinMatrix = pin.matrixWorld.toArray();
-						//sData.pinObject = highlighted[0].userData.eid;
-						var pinned = false;
-						for (var i = 0; i < scope.snapshot.refObj.length; i++) {
-							if (scope.snapshot.refObj[i].eid === highlighted[0].userData.eid) {
-								pinned = true;
-								break;
-							}
-						}
-						if (!pinned) {
-							scope.snapshot.refObj.push({
-								eid: highlighted[0].userData.eid,
-								name: highlighted[0].userData.name,
-								pinMatrix: pin.matrixWorld.toArray()
-							});
-						}
-						//scope.screenshotCallback(sData);
-					}
-					//console.log(sData);
-					console.log(scope.snapshot.refObj);
-				}
-				if(event.button === 0 || event.button === 2) {
-					scope.setNavigationMode('select');
-					scope.snapshot.mode = 'paint';
-					scope.$applyAsync();
-				}
-			};
+			// /**
+			//  * @deprecated
+			//  * @param event
+			//  */
+			// scope.mouseupOnPinLayer = function (event) {
+			// 	event.preventDefault();
+			// 	if(isPinning && pin && event.button === 0) {
+			// 		// make screenshot
+			// 		//var sData = getScreenshot();
+			// 		if (highlighted[0]) {
+			// 			//sData.pinMatrix = pin.matrixWorld.toArray();
+			// 			//sData.pinObject = highlighted[0].userData.eid;
+			// 			var pinned = false;
+			// 			for (var i = 0; i < scope.snapshot.refObj.length; i++) {
+			// 				if (scope.snapshot.refObj[i].eid === highlighted[0].userData.eid) {
+			// 					pinned = true;
+			// 					break;
+			// 				}
+			// 			}
+			// 			if (!pinned) {
+			// 				scope.snapshot.refObj.push({
+			// 					eid: highlighted[0].userData.eid,
+			// 					name: highlighted[0].userData.name,
+			// 					pinMatrix: pin.matrixWorld.toArray()
+			// 				});
+			// 			}
+			// 			//scope.screenshotCallback(sData);
+			// 		}
+			// 		//console.log(sData);
+			// 		console.log(scope.snapshot.refObj);
+			// 	}
+			// 	if(event.button === 0 || event.button === 2) {
+			// 		scope.setNavigationMode('select');
+			// 		scope.snapshot.mode = 'paint';
+			// 		scope.$applyAsync();
+			// 	}
+			// };
 
-			webglInterface.callFunc.openSnapshot = function () {
-				scope.openSnapshot();
-			};
+			// webglInterface.callFunc.openSnapshot = function () {
+			// 	scope.openSnapshot();
+			// };
 
 			// TODO: snapshot redesign
 			scope.openSnapshot = function () {
@@ -1800,13 +1831,123 @@ angular.module('dokuvis.viewport',[
 				});
 			};
 
-			webglInterface.callFunc.makeScreenshot = function () {
-				var sData = getScreenshot();
-				scope.screenshotCallback(sData);
+			// webglInterface.callFunc.makeScreenshot = function () {
+			// 	var sData = getScreenshot();
+			// 	scope.screenshotCallback(sData);
+			// };
+
+
+
+
+			scope.startMeasuring = function () {
+				scope.setNavigationMode();
+				measureTool = new DV3D.Measure(2);
+				measureTool.addEventListener('change', animate);
+				scene.add(measureTool);
+				measureTool.onComplete = function (distance) {
+					scope.measureDistance = distance;
+					scope.$applyAsync();
+				};
 			};
 
+
+			///// SNAPSHOT
+
+			var snapshotElement = null;
+
+			// listen to snapshotStart event
+			scope.$on('snapshotStart', function () {
+				if (angular.element(element).find('viewport-snapshot').length)
+					return;
+
+				var elScope = scope.$new(false);
+				elScope.size = {
+					width: SCREEN_WIDTH,
+					height: SCREEN_HEIGHT
+				};
+
+				snapshotElement = $compile('<viewport-snapshot></viewport-snapshot>')(elScope);
+				$animate.enter(snapshotElement, element);
+
+				angular.element(element).find('viewport-navigation').attr('disabled', true);
+
+				$timeout(function () {
+					snapshotScreenshot(getScreenshot());
+				});
+			});
+
+			// listen to snapshotEnd event
+			scope.$on('snapshotEnd', function () {
+				$animate.leave(snapshotElement);
+				snapshotElement = null;
+				angular.element(element).find('viewport-navigation').attr('disabled', false);
+				clearMarked();
+				animateAsync();
+			});
+
+			// in snapshot mode, start pinning/highlighting (called from child scope)
+			scope.startPinning = function () {
+				setNavigationMode();
+				pin = new DV3D.Pin(3, 0.5);
+				// pin.addEventListener('change', animateThrottle20);
+				scene.add(pin);
+				isPinning = true;
+			};
+
+			// abort pinning (called from child scope)
+			scope.abortPinning = function () {
+				isPinning = false;
+				setNavigationMode();
+			};
+
+			// mousemove handler on snapshot pin layer (called from child scope)
+			scope.mousemovePinLayer = function (event) {
+				if (isPinning && pin) {
+					var mouse = mouseToViewportCoords(event);
+					var testObjects = [];
+					objects.forEach(function (obj) {
+						if (obj.type === 'object')
+							testObjects.push(obj.object);
+					}, true);
+
+					var intersection = raycast(mouse, testObjects);
+
+					if (intersection) {
+						pin.set(intersection);
+						highlightObject(intersection.object);
+					}
+					else {
+						pin.set();
+						highlightObject();
+					}
+
+					animateThrottle20();
+				}
+			};
+
+			// mouseup handler on snaphot pin layer (called from child scope)
+			scope.mouseupPinLayer = function (event) {
+				event.preventDefault();
+				if (isPinning && pin && event.button === 0) {
+					if (highlighted[0]) {
+						var obj = highlighted[0];
+						if (marked.indexOf(obj) === -1) {
+							markObject(obj);
+							snapshotPinSuccess(objects.get(obj.id), pin.matrixWorld.toArray());
+
+							animateThrottle20();
+						}
+					}
+				}
+			};
+
+			scope.$on('snapshotPinRemove', function (event, obj) {
+				markObject(obj.object, true);
+				animateAsync();
+			});
+
 			/**
-			 * retrieve viewport image and camera data
+			 * Retrieve viewport image and camera data
 			 * @return {{sData: string, cameraMatrix: *, cameraFOV: *, cameraCenter: *, width: *, height: *}}
 			 */
 			function getScreenshot() {
@@ -1820,24 +1961,65 @@ angular.module('dokuvis.viewport',[
 				};
 			}
 
-			scope.startMarking = function () {
-				scope.setNavigationMode();
-				scope.snapshot.mode = 'pin';
-				pin = new DV3D.Pin(3, 0.5);
-				pin.addEventListener('change', animate);
-				scene.add(pin);
-				isPinning = true;
-			};
+			function snapshotScreenshot(screenshot) {
+				$rootScope.$broadcast('snapshotScreenshot', screenshot);
+			}
 
-			scope.startMeasuring = function () {
-				scope.setNavigationMode();
-				measureTool = new DV3D.Measure(2);
-				measureTool.addEventListener('change', animate);
-				scene.add(measureTool);
-				measureTool.onComplete = function (distance) {
-					scope.measureDistance = distance;
-					scope.$applyAsync();
-				};
+			function snapshotPinSuccess(object, pinMatrix) {
+				$rootScope.$broadcast('snapshotPinSuccess', object, pinMatrix);
+			}
+
+			scope.$on('snapshotViewStart', function (event, screenData) {
+				setSnapshotView(screenData);
+			});
+
+			// tween camera to snapshot position
+			function setSnapshotView(data) {
+				var camPos = new THREE.Vector3(data.cameraMatrix[12], data.cameraMatrix[13], data.cameraMatrix[14]);
+				var ctrlPos = new THREE.Vector3().fromArray(data.cameraCenter);
+
+				new TWEEN.Tween(camera.position.clone())
+					.to(camPos, 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () {
+						camera.position.copy(this);
+					})
+					.start();
+
+				new TWEEN.Tween(controls.center.clone())
+					.to(ctrlPos, 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () {
+						controls.center.copy(this);
+					})
+					.start();
+
+				if (camera.fov === data.cameraFOV) {
+					new TWEEN.Tween({fov: camera.fov})
+						.to({fov: data.cameraFOV}, 500)
+						.easing(TWEEN.Easing.Quadratic.InOut)
+						.onUpdate(function () {
+							camera.fov = this.fov;
+							camera.updateProjectionMatrix();
+						})
+						.start();
+				}
+
+				startAnimation();
+			}
+
+			webglInterface.callFunc.setScreenshotView = function(screenData) {
+				new TWEEN.Tween(camera.position.clone())
+					.to(new THREE.Vector3(screenData.cameraMatrix[12],screenData.cameraMatrix[13],screenData.cameraMatrix[14]), 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () { camera.position.copy(this); })
+					.start();
+				new TWEEN.Tween(controls.center.clone())
+					.to(new THREE.Vector3(screenData.cameraCenter[0],screenData.cameraCenter[1],screenData.cameraCenter[2]), 500)
+					.easing(TWEEN.Easing.Quadratic.InOut)
+					.onUpdate(function () { controls.center.copy(this); })
+					.start();
+				enableAnimationRequest();
 			};
 
 
@@ -2873,19 +3055,7 @@ angular.module('dokuvis.viewport',[
 				return new THREE.Vector2(left, top);
 			}
 
-			webglInterface.callFunc.setScreenshotView = function(screenData) {
-				new TWEEN.Tween(camera.position.clone())
-					.to(new THREE.Vector3(screenData.cameraMatrix[12],screenData.cameraMatrix[13],screenData.cameraMatrix[14]), 500)
-					.easing(TWEEN.Easing.Quadratic.InOut)
-					.onUpdate(function () { camera.position.copy(this); })
-					.start();
-				new TWEEN.Tween(controls.center.clone())
-					.to(new THREE.Vector3(screenData.cameraCenter[0],screenData.cameraCenter[1],screenData.cameraCenter[2]), 500)
-					.easing(TWEEN.Easing.Quadratic.InOut)
-					.onUpdate(function () { controls.center.copy(this); })
-					.start();
-				enableAnimationRequest();
-			};
+
 
 			webglInterface.callFunc.resize = function() {
 				resizeViewport();
@@ -3136,6 +3306,7 @@ angular.module('dokuvis.viewport',[
 			// destroy
 			scope.$on('$destroy', function() {
 				setSelected(null, false, true);
+				clearMarked();
 				//if (scope.snapshot.active) scope.abortSnapshot();
 
 				if (scope.spatialize)

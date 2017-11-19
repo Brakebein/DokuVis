@@ -34,6 +34,9 @@
       background-color: #444; }
     .sideNav .smBtn.active {
       background-color: rgba(252, 78, 42, 0.5); }
+    .sideNav .smBtn[disabled] {
+      pointer-events: none;
+      cursor: not-allowed; }
     .sideNav .smBtn i, .sideNav .smBtn span {
       font-size: 20px; }
     .sideNav .smBtn svg {

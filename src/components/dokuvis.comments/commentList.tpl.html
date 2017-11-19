@@ -1,0 +1,39 @@
+<div class="comment-item" ng-repeat="c in elements | orderBy:'created.date':true" ng-switch="c.type">
+
+	<div class="media" ng-switch-when="commentModel">
+		<div ng-class="c.type" title="Modellkommentar"></div>
+
+		<div class="media-left">
+			<img class="media-object" ng-src="data/{{c.screenshots[0].path + c.screenshots[0].thumb}}" />
+		</div>
+
+		<div class="media-body">
+			<p>{{ c.text }}</p>
+
+			<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="setScreenshotView(c, $event)"></span>
+			<div class="media-footer">
+				<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answerLength}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+				{{c.created.name}} - {{c.created.date | amCalendar}}
+			</div>
+		</div>
+	</div>
+
+	<div class="media" ng-switch-when="commentSource">
+		<div ng-class="c.type" title="Quellenkommentar"></div>
+
+		<div class="media-left">
+			<img class="media-object" ng-src="data/{{c.targetFile[0].path + c.targetFile[0].thumb}}" />
+		</div>
+
+		<div class="media-body">
+			<p>{{ c.text }}</p>
+
+			<span class="glyphicon glyphicon-search" title="Quelle öffnen" ui-sref=".source.id({ sourceId: c.targets[0] })"></span>
+			<div class="media-footer">
+				<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answerLength}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+				{{c.created.name}} - {{c.created.date | amCalendar}}
+			</div>
+		</div>
+	</div>
+
+</div>

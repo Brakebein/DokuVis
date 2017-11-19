@@ -302,4 +302,53 @@ angular.module('dokuvis.viewport')
 		};
 
 	}
+])
+
+.directive('viewportSnapshot', ['$rootScope',
+	function ($rootScope) {
+
+		return {
+			templateUrl: 'components/dokuvis.viewport/viewportSnapshot.html',
+			restrict: 'E',
+			link: function (scope, element) {
+
+				scope.mode = 'paint';
+
+				scope.paintOptions = {
+					opacity: 1.0,
+					color: 'rgba(255,255,0,1.0)',
+					backgroundColor: 'rgba(255,255,255,0.0)',
+					lineWidth: 3,
+					undo: true,
+					imageSrc: false,
+					width: scope.size.width,
+					height: scope.size.height
+				};
+
+				scope.setMode = function (mode) {
+					scope.mode = mode;
+					if (mode === 'pin') {
+						scope.startPinning();
+					}
+					else {
+						scope.abortPinning();
+					}
+				};
+				
+				scope.$on('snapshotPrepareSave', function () {
+					snapshotPainting(element.find('#pwCanvasMain')[0].toDataURL("image/png"));
+				});
+				
+				function snapshotPainting(paintData) {
+					$rootScope.$broadcast('snapshotPainting', paintData);
+				}
+
+				element.on('$destroy', function () {
+					scope.$destroy();
+				});
+
+			}
+		};
+
+	}
 ]);

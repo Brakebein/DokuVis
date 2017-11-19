@@ -18,39 +18,59 @@ DV3D.Pin = function ( length, radius ) {
 	this.object.translateY( - length / 2 );
 
 	this.add(this.object);
+
 };
-DV3D.Pin.prototype = Object.create( THREE.Object3D.prototype );
-DV3D.Pin.prototype.mousehit = function ( mx, my, camera, testObjects ) {
 
-	var vector = new THREE.Vector3(mx, my, 0.5).unproject(camera);
+DV3D.Pin.prototype = Object.assign( Object.create( THREE.Object3D.prototype ), {
 
-	var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+	mousehit: function ( mouse, camera, testObjects) {
+		var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
 
-	var intersects = raycaster.intersectObjects(testObjects, false);
+		var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
 
-	if(intersects.length > 0) {
-		var s = intersects[0].point;
-		this.position.copy(s);
+		var intersects = raycaster.intersectObjects(testObjects, false);
 
-		var normalMatrix = new THREE.Matrix3().getNormalMatrix(intersects[0].object.matrixWorld);
-		var normal = new THREE.Vector3().copy(intersects[0].face.normal).applyMatrix3(normalMatrix).normalize();
-		var focalPoint = new THREE.Vector3().subVectors(s, normal);
+		if(intersects.length > 0) {
+			var s = intersects[0].point;
+			this.position.copy(s);
+
+			var normalMatrix = new THREE.Matrix3().getNormalMatrix(intersects[0].object.matrixWorld);
+			var normal = new THREE.Vector3().copy(intersects[0].face.normal).applyMatrix3(normalMatrix).normalize();
+			var focalPoint = new THREE.Vector3().subVectors(s, normal);
+			this.lookAt(focalPoint);
+
+			this.dispatchEvent({ type: 'change' });
+			return intersects[0].object;
+		}
+		else {
+			this.position.set(0,0,0);
+
+			this.dispatchEvent({ type: 'change' });
+			return null;
+		}
+	},
+
+	set: function (intersection) {
+		if (!intersection) {
+			this.position.set(-1000,-1000,-1000);
+			return;
+		}
+
+		this.position.copy(intersection.point);
+
+		var normalMatrix = new THREE.Matrix3().getNormalMatrix(intersection.object.matrixWorld);
+		var normal = new THREE.Vector3().copy(intersection.face.normal).applyMatrix3(normalMatrix).normalize();
+		var focalPoint = new THREE.Vector3().subVectors(intersection.point, normal);
+
 		this.lookAt(focalPoint);
+	},
 
-		this.dispatchEvent({ type: 'change' });
-		return intersects[0].object;
+	/**
+	 * Dispose geometry and material.
+	 */
+	dispose: function () {
+		this.object.geometry.dispose();
+		this.object.material.dispose();
 	}
-	else {
-		this.position.set(0,0,0);
 
-		this.dispatchEvent({ type: 'change' });
-		return null;
-	}
-};
-/**
- * Dispose geometry and material.
- */
-DV3D.Pin.prototype.dispose = function () {
-	this.object.geometry.dispose();
-	this.object.material.dispose();
-};
+});

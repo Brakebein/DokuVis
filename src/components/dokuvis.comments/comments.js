@@ -202,4 +202,147 @@ angular.module('dokuvis.comments', [
 		};
 
 	}
+])
+
+.directive('commentList', ['$rootScope', 'Comment', 'Utilities',
+	function ($rootScope, Comment, Utilities) {
+
+		return {
+			templateUrl: 'components/dokuvis.comments/commentList.tpl.html',
+			restrict: 'E',
+			link: function (scope) {
+
+				scope.elements = [];
+
+				function queryComments() {
+					Comment.query().$promise
+						.then(function (results) {
+							console.log(results);
+							scope.elements = results;
+						})
+						.catch(function (reason) {
+							Utilities.throwApiException('Comment.query', reason);
+						});
+				}
+
+				// init
+				queryComments();
+
+				scope.setScreenshotView = function (comment, event) {
+					event.stopPropagation();
+					if (comment.screenshots.length)
+						snapshotViewStart(comment.screenshots[0]);
+				};
+
+				function snapshotViewStart(data) {
+					$rootScope.$broadcast('snapshotViewStart', data);
+				}
+
+			}
+		}
+
+	}
+])
+
+.directive('snapshotDetail', [
+	function () {
+
+		return {
+			templateUrl: 'components/dokuvis.comments/snapshotDetail.tpl.html',
+			restrict: 'E',
+			link: function (scope) {
+
+
+
+			}
+		};
+
+	}
+])
+
+.directive('snapshotForm', ['$rootScope', 'Comment', 'Utilities',
+	function ($rootScope, Comment, Utilities) {
+
+		return {
+			templateUrl: 'components/dokuvis.comments/snapshotForm.tpl.html',
+			restrict: 'E',
+			link: function (scope) {
+
+				scope.comment = '';
+				scope.refObj = [];
+				scope.refSrc = [];
+
+				scope.$on('snapshotPinSuccess', function (event, object, pinMatrix) {
+					if (!scope.refObj.find(function (obj) { return obj.object === object; }))
+						scope.refObj.push({
+							object: object,
+							pinMatrix: pinMatrix
+						});
+				});
+
+				scope.$on('snapshotScreenshot', function (event, screenshot) {
+					scope.screenshot = screenshot;
+				});
+
+				scope.$on('snapshotPainting', function (event, paintData) {
+					scope.screenshot.pData = paintData;
+					finalize();
+				});
+
+				scope.removeObject = function (obj) {
+					scope.refObj.splice(scope.refObj.indexOf(obj), 1);
+					snapshotPinRemove(obj.object);
+				};
+
+				scope.removeSource = function (src) {
+					scope.refSrc.splice(scope.refSrc.indexOf(src), 1);
+				};
+
+				scope.save = function () {
+					if (!scope.comment.length) {
+						Utilities.dangerAlert('Bitte geben Sie einen Text ein!'); return;
+					}
+
+					snapshotPrepareSave();
+				};
+
+				scope.abort = function () {
+					snapshotEnd();
+				};
+
+				function finalize() {
+					console.log(scope.comment, scope.refObj, scope.refSrc, scope.screenshot);
+					// return;
+					Comment.save({
+						type: 'model',
+						text: scope.comment,
+						targets: scope.refObj.map(function (t) { return { object: t.object.name, pinMatrix: t.pinMatrix }; }),
+						refs: scope.refSrc,
+						screenshots: [scope.screenshot]
+					}).$promise
+						.then(function (result) {
+							console.log(result);
+							snapshotEnd();
+						})
+						.catch(function (reason) {
+							Utilities.throwApiException('Comment.create', reason);
+						});
+				}
+
+				function snapshotPinRemove(object) {
+					$rootScope.$broadcast('snapshotPinRemove', object);
+				}
+
+				function snapshotPrepareSave() {
+					$rootScope.$broadcast('snapshotPrepareSave');
+				}
+
+				function snapshotEnd() {
+					$rootScope.$broadcast('snapshotEnd');
+				}
+
+			}
+		};
+
+	}
 ]);

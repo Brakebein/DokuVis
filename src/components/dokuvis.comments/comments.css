@@ -23,4 +23,33 @@ comment-section .comment {
 comment-section .post-section > textarea {
   margin: 5px 0; }
 
+comment-list .comment-item {
+  margin-bottom: 10px; }
+  comment-list .comment-item > .media {
+    position: relative;
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.3s; }
+    comment-list .comment-item > .media:hover {
+      border-color: #fc4e2a; }
+    comment-list .comment-item > .media > .media-body {
+      padding-right: 20px; }
+      comment-list .comment-item > .media > .media-body > p:first-line {
+        font-size: 17px; }
+      comment-list .comment-item > .media > .media-body > .media-footer {
+        font-size: 12px; }
+  comment-list .comment-item .commentType, comment-list .comment-item .commentModel, comment-list .comment-item .commentSource {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    background-color: #aaa; }
+  comment-list .comment-item .commentModel {
+    background-color: #74add1; }
+  comment-list .comment-item .commentSource {
+    background-color: #a6d96a; }
+
 /*# sourceMappingURL=comments.css.map */

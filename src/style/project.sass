@@ -41,6 +41,9 @@
 			background-color: #444
 		&.active
 			background-color: rgba($dvPrimaryColor, 0.5)
+		&[disabled]
+			pointer-events: none
+			cursor: not-allowed
 		i, span
 			font-size: 20px
 		svg

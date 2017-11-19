@@ -117,7 +117,8 @@ viewport .ctrl-btn, viewport-object-tree .ctrl-btn {
     border-right-color: #ddd;
     border-bottom-color: #ddd; }
 viewport .ctrl-slider, viewport-object-tree .ctrl-slider {
-  padding: 3px; }
+  padding: 3px;
+  display: inline-block; }
   viewport .ctrl-slider > *, viewport-object-tree .ctrl-slider > * {
     vertical-align: middle; }
   viewport .ctrl-slider > input[type=range], viewport-object-tree .ctrl-slider > input[type=range] {
@@ -131,7 +132,9 @@ viewport-navigation {
     height: 33px;
     padding: 3px 6px 3px 3px;
     z-index: 60; }
-  viewport-navigation.ng-hide {
+  viewport-navigation > .ctrl-container {
+    transition: top linear 0.5s; }
+  viewport-navigation[disabled] > .ctrl-container {
     top: -33px; }
   viewport-navigation .ctrl-group:first-of-type {
     border: none; }
@@ -255,5 +258,53 @@ viewport-spatialize-manual > .image-layer {
   background-position: center;
   background-repeat: no-repeat;
   pointer-events: none; }
+
+viewport-snapshot > .ctrl-container > div {
+  height: 33px;
+  padding: 3px 6px 3px;
+  z-index: 60; }
+  viewport-snapshot > .ctrl-container > div .lineWidth {
+    display: inline-block;
+    vertical-align: middle;
+    width: 30px;
+    height: 20px; }
+    viewport-snapshot > .ctrl-container > div .lineWidth > div {
+      width: 30px;
+      background-color: #ddd; }
+  viewport-snapshot > .ctrl-container > div .minicolors {
+    display: inline-block;
+    margin: 0 5px; }
+    viewport-snapshot > .ctrl-container > div .minicolors > span {
+      width: 22px;
+      height: 22px; }
+viewport-snapshot > .pin-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 30; }
+  viewport-snapshot > .pin-layer.active {
+    z-index: 40; }
+viewport-snapshot > .paint-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 30; }
+  viewport-snapshot > .paint-layer.active {
+    z-index: 40; }
+  viewport-snapshot > .paint-layer > div {
+    position: relative;
+    width: 100%;
+    height: 100%; }
+    viewport-snapshot > .paint-layer > div div, viewport-snapshot > .paint-layer > div canvas {
+      width: 100%;
+      height: 100%; }
+viewport-snapshot > .border-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #ff0;
+  pointer-events: none;
+  z-index: 20;
+  transition: border-color 0.5s; }
 
 /*# sourceMappingURL=viewport.css.map */

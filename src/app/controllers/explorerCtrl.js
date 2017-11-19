@@ -20,8 +20,8 @@
  * @requires Category
  * 
  */
-angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model', 'Comment', 'Category',
-	function($scope, $state, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, Utilities, webglInterface, $modal, Source, Model, Comment, Category) {
+angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$sce', '$q', 'APIRequest', 'neo4jRequest', 'Utilities', 'webglInterface', '$modal', 'Source', 'Model', 'Comment', 'Category',
+	function($scope, $rootScope, $state, $stateParams, $timeout, $sce, $q, APIRequest, neo4jRequest, Utilities, webglInterface, $modal, Source, Model, Comment, Category) {
 
 		// Initialisierung von Variablen
 		$scope.project = $stateParams.project;
@@ -65,12 +65,12 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		
 		$scope.viewportSettings = {};
 		
-		$scope.sliceSettings = {};
-		$scope.sliceSettings.enabled = false;
-		$scope.sliceSettings.axisAlign = 'z-axis';
-		$scope.sliceSettings.planePosition = 50;
-		$scope.sliceSettings.showPlane = true;
-		$scope.sliceSettings.showSliceFaces = true;
+		// $scope.sliceSettings = {};
+		// $scope.sliceSettings.enabled = false;
+		// $scope.sliceSettings.axisAlign = 'z-axis';
+		// $scope.sliceSettings.planePosition = 50;
+		// $scope.sliceSettings.showPlane = true;
+		// $scope.sliceSettings.showSliceFaces = true;
 		
 		
 		$scope.coords = {};
@@ -140,6 +140,19 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		// listen to viewportSelectionChange
 		$scope.$on('viewportSelectionChange', function (event, selected) {
 			$scope.selectedObjects = selected;
+		});
+
+		$scope.startModelComment = function () {
+			snapshotStart();
+			$scope.enableSnapshotForm = true;
+		};
+
+		function snapshotStart() {
+			$rootScope.$broadcast('snapshotStart');
+		}
+
+		$scope.$on('snapshotEnd', function () {
+			$scope.enableSnapshotForm = false;
 		});
 
 		// $scope.openScreenshotDetail = function(data) {
@@ -684,13 +697,13 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$state', '$s
 		// };
 		
 		// oninit Funktionsaufrufe
-		$timeout(function() {
+		// $timeout(function() {
 			// $scope.queryDocuments().then(function () {
 			// 	$scope.queryComments();
 			// });
 			//$scope.getScreenshots();
 			//$scope.loadModelsWithChildren();
-		}, 500);
+		// }, 500);
 
 		// // nach Upload aktualisieren
 		// $scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
