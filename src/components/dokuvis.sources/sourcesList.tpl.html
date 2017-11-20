@@ -69,7 +69,7 @@
 				<div class="primaryIndicator" ng-show="p.primary"></div>
 				<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>
 
-				<div class="btn-bar">
+				<div class="btn-bar" ng-hide="snapshotMode">
 					<a title="Details ansehen" ui-sref=".source.id({ sourceId: p.id })"><i class="glyphicon glyphicon-zoom-in"></i></a>
 					<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="load3DPlan(p)"><i class="glyphicon glyphicon-open"></i></a>
 					<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><i class="glyphicon glyphicon-import"></i></a>

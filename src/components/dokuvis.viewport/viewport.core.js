@@ -1851,9 +1851,35 @@ angular.module('dokuvis.viewport',[
 			};
 
 
-			///// SNAPSHOT
+			///// SNAPSHOT VIEW
 
 			var snapshotElement = null;
+
+			scope.$on('snapshotViewScreen', function (event, screen, pins) {
+				if (angular.element(element).find('viewport-snapshot-view').length)
+					return;
+
+				var elScope = scope.$new(false);
+				elScope.screen = screen;
+				elScope.pins = pins;
+
+				snapshotElement = $compile('<viewport-snapshot-view></viewport-snapshot-view>')(elScope);
+				$animate.enter(snapshotElement, element);
+
+				setSnapshotView(screen);
+			});
+
+			scope.$on('snapshotViewClose', function () {
+				scope.closeSnapshotView();
+			});
+
+			scope.closeSnapshotView = function () {
+				if (snapshotElement) $animate.leave(snapshotElement);
+				snapshotElement = null;
+			};
+
+
+			///// SNAPSHOT
 
 			// listen to snapshotStart event
 			scope.$on('snapshotStart', function () {
@@ -1878,7 +1904,7 @@ angular.module('dokuvis.viewport',[
 
 			// listen to snapshotEnd event
 			scope.$on('snapshotEnd', function () {
-				$animate.leave(snapshotElement);
+				if (snapshotElement) $animate.leave(snapshotElement);
 				snapshotElement = null;
 				angular.element(element).find('viewport-navigation').attr('disabled', false);
 				clearMarked();
@@ -1922,6 +1948,14 @@ angular.module('dokuvis.viewport',[
 					}
 
 					animateThrottle20();
+				}
+			};
+
+			scope.mouseleavePinLayer = function () {
+				if (isPinning && pin) {
+					pin.set();
+					highlightObject();
+					animateAsync();
 				}
 			};
 

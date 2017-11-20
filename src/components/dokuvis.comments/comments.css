@@ -6,11 +6,13 @@ comment-section .comment {
     border-bottom: none; }
   comment-section .comment .author-date {
     font-size: 10px; }
+  comment-section .comment span {
+    white-space: pre-wrap; }
   comment-section .comment > .answer-section {
     padding: 5px 10px 5px 40px; }
     comment-section .comment > .answer-section > .answer {
       padding: 2px 10px 5px; }
-      comment-section .comment > .answer-section > .answer:nth-child(even) {
+      comment-section .comment > .answer-section > .answer:nth-child(odd) {
         background-color: #f2f2f2; }
     comment-section .comment > .answer-section > textarea {
       margin: 5px 0; }
@@ -30,13 +32,12 @@ comment-list .comment-item {
     padding: 4px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    cursor: pointer;
     transition: border-color 0.3s; }
     comment-list .comment-item > .media:hover {
       border-color: #fc4e2a; }
     comment-list .comment-item > .media > .media-body {
       padding-right: 20px; }
-      comment-list .comment-item > .media > .media-body > p:first-line {
+      comment-list .comment-item > .media > .media-body > p:first-of-type:first-line {
         font-size: 17px; }
       comment-list .comment-item > .media > .media-body > .media-footer {
         font-size: 12px; }
@@ -51,5 +52,63 @@ comment-list .comment-item {
     background-color: #74add1; }
   comment-list .comment-item .commentSource {
     background-color: #a6d96a; }
+
+snapshot-form .tag-item, comment-detail .tag-item {
+  margin: 2px;
+  padding: 0 5px;
+  display: inline-block;
+  font-size: 12px;
+  height: 26px;
+  line-height: 25px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #fff; }
+  snapshot-form .tag-item.selected, comment-detail .tag-item.selected {
+    background-color: rgba(255, 0, 0, 0.2); }
+  snapshot-form .tag-item .remove-button, comment-detail .tag-item .remove-button {
+    margin: 0 0 0 5px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    vertical-align: middle;
+    font: bold 16px Arial, sans-serif;
+    color: #585858; }
+  snapshot-form .tag-item:active, comment-detail .tag-item:active {
+    color: #ff0000; }
+snapshot-form .src-item, comment-detail .src-item {
+  display: inline-block;
+  position: relative;
+  margin: 2px; }
+  snapshot-form .src-item .remove-button, comment-detail .src-item .remove-button {
+    display: block;
+    position: absolute;
+    top: 2px;
+    right: 5px;
+    cursor: pointer;
+    vertical-align: middle;
+    font: bold 16px Arial, sans-serif;
+    color: #585858; }
+
+comment-detail dl:first-of-type > dd {
+  white-space: pre-wrap; }
+comment-detail .tag-item, comment-detail .src-item {
+  cursor: pointer; }
+comment-detail .answer-section {
+  padding: 5px 10px 5px 10px; }
+  comment-detail .answer-section > .answer {
+    padding: 2px 10px 5px; }
+    comment-detail .answer-section > .answer:nth-child(odd) {
+      background-color: #f2f2f2; }
+    comment-detail .answer-section > .answer > .author-date {
+      font-size: 10px; }
+  comment-detail .answer-section > textarea {
+    margin: 5px 0; }
+  comment-detail .answer-section > .actions {
+    font-size: 10px; }
+    comment-detail .answer-section > .actions > a {
+      display: inline-block;
+      margin-left: 10px;
+      text-transform: uppercase; }
 
 /*# sourceMappingURL=comments.css.map */

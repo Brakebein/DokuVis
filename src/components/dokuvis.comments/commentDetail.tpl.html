@@ -1,0 +1,67 @@
+<div ng-switch="comment.type">
+	<div ng-switch-when="commentModel">
+		<img ng-src="data/{{comment.screenshots[0].path + comment.screenshots[0].thumb}}"/>
+		<h4>Modellkommentar</h4>
+	</div>
+	<div ng-switch-when="commentSource">
+		<img ng-src="data/{{comment.targets[0].file.path + comment.targets[0].file.thumb}}"/>
+		<h4>Quellenkommentar</h4>
+	</div>
+</div>
+
+<p>
+	<button class="btn btn-default btn-xs"
+			title="Ansicht einnehmen"
+			ng-show="comment.type === 'commentModel'"
+			ng-click="setScreenshotView()">
+		<i class="glyphicon glyphicon-eye-open"></i> Ansicht</button>
+	<button class="btn btn-default btn-xs"
+			ng-show="comment.type === 'commentModel'"
+			ng-click="showSnapshot()">
+		<i class="glyphicon glyphicon-picture"></i> User drawings</button>
+	<button class="btn btn-default btn-xs"
+			title="Quelle öffnen"
+			ng-show="comment.type === 'commentSource'"
+			ui-sref=".source.id({ sourceId: comment.targets[0].id })">
+		<i class="glyphicon glyphicon-file"></i> Quelle</button>
+</p>
+
+
+<p><small>{{comment.created.name}} - {{comment.created.date | amCalendar}}</small></p>
+
+<dl>
+	<dt>Kommentar/Argumentation</dt>
+	<dd>{{comment.value}}</dd>
+</dl>
+
+<dl>
+	<dt>Objekte</dt>
+	<dd>
+		<span ng-class="{'tag-item': comment.type === 'commentModel', 'src-item': comment.type === 'commentSource'}" ng-repeat="t in comment.targets">{{ t.label }}</span>
+	</dd>
+</dl>
+<dl>
+	<dt>Referenzierte Quellen</dt>
+	<dd>
+		<div class="src-item" ng-repeat="ref in comment.refs">
+			<img ng-src="data/{{ref.file.path + ref.file.thumb}}" title="{{ref.label}}" />
+		</div>
+	</dd>
+</dl>
+<dl>
+	<dt>Antworten</dt>
+	<dd class="answer-section">
+		<div class="answer" ng-repeat="answer in comment.answers | orderBy: 'created.date':false">
+			<div class="author-date text-right">{{answer.created.name}} - {{answer.created.date | amCalendar}}</div>
+			{{answer.value}}
+		</div>
+
+		<textarea ng-show="isAnswering" title="Comment input" class="form-control" data-ng-model="newAnswerInput"></textarea>
+
+		<div class="actions text-right">
+			<a href="" ng-hide="isAnswering" ng-click="isAnswering = true">Antworten</a>
+			<a href="" ng-show="isAnswering" ng-click="postAnswer()">Posten</a>
+			<a href="" ng-show="isAnswering" ng-click="isAnswering = false">Abbrechen</a>
+		</div>
+	</dd>
+</dl>

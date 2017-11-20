@@ -383,44 +383,6 @@ sources-list {
   right: 0;
   opacity: 0.2; }
 
-.tag-item {
-  margin: 2px;
-  padding: 0 5px;
-  display: inline-block;
-  font-size: 12px;
-  height: 26px;
-  line-height: 25px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  background-color: #fff; }
-  .tag-item.selected {
-    background-color: rgba(255, 0, 0, 0.2); }
-  .tag-item .remove-button {
-    margin: 0 0 0 5px;
-    padding: 0;
-    border: none;
-    background: none;
-    cursor: pointer;
-    vertical-align: middle;
-    font: bold 16px Arial, sans-serif;
-    color: #585858; }
-  .tag-item:active {
-    color: #ff0000; }
-
-.src-item {
-  display: inline-block;
-  position: relative;
-  margin: 2px; }
-  .src-item .remove-button {
-    display: block;
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    cursor: pointer;
-    vertical-align: middle;
-    font: bold 16px Arial, sans-serif;
-    color: #585858; }
-
 .svgViz {
   position: absolute;
   width: 100%;

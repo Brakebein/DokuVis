@@ -351,4 +351,23 @@ angular.module('dokuvis.viewport')
 		};
 
 	}
-]);
+])
+
+.directive('viewportSnapshotView', function () {
+
+	return {
+		templateUrl: 'components/dokuvis.viewport/viewportSnapshotView.tpl.html',
+		restrict: 'E',
+		link: function (scope, element) {
+
+			scope.screenOpacity = 0;
+			scope.paintOpacity = 1;
+
+			element.on('$destroy', function () {
+				scope.$destroy();
+			});
+
+		}
+	};
+
+});

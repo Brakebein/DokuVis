@@ -10,7 +10,7 @@
 
 	<div class="form-group">
 		<label>Gepinnte Objekte</label>
-		<p ng-hide="refObj.length">Markiere die Objekte, die diesen Kommentar betreffen.</p>
+		<p ng-hide="refObj.length"><i class="fa fa-info-circle"></i> Markiere die Objekte, die diesen Kommentar betreffen.</p>
 		<div>
 			<span class="tag-item" ng-repeat="ro in refObj">
 				{{ ro.object.label }} <a class="remove-button" ng-click="removeObject(ro)">×</a>
@@ -20,7 +20,13 @@
 
 	<div class="form-group">
 		<label>Referenzierte Quellen</label>
-		<p ng-hide="refSrc.length">Wähle Quellen, die deinen Kommentar unterstützen.</p>
+		<p ng-hide="refSrc.length"><i class="fa fa-info-circle"></i> Wähle Quellen, die deinen Kommentar unterstützen.</p>
+		<div>
+			<div class="src-item" ng-repeat="rs in refSrc">
+				<img ng-src="data/{{rs.file.path + rs.file.thumb}}" title="{{rs.title}}" />
+				<a class="remove-button" ng-click="removeSource(rs)">×</a>
+			</div>
+		</div>
 	</div>
 
 	<div class="form-group">

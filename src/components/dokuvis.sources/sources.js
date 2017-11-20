@@ -526,7 +526,10 @@ angular.module('dokuvis.sources', [
 					if (target.parent().is(btnBar) || target.parent().parent().is(btnBar))
 						return;
 
-					if (event.ctrlKey) {
+					if (scope.snapshotMode) {
+						snapshotReference(source);
+					}
+					else if (event.ctrlKey) {
 						if (event.delegateTarget !== event.target)
 							source.selected = !source.selected;
 					}
@@ -541,6 +544,8 @@ angular.module('dokuvis.sources', [
 
 				// open source
 				scope.openSource = function (event, source) {
+					if (scope.snapshotMode) return;
+
 					var btnBar = angular.element(event.delegateTarget).find('.btn-bar');
 					var target = angular.element(event.target);
 					if (target.parent().is(btnBar) || target.parent().parent().is(btnBar))
@@ -556,6 +561,25 @@ angular.module('dokuvis.sources', [
 				function spatialImageLoad(images) {
 					$rootScope.$broadcast('spatialImageLoad', images);
 				}
+
+
+				///// SNAPSHOT / COMMENT interoperability
+
+				scope.snapshotMode = false;
+
+				function snapshotReference(ref) {
+					$rootScope.$broadcast('snapshotReference', ref);
+				}
+
+				// listen to snapshotStart event
+				scope.$on('snapshotStart', function () {
+					scope.snapshotMode = true;
+				});
+
+				// listen to snapshotEnd event
+				scope.$on('snapshotEnd', function () {
+					scope.snapshotMode = false;
+				});
 
 			}
 		};

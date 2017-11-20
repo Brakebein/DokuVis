@@ -155,6 +155,23 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			$scope.enableSnapshotForm = false;
 		});
 
+		$scope.$on('commentActive', function (event, comment) {
+			if (!comment) return;
+			if (typeof comment === 'string')
+				$scope.activeCommentId = comment;
+			else
+				$scope.activeCommentId = comment.id;
+		});
+
+		$scope.closeCommentDetail = function () {
+			$scope.activeCommentId = undefined;
+			snapsotViewClose();
+		};
+
+		function snapsotViewClose() {
+			$rootScope.$broadcast('snapshotViewClose');
+		}
+
 		// $scope.openScreenshotDetail = function(data) {
 		// 	$scope.modalParams = {
 		// 		modalType: 'xlarge',

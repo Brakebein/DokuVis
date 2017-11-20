@@ -13,13 +13,20 @@
 		</label>
 	</div>-->
 	<p>
-		<button class="btn btn-primary" ng-hide="enableSnapshotForm" ng-click="startModelComment()"><i class="fa fa-plus"></i> Neuer Modellkommentar</button>
+		<button class="btn btn-primary" ng-hide="enableSnapshotForm || activeCommentId" ng-click="startModelComment()"><i class="fa fa-plus"></i> Neuer Modellkommentar</button>
 	</p>
 </div>
 
 <div class="sideContent">
 
-	<comment-list ng-hide="enableSnapshotForm"></comment-list>
+	<comment-list ng-hide="enableSnapshotForm || activeCommentId"></comment-list>
+
+	<div ng-if="activeCommentId">
+		<comment-detail id="activeCommentId"></comment-detail>
+		<p>
+			<button class="btn btn-default" ng-click="closeCommentDetail()">Zurück</button>
+		</p>
+	</div>
 
 	<snapshot-form ng-if="enableSnapshotForm"></snapshot-form>
 

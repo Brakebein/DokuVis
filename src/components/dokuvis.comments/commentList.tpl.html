@@ -8,11 +8,14 @@
 		</div>
 
 		<div class="media-body">
-			<p>{{ c.text }}</p>
+			<p>{{ c.value | characters:200 }}</p>
 
-			<span class="glyphicon glyphicon-search" title="Ansicht einnehmen" ng-click="setScreenshotView(c, $event)"></span>
+			<p>
+				<button class="btn btn-default btn-xs" ng-click="openComment(c)"><i class="glyphicon glyphicon-search"></i> Details</button>
+				<button class="btn btn-default btn-xs" title="Ansicht einnehmen" ng-click="setScreenshotView(c, $event)"><i class="glyphicon glyphicon-eye-open"></i> Ansicht</button>
+			</p>
 			<div class="media-footer">
-				<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answerLength}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+				<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answers.length}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
 				{{c.created.name}} - {{c.created.date | amCalendar}}
 			</div>
 		</div>
@@ -26,11 +29,14 @@
 		</div>
 
 		<div class="media-body">
-			<p>{{ c.text }}</p>
+			<p>{{ c.value }}</p>
 
-			<span class="glyphicon glyphicon-search" title="Quelle öffnen" ui-sref=".source.id({ sourceId: c.targets[0] })"></span>
+			<p>
+				<button class="btn btn-default btn-xs" ng-click="openComment(c)"><i class="glyphicon glyphicon-search"></i> Details</button>
+				<button class="btn btn-default btn-xs" title="Quelle öffnen" ui-sref=".source.id({ sourceId: c.targets[0] })"><i class="glyphicon glyphicon-file"></i> Quelle</button>
+			</p>
 			<div class="media-footer">
-				<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answerLength}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+				<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answers.length}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
 				{{c.created.name}} - {{c.created.date | amCalendar}}
 			</div>
 		</div>

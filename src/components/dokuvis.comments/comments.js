@@ -119,8 +119,8 @@ angular.module('dokuvis.comments', [
  * @param target {string} Id of the target instance (e.g. id of document/task)
  * @param type {string} Type of the target instance, respectively the type of the comment (e.g. 'task', 'picture', 'source')
  */
-.directive('commentSection', ['Comment', 'Utilities',
-	function (Comment, Utilities) {
+.directive('commentSection', ['$rootScope', 'Comment', 'Utilities', '$log',
+	function ($rootScope, Comment, Utilities, $log) {
 
 		return {
 			restrict: 'E',
@@ -142,7 +142,7 @@ angular.module('dokuvis.comments', [
 
 					Comment.queryTarget({ targetId: target }).$promise
 						.then(function (result) {
-							console.log(result);
+							$log.debug(result);
 							scope.comments = result;
 						})
 						.catch(function(err) {
@@ -164,12 +164,12 @@ angular.module('dokuvis.comments', [
 						targets: scope.target
 					}).$promise
 						.then(function (newComment) {
-							console.log('newComment', newComment);
 							scope.newCommentInput = '';
 							if (newComment) {
 								newComment.answers = [];
 								scope.comments.push(newComment);
 							}
+							commentsUpdate(newComment);
 						})
 						.catch(function (err) {
 							Utilities.throwApiException('#Comment.save', err);
@@ -190,6 +190,7 @@ angular.module('dokuvis.comments', [
 							comment.answering = false;
 							if (newAnswer)
 								comment.answers.push(newAnswer);
+							commentsUpdate(newAnswer);
 						})
 						.catch(function (err) {
 							Utilities.throwApiException('#Comment.save', err);
@@ -198,14 +199,17 @@ angular.module('dokuvis.comments', [
 
 				// TODO: Kommentare/Antworten editieren und löschen
 
+				function commentsUpdate(comment) {
+					$rootScope.$broadcast('commentsUpdate', comment);
+				}
 			}
 		};
 
 	}
 ])
 
-.directive('commentList', ['$rootScope', 'Comment', 'Utilities',
-	function ($rootScope, Comment, Utilities) {
+.directive('commentList', ['$rootScope', 'Comment', 'Utilities', '$log',
+	function ($rootScope, Comment, Utilities, $log) {
 
 		return {
 			templateUrl: 'components/dokuvis.comments/commentList.tpl.html',
@@ -217,7 +221,7 @@ angular.module('dokuvis.comments', [
 				function queryComments() {
 					Comment.query().$promise
 						.then(function (results) {
-							console.log(results);
+							$log.debug(results);
 							scope.elements = results;
 						})
 						.catch(function (reason) {
@@ -227,6 +231,15 @@ angular.module('dokuvis.comments', [
 
 				// init
 				queryComments();
+
+				// listen to commentsUpdate
+				scope.$on('commentsUpdate', function () {
+					queryComments();
+				});
+
+				scope.openComment = function (comment) {
+					commentActive(comment);
+				};
 
 				scope.setScreenshotView = function (comment, event) {
 					event.stopPropagation();
@@ -238,21 +251,89 @@ angular.module('dokuvis.comments', [
 					$rootScope.$broadcast('snapshotViewStart', data);
 				}
 
+				function commentActive(comment) {
+					$rootScope.$broadcast('commentActive', comment);
+				}
+
 			}
 		}
 
 	}
 ])
 
-.directive('snapshotDetail', [
-	function () {
+.directive('commentDetail', ['$rootScope', 'Comment', 'Utilities', '$log',
+	function ($rootScope, Comment, Utilities, $log) {
 
 		return {
-			templateUrl: 'components/dokuvis.comments/snapshotDetail.tpl.html',
+			templateUrl: 'components/dokuvis.comments/commentDetail.tpl.html',
 			restrict: 'E',
+			scope: {
+				id: '='
+			},
 			link: function (scope) {
 
+				scope.comment = null;
+				scope.newAnswerInput = '';
+				scope.isAnswering = false;
 
+				scope.$watch('id', getComment);
+
+				function getComment(id) {
+					if (!id) return;
+
+					Comment.get({ id: id }).$promise
+						.then(function (result) {
+							$log.debug(result);
+							scope.comment = result;
+						})
+						.catch(function (reason) {
+							Utilities.throwApiException('Comment.get', reason);
+						});
+				}
+
+				scope.setScreenshotView = function () {
+					if (scope.comment.screenshots.length)
+						snapshotViewStart(scope.comment.screenshots[0]);
+				};
+
+				function snapshotViewStart(data) {
+					$rootScope.$broadcast('snapshotViewStart', data);
+				}
+
+				scope.showSnapshot = function () {
+					snapshotViewScreen(scope.comment.screenshots[0], scope.comment.pins);
+				};
+
+				function snapshotViewScreen(screen, pins) {
+					$rootScope.$broadcast('snapshotViewScreen', screen, pins);
+				}
+
+				// Save a new comment of type `answer`.
+				scope.postAnswer = function () {
+					if (!scope.comment) return;
+					if (scope.newAnswerInput.length < 1) return;
+
+					Comment.save({
+						type: 'answer',
+						text: scope.newAnswerInput,
+						targets: scope.comment.id
+					}).$promise
+						.then(function (newAnswer) {
+							console.log(newAnswer);
+							scope.newAnswerInput = '';
+							scope.isAnswering = false;
+							if (newAnswer)
+								scope.comment.answers.push(newAnswer);
+							commentsUpdate(newAnswer);
+						})
+						.catch(function (err) {
+							Utilities.throwApiException('#Comment.save', err);
+						});
+				};
+
+				function commentsUpdate(comment) {
+					$rootScope.$broadcast('commentsUpdate', comment);
+				}
 
 			}
 		};
@@ -260,12 +341,13 @@ angular.module('dokuvis.comments', [
 	}
 ])
 
-.directive('snapshotForm', ['$rootScope', 'Comment', 'Utilities',
-	function ($rootScope, Comment, Utilities) {
+.directive('snapshotForm', ['$rootScope', 'Comment', 'Utilities', '$log',
+	function ($rootScope, Comment, Utilities, $log) {
 
 		return {
 			templateUrl: 'components/dokuvis.comments/snapshotForm.tpl.html',
 			restrict: 'E',
+			scope: true,
 			link: function (scope) {
 
 				scope.comment = '';
@@ -278,6 +360,11 @@ angular.module('dokuvis.comments', [
 							object: object,
 							pinMatrix: pinMatrix
 						});
+				});
+
+				scope.$on('snapshotReference', function (event, ref) {
+					if (scope.refSrc.indexOf(ref) === -1)
+						scope.refSrc.push(ref);
 				});
 
 				scope.$on('snapshotScreenshot', function (event, screenshot) {
@@ -302,6 +389,10 @@ angular.module('dokuvis.comments', [
 					if (!scope.comment.length) {
 						Utilities.dangerAlert('Bitte geben Sie einen Text ein!'); return;
 					}
+					if (!scope.refObj.length) {
+						Utilities.dangerAlert('Markiere mindestens ein Objekt, über das dieser Kommentar handelt.');
+						return;
+					}
 
 					snapshotPrepareSave();
 				};
@@ -317,12 +408,13 @@ angular.module('dokuvis.comments', [
 						type: 'model',
 						text: scope.comment,
 						targets: scope.refObj.map(function (t) { return { object: t.object.name, pinMatrix: t.pinMatrix }; }),
-						refs: scope.refSrc,
+						refs: scope.refSrc.map(function (t) { return t.id; }),
 						screenshots: [scope.screenshot]
 					}).$promise
 						.then(function (result) {
-							console.log(result);
+							$log.debug(result);
 							snapshotEnd();
+							commentsUpdate(result);
 						})
 						.catch(function (reason) {
 							Utilities.throwApiException('Comment.create', reason);
@@ -339,6 +431,10 @@ angular.module('dokuvis.comments', [
 
 				function snapshotEnd() {
 					$rootScope.$broadcast('snapshotEnd');
+				}
+
+				function commentsUpdate(comment) {
+					$rootScope.$broadcast('commentsUpdate', comment);
 				}
 
 			}

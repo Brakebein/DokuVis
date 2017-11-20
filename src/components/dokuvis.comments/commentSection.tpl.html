@@ -3,13 +3,13 @@
 </p>
 
 <div ng-show="target">
-	<div class="comment" ng-repeat="comment in comments | orderBy: 'date':true">
-		<div class="author-date text-right">{{comment.author}} - {{comment.date | amCalendar}}</div>
-		{{comment.value}}
+	<div class="comment" ng-repeat="comment in comments | orderBy: 'created.date':true">
+		<div class="author-date text-right">{{comment.created.name}} - {{comment.created.date | amCalendar}}</div>
+		<span>{{comment.value}}</span>
 
 		<div class="answer-section">
-			<div class="answer" ng-repeat="answer in comment.answers | orderBy: 'date':false">
-				<div class="author-date text-right">{{answer.author}} - {{answer.date | amCalendar}}</div>
+			<div class="answer" ng-repeat="answer in comment.answers | orderBy: 'created.date':false">
+				<div class="author-date text-right">{{answer.created.name}} - {{answer.created.date | amCalendar}}</div>
 				{{answer.value}}
 			</div>
 

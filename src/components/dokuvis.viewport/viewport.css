@@ -254,7 +254,7 @@ viewport-spatialize-manual > .image-layer {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-size: contain;
+  background-size: auto 100%;
   background-position: center;
   background-repeat: no-repeat;
   pointer-events: none; }
@@ -306,5 +306,16 @@ viewport-snapshot > .border-layer {
   pointer-events: none;
   z-index: 20;
   transition: border-color 0.5s; }
+
+viewport-snapshot-view > .ctrl-container > div {
+  height: 33px;
+  padding: 3px 6px 3px; }
+viewport-snapshot-view > .screen-layer, viewport-snapshot-view > .paint-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-size: auto 100%;
+  background-position: center;
+  background-repeat: no-repeat; }
 
 /*# sourceMappingURL=viewport.css.map */
