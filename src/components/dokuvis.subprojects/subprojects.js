@@ -233,22 +233,31 @@ angular.module('dokuvis.subprojects', [
  * @name SubprojectResolve
  * @module dokuvis.subprojects
  * @requires https://docs.angularjs.org/api/ng/service/$q $q
+ * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
  * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state
  * @requires Subproject
  */
-.factory('SubprojectResolve', ['$q', '$state', 'Subproject',
-	function ($q, $state, Subproject) {
+.factory('SubprojectResolve', ['$q', '$rootScope', '$state', 'Subproject',
+	function ($q, $rootScope, $state, Subproject) {
 		return function (params) {
 
-			if (params.subproject === 'master')
+			if (params.subproject === 'master') {
+				$rootScope.globalSubproject = undefined;
 				return $q.resolve();
+			}
 			else {
 				return Subproject.get({ id: params.subproject, project: params.project }).$promise
 					.then(function (result) {
+
 						if (!result.id) {
+							$rootScope.globalSubproject = undefined;
 							$state.go('project.home', {project: params.project, subproject: 'master'});
 							return $q.reject('Subproject does not exist!');
 						}
+						else {
+							$rootScope.globalSubproject = result;
+						}
+
 					})
 					.catch(function (err) {
 						console.error('API Exception on Subproject.check()', err);

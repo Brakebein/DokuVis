@@ -39,7 +39,7 @@ comment-section
 
 comment-list
 	.comment-item
-		margin-bottom: 10px
+		margin: 10px 0
 		& > .media
 			position: relative
 			padding: 4px
@@ -50,6 +50,13 @@ comment-list
 
 			&:hover
 				border-color: $dvPrimaryColor
+
+			& > .media-left > .media-object >  svg
+				width: 60px
+				height: 60px
+				margin: 5px 50px
+				fill: #777
+
 			& > .media-body
 				padding-right: 20px
 				& > p:first-of-type:first-line
@@ -63,13 +70,31 @@ comment-list
 			bottom: 0
 			right: 0
 			width: 10px
-			background-color: #aaa
+			background-color: $commentDefaultColor
 		.commentModel
 			@extend .commentType
-			background-color: #74add1
+			background-color: $commentModelColor
 		.commentSource
 			@extend .commentType
-			background-color: #a6d96a
+			background-color: $commentSourceColor
+		.commentTask
+			@extend .commentType
+			background-color: $commentTaskColor
+
+	.nav span.commentTypeTab
+		width: 13px
+		height: 10px
+		border-radius: 3px
+		display: inline-block
+	.nav span.commentModel
+		@extend .commentTypeTab
+		background-color: $commentModelColor
+	.nav span.commentSource
+		@extend .commentTypeTab
+		background-color: $commentSourceColor
+	.nav span.commentTask
+		@extend .commentTypeTab
+		background-color: $commentTaskColor
 
 snapshot-form, comment-detail
 	.tag-item
@@ -88,7 +113,7 @@ snapshot-form, comment-detail
 		&.selected
 			background-color: $tag-color-selected
 
-		.remove-button
+		& > .remove-button
 			margin: 0 0 0 5px
 			padding: 0
 			border: none
@@ -105,8 +130,9 @@ snapshot-form, comment-detail
 		display: inline-block
 		position: relative
 		margin: 2px
+		border: 1px solid #ccc
 
-		.remove-button
+		& > .remove-button
 			display: block
 			position: absolute
 			top: 2px
@@ -117,11 +143,33 @@ snapshot-form, comment-detail
 			color: $remove-button-color
 
 comment-detail
+	[ng-switch-when] > [ng-include] > svg
+		width: 60px
+		height: 60px
+		fill: #777
+
+	h4 > span.commentTypeHeading
+		width: 18px
+		height: 12px
+		border-radius: 4px
+		display: inline-block
+	h4 > span.commentModel
+		@extend .commentTypeHeading
+		background-color: $commentModelColor
+	h4 > span.commentSource
+		@extend .commentTypeHeading
+		background-color: $commentSourceColor
+	h4 > span.commentTask
+		@extend .commentTypeHeading
+		background-color: $commentTaskColor
+
 	dl:first-of-type > dd
 		white-space: pre-wrap
 
 	.tag-item, .src-item
 		cursor: pointer
+		&:hover
+			border-color: $dvPrimaryColor
 
 	.answer-section
 		padding: 5px 10px 5px 10px

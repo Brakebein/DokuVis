@@ -297,6 +297,8 @@ angular.module('dokuvis.projects', [
 
 					}
 
+					$rootScope.globalProject = result;
+
 					$rootScope.userRole = result.role;
 
 					AclService.attachRole('visitor');

@@ -1715,129 +1715,6 @@ angular.module('dokuvis.viewport',[
 			}
 
 
-			// /**
-			//  * @deprecated
-			//  * @param event
-			//  */
-			// scope.mousemoveOnPinLayer = function (event) {
-			// 	console.log('juhu');
-			// 	if(isPinning && pin) {
-			// 		var mouse = mouseToViewportCoords(event);
-			// 		var testObjects = [];
-			// 		for(var key in objects) {
-			// 			if(objects[key].visible)
-			// 				testObjects.push(objects[key].mesh);
-			// 		}
-			// 		var obj = pin.mousehit(mouse, camera, testObjects);
-			// 		highlightObject(obj);
-			// 	}
-			// };
-
-			// /**
-			//  * @deprecated
-			//  * @param event
-			//  */
-			// scope.mouseupOnPinLayer = function (event) {
-			// 	event.preventDefault();
-			// 	if(isPinning && pin && event.button === 0) {
-			// 		// make screenshot
-			// 		//var sData = getScreenshot();
-			// 		if (highlighted[0]) {
-			// 			//sData.pinMatrix = pin.matrixWorld.toArray();
-			// 			//sData.pinObject = highlighted[0].userData.eid;
-			// 			var pinned = false;
-			// 			for (var i = 0; i < scope.snapshot.refObj.length; i++) {
-			// 				if (scope.snapshot.refObj[i].eid === highlighted[0].userData.eid) {
-			// 					pinned = true;
-			// 					break;
-			// 				}
-			// 			}
-			// 			if (!pinned) {
-			// 				scope.snapshot.refObj.push({
-			// 					eid: highlighted[0].userData.eid,
-			// 					name: highlighted[0].userData.name,
-			// 					pinMatrix: pin.matrixWorld.toArray()
-			// 				});
-			// 			}
-			// 			//scope.screenshotCallback(sData);
-			// 		}
-			// 		//console.log(sData);
-			// 		console.log(scope.snapshot.refObj);
-			// 	}
-			// 	if(event.button === 0 || event.button === 2) {
-			// 		scope.setNavigationMode('select');
-			// 		scope.snapshot.mode = 'paint';
-			// 		scope.$applyAsync();
-			// 	}
-			// };
-
-			// webglInterface.callFunc.openSnapshot = function () {
-			// 	scope.openSnapshot();
-			// };
-
-			// TODO: snapshot redesign
-			scope.openSnapshot = function () {
-				scope.snapshot.paintOptions.width = SCREEN_WIDTH;
-				scope.snapshot.paintOptions.height = SCREEN_HEIGHT;
-				scope.snapshot.active = true;
-
-				scope.snapshot.sIndex = 0;
-				scope.snapshot.screenshots.push(getScreenshot());
-				//console.log(sData);
-			};
-			webglInterface.callFunc.abortSnapshot = function () {
-				ConfirmService({
-					headerText: 'Vorgrang abbrechen',
-					bodyText: 'Snapshot nicht gespeichert! Fortfahren?'
-				}).then(function () {
-					scope.snapshot.active = false;
-					scope.snapshot.text = '';
-					scope.snapshot.title = '';
-					scope.snapshot.refObj = [];
-					scope.snapshot.refSrc = [];
-					scope.snapshot.screenshots = [];
-					scope.setNavigationMode('select');
-				});
-			};
-			webglInterface.callFunc.saveSnapshot = function () {
-				if(!scope.snapshot.text.length) {
-					Utilities.dangerAlert('Bitte geben Sie einen Text ein!'); return;
-				}
-				if(!scope.snapshot.title.length) {
-					Utilities.dangerAlert('Bitte geben Sie dem Kommentar einen Titel!'); return;
-				}
-
-				scope.snapshot.screenshots[scope.snapshot.sIndex].pData = element.find('#pwCanvasMain')[0].toDataURL("image/png");
-
-				Comment.save({
-					type: 'model',
-					text: scope.snapshot.text,
-					title: scope.snapshot.title,
-					targets: scope.snapshot.refObj,
-					refs: scope.snapshot.refSrc,
-					screenshots: scope.snapshot.screenshots
-				}).$promise.then(function (response) {
-					console.log('Comment.save', response);
-					scope.snapshot.active = false;
-					scope.snapshot.text = '';
-					scope.snapshot.title = '';
-					scope.snapshot.refObj = [];
-					scope.snapshot.refSrc = [];
-					scope.snapshot.screenshots = [];
-					scope.setNavigationMode('select');
-					webglInterface.callFunc.updateComments();
-				}, function (err) {
-					Utilities.throwApiException('on Comment.save()', err);
-				});
-			};
-
-			// webglInterface.callFunc.makeScreenshot = function () {
-			// 	var sData = getScreenshot();
-			// 	scope.screenshotCallback(sData);
-			// };
-
-
-
 
 			scope.startMeasuring = function () {
 				scope.setNavigationMode();
@@ -1866,6 +1743,8 @@ angular.module('dokuvis.viewport',[
 				snapshotElement = $compile('<viewport-snapshot-view></viewport-snapshot-view>')(elScope);
 				$animate.enter(snapshotElement, element);
 
+				angular.element(element).find('viewport-navigation').attr('disabled', true);
+
 				setSnapshotView(screen);
 			});
 
@@ -1876,6 +1755,7 @@ angular.module('dokuvis.viewport',[
 			scope.closeSnapshotView = function () {
 				if (snapshotElement) $animate.leave(snapshotElement);
 				snapshotElement = null;
+				angular.element(element).find('viewport-navigation').attr('disabled', false);
 			};
 
 
@@ -2041,20 +1921,6 @@ angular.module('dokuvis.viewport',[
 
 				startAnimation();
 			}
-
-			webglInterface.callFunc.setScreenshotView = function(screenData) {
-				new TWEEN.Tween(camera.position.clone())
-					.to(new THREE.Vector3(screenData.cameraMatrix[12],screenData.cameraMatrix[13],screenData.cameraMatrix[14]), 500)
-					.easing(TWEEN.Easing.Quadratic.InOut)
-					.onUpdate(function () { camera.position.copy(this); })
-					.start();
-				new TWEEN.Tween(controls.center.clone())
-					.to(new THREE.Vector3(screenData.cameraCenter[0],screenData.cameraCenter[1],screenData.cameraCenter[2]), 500)
-					.easing(TWEEN.Easing.Quadratic.InOut)
-					.onUpdate(function () { controls.center.copy(this); })
-					.start();
-				enableAnimationRequest();
-			};
 
 
 			///// SPATIALIZE IMAGE

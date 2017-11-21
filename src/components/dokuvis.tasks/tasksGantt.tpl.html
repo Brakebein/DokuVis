@@ -16,57 +16,67 @@
 	</div>
 
 	<div class="tasks-gantt-ctrl">
-		<select title="gantt.sortMode"
-				class="form-control"
-				data-ng-model="config.sort.sortMode"
-				ng-options="s.value as s.name for s in config.sort.secondary">
-		</select>
+		<button class="btn btn-default" ng-click="zoomAllTasks()">
+			<i class="fa fa-search-minus"></i> Zoom extents
+		</button>
 	</div>
 
-	<div class="tasks-gantt-ctrl input-group">
-		<span class="input-group-btn">
-			<label class="btn btn-default" for="fromDate">
-				<i class="fa fa-angle-left"></i>
-			</label>
-		</span>
-		<input id="fromDate"
-			   name="fromDate"
-			   class="form-control"
-			   ng-model="config.date.from"
-			   ng-blur="updateViewScale()"
-			   bs-datepicker
-			   data-date-type="date"
-			   data-date-format="dd.MM.yy"
-			   data-max-date="{{config.date.to | amSubtract: '1':'w'}}"
-			   data-start-week="1"
-			   data-autoclose="1" />
+	<div class="tasks-gantt-ctrl" style="width: 120px">
+		<div class="input-group">
+			<span class="input-group-btn">
+				<label class="btn btn-default" for="fromDate">
+					<i class="fa fa-angle-left"></i>
+				</label>
+			</span>
+			<input id="fromDate"
+				   name="fromDate"
+				   class="form-control"
+				   ng-model="config.date.from"
+				   ng-blur="updateViewScale()"
+				   bs-datepicker
+				   data-date-type="date"
+				   data-date-format="dd.MM.yy"
+				   data-max-date="{{config.date.to | amSubtract: '1':'w'}}"
+				   data-start-week="1"
+				   data-autoclose="1" />
+			</div>
+	</div>
+
+	<div class="tasks-gantt-ctrl" style="width: 120px">
+		<div class="input-group">
+			<input id="toDate"
+				   name="toDate"
+				   class="form-control"
+				   ng-model="config.date.to"
+				   ng-blur="updateViewScale()"
+				   bs-datepicker
+				   data-date-type="date"
+				   data-date-format="dd.MM.yy"
+				   data-min-date="{{config.date.from | amAdd: '1':'w'}}"
+				   data-start-week="1"
+				   data-placement="bottom-right"
+				   data-autoclose="1" />
+			<span class="input-group-btn">
+				<label class="btn btn-default" for="toDate">
+					<i class="fa fa-angle-right"></i>
+				</label>
+			</span>
+		</div>
 	</div>
 
 	<div class="tasks-gantt-ctrl">
-		<select title="gantt.viewScale"
+		<select title="Scale"
 				class="form-control"
 				data-ng-model="config.date.viewScale"
 				ng-options="item for item in ['day', 'week', 'month', 'quarter']"></select>
 	</div>
 
-	<div class="tasks-gantt-ctrl input-group">
-		<input id="toDate"
-			   name="toDate"
-			   class="form-control"
-			   ng-model="config.date.to"
-			   ng-blur="updateViewScale()"
-			   bs-datepicker
-			   data-date-type="date"
-			   data-date-format="dd.MM.yy"
-			   data-min-date="{{config.date.from | amAdd: '1':'w'}}"
-			   data-start-week="1"
-			   data-placement="bottom-right"
-			   data-autoclose="1" />
-		<span class="input-group-btn">
-			<label class="btn btn-default" for="toDate">
-				<i class="fa fa-angle-right"></i>
-			</label>
-		</span>
+	<div class="tasks-gantt-ctrl">
+		<select title="Sort by"
+				class="form-control"
+				data-ng-model="config.sort.sortMode"
+				ng-options="s.value as s.name for s in config.sort.secondary">
+		</select>
 	</div>
 
 	<div class="tasks-gantt-ctrl">
@@ -108,7 +118,7 @@
 		<!--<gantt-sortable enabled="false"></gantt-sortable>-->
 		<gantt-movable allow-row-switching="false"></gantt-movable>
 		<!--<gantt-overlap></gantt-overlap>-->
-		<!--<gantt-resize-sensor></gantt-resize-sensor>-->
+		<gantt-resize-sensor></gantt-resize-sensor>
 	</div>
 	<hr/>
 </div>

@@ -4,12 +4,14 @@ tasks-gantt
 	& > .tasks-gantt-controls
 		padding-bottom: 20px
 		display: flex
+		flex-wrap: wrap
 
 		& > .tasks-gantt-ctrl
 			flex: 0 0 auto
-			padding: 0 20px
-			&.input-group
-				max-width: 200px
+			margin: 0 10px 10px
+
+	& > .tasks-gantt-container
+		width: 100%
 
 	// ganttRow custom
 	.gantt-row

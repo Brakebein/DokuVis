@@ -4,10 +4,10 @@
  * @ngdoc controller
  * @name tasksCtrl
  * @module dokuvisApp
- * @requires https://code.angularjs.org/1.4.6/docs/api/ng/type/$rootScope.Scope $scope
+ * @requires https://docs.angularjs.org/api/ng/type/$rootScope.Scope $scope
  */
 angular.module('dokuvisApp').controller('tasksCtrl', ['$scope',
-	function($scope) {
+	function ($scope) {
 
 		// Views
 		$scope.views = {
@@ -21,4 +21,5 @@ angular.module('dokuvisApp').controller('tasksCtrl', ['$scope',
 			$scope.activeTask = task;
 		});
 
-    }]);
+    }
+]);

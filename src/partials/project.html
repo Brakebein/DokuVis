@@ -28,9 +28,23 @@
 	</div>
 
 	<div class="smBtn" title="Hilfe" ng-include="'img/icons/help.svg'"></div>
-	<div class="smBtn" title="Projektübersicht" ng-click="toProjectList()" ng-include="'img/icons/list.svg'"></div>
+	<div class="smBtn" title="Projekteliste" ng-click="toProjectList()" ng-include="'img/icons/list.svg'"></div>
 	<div class="smBtn" title="Ausloggen" ng-click="logout()" ng-include="'img/icons/signout.svg'"></div>
 
+</div>
+
+<div class="prjNavInfoContainer">
+	<ol class="breadcrumb pull-left">
+		<li>{{ globalProject.name }}</li>
+		<li><a href="#" ui-sref="project.home({ subproject: 'master' })">master</a></li>
+		<li ng-show="globalSubproject"><a href="#" ui-sref="project.home">{{ globalSubproject.name }}</a></li>
+		<li>{{ pageName }}</li>
+	</ol>
+
+	<div class="pull-right">
+		<p class="navbar-text">DokuVis v0.1.0</p>
+		<p class="navbar-text"><a href="#" ui-sref="root.impressum" target="_blank">Impressum</a></p>
+	</div>
 </div>
 
 <div class="prjMainContainer" ui-view></div>

@@ -65,11 +65,11 @@ angular.module('dokuvis.tasks', [
 	'gantt.groups',
 	'gantt.movable',
 	'gantt.tooltips',
-	'gantt.sortable'
+	'gantt.sortable',
 	// 'gantt.drawtask',
 	// 'gantt.progress',
 	// 'gantt.overlap',
-	// 'gantt.resizeSensor',
+	'gantt.resizeSensor'
 ])
 
 /**
@@ -187,8 +187,8 @@ angular.module('dokuvis.tasks', [
  * @restrict E
  * @scope
  */
-.directive('tasksGantt', ['$rootScope', '$timeout', '$q', 'moment', 'Task', 'Subproject', 'Staff', 'Utilities', '$log',
-	function ($rootScope, $timeout, $q, moment, Task, Subproject, Staff, Utilities, $log) {
+.directive('tasksGantt', ['$rootScope', '$timeout', '$q', '$stateParams', 'moment', 'Task', 'Subproject', 'Staff', 'Utilities', '$log',
+	function ($rootScope, $timeout, $q, $stateParams, moment, Task, Subproject, Staff, Utilities, $log) {
 
 		return {
 			restrict: 'E',
@@ -240,6 +240,7 @@ angular.module('dokuvis.tasks', [
 						currentDateValue: moment(),
 						daily: true,
 						expandToWidth: true,
+						// maxHeight: 300,
 						sideWidth: 'min-width',
 						taskOutOfRange: 'truncate',
 						rowContent: '\
@@ -335,7 +336,9 @@ angular.module('dokuvis.tasks', [
 							scope.data[i].data.editors = retrieveEditors(scope.data[i]);
 						}
 					}
-					$log.debug('final', scope.data);
+					$log.debug('final', scope.data, $stateParams);
+					if ($stateParams.initialTask)
+						activateRow(getDataEntryById($stateParams.initialTask));
 					// update table width
 					$timeout(function () {
 						apiGlobal.side.setWidth();
@@ -431,16 +434,15 @@ angular.module('dokuvis.tasks', [
 						});
 					}
 					else if (scope.config.sort.primary === 'staff') {
-						staff.forEach(function (value) {
-							tasks.forEach(function (task) {
+						tasks.forEach(function (task) {
+							var hasEditor = false;
+
+							staff.forEach(function (value) {
 								// check if task has editor
-								var found = false;
-								for (var i = 0; i < task.editors.length; i++) {
-									if (task.editors[i].id === value.email) {
-										found = true;
-										break;
-									}
-								}
+								var found = task.editors.find(function (e) {
+									return e.id === value.email;
+								});
+
 								if (!found) return;
 
 								// new id
@@ -451,7 +453,20 @@ angular.module('dokuvis.tasks', [
 
 								addTask(task, id, task.parent + '_' + value.email);
 								addParent(task.parent, value.email);
+
+								hasEditor = true;
 							});
+
+							if (hasEditor) return;
+
+							// if it hasn't been added yet due to lacking editor, add to 'not_assigned' group
+							var id = task.id + '_' + 'not_assigned';
+
+							// skip if it already exists
+							if (getDataEntryById(id)) return;
+
+							addTask(task, id, task.parent + '_not_assigned');
+							addParent(task.parent, 'not_assigned');
 						});
 					}
 				}
@@ -543,6 +558,16 @@ angular.module('dokuvis.tasks', [
 
 						scope.data.push(row);
 					});
+
+					// add row for not-assigned tasks
+					scope.data.push({
+						id: 'not_assigned',
+						name: '~Nicht zugewiesen~',
+						data: {
+							type: 'staff'
+						},
+						classes: ['staff-row']
+					});
 				}
 
 				// accumulate editors
@@ -573,24 +598,33 @@ angular.module('dokuvis.tasks', [
 				}
 
 				function getDataEntryById(id) {
-					for (var i = 0, l = scope.data.length; i < l; i++) {
-						if (scope.data[i].id === id)
-							return scope.data[i];
-					}
+					// for (var i = 0, l = scope.data.length; i < l; i++) {
+					// 	if (scope.data[i].id === id)
+					// 		return scope.data[i];
+					// }
+					return scope.data.find(function (d) {
+						return d.id === id;
+					});
 				}
 
 				function getSubprojectById(id) {
-					for (var i = 0; i < projects.length; i++) {
-						if (projects[i].id === id)
-							return projects[i];
-					}
+					// for (var i = 0; i < projects.length; i++) {
+					// 	if (projects[i].id === id)
+					// 		return projects[i];
+					// }
+					return projects.find(function (p) {
+						return p.id === id;
+					});
 				}
 
 				function getTaskById(id) {
-					for (var i = 0; i < tasks.length; i++) {
-						if (tasks[i].id === id)
-							return tasks[i];
-					}
+					// for (var i = 0; i < tasks.length; i++) {
+					// 	if (tasks[i].id === id)
+					// 		return tasks[i];
+					// }
+					return tasks.find(function (t) {
+						return t.id === id;
+					});
 				}
 
 				// get specific class for task
@@ -705,6 +739,27 @@ angular.module('dokuvis.tasks', [
 						scope.config.date.viewScale = 'week';
 					else
 						scope.config.date.viewScale = 'month';
+				};
+
+				scope.zoomAllTasks = function () {
+					var tmp = scope.data.filter(function (d) {
+						return d.data.type === 'task';
+					});
+					if (!tmp.length) return;
+					console.log(tmp.length);
+
+					// determine first date
+					var firstDate = tmp.sort(function (a, b) {
+						return  a.data.resource.from < b.data.resource.from ? -1 : 1;
+					})[0];
+					var lastDate = tmp.sort(function (a, b) {
+						return a.data.resource.to > b.data.resource.to ? -1 : 1;
+					})[0];
+
+					console.log(firstDate, lastDate);
+					scope.config.date.from = firstDate.data.resource.from;
+					scope.config.date.to = lastDate.data.resource.to;
+					scope.updateViewScale();
 				};
 
 				/**
@@ -827,8 +882,8 @@ angular.module('dokuvis.tasks', [
  * @requires ConfirmService
  * @requires https://docs.angularjs.org/api/ng/service/$log $log
  */
-.controller('taskModalCtrl', ['$scope', '$state', '$stateParams', 'moment', 'Task', 'Staff', 'Utilities', 'ConfirmService', '$log',
-	function ($scope, $state, $stateParams, moment, Task, Staff, Utilities, ConfirmService, $log) {
+.controller('taskModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'moment', 'Task', 'Staff', 'Utilities', 'ConfirmService', '$log',
+	function ($scope, $rootScope, $state, $stateParams, moment, Task, Staff, Utilities, ConfirmService, $log) {
 
 		var parent = null;
 		var task = null;
@@ -854,7 +909,7 @@ angular.module('dokuvis.tasks', [
 				parent = $stateParams.project;
 			}
 			else {
-				$scope.attachNote = 'Aufgabe wird als Aufgabe des Unterprojektes erstellt.';
+				$scope.attachNote = 'Aufgabe wird als Aufgabe des Unterprojektes <strong>' + $rootScope.globalSubproject.name + '</strong> erstellt.';
 				parent = $stateParams.subproject;
 			}
 

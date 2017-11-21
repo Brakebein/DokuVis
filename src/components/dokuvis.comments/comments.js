@@ -216,12 +216,16 @@ angular.module('dokuvis.comments', [
 			restrict: 'E',
 			link: function (scope) {
 
+				scope.options = {
+					activeTab: ''
+				};
+
 				scope.elements = [];
 
 				function queryComments() {
 					Comment.query().$promise
 						.then(function (results) {
-							$log.debug(results);
+							$log.debug('comments:', results);
 							scope.elements = results;
 						})
 						.catch(function (reason) {

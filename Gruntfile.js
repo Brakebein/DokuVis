@@ -202,7 +202,7 @@ module.exports = function (grunt) {
 					prefix: '<p [^<>]+>DokuVis\\s+v',
 					prereleaseIdentifier: 'alpha'
 				},
-				src: ['src/partials/footer.html']
+				src: ['src/partials/footer.html', 'src/partials/project.html']
 			},
 			packages: {
 				options: {

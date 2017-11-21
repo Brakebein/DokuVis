@@ -26,7 +26,7 @@ comment-section .post-section > textarea {
   margin: 5px 0; }
 
 comment-list .comment-item {
-  margin-bottom: 10px; }
+  margin: 10px 0; }
   comment-list .comment-item > .media {
     position: relative;
     padding: 4px;
@@ -35,13 +35,18 @@ comment-list .comment-item {
     transition: border-color 0.3s; }
     comment-list .comment-item > .media:hover {
       border-color: #fc4e2a; }
+    comment-list .comment-item > .media > .media-left > .media-object > svg {
+      width: 60px;
+      height: 60px;
+      margin: 5px 50px;
+      fill: #777; }
     comment-list .comment-item > .media > .media-body {
       padding-right: 20px; }
       comment-list .comment-item > .media > .media-body > p:first-of-type:first-line {
         font-size: 17px; }
       comment-list .comment-item > .media > .media-body > .media-footer {
         font-size: 12px; }
-  comment-list .comment-item .commentType, comment-list .comment-item .commentModel, comment-list .comment-item .commentSource {
+  comment-list .comment-item .commentType, comment-list .comment-item .commentModel, comment-list .comment-item .commentSource, comment-list .comment-item .commentTask {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -52,6 +57,19 @@ comment-list .comment-item {
     background-color: #74add1; }
   comment-list .comment-item .commentSource {
     background-color: #a6d96a; }
+  comment-list .comment-item .commentTask {
+    background-color: #f5c35c; }
+comment-list .nav span.commentTypeTab, comment-list .nav span.commentModel, comment-list .nav span.commentSource, comment-list .nav span.commentTask {
+  width: 13px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block; }
+comment-list .nav span.commentModel {
+  background-color: #74add1; }
+comment-list .nav span.commentSource {
+  background-color: #a6d96a; }
+comment-list .nav span.commentTask {
+  background-color: #f5c35c; }
 
 snapshot-form .tag-item, comment-detail .tag-item {
   margin: 2px;
@@ -65,7 +83,7 @@ snapshot-form .tag-item, comment-detail .tag-item {
   background-color: #fff; }
   snapshot-form .tag-item.selected, comment-detail .tag-item.selected {
     background-color: rgba(255, 0, 0, 0.2); }
-  snapshot-form .tag-item .remove-button, comment-detail .tag-item .remove-button {
+  snapshot-form .tag-item > .remove-button, comment-detail .tag-item > .remove-button {
     margin: 0 0 0 5px;
     padding: 0;
     border: none;
@@ -79,8 +97,9 @@ snapshot-form .tag-item, comment-detail .tag-item {
 snapshot-form .src-item, comment-detail .src-item {
   display: inline-block;
   position: relative;
-  margin: 2px; }
-  snapshot-form .src-item .remove-button, comment-detail .src-item .remove-button {
+  margin: 2px;
+  border: 1px solid #ccc; }
+  snapshot-form .src-item > .remove-button, comment-detail .src-item > .remove-button {
     display: block;
     position: absolute;
     top: 2px;
@@ -90,10 +109,27 @@ snapshot-form .src-item, comment-detail .src-item {
     font: bold 16px Arial, sans-serif;
     color: #585858; }
 
+comment-detail [ng-switch-when] > [ng-include] > svg {
+  width: 60px;
+  height: 60px;
+  fill: #777; }
+comment-detail h4 > span.commentTypeHeading, comment-detail h4 > span.commentModel, comment-detail h4 > span.commentSource, comment-detail h4 > span.commentTask {
+  width: 18px;
+  height: 12px;
+  border-radius: 4px;
+  display: inline-block; }
+comment-detail h4 > span.commentModel {
+  background-color: #74add1; }
+comment-detail h4 > span.commentSource {
+  background-color: #a6d96a; }
+comment-detail h4 > span.commentTask {
+  background-color: #f5c35c; }
 comment-detail dl:first-of-type > dd {
   white-space: pre-wrap; }
 comment-detail .tag-item, comment-detail .src-item {
   cursor: pointer; }
+  comment-detail .tag-item:hover, comment-detail .src-item:hover {
+    border-color: #fc4e2a; }
 comment-detail .answer-section {
   padding: 5px 10px 5px 10px; }
   comment-detail .answer-section > .answer {

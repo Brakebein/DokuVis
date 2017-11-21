@@ -69,6 +69,32 @@
       .sideNav.sideNav-right[bs-radio-group] > label > input {
         display: none; }
 
+.prjNavInfoContainer {
+  position: absolute;
+  top: 0;
+  height: 20px;
+  left: 36px;
+  right: 0;
+  color: #ddd;
+  background-color: #333;
+  border-bottom: 1px solid #000; }
+  .prjNavInfoContainer a {
+    color: #fc4e2a; }
+  .prjNavInfoContainer > ol.breadcrumb {
+    margin: 0;
+    padding: 0 15px; }
+  .prjNavInfoContainer .navbar-text {
+    margin-top: 0;
+    margin-bottom: 0; }
+
+.prjMainContainer {
+  position: absolute;
+  top: 20px;
+  bottom: 0;
+  left: 36px;
+  right: 0;
+  z-index: 30; }
+
 .sideContainer {
   flex: 1 1 auto;
   order: 1;
@@ -90,14 +116,6 @@
     flex: 0 0 auto;
     width: 100%;
     padding: 20px; }
-
-.prjMainContainer {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 36px;
-  right: 0;
-  z-index: 30; }
 
 [resizer="horizontal"] {
   position: absolute;

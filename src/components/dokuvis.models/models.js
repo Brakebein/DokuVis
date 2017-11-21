@@ -490,8 +490,15 @@ angular.module('dokuvis.models', [
 
 				function buildGraph(data) {
 					var tmpData = [].concat(data);
-					// add blind version
-					tmpData.push({ id: 'blind', predecessor: activeVersion ? activeVersion.id : tmpData[tmpData.length - 1].id, summary: 'model_version_new', created: { date: moment().format() } });
+
+					// add blind version / only in subproject
+					if ($rootScope.globalSubproject)
+						tmpData.push({
+							id: 'blind',
+							predecessor: activeVersion ? activeVersion.id : tmpData[tmpData.length - 1].id,
+							summary: 'model_version_new',
+							created: { date: moment().format() }
+						});
 
 					// create d3 hierarchie
 					var root = d3.stratify()

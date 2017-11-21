@@ -1,4 +1,16 @@
-<div class="comment-item" ng-repeat="c in elements | orderBy:'created.date':true" ng-switch="c.type">
+<ul class="nav nav-tabs nav-tabs-sm">
+	<li ng-class="{ active: options.activeTab === '' }" ng-click="options.activeTab = ''"><a> Alle</a></li>
+	<li ng-class="{ active: options.activeTab === 'commentModel' }" ng-click="options.activeTab = 'commentModel'">
+		<a><span class="commentModel"></span> Modelle</a></li>
+	<li ng-class="{ active: options.activeTab === 'commentSource' }" ng-click="options.activeTab = 'commentSource'">
+		<a><span class="commentSource"></span> Quellen</a></li>
+	<li ng-class="{ active: options.activeTab === 'commentTask' }" ng-click="options.activeTab = 'commentTask'">
+		<a><span class="commentTask"></span> Aufgaben</a></li>
+</ul>
+
+<p ng-hide="elements.length">Keine Kommentare vorhanden.</p>
+
+<div class="comment-item" ng-repeat="c in elements | filter: {type: options.activeTab} | orderBy:'created.date':true" ng-switch="c.type">
 
 	<div class="media" ng-switch-when="commentModel">
 		<div ng-class="c.type" title="Modellkommentar"></div>
@@ -34,6 +46,27 @@
 			<p>
 				<button class="btn btn-default btn-xs" ng-click="openComment(c)"><i class="glyphicon glyphicon-search"></i> Details</button>
 				<button class="btn btn-default btn-xs" title="Quelle öffnen" ui-sref=".source.id({ sourceId: c.targets[0] })"><i class="glyphicon glyphicon-file"></i> Quelle</button>
+			</p>
+			<div class="media-footer">
+				<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answers.length}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>
+				{{c.created.name}} - {{c.created.date | amCalendar}}
+			</div>
+		</div>
+	</div>
+
+	<div class="media" ng-switch-when="commentTask">
+		<div ng-class="c.type" title="Aufgabenkommentar"></div>
+
+		<div class="media-left">
+			<div class="media-object" ng-include="'img/icons/task.svg'"></div>
+		</div>
+
+		<div class="media-body">
+			<p>{{ c.value }}</p>
+
+			<p>
+				<button class="btn btn-default btn-xs" ng-click="openComment(c)"><i class="glyphicon glyphicon-search"></i> Details</button>
+				<button class="btn btn-default btn-xs" title="Aufgabe öffnen" ui-sref="project.tasks({ initialTask: c.targets[0] })"><i class="fa fa-check-square-o"></i> Aufgabe</button>
 			</p>
 			<div class="media-footer">
 				<span title="Antworten"><i class="fa fa-comments-o"></i> {{c.answers.length}}</span> - {{c.targets.length}} Targets - {{c.refs.length}} Referenzen<br/>

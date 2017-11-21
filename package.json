@@ -36,7 +36,6 @@
     "grunt-usemin": "^3.1.1",
     "grunt-version": "^1.2.1",
     "grunt-wiredep": "^3.0.1",
-    "jsdoc-baseline": "https://github.com/hegemonic/baseline/tarball/master",
-    "ng-tags-input": "^3.2.0"
+    "jsdoc-baseline": "https://github.com/hegemonic/baseline/tarball/master"
   }
 }

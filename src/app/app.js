@@ -513,7 +513,10 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			.state('project.tasks', {
 				url: '/tasks',
 				templateUrl: 'partials/tasks.html',
-				controller: 'tasksCtrl'
+				controller: 'tasksCtrl',
+				params: {
+					initialTask: null
+				}
 			})
 			.state('project.tasks.detail', {
 				url: '/:taskId',

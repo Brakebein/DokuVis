@@ -1,9 +1,7 @@
 viewport {
   display: block;
   height: 100%;
-  border: 1px solid #000;
-  border-left: none;
-  background: radial-gradient(circle, #c4c4c4, #727272);
+  background: #666;
   position: relative;
   overflow: hidden; }
   viewport, viewport * {
