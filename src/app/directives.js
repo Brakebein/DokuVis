@@ -273,3 +273,53 @@ angular.module('dokuvisApp').directive('noContextMenu', function () {
 		}
 	};
 });
+
+angular.module('dokuvisApp').directive('userInitials', function () {
+	return {
+		template: '<span></span>',
+		restrict: 'AE',
+		scope: {
+			userInitials: '<'
+		},
+		link: function (scope, element) {
+
+			var initials = '';
+
+			var names = scope.userInitials.toUpperCase().split(/\s+/);
+			names.forEach(function (n) {
+				initials += n[0];
+			});
+
+			var n0 = initials[0];
+
+			if (initials.length > 1)
+				var n1 = initials[1];
+			else if (names[0].length > 1)
+				n1 = names[0][1];
+			else
+				n1 = 'Z';
+
+			if (initials.length > 2)
+				var n2 = initials[2];
+			else if (names[0].length > 2)
+				n2 = names[0][2];
+			else
+				n2 = 'Z';
+
+			n0 = Math.min(Math.max(n0.charCodeAt(0), 65), 90);
+			n1 = Math.min(Math.max(n1.charCodeAt(0), 65), 90);
+			n2 = Math.min(Math.max(n2.charCodeAt(0), 65), 90);
+
+			var c0 = Math.round((n0 - 60) / 30 * 200);
+			var c1 = Math.round((n1 - 60) / 30 * 200);
+			var c2 = Math.round((n2 - 60) / 30 * 200);
+
+			var hex = '#' + c0.toString(16) + c1.toString(16) + c2.toString(16);
+
+			element.css('background-color', hex);
+			element.attr('title', scope.userInitials);
+			element.find('span').text(initials);
+
+		}
+	};
+});

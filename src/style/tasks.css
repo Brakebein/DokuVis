@@ -3,7 +3,8 @@
   left: 0;
   width: 70%;
   height: 100%;
-  padding: 10px; }
+  padding: 10px;
+  overflow-y: auto; }
 
 .tasks-side {
   position: absolute;

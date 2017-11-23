@@ -30,8 +30,8 @@
 		</div>
 
 		<div class="small">
-			<div ng-show="task.created && task.created.id">created by {{task.created.name}} - {{task.created.date | amCalendar}}</div>
-			<div ng-show="task.modified && task.modified.id">modified by {{task.modified.name}} - {{task.modified.date | amCalendar}}</div>
+			<div ng-show="task.created && task.created.id">{{'created_by' | translate }} {{task.created.name}} - {{task.created.date | amCalendar}}</div>
+			<div ng-show="task.modified && task.modified.id">{{'modified_by' | translate}} {{task.modified.name}} - {{task.modified.date | amCalendar}}</div>
 		</div>
 	</div>
 

@@ -229,7 +229,7 @@ angular.module('dokuvis.sources', [
 
 		// FILTER
 		var imageTypes = ['jpg','png','jpeg','bmp','gif','tiff'];
-		var textTypes = ['pdf'];
+		var textTypes = []; //['pdf'];
 
 		// restrict to file types
 		uploader.filters.push({

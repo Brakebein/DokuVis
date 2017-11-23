@@ -267,9 +267,9 @@ angular.module('dokuvis.tasks', [
 					},
 					table: {
 						columns: ['model.data.editors'],
-						headers: { 'model.data.editors': 'Bearbeiter' },
-						headerContents: { 'model.data.editors': '<i class="fa fa-users"></i>' },
-						contents: { 'model.data.editors': '{{ getValue() | asList:\', \':true:\'name\' }}' }
+						headers: { 'model.data.editors': 'Editors' },
+						// headerContents: { 'model.data.editors': '<i class="fa fa-users"></i>' },
+						contents: { 'model.data.editors': '<span user-initials="ed.name" ng-repeat="ed in getValue()"></span>' }
 					},
 					groups: {
 						display: 'overview'

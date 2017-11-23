@@ -4,7 +4,7 @@
 /**
  * Dokuvis base module.
  *
- * @version 0.1.0
+ * @version 0.1.1
  * @ngdoc module
  * @name dokuvisApp
  * @module dokuvisApp
@@ -164,8 +164,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				url: '/home',
 				views: {
 					"": {
-						templateUrl: 'partials/home.html',
-						controller: 'homeCtrl'
+						templateUrl: 'partials/home.html'
 					},
 					header: {
 						templateUrl: 'partials/navbar.html',

@@ -71,10 +71,10 @@
 
 				<div class="btn-bar" ng-hide="snapshotMode">
 					<a title="Details ansehen" ui-sref=".source.id({ sourceId: p.id })"><i class="glyphicon glyphicon-zoom-in"></i></a>
-					<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="load3DPlan(p)"><i class="glyphicon glyphicon-open"></i></a>
-					<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><i class="glyphicon glyphicon-import"></i></a>
-					<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><i class="fa fa-link"></i></a>
-					<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><i class="fa fa-lightbulb-o"></i></a>
+					<!--<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="load3DPlan(p)"><i class="glyphicon glyphicon-open"></i></a>-->
+					<!--<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><i class="glyphicon glyphicon-import"></i></a>-->
+					<!--<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><i class="fa fa-link"></i></a>-->
+					<!--<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="Objekte hervorheben" ng-click="highlightObj(p)"><i class="fa fa-lightbulb-o"></i></a>-->
 					<a ng-if="p.type == 'picture' && p.spatial" title="Bild in 3D anzeigen" ng-click="load3DImage(p)"><i class="glyphicon glyphicon-object-align-left"></i></a>
 				</div>
 			</div>
