@@ -8,7 +8,7 @@
 
 		<div class="bs-callout bs-callout-default bs-callout-sm" ng-show="parentName || attachNote">
 			<span ng-show="parentName">Aufgabe wird als Unteraufgabe von <strong>{{ parentName }}</strong> erstellt.</span>
-			<span ng-show="attachNote">{{ attachNote }}</span>
+			<span ng-show="attachNote" ng-bind-html="attachNote"></span>
 		</div>
 
 		<form>

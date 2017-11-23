@@ -1,6 +1,6 @@
 <div class="tasks-gantt-controls">
 
-	<div class="tasks-gantt-ctrl">
+	<div class="tasks-gantt-ctrl" ng-show="$root.globalSubproject">
 		<button class="btn btn-primary" ui-sref=".detail({taskId: 'new'})">
 			<i class="fa fa-plus"></i> Add Task
 		</button>
@@ -16,14 +16,12 @@
 	</div>
 
 	<div class="tasks-gantt-ctrl">
-		<select title="gantt.sortMode"
-				class="form-control"
-				data-ng-model="config.sort.sortMode"
-				ng-options="s.value as s.name for s in config.sort.secondary">
-		</select>
+		<button class="btn btn-default" ng-click="zoomAllTasks()">
+			<i class="fa fa-search-minus"></i> Zoom extents
+		</button>
 	</div>
 
-	<div class="tasks-gantt-ctrl input-group">
+	<div class="tasks-gantt-ctrl input-group" style="width: 120px">
 		<span class="input-group-btn">
 			<label class="btn btn-default" for="fromDate">
 				<i class="fa fa-angle-left"></i>
@@ -42,14 +40,7 @@
 			   data-autoclose="1" />
 	</div>
 
-	<div class="tasks-gantt-ctrl">
-		<select title="gantt.viewScale"
-				class="form-control"
-				data-ng-model="config.date.viewScale"
-				ng-options="item for item in ['day', 'week', 'month', 'quarter']"></select>
-	</div>
-
-	<div class="tasks-gantt-ctrl input-group">
+	<div class="tasks-gantt-ctrl input-group" style="width: 120px">
 		<input id="toDate"
 			   name="toDate"
 			   class="form-control"
@@ -69,7 +60,25 @@
 		</span>
 	</div>
 
-	<div class="tasks-gantt-ctrl">
+	<div class="tasks-gantt-ctrl input-group" style="width: 160px">
+		<span class="input-group-addon">Scale</span>
+		<select title="Scale"
+				class="form-control"
+				data-ng-model="config.date.viewScale"
+				ng-options="item for item in ['day', 'week', 'month', 'quarter']"></select>
+	</div>
+
+	<div class="tasks-gantt-ctrl input-group" style="width: 160px">
+		<span class="input-group-addon">Sort by</span>
+		<select title="Sort by"
+				class="form-control"
+				data-ng-model="config.sort.sortMode"
+				ng-options="s.value as s.name for s in config.sort.secondary">
+		</select>
+	</div>
+
+	<div class="tasks-gantt-ctrl input-group" style="width: 200px">
+		<span class="input-group-addon">Filter</span>
 		<input class="form-control" placeholder="Nach Aufgaben suchen" ng-model="config.filter.row"/>
 	</div>
 
@@ -108,7 +117,7 @@
 		<!--<gantt-sortable enabled="false"></gantt-sortable>-->
 		<gantt-movable allow-row-switching="false"></gantt-movable>
 		<!--<gantt-overlap></gantt-overlap>-->
-		<!--<gantt-resize-sensor></gantt-resize-sensor>-->
+		<gantt-resize-sensor></gantt-resize-sensor>
 	</div>
 	<hr/>
 </div>
