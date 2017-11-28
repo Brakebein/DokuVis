@@ -4,7 +4,7 @@
 /**
  * Dokuvis base module.
  *
- * @version 0.1.1
+ * @version 0.1.2
  * @ngdoc module
  * @name dokuvisApp
  * @module dokuvisApp
@@ -628,19 +628,18 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 
 		// translate
 		$translateProvider
-			.useSanitizeValueStrategy('sanitize')
+			.useSanitizeValueStrategy('sanitizeParameters')
 			.useLoader('$translatePartialLoader', {
 				urlTemplate: '/i18n/{part}/{lang}.json'
 			})
-			// .preferredLanguage('de-DE')
-			.preferredLanguage('en-US')
-			.fallbackLanguage('de-DE')
 			.registerAvailableLanguageKeys(['en-US', 'de-DE'], {
 				'en_*': 'en-US',
 				'de_*': 'de-DE'
-			});
-		$translateProvider.useLocalStorage();
-		//.determinePreferredLanguage();
+			})
+			// .preferredLanguage('en-US')
+			.determinePreferredLanguage()
+			.useLocalStorage()
+			.fallbackLanguage('de-DE');
 		$translatePartialLoaderProvider.addPart('general');
 
 		// defaults

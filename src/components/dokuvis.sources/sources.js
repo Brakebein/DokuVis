@@ -877,8 +877,8 @@ angular.module('dokuvis.sources', [
 	}
 ])
 	
-.controller('sourceEditModalCtrl', ['$scope', '$rootScope', '$window', '$state', '$stateParams', '$timeout', 'FileUploader', 'moment', 'Source', 'Archive', 'ApiSource', 'ApiParams', 'Utilities', '$log',
-	function ($scope, $rootScope, $window, $state, $stateParams, $timeout, FileUploader, moment, Source, Archive, ApiSource, ApiParams, Utilities, $log) {
+.controller('sourceEditModalCtrl', ['$scope', '$rootScope', '$window', '$state', '$stateParams', '$timeout', 'FileUploader', 'moment', 'Source', 'Archive', 'ApiSource', 'ApiParams', 'TypeaheadRequest', 'Utilities', '$log',
+	function ($scope, $rootScope, $window, $state, $stateParams, $timeout, FileUploader, moment, Source, Archive, ApiSource, ApiParams, TypeaheadRequest, Utilities, $log) {
 
 		var imageTypes = ['jpg','JPG','png','PNG','jpeg','bmp','gif','tiff'];
 		var textTypes = ['pdf'];

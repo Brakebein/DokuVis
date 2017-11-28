@@ -598,30 +598,18 @@ angular.module('dokuvis.tasks', [
 				}
 
 				function getDataEntryById(id) {
-					// for (var i = 0, l = scope.data.length; i < l; i++) {
-					// 	if (scope.data[i].id === id)
-					// 		return scope.data[i];
-					// }
 					return scope.data.find(function (d) {
 						return d.id === id;
 					});
 				}
 
 				function getSubprojectById(id) {
-					// for (var i = 0; i < projects.length; i++) {
-					// 	if (projects[i].id === id)
-					// 		return projects[i];
-					// }
 					return projects.find(function (p) {
 						return p.id === id;
 					});
 				}
 
 				function getTaskById(id) {
-					// for (var i = 0; i < tasks.length; i++) {
-					// 	if (tasks[i].id === id)
-					// 		return tasks[i];
-					// }
 					return tasks.find(function (t) {
 						return t.id === id;
 					});
@@ -957,7 +945,8 @@ angular.module('dokuvis.tasks', [
 			if (!$scope.task.from.length ||
 				!$scope.task.to.length ||
 				!moment($scope.task.from).isValid() ||
-				!moment($scope.task.to).isValid()) {
+				!moment($scope.task.to).isValid() ||
+				moment($scope.task.from).isAfter($scope.task.to)) {
 				Utilities.dangerAlert('Geben Sie ein korrektes Datum an!');
 				return;
 			}

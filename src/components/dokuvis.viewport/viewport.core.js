@@ -3112,8 +3112,8 @@ angular.module('dokuvis.viewport',[
 					for (var i = 0; i < children.length; i++) {
 						collectChildren(children[i].children);
 						// TODO: include pictures
-						if (children[i].userData.type === 'object' || children[i].userData.type === 'plan')
-							cc.push(children[i]);
+						if (children[i].type === 'object' || children[i].type === 'plan')
+							cc.push(children[i].object);
 					}
 				}
 				collectChildren(array);
@@ -3137,6 +3137,7 @@ angular.module('dokuvis.viewport',[
 				var xmin = 0, xmax = 0, ymin = 0, ymax = 0, zmin = 0, zmax = 0;
 
 				objs.forEach(function (obj, index) {
+					if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
 					var bbmin = obj.geometry.boundingBox.min.clone().applyMatrix4(obj.matrixWorld);
 					var bbmax = obj.geometry.boundingBox.max.clone().applyMatrix4(obj.matrixWorld);
 
@@ -3162,8 +3163,13 @@ angular.module('dokuvis.viewport',[
 
 				// calculate new camera.position and controls.center
 				var s = new THREE.Vector3().subVectors(camera.position, controls.center);
-				var h = geo.boundingSphere.radius / Math.tan( camera.fov / 2 * THREE.Math.DEG2RAD);
+				var h = geo.boundingSphere.radius / Math.tan( camera.fov / 2 * THREE.Math.DEG2RAD );
 				var newpos = new THREE.Vector3().addVectors(geo.boundingSphere.center, s.setLength(h));
+
+				// adjust camera frustum (near, far)
+				camera.cameraP.near = geo.boundingSphere.radius / 100;
+				camera.cameraP.far = Math.max(geo.boundingSphere.radius * 100, 200);
+				camera.updateProjectionMatrix();
 
 				// animate camera.position and controls.center
 				new TWEEN.Tween(camera.position.clone())
