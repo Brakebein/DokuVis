@@ -2785,7 +2785,7 @@ angular.module('dokuvis.viewport',[
 					else if (obj instanceof DV3D.Plan)
 						viewOrthoPlan(obj);
 					else
-						focusSelection([event.target.object]);
+						focusSelection([event.target]);
 				}
 			}
 
