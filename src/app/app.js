@@ -634,7 +634,11 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			})
 			.registerAvailableLanguageKeys(['en-US', 'de-DE'], {
 				'en_*': 'en-US',
-				'de_*': 'de-DE'
+				'de_*': 'de-DE',
+				'en-*': 'en-US',
+				'de-*': 'de-DE',
+				'en': 'en-US',
+				'de': 'de-DE'
 			})
 			// .preferredLanguage('en-US')
 			.determinePreferredLanguage()
@@ -721,10 +725,12 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 			{ key: 'de-DE', shortKey: 'de', label: 'Deutsch' }
 		];
 
-		$rootScope.currentLanguage = $rootScope.availableLanguages.find(function (lang) {
-			return lang.key === $translate.proposedLanguage() || $translate.use();
+		$translate.onReady(function () {
+			$rootScope.currentLanguage = $rootScope.availableLanguages.find(function (lang) {
+				return lang.key === $translate.proposedLanguage() || $translate.use();
+			});
+			amMoment.changeLocale($rootScope.currentLanguage.shortKey);
 		});
-		amMoment.changeLocale($rootScope.currentLanguage.shortKey);
 
 		$rootScope.setLanguage = function () {
 			$translate.use($rootScope.currentLanguage.key);
