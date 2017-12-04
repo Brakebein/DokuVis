@@ -722,7 +722,7 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 		];
 
 		$rootScope.currentLanguage = $rootScope.availableLanguages.find(function (lang) {
-			return lang.key === $translate.proposedLanguage();
+			return lang.key === $translate.proposedLanguage() || $translate.use();
 		});
 		amMoment.changeLocale($rootScope.currentLanguage.shortKey);
 
