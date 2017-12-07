@@ -196,12 +196,15 @@ angular.module('dokuvis.tasks', [
 			scope: {},
 			link: function (scope) {
 
+				var enableInitialTask = true;
+
 				// data
 				var tasks = [];
 				var projects = [];
 				var staff = [];
 
 				var activeTask = null;
+				var updatedTask = null;
 
 				// api
 				var apiGlobal;
@@ -337,8 +340,17 @@ angular.module('dokuvis.tasks', [
 						}
 					}
 					$log.debug('final', scope.data, $stateParams);
-					if ($stateParams.initialTask)
+
+					// set active task
+					if (updatedTask) {
+						activateRow(getDataEntryById(updatedTask.id));
+						updatedTask = null;
+					}
+					else if (enableInitialTask && $stateParams.initialTask) {
 						activateRow(getDataEntryById($stateParams.initialTask));
+						enableInitialTask = false;
+					}
+
 					// update table width
 					$timeout(function () {
 						apiGlobal.side.setWidth();
@@ -763,7 +775,7 @@ angular.module('dokuvis.tasks', [
 				}
 
 				// listen to tasksUpdate event and update gantt
-				scope.$on('tasksUpdate', function () {
+				scope.$on('tasksUpdate', function (event, task) {
 					$log.debug('event tasksUpdate');
 					updateGantt(true);
 				});
