@@ -867,11 +867,11 @@ angular.module('dokuvis.tasks', [
  * @requires Task
  * @requires Staff
  * @requires Utilities
- * @requires ConfirmService
+ * @requires ConfirmDialog
  * @requires https://docs.angularjs.org/api/ng/service/$log $log
  */
-.controller('taskModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'moment', 'Task', 'Staff', 'Utilities', 'ConfirmService', '$log',
-	function ($scope, $rootScope, $state, $stateParams, moment, Task, Staff, Utilities, ConfirmService, $log) {
+.controller('taskModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'moment', 'Task', 'Staff', 'Utilities', 'ConfirmDialog', '$log',
+	function ($scope, $rootScope, $state, $stateParams, moment, Task, Staff, Utilities, ConfirmDialog, $log) {
 
 		var parent = null;
 		var task = null;
@@ -1008,7 +1008,7 @@ angular.module('dokuvis.tasks', [
 		 */
 		$scope.delete = function () {
 
-			ConfirmService({
+			ConfirmDialog({
 				headerText: 'Aufgabe löschen',
 				bodyText: 'Soll die Aufgabe <b>' + task.title + '</b> wirklich gelöscht werden? <br/> \
 					Alle Unteraufgaben gehen an die Oberaufgabe.'

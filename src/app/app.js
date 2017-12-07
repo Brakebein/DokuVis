@@ -483,6 +483,26 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					categoryModalInstance.destroy();
 				}]
 			})
+			.state('project.explorer.version', {
+				url: '/version/:versionId',
+				resolve: {
+					versionModalInstance: ['$modal', function ($modal) {
+						return $modal({
+							templateUrl: 'partials/modals/_modalTpl.html',
+							contentTemplate: 'components/dokuvis.models/versionModal.tpl.html',
+							controller: 'versionModalCtrl',
+							show: false
+						});
+					}]
+				},
+				onEnter: ['versionModalInstance', function (versionModalInstance) {
+					versionModalInstance.$promise.then(versionModalInstance.show);
+				}],
+				onExit: ['versionModalInstance', function (versionModalInstance) {
+					versionModalInstance.hide();
+					versionModalInstance.destroy();
+				}]
+			})
 			.state('project.explorer.spatialize', {
 				url: '/spatialize',
 				onEnter: ['$modal', function ($modal) {

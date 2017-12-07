@@ -69,7 +69,8 @@ html, body {
     .modal-dialog .modal-footer.spread > div:first-of-type {
       text-align: left; }
     .modal-dialog .modal-footer.spread > div:last-of-type {
-      text-align: right; }
+      text-align: right;
+      flex: 0 0 auto; }
 .modal-dialog .modal-footer > .modal-metadata {
   font-size: 12px; }
 

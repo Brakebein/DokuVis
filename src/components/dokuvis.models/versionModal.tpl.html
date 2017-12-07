@@ -1,0 +1,45 @@
+<div class="modal-content">
+
+	<div class="modal-header">
+		<h4 class="modal-title">Version bearbeiten</h4>
+	</div>
+
+	<div class="modal-body">
+
+		<form>
+			<div class="form-group">
+				<label for="commitTitle" class="control-label" translate>model_form_summary</label>
+				<input id="commitTitle" class="form-control" ng-model="commit.summary"/>
+			</div>
+			<div class="form-group">
+				<label for="commitNote" class="control-label" translate>model_form_note</label>
+				<textarea id="commitNote" class="form-control" rows="5" ng-model="commit.note"></textarea>
+			</div>
+			<div class="form-group">
+				<label class="control-label" translate>model_form_software</label>
+				<tags-input ng-model="commit.software"
+							display-property="name"
+							replace-spaces-with-dashes="false"
+							placeholder="Start typing">
+					<auto-complete source="searchSoftware($query)"
+								   display-property="name"
+								   debounce-delay="200"></auto-complete>
+				</tags-input>
+			</div>
+		</form>
+
+	</div>
+
+	<div class="modal-footer spread">
+		<div class="modal-metadata">
+			<div>{{'uploaded_by' | translate}} {{commit.created.name}} - {{commit.created.date | amCalendar}}</div>
+			<div ng-show="commit.modified && commit.modified.id">{{'modified_by' | translate}} {{commit.modified.name}} - {{commit.modified.date | amCalendar}}</div>
+		</div>
+		<div>
+			<button class="btn btn-primary" ng-click="save()">{{'save' | translate}}</button>
+			<button class="btn btn-default" ng-click="close()">{{'abort' | translate}}</button>
+			<button class="btn btn-danger" ng-show="!commit.successor.length" ng-click="delete()">{{'delete' | translate}}</button>
+		</div>
+	</div>
+
+</div>

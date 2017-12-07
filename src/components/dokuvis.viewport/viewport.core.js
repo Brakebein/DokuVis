@@ -17,8 +17,8 @@ angular.module('dokuvis.viewport',[
  * @restrict E
  * @param spatializeManual {boolean} Enable image spatialization functionality
  */
-.directive('viewport', ['$state', '$window', '$timeout', 'viewportCache', 'viewportSettings', 'webglInterface', '$rootScope', '$q', 'Utilities', 'Comment', 'ConfirmService', '$debounce', '$throttle', 'SpatializeInterface', '$log', '$compile', '$animate',
-	function($state, $window, $timeout, viewportCache, viewportSettings, webglInterface, $rootScope, $q, Utilities, Comment, ConfirmService, $debounce, $throttle, SpatializeInterface, $log, $compile, $animate) {
+.directive('viewport', ['$state', '$window', '$timeout', 'viewportCache', 'viewportSettings', 'webglInterface', '$rootScope', '$q', 'Utilities', 'Comment', '$debounce', '$throttle', 'SpatializeInterface', '$log', '$compile', '$animate',
+	function($state, $window, $timeout, viewportCache, viewportSettings, webglInterface, $rootScope, $q, Utilities, Comment, $debounce, $throttle, SpatializeInterface, $log, $compile, $animate) {
 
 		function link(scope, element, attrs) {
 
@@ -1779,7 +1779,7 @@ angular.module('dokuvis.viewport',[
 
 				$timeout(function () {
 					snapshotScreenshot(getScreenshot());
-				});
+				}, 1000);
 			});
 
 			// listen to snapshotEnd event
@@ -3167,9 +3167,7 @@ angular.module('dokuvis.viewport',[
 				var newpos = new THREE.Vector3().addVectors(geo.boundingSphere.center, s.setLength(h));
 
 				// adjust camera frustum (near, far)
-				camera.cameraP.near = geo.boundingSphere.radius / 100;
-				camera.cameraP.far = Math.max(geo.boundingSphere.radius * 100, 200);
-				camera.updateProjectionMatrix();
+				setCameraFrustum(geo.boundingSphere.radius / 100, Math.max(geo.boundingSphere.radius * 100, 200));
 
 				// animate camera.position and controls.center
 				new TWEEN.Tween(camera.position.clone())
@@ -3193,6 +3191,16 @@ angular.module('dokuvis.viewport',[
 				// 	orthocam.position.set(M.x, M.y, 50);
 				// else if (scope.camera === 'left')
 				// 	orthocam.position.set(-50, M.y, M.z);
+			}
+
+			// update near and far clipping plane of camera (and update fog)
+			function setCameraFrustum(near, far) {
+				camera.cameraP.near = near;
+				camera.cameraP.far = far;
+				camera.updateProjectionMatrix();
+
+				scene.fog.near = camera.cameraP.far - camera.cameraP.far / 10;
+				scene.fog.far = camera.cameraP.far;
 			}
 
 			// resize viewport

@@ -43,11 +43,45 @@
     
       <li>as element:
       
-      <pre><code>&lt;viewport&gt;&#10;  ...&#10;&lt;/viewport&gt;</code></pre>
+      <pre><code>&lt;viewport&#10;    spatialize-manual=&quot;boolean&quot;&gt;&#10;  ...&#10;&lt;/viewport&gt;</code></pre>
       </li>
     
   </div>
   
+<section class="api-section">
+  <h3>Arguments</h3>
+
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        spatializeManual
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-boolean"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" _target="blank">Boolean</a></span>
+      </td>
+      <td>
+        <p>Enable image spatialization functionality</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+</section>
   
 <h2>Events</h2>
 <ul class="events">
@@ -140,6 +174,122 @@
       <h4 id="usage">Usage</h4>
       <div class="usage">
         <pre><code>viewport.$on(&#39;viewportLoadProgress&#39;, function (evt, item, loaded, total) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  
+  <li id="viewportCameraMove">
+    <h3 class="">
+      <span class="title"><code>viewportCameraMove</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when camera has moved.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">viewport</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        cam
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-three"><a href="THREE.Camera">THREE.Camera</a></span>
+      </td>
+      <td>
+        <p>Camera that has changed/moved</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>viewport.$on(&#39;viewportCameraMove&#39;, function (evt, cam) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  
+  <li id="viewportNavigationChange">
+    <h3 class="">
+      <span class="title"><code>viewportNavigationChange</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when navigation mode has changed.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">broadcast</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">viewport</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        mode
+        
+        <div><em>(optional)</em></div>
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>New mode</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>viewport.$on(&#39;viewportNavigationChange&#39;, function (evt, mode) {&#10;  ...&#10;});</code></pre>
         </section>
     </li>
   </ul>

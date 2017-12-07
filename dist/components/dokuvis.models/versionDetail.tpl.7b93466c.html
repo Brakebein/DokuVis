@@ -2,10 +2,13 @@
 
 <div ng-show="version">
 	<h3>{{ version.summary }}</h3>
-	<p class="small" ng-hide="version.id === 'root'">{{'uploaded_by' | translate}} {{ version.created.name }} - {{ version.created.date | amCalendar }}</p>
+	<p class="small" ng-hide="version.id === 'root'">
+		{{'uploaded_by' | translate}} {{ version.created.name }} - {{ version.created.date | amCalendar }}<br/>
+		<span ng-show="version.modified && version.modified.id">{{'modified_by' | translate}} {{ version.modified.name }} - {{ version.modified.date | amCalendar }}</span>
+	</p>
 
 	<p ng-show="version.id === 'root'" translate>model_version_root</p>
-	<p ng-hide="version.id === 'root'">{{ version.note }}</p>
+	<p ng-hide="version.id === 'root'" style="white-space: pre-wrap">{{ version.note }}</p>
 
 	<dl class="dl-horizontal" ng-hide="version.id === 'root'">
 		<dt translate>model_form_software</dt>
@@ -15,5 +18,6 @@
 
 	<p ng-hide="version.id === 'root'">
 		<button class="btn btn-default" ng-click="load()"><i class="fa fa-refresh"></i> {{'load'|translate}}</button>
+		<button class="btn btn-default" ui-sref=".version({versionId: version.id})"><i class="fa fa-pencil"></i> {{'edit'|translate}}</button>
 	</p>
 </div>

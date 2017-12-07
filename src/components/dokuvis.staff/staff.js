@@ -94,7 +94,7 @@ angular.module('dokuvis.staff', [
  * @requires Utilities
  * @restrict E
  * @scope
- * @param config {string[]=} Show config buttons in additional column. Available buttons are displayed by following strings: `edit`, `remove`, more to come...
+ * @param [config] {string[]} Show config buttons in additional column. Available buttons are displayed by following strings: `edit`, `remove`, more to come...
  */
 .directive('staffList', ['Staff', 'Utilities',
 	function (Staff, Utilities) {

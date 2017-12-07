@@ -115,15 +115,33 @@ angular.module('dokuvis.models', [
  * @requires https://docs.angularjs.org/api/ngResource/service/$resource $resource
  * @requires ApiParams
  * @requires ApiModelVersion
+ * @requires https://github.com/urish/angular-moment moment
  */
-.factory('ModelVersion', ['$resource', 'ApiParams', 'ApiModelVersion',
-	function ($resource, ApiParams, ApiModelVersion) {
+.factory('ModelVersion', ['$resource', 'ApiParams', 'ApiModelVersion', 'moment',
+	function ($resource, ApiParams, ApiModelVersion, moment) {
 
 		return $resource(ApiModelVersion + '/:id', angular.extend({ id: '@id' }, ApiParams), {
 			queryModels: {
 				url: ApiModelVersion + '/:id/object',
 				methed: 'GET',
 				isArray: true
+			},
+			/**
+			 * Update summary, note, or software entries of an version.
+			 * ```
+			 * version.$update
+			 *   .then(function (version) {...});
+			 * ```
+			 * @ngdoc method
+			 * @name ModelVersion#update
+			 */
+			update: {
+				method: 'PUT',
+				transformRequest:  function (data) {
+					return angular.toJson(angular.extend(data, {
+						modificationDate: moment().format()
+					}));
+				}
 			}
 		});
 
@@ -136,6 +154,27 @@ angular.module('dokuvis.models', [
 		 * @ngdoc method
 		 * @name ModelVersion#query
 		 * @return {Promise} Promise with versions as array as resolve value.
+		 */
+
+		/**
+		 * Get version by id.
+		 * ```
+		 * ModelVersion.query({ id: <id> }).$promise
+		 *   .then(function (version) {...});
+		 * ```
+		 * @ngdoc method
+		 * @name ModelVersion#get
+		 * @return {Promise} Promise with version as resolve value.
+		 */
+
+		/**
+		 * Delete version and its 3D objects.
+		 * ```
+		 * version.$delete
+		 *   .then(function () {...});
+		 * ```
+		 * @ngdoc method
+		 * @name ModelVersion#delete
 		 */
 
 	}
@@ -182,6 +221,16 @@ angular.module('dokuvis.models', [
 		}
 
 		var resource =  $resource(ApiModelVersion + '/:versionId/object/:id', angular.extend({ id: '@id', versionId: '@versionId' }, ApiParams), {
+			/**
+			 * Get all 3D objects of this version. The objects are returned hierarchically structured.
+			 * ```
+			 * DigitalObject({ versionId: <id> }).$promise
+			 *   .then(function (results) {...});
+			 * ```
+			 * @ngdoc method
+			 * @name DigitalObject#query
+			 * @param param {Object} Object with `versionId` property to specify which version's 3D objects should be retrieved.
+			 */
 			query: {
 				method: 'GET',
 				isArray: true,
@@ -213,6 +262,16 @@ angular.module('dokuvis.models', [
 
 		return $resource(ApiSoftware + '/:id', angular.extend({ id: '@id' }, ApiParams));
 
+		/**
+		 * Get all software entries. An optional query parameter can be passed to look only for entries that contain the query string.
+		 * ```
+		 * Software.query({ search: query }).$promise
+		 *   .then(function (results) {...});
+		 * ```
+		 * @ngdoc method
+		 * @name Software#query
+		 * @param query {Object=} Query object with `search` property. `{ search: <string> }`
+		 */
 	}
 ])
 
@@ -472,7 +531,12 @@ angular.module('dokuvis.models', [
 							// add root
 							results.unshift({ id: 'root', predecessor: null, summary: 'root', created: { date: 0 } });
 							versions = results;
-							scope.select(versions[versions.length - 1]);
+							if (activeVersion)
+								scope.select(versions.find(function (v) {
+									return v.id === activeVersion.id;
+								}));
+							else
+								scope.select(versions[versions.length - 1]);
 							// buildGraph(results);
 						})
 						.catch(function (reason) {
@@ -485,6 +549,12 @@ angular.module('dokuvis.models', [
 
 				// listen to modelUploadSuccess event
 				scope.$on('modelUploadSuccess', function () {
+					queryVersions();
+				});
+
+				// listen to modelVersionUpdate event
+				scope.$on('modelVersionUpdate', function (event, version) {
+					activeVersion = version;
 					queryVersions();
 				});
 
@@ -698,5 +768,108 @@ angular.module('dokuvis.models', [
 			}
 		}
 
+	}
+])
+
+/**
+ * Modal controller for editing or deleting versions.
+ * @ngdoc controller
+ * @name versionModalCtrl
+ * @module dokuvis.models
+ * @requires https://docs.angularjs.org/api/ng/type/$rootScope.Scope $scope
+ * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$stateParams $stateParams
+ * @requires ModelVersion
+ * @requires Software
+ * @requires ConfirmDialog
+ * @requires Utilities
+ * @requires https://docs.angularjs.org/api/ng/service/$log $log
+ */
+.controller('versionModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'ModelVersion', 'Software', 'ConfirmDialog', 'Utilities', '$log',
+	function ($scope, $rootScope, $state, $stateParams, ModelVersion, Software, ConfirmDialog, Utilities, $log) {
+
+		$scope.commit = null;
+
+		function getVersion() {
+			ModelVersion.get({ id: $stateParams.versionId }).$promise
+				.then(function (result) {
+					$scope.commit = result;
+					$log.debug(result);
+				})
+				.catch(function (reason) {
+					Utilities.throwApiException('#ModelVersion.get', reason);
+				});
+		}
+
+		if ($stateParams.versionId)
+			getVersion();
+		else
+			$scope.close();
+
+		$scope.save = function () {
+			if (!$scope.commit.summary.length) {
+				Utilities.dangerAlert('model_form_summary_missing');
+				return;
+			}
+
+			$scope.commit.software = $scope.commit.software.map(function (sw) {
+				return sw.name;
+			});
+			$scope.commit.$update()
+				.then(function (result) {
+					modelVersionUpdate(result);
+					$scope.close();
+				})
+				.catch(function (reason) {
+					Utilities.throwApiException('ModelVersion.update', reason);
+				})
+		};
+
+		$scope.delete = function () {
+			ConfirmDialog({
+				headerText: 'Version löschen',
+				bodyText: 'Sollen diese Version und die damit verbunden 3D-Objekte wirklich gelöscht werden?'
+			}).then(function () {
+				$scope.commit.$delete()
+					.then(function (result) {
+						$log.debug(result);
+						modelVersionUpdate();
+						$scope.close();
+					})
+					.catch(function (reason) {
+						Utilities.throwApiException('ModelVersion.delete', reason);
+					});
+			});
+
+		};
+
+		// query software entries for ngInputTags
+		$scope.searchSoftware = function (query) {
+			return Software.query({ search: query }).$promise
+				.then(function (results) {
+					return results;
+				})
+				.catch(function (reason) {
+					Utilities.throwApiException('#Software.query', reason);
+					return [];
+				});
+		};
+
+		/**
+		 * Event that gets fired, when a version has been edited or deleted.
+		 * @ngdoc event
+		 * @name versionModalCtrl#modelVersionUpdate
+		 * @eventType broadcast on $rootScope
+		 * @param version {ModelVersion} Edited version, undefined if deleted.
+		 */
+		function modelVersionUpdate(version) {
+			$rootScope.$broadcast('modelVersionUpdate', version);
+		}
+	
+		$scope.close = function () {
+			$state.go('^');
+		};
+	
 	}
 ]);

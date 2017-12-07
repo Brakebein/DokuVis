@@ -220,6 +220,11 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "name": "modelUploadModalCtrl",
                 "type": "controller",
                 "href": "api/dokuvis.models/controller/modelUploadModalCtrl"
+              },
+              {
+                "name": "versionModalCtrl",
+                "type": "controller",
+                "href": "api/dokuvis.models/controller/versionModalCtrl"
               }
             ]
           },
@@ -609,6 +614,16 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "href": "api/dokuvis.viewport/directive/viewport"
               },
               {
+                "name": "viewportAxis",
+                "type": "directive",
+                "href": "api/dokuvis.viewport/directive/viewportAxis"
+              },
+              {
+                "name": "viewportLoadProgress",
+                "type": "directive",
+                "href": "api/dokuvis.viewport/directive/viewportLoadProgress"
+              },
+              {
                 "name": "viewportNavigation",
                 "type": "directive",
                 "href": "api/dokuvis.viewport/directive/viewportNavigation"
@@ -658,11 +673,6 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "href": "api/dokuvisApp/controller/registerCtrl"
               },
               {
-                "name": "sourceDetailCtrl",
-                "type": "controller",
-                "href": "api/dokuvisApp/controller/sourceDetailCtrl"
-              },
-              {
                 "name": "tasksCtrl",
                 "type": "controller",
                 "href": "api/dokuvisApp/controller/tasksCtrl"
@@ -690,14 +700,14 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
                 "href": "api/dokuvisApp/directive/imageViewer"
               },
               {
+                "name": "imageViewer",
+                "type": "directive",
+                "href": "api/dokuvisApp/directive/imageViewer"
+              },
+              {
                 "name": "rampSlider",
                 "type": "directive",
                 "href": "api/dokuvisApp/directive/rampSlider"
-              },
-              {
-                "name": "webglView",
-                "type": "directive",
-                "href": "api/dokuvisApp/directive/webglView"
               }
             ]
           },
@@ -707,29 +717,9 @@ angular.module('docApp').constant('DOCS_NAVIGATION', {
             "href": "api/dokuvisApp/factory",
             "navItems": [
               {
-                "name": "AuthenticationFactory",
-                "type": "factory",
-                "href": "api/dokuvisApp/factory/AuthenticationFactory"
-              },
-              {
-                "name": "ConfirmService",
-                "type": "factory",
-                "href": "api/dokuvisApp/factory/ConfirmService"
-              },
-              {
                 "name": "SpatializeInterface",
                 "type": "factory",
                 "href": "api/dokuvisApp/factory/SpatializeInterface"
-              },
-              {
-                "name": "TokenInterceptor",
-                "type": "factory",
-                "href": "api/dokuvisApp/factory/TokenInterceptor"
-              },
-              {
-                "name": "UserAuthFactory",
-                "type": "factory",
-                "href": "api/dokuvisApp/factory/UserAuthFactory"
               },
               {
                 "name": "Utilities",

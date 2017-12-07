@@ -26,6 +26,11 @@
 
 <div>
   
+  <h2 id="dependencies">Dependencies</h2>
+  <ul>
+    <li><a href="viewportSettings">viewportSettings</a></li>
+  </ul>
+  
 
   
   <h2>Directive Info</h2>
@@ -45,15 +50,128 @@
       
       <pre><code>&lt;viewport-navigation&gt;&#10;  ...&#10;&lt;/viewport-navigation&gt;</code></pre>
       </li>
-    <li>as attribute:
-        <pre><code>&lt;ANY&gt;&#10;...&#10;&lt;/ANY&gt;</code></pre>
-      </li>
     
   </div>
   
   
 <h2>Events</h2>
 <ul class="events">
+  <li id="viewportFocusStart">
+    <h3 class="">
+      <span class="title"><code>viewportFocusStart</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when user clicked one of the focus buttons.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">emit</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">viewportNavigation</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        mode
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Focus mode, should be <code>all</code> or <code>selected</code></p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>viewportNavigation.$on(&#39;viewportFocusStart&#39;, function (evt, mode) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  
+  <li id="viewportNavigationChange">
+    <h3 class="">
+      <span class="title"><code>viewportNavigationChange</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when user changed navigation mode.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">emit</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">viewportNavigation</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        mode
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>New navigation mode</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>viewportNavigation.$on(&#39;viewportNavigationChange&#39;, function (evt, mode) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  
   <li id="viewportShadingChange">
     <h3 class="">
       <span class="title"><code>viewportShadingChange</code></span>
@@ -126,6 +244,81 @@
       <h4 id="usage">Usage</h4>
       <div class="usage">
         <pre><code>viewportNavigation.$on(&#39;viewportShadingChange&#39;, function (evt, mode, lastMode) {&#10;  ...&#10;});</code></pre>
+        </section>
+    </li>
+  
+  <li id="viewportCameraChange">
+    <h3 class="">
+      <span class="title"><code>viewportCameraChange</code></span>
+      
+  
+    </h3>
+    <div><p>Event that gets fired, when user changed camera mode.</p>
+</div>
+    <div class="inline">
+      <h4>Type:</h4>
+      <div class="type">emit</div>
+    </div>
+    <div class="inline">
+      <h4>Target:</h4>
+      <div class="target">viewportNavigation</div>
+    </div>
+    
+    <section class="api-section">
+      <h3>Parameters</h3>
+      
+<table class="variables-matrix input-arguments ">
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td>
+        mode
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>New camera mode</p>
+
+        
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        lastMode
+        
+        
+      </td>
+      <td>
+        <span class="label type-hint type-hint-string"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" _target="blank">String</a></span>
+      </td>
+      <td>
+        <p>Previous camera mode</p>
+
+        
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
+    </section>
+    <section class="api-section">
+      <h4 id="usage">Usage</h4>
+      <div class="usage">
+        <pre><code>viewportNavigation.$on(&#39;viewportCameraChange&#39;, function (evt, mode, lastMode) {&#10;  ...&#10;});</code></pre>
         </section>
     </li>
   </ul>
