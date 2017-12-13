@@ -1,0 +1,39 @@
+<p ng-hide="activities.length">No acitivies yet!</p>
+
+<nav class="center-block" ng-show="activities.length > 10">
+	<ul class="pagination pagination-sm">
+		<li ng-class="{disabled: currentPage === 0}"><a href="" ng-click="setPage('prev')">&laquo;</a></li>
+		<li ng-repeat="page in pages track by $index" ng-class="{active: page.active}"><a href="" ng-click="setPage($index)">{{$index + 1}}</a></li>
+		<li ng-class="{disabled: currentPage === pages.length - 1}"><a href="" ng-click="setPage('next')">&raquo;</a></li>
+	</ul>
+</nav>
+
+<div class="list-group" ng-show="activities.length">
+	<button class="list-group-item activity-item" ng-repeat="act in activities | limitTo:10:currentPage*10" ng-click="openActivity(act)">
+		<span class="activity-identifier" ng-class="act.commentType || act.type"></span>
+		<span class="activity-metadata">
+			<span>{{act.date | amCalendar}}</span>
+			<span>Subproject: {{act.subproject.name}}</span>
+		</span>
+		<span class="activity-body">
+			<b>{{act.user.name}}</b>
+			<span ng-switch="act.type">
+				<span ng-switch-when="source_upload">uploaded source <b>{{act.label}}</b></span>
+				<span ng-switch-when="source_update">edited source <b>{{act.label}}</b></span>
+				<span ng-switch-when="model_upload">uploaded model/version <b>{{act.label}}</b></span>
+				<span ng-switch-when="version_update">edited version <b>{{act.label}}</b></span>
+				<span ng-switch-when="task_create">created task <b>{{act.label}}</b></span>
+				<span ng-switch-when="task_update">edited task <b>{{act.label}}</b></span>
+				<span ng-switch-when="comment_create">
+					<span ng-switch="act.commentType">
+						<span ng-switch-when="commentSource">commented on source</span>
+						<span ng-switch-when="commentModel">commented on model</span>
+						<span ng-switch-when="commentTask">commented on task</span>
+						<span ng-switch-when="commentAnswer">answered a comment on</span>
+					</span>
+					<b>{{act.label}}</b>
+				</span>
+			</span>
+		</span>
+	</button>
+</div>

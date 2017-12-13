@@ -31,6 +31,7 @@ sources-list {
       sources-list > .sources-body .source-item > .thumbnail {
         position: relative;
         width: 175px;
+        margin-bottom: 0;
         overflow: hidden; }
         sources-list > .sources-body .source-item > .thumbnail.selected {
           background-color: #fc4e2a; }

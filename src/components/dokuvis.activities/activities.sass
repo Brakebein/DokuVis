@@ -1,0 +1,67 @@
+@import "../../../node_modules/bootswatch/simplex/variables"
+@import "../../style/variables"
+
+activity-list
+	.activity-item
+		&.ng-enter
+			transition: opacity ease 0.5s
+			opacity: 0
+		&.ng-enter-stagger
+			transition-delay: 0.05s
+			transition-duration: 0s
+		&.ng-enter-active
+			opacity: 1
+
+		& > .activity-metadata
+			margin-left: 10px
+			font-size: 10px
+			display: flex
+			justify-content: space-between
+
+		& > .activity-body
+			display: block
+			margin: 0 20px
+
+		& > .activity-identifier
+			position: absolute
+			left: 0
+			top: 0
+			bottom: 0
+			width: 10px
+			background-color: $commentDefaultColor
+
+			&.source_upload
+				background-color: darken($commentSourceColor, 15%)
+			&.source_update
+				background-color: lighten($commentSourceColor, 15%)
+			&.model_upload
+				background-color: darken($commentModelColor, 15%)
+			&.version_update
+				background-color: lighten($commentModelColor, 15%)
+			&.task_create
+				background-color: darken($commentTaskColor, 15%)
+			&.task_update
+				background-color: lighten($commentTaskColor, 15%)
+			&.commentSource
+				background-color: $commentSourceColor
+			&.commentModel
+				background-color: $commentModelColor
+			&.commentTask
+				background-color: $commentTaskColor
+
+	nav
+		&.center-block
+			display: table
+		& > ul.pagination
+			margin: 0 0 9px
+			& > li
+				& > a:focus
+					color: $pagination-color
+					background-color: $pagination-bg
+					border-color: $pagination-border
+				& > a:hover
+					color: $pagination-hover-color
+					background-color: $pagination-hover-bg
+					border-color: $pagination-hover-border
+				&.disabled > a
+					pointer-events: none

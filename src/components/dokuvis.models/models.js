@@ -505,6 +505,7 @@ angular.module('dokuvis.models', [
  * @module dokuvis.models
  * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
  * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state
+ * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$stateParams $stateParams
  * @requires ModelVersion
  * @requires Utilities
  * @requires https://github.com/urish/angular-moment moment
@@ -512,8 +513,8 @@ angular.module('dokuvis.models', [
  * @restrict E
  * @scope
  */
-.directive('versionGraph', ['$rootScope', '$state', 'ModelVersion', 'Utilities', 'moment', '$log',
-	function ($rootScope, $state, ModelVersion, Utilities, moment, $log) {
+.directive('versionGraph', ['$rootScope', '$state', '$stateParams', 'ModelVersion', 'Utilities', 'moment', '$log',
+	function ($rootScope, $state, $stateParams, ModelVersion, Utilities, moment, $log) {
 
 		return {
 			templateUrl: 'components/dokuvis.models/versionGraph.tpl.html',
@@ -522,15 +523,17 @@ angular.module('dokuvis.models', [
 			link: function (scope) {
 
 				var versions = null,
-					activeVersion = null;
+					activeVersion = $stateParams.initialVersion ? {id: $stateParams.initialVersion} : null;
 
 				function queryVersions() {
 					ModelVersion.query().$promise
 						.then(function (results) {
 							$log.debug('versions:', results);
+
 							// add root
 							results.unshift({ id: 'root', predecessor: null, summary: 'root', created: { date: 0 } });
 							versions = results;
+
 							if (activeVersion)
 								scope.select(versions.find(function (v) {
 									return v.id === activeVersion.id;
@@ -741,13 +744,13 @@ angular.module('dokuvis.models', [
 				});
 
 				// query 3D objects of active version
-				scope.load = function () {
+				scope.load = function (keepScene) {
 					if (!scope.version && scope.version.id === 'root') return;
 
 					DigitalObject.query({ versionId: scope.version.id }).$promise
 						.then(function (results) {
 							$log.debug(results);
-							modelQuerySuccess(results);
+							modelQuerySuccess(results, keepScene);
 						})
 						.catch(function (reason) {
 							Utilities.throwApiException('#DigitalObject.query', reason);
@@ -760,9 +763,10 @@ angular.module('dokuvis.models', [
 				 * @name versionDetail#modelQuerySuccess
 				 * @eventType broadcast on $rootScope
 				 * @param entries {DigitalObject[]} Entries returned from the database as array (in hierachical order).
+				 * @param keepScene {boolean=} If true, objects will be loaded without clearing the scene in advance.
 				 */
-				function modelQuerySuccess(entries) {
-					$rootScope.$broadcast('modelQuerySuccess', entries);
+				function modelQuerySuccess(entries, keepScene) {
+					$rootScope.$broadcast('modelQuerySuccess', entries, keepScene === true);
 				}
 
 			}

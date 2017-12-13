@@ -1,0 +1,57 @@
+activity-list .activity-item.ng-enter {
+  transition: opacity ease 0.5s;
+  opacity: 0; }
+activity-list .activity-item.ng-enter-stagger {
+  transition-delay: 0.05s;
+  transition-duration: 0s; }
+activity-list .activity-item.ng-enter-active {
+  opacity: 1; }
+activity-list .activity-item > .activity-metadata {
+  margin-left: 10px;
+  font-size: 10px;
+  display: flex;
+  justify-content: space-between; }
+activity-list .activity-item > .activity-body {
+  display: block;
+  margin: 0 20px; }
+activity-list .activity-item > .activity-identifier {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  background-color: #aaa; }
+  activity-list .activity-item > .activity-identifier.source_upload {
+    background-color: #81c432; }
+  activity-list .activity-item > .activity-identifier.source_update {
+    background-color: #cae9a7; }
+  activity-list .activity-item > .activity-identifier.model_upload {
+    background-color: #3e8abb; }
+  activity-list .activity-item > .activity-identifier.version_update {
+    background-color: #adcfe4; }
+  activity-list .activity-item > .activity-identifier.task_create {
+    background-color: #f1a814; }
+  activity-list .activity-item > .activity-identifier.task_update {
+    background-color: #f9dea4; }
+  activity-list .activity-item > .activity-identifier.commentSource {
+    background-color: #a6d96a; }
+  activity-list .activity-item > .activity-identifier.commentModel {
+    background-color: #74add1; }
+  activity-list .activity-item > .activity-identifier.commentTask {
+    background-color: #f5c35c; }
+activity-list nav.center-block {
+  display: table; }
+activity-list nav > ul.pagination {
+  margin: 0 0 9px; }
+  activity-list nav > ul.pagination > li > a:focus {
+    color: #444;
+    background-color: #fff;
+    border-color: #ddd; }
+  activity-list nav > ul.pagination > li > a:hover {
+    color: #fff;
+    background-color: #D9230F;
+    border-color: #D9230F; }
+  activity-list nav > ul.pagination > li.disabled > a {
+    pointer-events: none; }
+
+/*# sourceMappingURL=activities.css.map */

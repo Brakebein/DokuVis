@@ -28,10 +28,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 		
 		$scope.wi = webglInterface;
 		
-		$scope.views = {};
-		$scope.views.activeMain = '3dview';
-		$scope.views.activeSide = 'versions';
-		//$scope.views.activeSide = 'comments';
+		$scope.views = {
+			activeMain: '3dview',
+			activeSide: 'versions'
+		};
 
 		
 		// Einstellungen für Quellenanzeige
@@ -131,6 +131,11 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 		$scope.activeCategory = null;
 		$scope.activeVersion = null;
 		$scope.selectedObjects = [];
+
+		if ($stateParams.initialComment) {
+			$scope.views.activeSide = 'comments';
+			$scope.activeCommentId = $stateParams.initialComment;
+		}
 
 		// listen to modelVersionActive event
 		$scope.$on('modelVersionActive', function (event, version) {

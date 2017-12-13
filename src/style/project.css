@@ -23,7 +23,7 @@
   .sideNav .smBtn {
     flex: 0 0 35px;
     height: 35px;
-    padding: 5px 4px;
+    padding: 5px 4px 0;
     transition: border 0.3s, color 0.3s, background-color 0.3s; }
     .sideNav .smBtn:hover, .sideNav .smBtn.active {
       cursor: pointer;

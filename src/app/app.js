@@ -4,7 +4,7 @@
 /**
  * Dokuvis base module.
  *
- * @version 0.1.2
+ * @version 0.1.3
  * @ngdoc module
  * @name dokuvisApp
  * @module dokuvisApp
@@ -64,7 +64,8 @@ var dokuvisApp = angular.module('dokuvisApp', [
 	'dokuvis.categories',
 	'dokuvis.tasks',
 	'dokuvis.staff',
-	'dokuvis.imageViewer'
+	'dokuvis.imageViewer',
+	'dokuvis.activities'
 ]);
 
 /**
@@ -90,6 +91,7 @@ dokuvisApp.constant('ApiStaff',			'api/auth/project/:project/staff');
 dokuvisApp.constant('ApiRoles',			'api/roles');
 dokuvisApp.constant('ApiModelVersion',	'api/auth/project/:project/:subproject/model/version');
 dokuvisApp.constant('ApiSoftware',		'api/auth/project/:project/software');
+dokuvisApp.constant('ApiActivity',		'api/auth/project/:project/:subproject/activity');
 
 dokuvisApp.factory('ApiParams', ['$stateParams', function ($stateParams) {
 	return {
@@ -345,7 +347,11 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					$translatePartialLoader.addPart('model');
 					$translatePartialLoader.addPart('viewport');
 					$translatePartialLoader.addPart('category');
-				}]
+				}],
+				params: {
+					initialVersion: null,
+					initialComment: null
+				}
 			})
 			// modal showing source, metadata and comments
 			.state('project.explorer.source', {

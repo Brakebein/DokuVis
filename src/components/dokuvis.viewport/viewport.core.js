@@ -2352,8 +2352,8 @@ angular.module('dokuvis.viewport',[
 			///// LOADING
 
 			// listen to modelQuerySuccess event, start loading objects
-			scope.$on('modelQuerySuccess', function (event, entries) {
-				resetScene();
+			scope.$on('modelQuerySuccess', function (event, entries, keepScene) {
+				if (!keepScene) resetScene();
 				ctmloader.manager.reset();
 
 				loadHierarchyObjects(entries)
