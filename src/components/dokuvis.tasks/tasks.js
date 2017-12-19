@@ -694,6 +694,8 @@ angular.module('dokuvis.tasks', [
 
 				// update active and status css classes
 				function updateRowClasses(row) {
+					if (!row) return;
+
 					var activeRowClassIndex = row.classes.indexOf('active');
 					if (row.active && activeRowClassIndex === -1)
 						row.classes.push('active');
@@ -777,12 +779,20 @@ angular.module('dokuvis.tasks', [
 				// listen to tasksUpdate event and update gantt
 				scope.$on('tasksUpdate', function (event, task) {
 					$log.debug('event tasksUpdate');
+					updatedTask = task;
 					updateGantt(true);
 				});
 
 				// listen to taskStatusUpdate event
 				scope.$on('taskStatusUpdate', function (event, task, row) {
-					updateRowClasses(row);
+					var dRow = scope.data.find(function (r) {
+						return r.id === row.id;
+					});
+					console.log(dRow, row);
+					if (dRow) {
+						dRow.data.status = row.data.status;
+						updateRowClasses(dRow);
+					}
 				});
 
 				// init
@@ -974,6 +984,8 @@ angular.module('dokuvis.tasks', [
 					return value.email || value.id;
 				});
 
+				$scope.isSaving = true;
+
 				task.$update()
 					.then(function (result) {
 						$log.debug(result);
@@ -982,6 +994,7 @@ angular.module('dokuvis.tasks', [
 					})
 					.catch(function (err) {
 						Utilities.throwApiException('#Task.update', err);
+						$scope.isSaving = false;
 					});
 			}
 			else {
@@ -989,6 +1002,8 @@ angular.module('dokuvis.tasks', [
 					Utilities.throwException('Controller Exception', '"parent" is not set!');
 					return;
 				}
+
+				$scope.isSaving = true;
 
 				// create new task
 				Task.save({
@@ -1009,6 +1024,7 @@ angular.module('dokuvis.tasks', [
 					})
 					.catch(function (reason) {
 						Utilities.throwApiException('#Task.save', reason);
+						$scope.isSaving = false;
 					});
 			}
 		};

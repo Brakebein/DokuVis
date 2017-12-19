@@ -81,7 +81,7 @@
 			<div ng-show="task.modified && task.modified.id">{{'modified_by' | translate}} {{task.modified.name}} - {{task.modified.date | amCalendar}}</div>
 		</div>
 		<div>
-			<button type="button" class="btn btn-primary" ng-click="save()">{{'save' | translate}}</button>
+			<button type="button" class="btn btn-primary" ng-click="save()" data-ng-disabled="isSaving">{{'save' | translate}}</button>
 			<button type="button" class="btn btn-default" ng-click="close()">{{'abort' | translate}}</button>
 			<button type="button" class="btn btn-danger" ng-hide="newTask" ng-click="delete()">{{'delete' | translate}}</button>
 		</div>

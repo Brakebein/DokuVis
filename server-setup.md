@@ -1,9 +1,15 @@
 # Virtual Server setup (Windows)
 
-Step to step instruction to setup a web server on a virtual machine (VM)/virtual server. It specifically handles the installation of tools used by the __DokuVis__ application.
+Step by step instruction to setup a web server on a virtual machine (VM)/virtual server. It specifically handles the installation of tools used by the __DokuVis__ application.
 
 This instruction is specified to Windows machines.
 
+#### Directories
+
+Two folders should be created: one for all the projects data and one for temporal files. They can be anywhere on the server. As examples in this instruction, they are named
+
+    C:/DATA/DokuVis-Data
+    C:/DATA/DokuVis-Tmp  
 
 ## Apache 2.4
 
@@ -44,30 +50,60 @@ Open `conf/extra/httpd-vhosts.conf`, remove examples, and add:
 <VirtualHost *:80>
 
     ServerAdmin jonas.bruschke@tu-dresden.de
-    DocumentRoot "C:/www/DokuVis/app"
+    DocumentRoot "C:/www/DokuVis/dist"
     ServerName dokuvis.org
 
-    <Directory "C:/www/DokuVis/app">
+    <Directory "C:/www/DokuVis/dist">
         DirectoryIndex index.html
         Require all granted
     </Directory>
 
-    Alias "/data/" "C:/DATA/dokuvis/"
+    Alias "/data/" "C:/DATA/DokuVis-Data/"
 
-    <Directory "C:/DATA/dokuvis/">
+    <Directory "C:/DATA/DokuVis-Data/">
         Require all granted
     </Directory>
 
-    ProxyPass /api/ http://localhost:3000/
+    ProxyPass /api/ http://localhost:3000/ timeout=600 keepalive=on
     ProxyPassReverse /api/ http://localhost:3000/
 
 </VirtualHost>
 ```
 
+Important is the `Alias` directive to point to the data folder, which is located somewhere else on the server, and the `ProxyPass` directive to pass forward the API request to the Node.js application. Timeout is set to 600 seconds or more, as processing of some files may take a while.
+
 Directory paths should be appropriately set.
 
 #### Windows Firewall
 To get access to the webserver from outside, you need to configure Windows Firewall. Add a new Inbound Rule to enable access for Port `80`. Additionally, repeat it for Port `443` for SSL connections, later on.
+
+## Internet Information Services (IIS)
+
+When running windows server, you might want to use IIS for serving websites.
+
+Basic setup will not be described at this point. The server should serve the content within the `dist` folder.
+
+But few additional actions are necessary within the IIS Manager:
+
+#### Virtual Directory
+Right-click on the site and `Add Virtual Directory...`. Alias should be `data` and the path should point to the data directory.
+
+#### Reverse Proxy
+If not already installed, install __Application Request Routing__ (ARR). This can be done via the _Web Platform Installer_. (If using IIS with Plesk, there might be some issues with permissions for user `psacln` executing ARR).
+
+In IIS Manager, go to the server instance and open `Application Request Routing Cache` and open `Server Proxy Settings`. As processing of some files may take a while, set `Time-out` to __600__ or even __900__ seconds. Apply!
+
+On website, there should be `URL Rewrite` now available. Open it and do following steps:
+1. Click on `Add Rule(s)...`
+2. Select `Reverse Proxy`
+3. For server or IP address, enter `localhost:3000`. OK.
+4. Edit this rule and set the _Pattern_: `^api/(.*)`
+5. _Rewrite URL_ should be: `http://localhost:3000/{R:1}`
+
+#### Read permissions
+As the data folder is outside the actual website directory and is only connected by a virtual directory path, we need to set read permission for the user serving the website (using Plesk it would be user `psacln`).
+
+Right-click on folder `C:/DATA/DokuVis-Data`. In `Properies` > `Security` tab, add `Read` permission for user `psacln`. Repeat this for fileder `C:/DATA/DokuVis-Tmp`.
 
 
 ## MySQL
@@ -131,7 +167,7 @@ An alternative would be **phpMyAdmin**, but that would require PHP.
 
 DokuVis requires four tables to run. First, create a new database named `db_dokuvis`.
 
-To create the tables, execute following queries:
+To create the tables and triggers, execute following queries:
 
 ```sql
 CREATE TABLE IF NOT EXISTS `projects` (
@@ -193,6 +229,8 @@ Before you install Neo4j, you need to install the **Java Runtime Environment 8 x
 
 Download zip package (x64) from [Neo4j Download page](https://neo4j.com/download/other-releases/).
 
+Unpack the package. Set environment variable `NEO4J_HOME` to the unpacked folder. 
+
 Install as service:
 
     > bin\neo4j.bat install-service
@@ -212,7 +250,7 @@ In the config file `conf/neo4j.conf`, you can specify the name of the database (
 
 Install [git for windows](https://git-for-windows.github.io/).
 
-Set proxy for git:
+Set proxy for git (only if necessary):
 
     > git config --add http.proxy http://[Your Proxy]:[Proxy Port]
     > git config --add https.proxy http://[Your Proxy]:[Proxy Port]
@@ -223,7 +261,7 @@ Set proxy for git:
 Download and install Node.js using the Windows Installer: https://nodejs.org/en/download/
 
 #### Configure npm
-Set proxy for the node package manager (npm):
+Set proxy for the node package manager (npm) (only if necessary):
 
     > npm config set https-proxy http://[Your Proxy]:[Proxy Port]
     > npm config set proxy http://[Your Proxy]:[Proxy Port]
@@ -238,7 +276,7 @@ Most frontend javascript frameworks/libraries are managed via [bower.io](https:/
 
     > npm install -g bower
 
-To set proxy settings for bower, go to `%userprofile%` and create a file named `.bowerrc` containing this json:
+To set proxy settings for bower, go to `%userprofile%` and create a file named `.bowerrc` containing this json (only if necessary):
 
     {
         "proxy":"http://[Your Proxy]:[Proxy Port]",
@@ -250,6 +288,12 @@ For production environment, a process manager is important to handle Node.js pro
 
     > npm install -g pm2
 
+On windows, if the server restarts, __pm2__ won't restart the script by its own. The solution is to install a windows service.
+
+    > npm install -g pm2-windows-service
+    > pm2 service-install -n pm2-starter
+    
+If not already set, create environment variable `PM2_HOME` and set it to the `.pm2` folder (usually located within the users home folder).
 
 ## Server-side tools
 
@@ -276,22 +320,17 @@ More to come, later on:
 
 ## DokuVis setup
 
-Using command prompt, go to the folder for the webpages (e.g. `C:/www`) and clone git repository:
+Using command prompt, go to the folder for the webpages (e.g. `C:/www`) and clone the main git repository:
 
     > cd C:\www
     > git clone https://github.com/Brakebein/DokuVis.git
 
-Go to `DokuVis/app` folder and install bower compononents:
+Somewhere else on the server, clone git repository for the Node.js application and install npm packages:
 
-    > cd DokuVis\app
-    > bower install
-
-Go to `DokuVis/rest-api` folder and install npm packages:
-
-    > cd ..\rest-api
+    > git clone https://github.com/Brakebein/DokuVis-Server.git
     > npm install
 
-Copy `rest-api/config-sample.js` to `rest-api/config.js`, open it, and set the login information for databases, directory paths, and execution paths.
+Copy `config-sample.js` to `config.js`, open it, and set the login information for databases, directory paths, and execution paths.
 
 Start node process:
 
@@ -301,28 +340,64 @@ Or alternatively, use the process manager.
 
     > pm2 start server.js
     > pm2 list
+    
+Run `> pm2 save` to save the list for the `pm2-starter` service. Run `> pm2 log` to see the logs.
 
 Now, the web application should be running.
 
 
 ## DokuVis update
 
-Update repository (in `DokuVis` root folder):
+Update repository (in `DokuVis` and `DokuVis-Server` root folder):
 
     > git fetch --all
     > git reset --hard origin/master
 
-Update npm and bower packages:
+Update npm packages in `DokuVis-Server` folder:
 
-    > cd app
-    > bower install
-    > cd ..\rest-api
     > npm install
 
 Restart node instance by hitting `Ctrl+C` and `node server.js` or, if using the process manager:
 
     > pm2 restart all
 
+
+## Developing DokuVis
+
+The source code client application is located in `src` folder.
+
+#### bower.io
+Many frontend javascript frameworks/libraries are managed via [bower.io](https://bower.io/).
+
+    > npm install -g bower
+
+To set proxy settings for bower, go to `%userprofile%` and create a file named `.bowerrc` containing this json (only if necessary):
+
+    {
+        "proxy":"http://[Your Proxy]:[Proxy Port]",
+        "https-proxy":"http://[Your Proxy]:[Proxy Port]"
+    }
+
+Install bower packages:
+
+    > cd src
+    > bower install
+    
+#### Build project
+
+Within the root folder, install the dev packages.
+
+    > npm install --save-dev
+    
+Building the project means:
+1. clean `dist` folder
+2. copy, concat, minify, uglify, and rev files
+3. replace file urls
+
+Simply run grunt task:
+
+    > grunt build
+ 
 
 ## Transfer of project data between server instances
 
