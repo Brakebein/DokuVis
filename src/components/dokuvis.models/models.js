@@ -610,7 +610,7 @@ angular.module('dokuvis.models', [
 
 							for (var i = 1; i < node.parent.children.length; i++) {
 								if (node.parent.children[i] === node) {
-									colIndex = parentCol + ++newColOffset;
+									colIndex = ++newColOffset;
 									if (!cols[colIndex]) cols[colIndex] = {};
 									cols[colIndex].start = parentRow;
 								}

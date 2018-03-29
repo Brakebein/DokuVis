@@ -271,18 +271,6 @@ Some node packages depend on native node modules (e.g. `node-gyp`) that need to 
 
     > npm install --global windows-build-tools
 
-#### bower.io
-Most frontend javascript frameworks/libraries are managed via [bower.io](https://bower.io/).
-
-    > npm install -g bower
-
-To set proxy settings for bower, go to `%userprofile%` and create a file named `.bowerrc` containing this json (only if necessary):
-
-    {
-        "proxy":"http://[Your Proxy]:[Proxy Port]",
-        "https-proxy":"http://[Your Proxy]:[Proxy Port]"
-    }
-
 #### PM2 -- Process Manager
 For production environment, a process manager is important to handle Node.js process including restarting them, if they went down. See: http://pm2.keymetrics.io/
 
