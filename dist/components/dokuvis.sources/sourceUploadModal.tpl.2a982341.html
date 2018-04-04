@@ -1,0 +1,255 @@
+<div class="modal-content">
+
+	<div class="modal-header">
+		<button type="button" class="close" aria-label="Close" ng-click="close()">
+			<span>&times;</span>
+		</button>
+		<h4 class="modal-title" ng-bind="'source_upload_title' | translate"></h4>
+	</div>
+
+	<div class="modal-body source-upload-form">
+
+		<div class="upload-header">
+			<div class="upload-file">
+				<file-drop-area uploader="uploader" label-after="source_upload_filedrop" plus-size="large"></file-drop-area>
+				<div translate>source_upload_hint</div>
+			</div>
+
+			<div ng-show="uploader.queue.length" class="queue-header">
+				<table class="table">
+					<thead>
+					<tr>
+						<th width="300">{{'name' | translate}}</th>
+						<th>{{'source_metadata' | translate}}</th>
+						<th width="100" ng-show="uploader.isHTML5"></th>
+						<th width="60">{{'status' | translate}}</th>
+						<th width="30"></th>
+					</tr>
+					</thead>
+				</table>
+			</div>
+		</div>
+
+		<div class="upload-body">
+
+			<div ng-show="uploader.queue.length" class="queue-body">
+				<table class="table">
+					<tbody>
+					<tr ng-repeat="item in uploader.queue">
+						<td width="300" class="file-metadata">
+							<div>
+								<strong>{{ item.file.name }}</strong>
+								&emsp; <small>{{ item.file.size/1024/1024|number:2 }}&nbsp;MB</small>
+							</div>
+							<div ng-show="uploader.isHTML5 && item.file.type != 'application/pdf'" ng-thumb="{ file: item._file, width: 270 }"></div>
+							<img ng-show="item.file.type == 'application/pdf'" src="img/pdf-icon.9980dbae.png"/>
+						</td>
+
+						<td>
+							<form class="form-horizontal">
+
+								<div class="form-group">
+									<label for="docType" class="control-label col-sm-3">{{'source_type' | translate}}</label>
+									<div class="col-sm-3" ng-show="item.sourceType !== 'text'" bs-tooltip="'source_tt_type' | translate">
+										<select id="docType" class="form-control input-sm" ng-model="item.sourceType">
+											<option value="plan" translate>source_type_plan</option>
+											<option value="picture" translate>source_type_picture</option>
+										</select>
+									</div>
+									<b class="col-sm-3" style="padding-top: 5px" ng-show="item.sourceType === 'text'" bs-tooltip="'source_tt_type' | translate">
+										{{'source_type_text' | translate}}
+									</b>
+
+									<label ng-show="item.sourceType === 'text'" for="docLang" class="control-label col-sm-2">{{'source_language' | translate}}</label>
+									<div ng-show="item.sourceType === 'text'" class="col-sm-3">
+										<select id="docLang" class="form-control input-sm" ng-model="item.language" ng-options="('lang_'+lang | translate) for lang in ['de','en','fr','it','la','el']">
+										</select>
+									</div>
+								</div>
+
+								<div class="form-group" ng-class="{'has-error': item.errorInput}">
+									<label for="docTitle" class="control-label col-sm-3">{{'source_title' | translate}}</label>
+									<div class="col-sm-8">
+										<input id="docTitle"
+											   class="form-control"
+											   placeholder="{{'eg'|translate}} Aufriss Ostfassade"
+											   ng-model="item.title"
+											   ng-focus="setTypeahead('E35', 'E31', 'value')"
+											   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"
+											   bs-tooltip="'source_tt_title' | translate"/>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label for="docAuthor" class="control-label col-sm-3">{{'source_author' | translate}}</label>
+									<div class="col-sm-8">
+										<input id="docAuthor"
+											   class="form-control"
+											   placeholder="{{'eg'|translate}} Conrad Schick"
+											   ng-model="item.author"
+											   ng-focus="setTypeahead('E82', 'E21', 'value')"
+											   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"
+											   bs-tooltip="'source_tt_author' | translate"/>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label for="docCreationDate" class="control-label col-sm-3">{{'source_date' | translate}}</label>
+									<div class="col-sm-8">
+										<input id="docCreationDate"
+											   class="form-control"
+											   placeholder="{{'eg' | translate}} 1889"
+											   ng-model="item.creationDate"
+											   bs-tooltip="'source_tt_date' | translate"/>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label for="docRepros" class="control-label col-sm-3">{{'source_repros' | translate}}</label>
+									<div class="col-sm-8">
+										<input id="docRepros"
+											   class="form-control"
+											   placeholder="{{'eg' | translate}} Franz 1953, Abb. 1"
+											   ng-model="item.repros"/>
+									</div>
+								</div>
+
+								<div class="form-group form-group-large">
+									<label for="docNote" class="control-label col-sm-3">{{'source_misc' | translate}}</label>
+									<div class="col-sm-8">
+										<textarea id="docNote"
+												  class="form-control"
+												  ng-model="item.note"
+												  bs-tooltip="'source_tt_misc' | translate"></textarea>
+									</div>
+								</div>
+
+								<div class="form-extend-btn" ng-click="item.formExtend = !item.formExtend">
+									<span><span class="glyphicon" ng-class="item.formExtend?'glyphicon-chevron-down':'glyphicon-chevron-right'"></span>
+									<span>{{'source_extend' | translate}}</span></span>
+									<span></span>
+								</div>
+
+								<div class="form-extend ng-hide" ng-show="item.formExtend">
+
+									<div class="form-group">
+										<label for="docCreationPlace" class="control-label col-sm-3">{{'source_place' | translate}}</label>
+										<div class="col-sm-8" bs-tooltip="'source_tt_place' | translate">
+											<input id="docCreationPlace"
+												   class="form-control"
+												   placeholder="{{'eg'|translate}} Jerusalem"
+												   ng-model="item.creationPlace"
+												   ng-focus="setTypeahead('E48', 'E53', 'value')"
+												   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"/>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<label for="docCollect" class="control-label col-sm-3">{{'source_archive' | translate}}</label>
+										<div class="col-sm-6" bs-tooltip="'source_tt_archive' | translate">
+											<select id="docCollect"
+													class="form-control input-sm"
+													ng-model="item.archive">
+												<option value="">{{'not_specified' | translate}}</option>
+												<option ng-repeat="a in archives" value="{{a.collection.id}}">{{a.institution.abbr || a.institution.name}} {{a.collection.name}}</option>
+											</select>
+										</div>
+										<div class="col-sm-2 text-right">
+											<button class="btn btn-default btn-sm" ui-sref=".archive"><i class="fa fa-plus"></i> {{'add' | translate}}</button>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<label for="docArchiveNr" class="control-label col-sm-3">{{'source_archivenr' | translate}}</label>
+										<div class="col-sm-8" bs-tooltip="'source_tt_archivenr' | translate">
+											<input id="docArchiveNr"
+												   class="form-control"
+												   placeholder="{{'eg'|translate}} P.E.F. Schick|202|3"
+												   ng-model="item.archiveNr" ng-focus="setTypeahead('E42', 'E84', 'value')"
+												   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"/>
+										</div>
+									</div>
+
+									<div class="form-group" ng-show="item.sourceType == 'text_2'">
+										<label for="docOCR" class="control-label col-sm-3">{{'source_ocr' | translate}}</label>
+										<div class="col-sm-1">
+											<input id="docOCR"
+												   type="checkbox"
+												   ng-model="item.ocr"
+												   bs-tooltip="'source_tt_archivenr' | translate"/>
+										</div>
+										<label for="docResample" class="control-label col-sm-2">{{'source_resample' | translate}}</label>
+										<div class="col-sm-1">
+											<input id="docResample"
+												   type="checkbox"
+												   ng-model="item.resample"
+												   bs-tooltip="'source_tt_resample' | translate"/>
+										</div>
+									</div>
+
+									<div class="form-group" ng-show="item.sourceType == 'plan' || item.sourceType == 'picture'">
+										<div class="col-sm-offset-3 col-sm-8" bs-tooltip="'source_tt_primary' | translate">
+											<div class="checkbox">
+												<label>
+													<input type="checkbox" ng-model="item.primary"/>
+													{{'source_primary' | translate}}
+												</label>
+											</div>
+										</div>
+									</div>
+
+								</div>
+
+								<div class="form-group large">
+									<label class="control-label col-sm-3">{{'source_tags' | translate}}</label>
+									<div class="col-sm-8">
+										<tags-input ng-model="item.tags" placeholder="{{'source_tag' | translate}}" on-tag-added="onTagAdded($tag)">
+											<auto-complete source="getTags($query)" debounce-delay="200" select-first-match="true"></auto-complete>
+										</tags-input>
+									</div>
+								</div>
+
+							</form>
+						</td>
+
+						<td width="100" ng-show="uploader.isHTML5">
+							<div class="progress">
+								<div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+							</div>
+						</td>
+
+						<td width="60" class="text-center">
+							<img ng-show="item.isProcessing" src="img/db_write.8f5290a8.gif"/>
+							<span ng-show="item.isSuccess && !item.isProcessing"><i class="glyphicon glyphicon-ok"></i></span>
+							<span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
+							<span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+						</td>
+
+						<td width="30">
+							<a class="icon-btn" ng-click="item.remove()" title="{{'remove' | translate}}">
+								<i class="glyphicon glyphicon-trash"></i>
+							</a>
+						</td>
+					</tr>
+
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+
+	</div>
+
+	<div class="modal-footer">
+		<div class="modal-metadata">
+			<span ng-show="item.user.name">{{'uploaded_by' | translate}} {{item.user.name}} - {{item.user.date | amCalendar}}</span>
+		</div>
+
+		<button type="button" class="btn btn-primary" ng-click="checkAndUploadAll()" ng-disabled="!uploader.getNotUploadedItems().length">
+			<span class="glyphicon glyphicon-upload"></span> {{'upload' | translate}}
+		</button>
+
+		<button type="button" class="btn btn-default" ng-click="close()">{{'abort' | translate}}</button>
+	</div>
+
+</div>

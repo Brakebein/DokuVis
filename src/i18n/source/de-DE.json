@@ -1,7 +1,11 @@
 {
   "source_upload_title": "Quelle einfügen",
+  "source_edit_title": "Quelle bearbeiten",
   "source_upload_filedrop": "Dateien hier ablegen",
   "source_type": "Typ",
+  "source_type_picture": "Bild/Fotografie",
+  "source_type_plan": "Plan",
+  "source_type_text": "Text",
   "source_title": "Titel",
   "source_author": "Autor",
   "source_date": "Datierung",
@@ -29,5 +33,6 @@
   "source_tt_archivenr": "Archiv- oder Regalnummer",
   "source_tt_primary": "Primär- oder Sekundärquelle?",
   "source_tt_ocr": "Handelt es sich um einen eingescannten Text, empfiehlt sich eine automatische Texterkennung (OCR).",
-  "source_tt_resample": "Sollte das Dokument eine schlechte Auflösung besitzen, kann eine Hochskalierung das OCR-Ergebnis verbessern."
+  "source_tt_resample": "Sollte das Dokument eine schlechte Auflösung besitzen, kann eine Hochskalierung das OCR-Ergebnis verbessern.",
+  "source_upload_hint": "Für Quellen mit visuellen Inhalten (Bild/Plan) werden Bilddateien im <b>JPG/PNG/TIFF/BMP/GIF</b>-Format unterstützt.<br/> Textquellen müssen im als <b>PDF</b>-Dateien bereitgestellt werden."
 }

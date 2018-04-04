@@ -48,12 +48,9 @@ sources-list {
             font-weight: bold; }
         sources-list > .sources-body .source-item > .thumbnail > .primaryIndicator {
           position: absolute;
-          width: 24px;
-          height: 24px;
-          left: -12px;
-          bottom: -12px;
-          transform: rotate(45deg);
-          background-color: #5cb85c; }
+          bottom: 0;
+          color: #5cb85c;
+          font-size: 16px; }
         sources-list > .sources-body .source-item > .thumbnail > .commentIndicator {
           position: absolute;
           bottom: 1px;
@@ -125,6 +122,14 @@ sources-list {
     padding-top: 20px;
     padding-right: 17px;
     text-align: center; }
+  .source-upload-form .upload-file {
+    display: flex;
+    align-items: center; }
+    .source-upload-form .upload-file > file-drop-area {
+      flex: 0 0 300px;
+      height: 80px; }
+    .source-upload-form .upload-file > div {
+      padding: 10px 20px; }
   .source-upload-form .dropArea {
     height: 80px;
     width: 300px;
@@ -217,6 +222,10 @@ sources-list {
       max-width: 100%;
       max-height: 100%;
       border: 1px solid #333; }
+    .source-detail-modal .preview-container > iframe {
+      width: 100%;
+      height: 100%;
+      border: 1px solid #333; }
   .source-detail-modal .info-container {
     flex: 0 0 40%;
     padding-left: 20px;
@@ -235,19 +244,10 @@ sources-list {
     background: radial-gradient(circle, #c4c4c4, #727272); }
   .source-detail-modal .primaryIdenticator {
     position: absolute;
-    width: 24px;
-    height: 24px;
     top: 0;
     right: 0;
-    overflow: hidden; }
-    .source-detail-modal .primaryIdenticator > div {
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      top: -12px;
-      right: -12px;
-      transform: rotate(45deg);
-      background-color: #addd8e; }
+    color: #5cb85c;
+    font-size: 22px; }
   .source-detail-modal .displayText {
     width: 100%;
     height: 100%; }
@@ -286,17 +286,14 @@ sources-list {
   .source-edit-modal .image-section img {
     max-width: 100%;
     max-height: 100%; }
-  .source-edit-modal .image-section .dropArea {
-    height: 100%;
-    font-size: 16px;
-    flex-direction: column; }
-    .source-edit-modal .image-section .dropArea > .plus {
-      flex: 0 0 60px; }
-      .source-edit-modal .image-section .dropArea > .plus svg {
-        width: 40px; }
+  .source-edit-modal .image-section file-drop-area {
+    height: 100%; }
   .source-edit-modal .image-section .progressArea {
     display: flex;
     flex-direction: column;
     justify-content: center; }
+.source-edit-modal .fixedProperty {
+  padding-top: 9px;
+  font-weight: bold; }
 
 /*# sourceMappingURL=sources.css.map */

@@ -51,6 +51,7 @@ module.exports = function (grunt) {
 					{expand: true, cwd: 'src/', src: 'favicon.ico', dest: 'dist/'},
 					{expand: true, cwd: 'src/', src: 'i18n/**/*', dest: 'dist/'},
 					{expand: true, cwd: 'src/', src: 'fonts/**/*', dest: 'dist/'},
+					{expand: true, cwd: 'src/', src: 'pdf/**/*', dest: 'dist/'},
 					{expand: true, cwd: 'src/', src: 'img/**/*.{png,jpg,svg,gif}', dest: 'dist/'},
 					{expand: true, cwd: 'src/', src: 'components/**/*.html', dest: 'dist/'},
 					{expand: true, cwd: 'src/', src: 'partials/**/*.html', dest: 'dist/'}

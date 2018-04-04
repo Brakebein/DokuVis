@@ -10,7 +10,7 @@
 	<div class="modal-body model-upload-form">
 
 		<div class="file-section">
-			<file-drop-area uploader="uploader" label="filedrop_file"></file-drop-area>
+			<file-drop-area uploader="uploader" label-after="filedrop_file"></file-drop-area>
 			<div class="file-metadata" ng-show="fileitem">
 				<strong>{{ fileitem.file.name }}</strong>
 				&emsp; <small>{{ uploader.queue[0].file.size/1024/1024|number:2 }}&nbsp;MB</small>

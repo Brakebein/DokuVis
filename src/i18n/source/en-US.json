@@ -1,7 +1,11 @@
 {
-  "source_upload_title": "Upload Source",
+  "source_upload_title": "Upload source",
+  "source_edit_title": "Edit source",
   "source_upload_filedrop": "Drop files here",
   "source_type": "Type",
+  "source_type_picture": "Picture/Photograph",
+  "source_type_plan": "Plan",
+  "source_type_text": "Text",
   "source_title": "Title",
   "source_author": "Author",
   "source_date": "Creation Date",
@@ -29,5 +33,6 @@
   "source_tt_archivenr": "Number within the archive or storage rack",
   "source_tt_primary": "Primary or secondary source?",
   "source_tt_ocr": "If it is a scanned text document, a optical character recognition (OCR) is recommended.",
-  "source_tt_resample": "If the document has a bad image resolution, resampling to a higher resolution might improve the OCR result."
+  "source_tt_resample": "If the document has a bad image resolution, resampling to a higher resolution might improve the OCR result.",
+  "source_upload_hint": "For sources with visual contents (i.e. plans/pictures), <b>JPG/PNG/TIFF/BMP/GIF</b> files are supported.<br/> Text sources have to be supplied as <b>PDF</b> files."
 }

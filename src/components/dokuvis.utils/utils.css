@@ -26,8 +26,8 @@ file-drop-area, [file-drop-area] {
       border-color: #5cb85c; }
     file-drop-area > div > svg, [file-drop-area] > div > svg {
       flex: 0 0 40px;
-      width: 40px;
-      height: 40px;
       padding: 10px; }
+  file-drop-area[plus-size='large'] > div > svg, [file-drop-area][plus-size='large'] > div > svg {
+    flex: 0 0 60px; }
 
 /*# sourceMappingURL=utils.css.map */

@@ -1,6 +1,6 @@
 {
   "name": "dokuvis-gui",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Online tool for the documentation of digital reconstructions and their modelling processes",
   "main": "app/app.js",
   "scripts": {

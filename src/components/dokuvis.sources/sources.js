@@ -229,7 +229,7 @@ angular.module('dokuvis.sources', [
 
 		// FILTER
 		var imageTypes = ['jpg','png','jpeg','bmp','gif','tiff'];
-		var textTypes = []; //['pdf'];
+		var textTypes = ['pdf'];
 
 		// restrict to file types
 		uploader.filters.push({
@@ -691,8 +691,8 @@ angular.module('dokuvis.sources', [
  * @requires ConfirmDialog
  * @requires https://docs.angularjs.org/api/ng/service/$log $log
  */
-.controller('sourceDetailModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$http', 'Source', 'SourcesCache', 'Utilities', 'ConfirmDialog', '$log',
-	function ($scope, $rootScope, $state, $stateParams, $timeout, $http, Source, SourcesCache, Utilities, ConfirmDialog, $log) {
+.controller('sourceDetailModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$http', 'Source', 'SourcesCache', 'Utilities', 'ConfirmDialog', '$log', '$sce',
+	function ($scope, $rootScope, $state, $stateParams, $timeout, $http, Source, SourcesCache, Utilities, ConfirmDialog, $log, $sce) {
 
 		/**
 		 * Flag indicating if `Previous` and `Next` buttons should be displayed. Depends on the length of the filtered sources array.
@@ -709,6 +709,8 @@ angular.module('dokuvis.sources', [
 					$log.debug(data);
 					if(data.id) {
 						$scope.item = data;
+						if ($scope.item.type === 'text')
+							$scope.pdfUrl = $sce.trustAsResourceUrl('pdf/web/viewer.html?file=../../data/' + $scope.item.file.path + $scope.item.file.content);
 
 						$scope.pageNr = 0;
 					}
@@ -899,9 +901,6 @@ angular.module('dokuvis.sources', [
 					var type = item.type.slice(item.type.lastIndexOf('/') + 1);
 					return imageTypes.concat(textTypes).indexOf(type) !== -1;
 				}
-			}],
-			formData: [{
-				date: moment().format()
 			}]
 		});
 
@@ -909,6 +908,11 @@ angular.module('dokuvis.sources', [
 		uploader.onWhenAddingFileFailed = function(item, filter, options) {
 			console.warn('onWhenAddingFileFailed', item, filter, options);
 			Utilities.dangerAlert('Nicht unterstütztes Format!');
+		};
+		uploader.onBeforeUploadItem = function (item) {
+			item.formData.push({
+				date: moment().format()
+			});
 		};
 		uploader.onSuccessItem = function (item, response) {
 			$scope.item.file = response.file;

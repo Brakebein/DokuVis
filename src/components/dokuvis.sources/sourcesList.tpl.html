@@ -66,7 +66,7 @@
 					<p>{{(p.author || 'unknown') | translate}} &ensp; {{p.date}}</p>
 				</div>
 
-				<div class="primaryIndicator" ng-show="p.primary"></div>
+				<div class="primaryIndicator" ng-show="p.primary" title="{{'source_primary' | translate}}"><i class="fa fa-exclamation-circle"></i></div>
 				<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>
 
 				<div class="btn-bar" ng-hide="snapshotMode">

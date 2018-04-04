@@ -1,0 +1,83 @@
+<div class="modal-content">
+
+	<div class="modal-header">
+		<button type="button" class="close" aria-label="Close" ng-click="close()">
+			<span>&times;</span>
+		</button>
+		<h4 class="modal-title" translate>model_upload_heading</h4>
+	</div>
+
+	<div class="modal-body model-upload-form">
+
+		<div class="file-section">
+			<file-drop-area uploader="uploader" label-after="filedrop_file"></file-drop-area>
+			<div class="file-metadata" ng-show="fileitem">
+				<strong>{{ fileitem.file.name }}</strong>
+				&emsp; <small>{{ uploader.queue[0].file.size/1024/1024|number:2 }}&nbsp;MB</small>
+			</div>
+			<div ng-hide="fileitem" translate>model_upload_hint</div>
+		</div>
+
+		<div class="bs-callout bs-callout-default" translate translate-values="{parent: parent.summary || 'root'}">model_upload_parent</div>
+
+		<form>
+			<div class="form-group">
+				<label for="commitTitle" class="control-label" translate>model_form_summary</label>
+				<input id="commitTitle" class="form-control" ng-model="commit.summary"/>
+			</div>
+			<div class="form-group">
+				<label for="commitNote" class="control-label" translate>model_form_note</label>
+				<textarea id="commitNote" class="form-control" rows="5" ng-model="commit.note"></textarea>
+			</div>
+			<div class="form-group">
+				<label class="control-label" translate>model_form_software</label>
+				<tags-input ng-model="commit.software"
+							display-property="name"
+							replace-spaces-with-dashes="false"
+							placeholder="Start typing">
+					<auto-complete source="searchSoftware($query)"
+								   display-property="name"
+								   debounce-delay="200"></auto-complete>
+				</tags-input>
+			</div>
+		</form>
+
+		<div class="progress-area" ng-show="fileitem && fileitem.showProgress">
+			<div ng-show="fileitem.isUploading && !fileitem.isProcessing">
+				<h4>{{ fileitem.progress }} %</h4>
+				<div class="progress">
+					<div class="progress-bar" role="progressbar" ng-style="{ 'width': fileitem.progress + '%' }"></div>
+				</div>
+				<div>
+					<button class="btn btn-default btn-sm" ng-click="fileitem.cancel()">Cancel</button>
+				</div>
+			</div>
+			<div ng-show="fileitem.isProcessing">
+				<h4>{{'processing'|translate}}...</h4>
+				<div><img src="img/db_write.8f5290a8.gif"/></div>
+			</div>
+			<div ng-show="fileitem.isSuccess">
+				<h1 class="text-success">{{'upload_success'|translate}}!</h1>
+				<h1 class="text-success"><i class="fa fa-check-circle"></i></h1>
+			</div>
+			<div ng-show="fileitem.isError">
+				<h1 class="text-danger">{{'upload_fail'|translate}}!</h1>
+				<h1 class="text-danger"><i class="fa fa-times-circle"></i></h1>
+				<div>
+					<button class="btn btn-default" ng-click="fileitem.showProgress = false" translate>back</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary" ng-click="checkAndUpload()" ng-disabled="!uploader.getNotUploadedItems().length">
+			<span class="glyphicon glyphicon-upload"></span> {{'upload' | translate}}
+		</button>
+
+		<button type="button" class="btn btn-default" ng-click="close()" ng-show="uploader.getNotUploadedItems().length" translate>abort</button>
+		<button type="button" class="btn btn-default" ng-click="close()" ng-hide="uploader.getNotUploadedItems().length" translate>close</button>
+	</div>
+
+</div>

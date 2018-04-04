@@ -1,0 +1,193 @@
+<div class="modal-content">
+
+	<div class="modal-header">
+		<button type="button" class="close" aria-label="Close" ng-click="close()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		<h4 class="modal-title" ng-bind="'source_edit_title' | translate"></h4>
+	</div>
+
+	<div class="modal-body source-edit-modal">
+
+		<div class="image-section">
+			<div>
+				<img ng-src="{{'data/' + item.file.path + (item.file.preview || item.file.thumb)}}"/>
+			</div>
+			<div ng-hide="uploader.queue.length">
+				<file-drop-area uploader="uploader"
+								label-after="source_upload_filedrop"
+								plus-size="large"
+								column></file-drop-area>
+				<!--<div class="dropArea"-->
+					 <!--data-uploader="uploader"-->
+					 <!--nv-file-drop-->
+					 <!--nv-file-over-->
+					 <!--ng-click="openFileDialog($event)">-->
+					<!--<input type="file"-->
+						   <!--ng-hide="1"-->
+						   <!--nv-file-select-->
+						   <!--data-uploader="uploader"-->
+						   <!--ng-click="$event.stopPropagation()"/>-->
+					<!--<div class="plus" ng-include="'img/plus-sign.9b6a70e1.svg'"></div>-->
+					<!--<div>{{'source_upload_filedrop' | translate}}</div>-->
+				<!--</div>-->
+			</div>
+			<div class="progressArea" ng-show="uploader.isHTML5 && uploader.queue.length && uploader.queue[0]">
+				<div class="progress">
+					<div class="progress-bar" role="progressbar" ng-style="{ 'width': uploader.queue[0].progress + '%' }"></div>
+				</div>
+				<div>
+					<button class="btn btn-default btn-sm" ng-click="uploader.queue[0].cancel()">Cancel</button>
+				</div>
+			</div>
+		</div>
+
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label for="sType" class="control-label col-sm-3">{{'source_type' | translate}}</label>
+				<div class="col-sm-3 fixedProperty" bs-tooltip="'source_tt_type' | translate">
+					{{'source_type_' + item.type | translate}}
+					<!--<select id="sType" class="form-control input-sm" ng-model="item.type">-->
+						<!--<option value="plan">Plan</option>-->
+						<!--<option value="picture">Bild/Fotografie</option>-->
+						<!--<option value="text">Text</option>-->
+					<!--</select>-->
+				</div>
+				<label ng-show="item.type == 'text'" for="sLang" class="control-label col-sm-2">{{'source_language' | translate}}</label>
+				<div ng-show="item.type == 'text'" class="col-sm-3">
+					<select id="sLang"
+							class="form-control input-sm"
+							ng-model="item.language"
+							ng-options="('lang_'+lang | translate) for lang in ['de','en','fr','it','la','el']"></select>
+				</div>
+			</div>
+
+			<div class="form-group" ng-class="{'has-error': titleError}">
+				<label for="sTitle" class="control-label col-sm-3">{{'source_title' | translate}}</label>
+				<div class="col-sm-8">
+					<input id="sTitle"
+						   class="form-control"
+						   placeholder="{{'eg'|translate}} Aufriss Ostfassade"
+						   ng-model="item.title"
+						   ng-focus="setTypeahead('E35', 'E31', 'value')"
+						   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"
+						   bs-tooltip="'source_tt_title' | translate" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="sAuthor" class="control-label col-sm-3">{{'source_author' | translate}}</label>
+				<div class="col-sm-8">
+					<input id="sAuthor"
+						   class="form-control"
+						   placeholder="{{'eg'|translate}} Conrad Schick"
+						   ng-model="item.author"
+						   ng-focus="setTypeahead('E82', 'E21', 'value')"
+						   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"
+						   bs-tooltip="'source_tt_author' | translate" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="sDate" class="control-label col-sm-3">{{'source_date' | translate}}</label>
+				<div class="col-sm-8">
+					<input id="sDate"
+						   class="form-control"
+						   placeholder="{{'eg' | translate}} 1889"
+						   ng-model="item.date"
+						   bs-tooltip="'source_tt_date' | translate" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="sRepros" class="control-label col-sm-3">{{'source_repros' | translate}}</label>
+				<div class="col-sm-8">
+					<input id="sRepros"
+						   class="form-control"
+						   placeholder="{{'eg' | translate}} Franz 1953, Abb. 1"
+						   ng-model="item.repros" />
+				</div>
+			</div>
+
+			<div class="form-group form-group-large">
+				<label for="sNote" class="control-label col-sm-3">{{'source_misc' | translate}}</label>
+				<div class="col-sm-8">
+							<textarea id="sNote"
+									  class="form-control"
+									  ng-model="item.note"
+									  bs-tooltip="'source_tt_misc' | translate">
+							</textarea>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="sPlace" class="control-label col-sm-3">{{'source_place' | translate}}</label>
+				<div class="col-sm-8">
+					<input id="sPlace"
+						   class="form-control"
+						   placeholder="{{'eg'|translate}} Jerusalem"
+						   ng-model="item.place"
+						   ng-focus="setTypeahead('E48', 'E53', 'value')"
+						   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"
+						   bs-tooltip="'source_tt_place' | translate"/>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="sCollect" class="control-label col-sm-3">{{'source_archive' | translate}}</label>
+				<div class="col-sm-6">
+					<select id="sCollect"
+							class="form-control input-sm"
+							ng-model="item.archive.collection"
+							bs-tooltip="'source_tt_archive' | translate">
+						<option value="">{{'not_specified' | translate}}</option>
+						<option ng-repeat="a in archives" value="{{a.collection.name}}">{{a.institution.abbr || a.institution.name}} {{a.collection.name}}</option>
+					</select>
+				</div>
+				<div class="col-sm-2 text-right">
+					<button class="btn btn-default btn-sm" ui-sref=".archive"><i class="fa fa-plus"></i> {{'add' | translate}}</button>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="sArchiveNr" class="control-label col-sm-3">{{'source_archivenr' | translate}}</label>
+				<div class="col-sm-8">
+					<input id="sArchiveNr"
+						   class="form-control"
+						   placeholder="{{'eg'|translate}} P.E.F. Schick|202|3"
+						   ng-model="item.archive.identifier"
+						   ng-focus="setTypeahead('E42', 'E84', 'value')"
+						   bs-typeahead bs-options="ta.content as ta.content for ta in typeaheads"
+						   bs-tooltip="'source_tt_archivenr' | translate"/>
+				</div>
+			</div>
+
+			<div class="form-group" ng-show="item.type == 'plan' || item.type == 'picture'">
+				<div class="col-sm-offset-3 col-sm-8" bs-tooltip="'source_tt_primary' | translate">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" ng-model="item.primary"/>
+							{{'source_primary' | translate}}
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group large">
+				<label class="control-label col-sm-3">{{'source_tags' | translate}}</label>
+				<div class="col-sm-8">
+					<tags-input ng-model="item.tags" placeholder="{{'source_tag' | translate}}" on-tag-added="onTagAdded($tag)">
+						<auto-complete source="getTags($query)" debounce-delay="200" select-first-match="true"></auto-complete>
+					</tags-input>
+				</div>
+			</div>
+		</form>
+
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary" ng-click="save()">{{'save' | translate}}</button>
+		<button type="button" class="btn btn-default" ng-click="close()">{{'abort' | translate}}</button>
+	</div>
+
+</div>

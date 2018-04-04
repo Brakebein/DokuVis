@@ -10,19 +10,9 @@
 	<div class="modal-body source-upload-form">
 
 		<div class="upload-header">
-			<div class="dropArea"
-				 data-uploader="uploader"
-				 nv-file-drop
-				 nv-file-over
-				 ng-click="openFileDialog($event)">
-				<input type="file"
-					   multiple
-					   ng-hide="1"
-					   nv-file-select
-					   data-uploader="uploader"
-					   ng-click="$event.stopPropagation()" />
-				<div class="plus" ng-include="'img/plus-sign.svg'"></div>
-				<div>{{'source_upload_filedrop' | translate}}</div>
+			<div class="upload-file">
+				<file-drop-area uploader="uploader" label-after="source_upload_filedrop" plus-size="large"></file-drop-area>
+				<div translate>source_upload_hint</div>
 			</div>
 
 			<div ng-show="uploader.queue.length" class="queue-header">
@@ -60,19 +50,19 @@
 
 								<div class="form-group">
 									<label for="docType" class="control-label col-sm-3">{{'source_type' | translate}}</label>
-									<div class="col-sm-3" bs-tooltip="'source_tt_type' | translate">
+									<div class="col-sm-3" ng-show="item.sourceType !== 'text'" bs-tooltip="'source_tt_type' | translate">
 										<select id="docType" class="form-control input-sm" ng-model="item.sourceType">
-											<option value="plan">Plan</option>
-											<option value="picture">Bild/Fotografie</option>
-											<!--<option value="text">Text</option>-->
+											<option value="plan" translate>source_type_plan</option>
+											<option value="picture" translate>source_type_picture</option>
 										</select>
 									</div>
-									<label ng-if="item.sourceType == 'text'" for="docLang" class="control-label col-sm-2">{{'source_language' | translate}}</label>
-									<div ng-if="item.sourceType == 'text'" class="col-sm-3">
-										<select id="docLang" class="form-control input-sm" ng-model="item.language">
-											<option value="de">Deutsch</option>
-											<option value="de_frak">Deutsch (Fraktur)</option>
-											<option value="en">Englisch</option>
+									<b class="col-sm-3" style="padding-top: 5px" ng-show="item.sourceType === 'text'" bs-tooltip="'source_tt_type' | translate">
+										{{'source_type_text' | translate}}
+									</b>
+
+									<label ng-show="item.sourceType === 'text'" for="docLang" class="control-label col-sm-2">{{'source_language' | translate}}</label>
+									<div ng-show="item.sourceType === 'text'" class="col-sm-3">
+										<select id="docLang" class="form-control input-sm" ng-model="item.language" ng-options="('lang_'+lang | translate) for lang in ['de','en','fr','it','la','el']">
 										</select>
 									</div>
 								</div>
@@ -164,7 +154,7 @@
 												<option ng-repeat="a in archives" value="{{a.collection.id}}">{{a.institution.abbr || a.institution.name}} {{a.collection.name}}</option>
 											</select>
 										</div>
-										<div class="col-sm-3">
+										<div class="col-sm-2 text-right">
 											<button class="btn btn-default btn-sm" ui-sref=".archive"><i class="fa fa-plus"></i> {{'add' | translate}}</button>
 										</div>
 									</div>
@@ -180,7 +170,7 @@
 										</div>
 									</div>
 
-									<div class="form-group" ng-show="item.sourceType == 'text'">
+									<div class="form-group" ng-show="item.sourceType == 'text_2'">
 										<label for="docOCR" class="control-label col-sm-3">{{'source_ocr' | translate}}</label>
 										<div class="col-sm-1">
 											<input id="docOCR"

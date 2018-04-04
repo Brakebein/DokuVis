@@ -237,10 +237,12 @@ angular.module('dokuvis.utils', [
  * @requires https://ui-router.github.io/ng1/docs/0.3.2/index.html#/api/ui.router.state.$state $state
  * @param fileDropArea {boolean}
  * @param uploader {FileUploader} Instance of [FileUploader](https://github.com/nervgh/angular-file-upload)
- * @param label {string} Some text displayed next to a plus sign
+ * @param labelBefore {string} Some text displayed next (before/above) to a plus sign
+ * @param labelAfter {string} Some text displayed next (after/below) to a plus sign
  * @param uiSref {string=} On click, it doesn't open the file dialog, but it transitions to given state. After adding file via file drop, it transitions to given state.
  * @param multiple {boolean=} If set, multiple files are sele
- * @param column {boolean=} Show label and plus sign among each other
+ * @param column {boolean=} Show labels and plus sign on top of each other
+ * @param plusSize {string=} Control the size of the plus sign, e.g. "large" -> 60px, unset -> 40px
  * @restrict AE
  * @scope
   */
@@ -251,7 +253,8 @@ angular.module('dokuvis.utils', [
 			restrict: 'AE',
 			scope: {
 				uploader: '=',
-				label: '@'
+				labelBefore: '@',
+				labelAfter: '@'
 			},
 			link: function (scope, element, attrs) {
 
@@ -285,7 +288,7 @@ angular.module('dokuvis.utils', [
 					});
 				};
 			},
-			template: '<div ng-if="uploader" data-uploader="uploader" nv-file-drop nv-file-over ng-click="openFileDialog()">\n\t<input type="file" ng-hide="1" data-uploader="uploader" nv-file-select ng-click="$event.stopPropagation()"/>\n\t<svg x="0px" y="0px" viewBox="0 0 10 10" enable-background="new 0 0 10 10" xml:space="preserve">\n\t\t<path d="M3.746,10V6.283H0V3.717h3.746V0h2.497v3.717H10v2.566H6.243V10H3.746z"/>\n\t</svg>\n\t<div>{{label|translate}}</div>\n</div>'
+			template: '<div ng-if="uploader" data-uploader="uploader" nv-file-drop nv-file-over ng-click="openFileDialog()">\n\t<input type="file" ng-hide="1" data-uploader="uploader" nv-file-select ng-click="$event.stopPropagation()"/>\n\t<div>{{labelBefore|translate}}</div>\n\t<svg x="0px" y="0px" viewBox="0 0 10 10" enable-background="new 0 0 10 10" xml:space="preserve">\n\t\t<path d="M3.746,10V6.283H0V3.717h3.746V0h2.497v3.717H10v2.566H6.243V10H3.746z"/>\n\t</svg>\n\t<div>{{labelAfter|translate}}</div>\n</div>'
 		}
 
 	}

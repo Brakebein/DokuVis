@@ -4,7 +4,7 @@
 /**
  * Dokuvis base module.
  *
- * @version 0.1.3
+ * @version 0.1.4
  * @ngdoc module
  * @name dokuvisApp
  * @module dokuvisApp
@@ -359,6 +359,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				resolve: {
 					sourceDetailModalInstance: ['$translatePartialLoader', '$modal', function ($translatePartialLoader, $modal) {
 						$translatePartialLoader.addPart('source');
+						$translatePartialLoader.addPart('languages');
 						return $modal({
 							templateUrl: 'partials/modals/_modalLargeTpl.html',
 							contentTemplate: 'components/dokuvis.sources/sourceDetailModal.tpl.html',
@@ -451,6 +452,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				resolve: {
 					sourceUploadModalInstance: ['$translatePartialLoader', '$modal', function ($translatePartialLoader, $modal) {
 						$translatePartialLoader.addPart('source');
+						$translatePartialLoader.addPart('languages');
 						return $modal({
 							templateUrl: 'partials/modals/_modalLargeTpl.html',
 							contentTemplate: 'components/dokuvis.sources/sourceUploadModal.tpl.html',

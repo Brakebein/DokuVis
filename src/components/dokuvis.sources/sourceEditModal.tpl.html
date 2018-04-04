@@ -4,29 +4,33 @@
 		<button type="button" class="close" aria-label="Close" ng-click="close()">
 			<span aria-hidden="true">&times;</span>
 		</button>
-		<h4 class="modal-title">Quelle bearbeiten</h4>
+		<h4 class="modal-title" ng-bind="'source_edit_title' | translate"></h4>
 	</div>
 
 	<div class="modal-body source-edit-modal">
 
 		<div class="image-section">
 			<div>
-				<img ng-src="{{'data/' + item.file.path + item.file.preview}}"/>
+				<img ng-src="{{'data/' + item.file.path + (item.file.preview || item.file.thumb)}}"/>
 			</div>
 			<div ng-hide="uploader.queue.length">
-				<div class="dropArea"
-					 data-uploader="uploader"
-					 nv-file-drop
-					 nv-file-over
-					 ng-click="openFileDialog($event)">
-					<input type="file"
-						   ng-hide="1"
-						   nv-file-select
-						   data-uploader="uploader"
-						   ng-click="$event.stopPropagation()"/>
-					<div class="plus" ng-include="'img/plus-sign.svg'"></div>
-					<div>{{'source_upload_filedrop' | translate}}</div>
-				</div>
+				<file-drop-area uploader="uploader"
+								label-after="source_upload_filedrop"
+								plus-size="large"
+								column></file-drop-area>
+				<!--<div class="dropArea"-->
+					 <!--data-uploader="uploader"-->
+					 <!--nv-file-drop-->
+					 <!--nv-file-over-->
+					 <!--ng-click="openFileDialog($event)">-->
+					<!--<input type="file"-->
+						   <!--ng-hide="1"-->
+						   <!--nv-file-select-->
+						   <!--data-uploader="uploader"-->
+						   <!--ng-click="$event.stopPropagation()"/>-->
+					<!--<div class="plus" ng-include="'img/plus-sign.svg'"></div>-->
+					<!--<div>{{'source_upload_filedrop' | translate}}</div>-->
+				<!--</div>-->
 			</div>
 			<div class="progressArea" ng-show="uploader.isHTML5 && uploader.queue.length && uploader.queue[0]">
 				<div class="progress">
@@ -41,20 +45,20 @@
 		<form class="form-horizontal">
 			<div class="form-group">
 				<label for="sType" class="control-label col-sm-3">{{'source_type' | translate}}</label>
-				<div class="col-sm-3" bs-tooltip="'source_tt_type' | translate">
-					<select id="sType" class="form-control input-sm" ng-model="item.type">
-						<option value="plan">Plan</option>
-						<option value="picture">Bild/Fotografie</option>
-						<option value="text">Text</option>
-					</select>
+				<div class="col-sm-3 fixedProperty" bs-tooltip="'source_tt_type' | translate">
+					{{'source_type_' + item.type | translate}}
+					<!--<select id="sType" class="form-control input-sm" ng-model="item.type">-->
+						<!--<option value="plan">Plan</option>-->
+						<!--<option value="picture">Bild/Fotografie</option>-->
+						<!--<option value="text">Text</option>-->
+					<!--</select>-->
 				</div>
 				<label ng-show="item.type == 'text'" for="sLang" class="control-label col-sm-2">{{'source_language' | translate}}</label>
 				<div ng-show="item.type == 'text'" class="col-sm-3">
-					<select id="sLang" class="form-control input-sm" ng-model="item.language">
-						<option value="de">Deutsch</option>
-						<option value="de_frak">Deutsch (Fraktur)</option>
-						<option value="en">Englisch</option>
-					</select>
+					<select id="sLang"
+							class="form-control input-sm"
+							ng-model="item.language"
+							ng-options="('lang_'+lang | translate) for lang in ['de','en','fr','it','la','el']"></select>
 				</div>
 			</div>
 
@@ -140,7 +144,7 @@
 						<option ng-repeat="a in archives" value="{{a.collection.name}}">{{a.institution.abbr || a.institution.name}} {{a.collection.name}}</option>
 					</select>
 				</div>
-				<div class="col-sm-3">
+				<div class="col-sm-2 text-right">
 					<button class="btn btn-default btn-sm" ui-sref=".archive"><i class="fa fa-plus"></i> {{'add' | translate}}</button>
 				</div>
 			</div>
