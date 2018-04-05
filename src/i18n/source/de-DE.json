@@ -34,5 +34,5 @@
   "source_tt_primary": "Primär- oder Sekundärquelle?",
   "source_tt_ocr": "Handelt es sich um einen eingescannten Text, empfiehlt sich eine automatische Texterkennung (OCR).",
   "source_tt_resample": "Sollte das Dokument eine schlechte Auflösung besitzen, kann eine Hochskalierung das OCR-Ergebnis verbessern.",
-  "source_upload_hint": "Für Quellen mit visuellen Inhalten (Bild/Plan) werden Bilddateien im <b>JPG/PNG/TIFF/BMP/GIF</b>-Format unterstützt.<br/> Textquellen müssen im als <b>PDF</b>-Dateien bereitgestellt werden."
+  "source_upload_hint": "Für Quellen mit visuellen Inhalten (Bild/Plan) werden Bilddateien im <b>JPG/PNG/TIFF/BMP/GIF</b>-Format unterstützt.<br/> Textquellen müssen als <b>PDF</b>-Dateien bereitgestellt werden."
 }
