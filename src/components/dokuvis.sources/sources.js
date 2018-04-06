@@ -405,18 +405,6 @@ angular.module('dokuvis.sources', [
 			}, 1000);
 		};
 
-		/**
-		 * Triggers click event on hidden files input field.
-		 * @ngdoc method
-		 * @name sourceUploadModalCtrl#openFileDialog
-		 * @param event {Object} Click event on parent html element
-		 */
-		$scope.openFileDialog = function (event) {
-			$timeout(function () {
-				angular.element(event.delegateTarget).find('input').trigger('click');
-			});
-		};
-
 		// Process tag after it has been added.
 		$scope.onTagAdded = function (tag) {
 			tag.text = tag.text.toLowerCase();
@@ -971,13 +959,6 @@ angular.module('dokuvis.sources', [
 				.catch(function (reason) {
 					Utilities.throwApiException('#Source.update', reason);
 				});
-		};
-
-		// Trigger click event on hidden files input field.
-		$scope.openFileDialog = function (event) {
-			$timeout(function () {
-				angular.element(event.delegateTarget).find('input').trigger('click');
-			});
 		};
 
 		// Process tag after it has been added.

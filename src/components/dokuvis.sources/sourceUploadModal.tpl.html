@@ -11,7 +11,7 @@
 
 		<div class="upload-header">
 			<div class="upload-file">
-				<file-drop-area uploader="uploader" label-after="source_upload_filedrop" plus-size="large"></file-drop-area>
+				<file-drop-area uploader="uploader" label-after="filedrop_files" multiple></file-drop-area>
 				<div translate>source_upload_hint</div>
 			</div>
 
@@ -170,7 +170,7 @@
 										</div>
 									</div>
 
-									<div class="form-group" ng-show="item.sourceType == 'text_2'">
+									<div class="form-group" ng-show="item.sourceType === 'text_2'">
 										<label for="docOCR" class="control-label col-sm-3">{{'source_ocr' | translate}}</label>
 										<div class="col-sm-1">
 											<input id="docOCR"
@@ -187,7 +187,7 @@
 										</div>
 									</div>
 
-									<div class="form-group" ng-show="item.sourceType == 'plan' || item.sourceType == 'picture'">
+									<div class="form-group" ng-show="item.sourceType === 'plan' || item.sourceType === 'picture'">
 										<div class="col-sm-offset-3 col-sm-8" bs-tooltip="'source_tt_primary' | translate">
 											<div class="checkbox">
 												<label>

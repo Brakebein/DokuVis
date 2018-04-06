@@ -11,33 +11,19 @@ angular.module('dokuvisApp').controller('projectCtrl', ['$scope', '$state', '$wi
 			$state.go('root.home', {}, { reload: true });
 		};
 
-        $scope.$on('modal.show', function(){
-            console.log('modal show');
-            var zIndex = 1040 + (10 * $('.modal:visible').length);
-            $(this).css('z-index', zIndex);
-            $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
-        });
-
         $scope.$on('$stateChangeSuccess', function (event, toState) {
             if (/^project.home/.test(toState.name))
-                $scope.pageName = 'Home';
+                $scope.pageName = 'menu_home';
             else if (/^project.explorer/.test(toState.name))
-                $scope.pageName = 'Explorer';
+                $scope.pageName = 'menu_explorer';
             else if (/^project.tasks/.test(toState.name))
-                $scope.pageName = 'Aufgaben';
+                $scope.pageName = 'menu_tasks';
             else if (/^project.resources/.test(toState.name))
-                $scope.pageName = 'Ressourcen';
+                $scope.pageName = 'menu_resources';
             else if (/^project.config/.test(toState.name))
-                $scope.pageName = 'Einstellungen';
+                $scope.pageName = 'menu_config';
             else
                 $scope.pageName = '?';
 		});
-
-        // language
-        $scope.languagePopover = {
-            title: 'Sprache',
-            templateUrl: 'partials/popovers/languageConfig.html',
-            html: true
-        };
 
     }]);

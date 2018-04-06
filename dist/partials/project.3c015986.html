@@ -1,0 +1,50 @@
+<!-- side menu -->
+<div class="prjSideNav sideNav sideNav-left">
+
+	<div class="smLogo" title="{{'menu_overview' | translate}}" ui-sref="project.home({ subproject: 'master' })">
+		<img src="img/dokuvis_logo-mini.b0a44503.png"/>
+	</div>
+	
+	<div title="{{'menu_home' | translate}}" class="smBtn" ui-sref="project.home" ui-sref-active="active" ng-include="'img/icons/home.36649cb6.svg'"></div>
+
+	<div title="{{'menu_explorer' | translate}}" class="smBtn" ui-sref="project.explorer" ui-sref-active="active" ng-include="'img/icons/cube.33b3566b.svg'"></div>
+
+	<div title="{{'menu_tasks' | translate}}" class="smBtn" ui-sref="project.tasks" ui-sref-active="active" ng-include="'img/icons/tasks.e2dffc75.svg'"></div>
+
+	<!--<div class="smBtn" title="{{'menu_graphsearch' | translate}}" ui-sref="project.graph" ui-sref-active="active" ng-include="'img/icons/graph.bec908e9.svg'"></div>-->
+
+	<div class="smBtn" title="{{'menu_resources' | translate}}" ui-sref="project.resources" ui-sref-active="active" ng-include="'img/icons/database.cca587fb.svg'"></div>
+
+	<div class="smBtn" title="{{'menu_config' | translate}}" ui-sref="project.config" ui-sref-active="active" ng-include="'img/icons/config.aeeb107d.svg'"></div>
+	
+	<div class="smSpace"></div>
+
+	<div class="smBtn smBtn-lang"
+		 title="{{'menu_language' | translate}}"
+		 bs-popover
+		 data-template-url="partials/popovers/languageConfig.79c50210.html"
+		 data-auto-close="1">
+		{{ $root.currentLanguage.shortKey | uppercase }}
+	</div>
+
+	<div class="smBtn" title="{{'menu_help' | translate}}" ng-include="'img/icons/help.0f197fdb.svg'"></div>
+	<div class="smBtn" title="{{'menu_projectlist' | translate}}" ng-click="toProjectList()" ng-include="'img/icons/list.68b79bf4.svg'"></div>
+	<div class="smBtn" title="{{'menu_logout' | translate}}" ng-click="logout()" ng-include="'img/icons/signout.07723f7b.svg'"></div>
+
+</div>
+
+<div class="prjNavInfoContainer">
+	<ol class="breadcrumb pull-left">
+		<li>{{ globalProject.name }}</li>
+		<li><a href="#" ui-sref="project.home({ subproject: 'master' })">master</a></li>
+		<li ng-show="globalSubproject"><a href="#" ui-sref="project.home">{{ globalSubproject.name }}</a></li>
+		<li>{{ pageName | translate }}</li>
+	</ol>
+
+	<div class="pull-right">
+		<p class="navbar-text">DokuVis v0.1.4</p>
+		<p class="navbar-text"><a href="#" ui-sref="root.impressum" target="_blank">Impressum</a></p>
+	</div>
+</div>
+
+<div class="prjMainContainer" ui-view></div>

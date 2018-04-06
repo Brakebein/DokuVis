@@ -285,6 +285,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 						return SubprojectResolve($stateParams);
 					}]
 				},
+				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
+					$translatePartialLoader.addPart('menu');
+				}],
 				abstract: true
 			})
 			.state('project.home', {
@@ -344,6 +347,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				controller: 'explorerCtrl',
 				reloadOnSearch: false,
 				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
+					$translatePartialLoader.addPart('sources');
 					$translatePartialLoader.addPart('model');
 					$translatePartialLoader.addPart('viewport');
 					$translatePartialLoader.addPart('category');
@@ -654,7 +658,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			});
 
 
-		// translate
+		// translate / localization
 		$translateProvider
 			.useSanitizeValueStrategy('sanitizeParameters')
 			.useLoader('$translatePartialLoader', {
@@ -708,7 +712,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
  * @module dokuvisApp
  * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$rootScope $rootScope
  * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
- * @requires https://christopherthielen.github.io/ui-router-extras/#/previous $previousState
  * @requires AuthenticationFactory
  * @requires https://github.com/mikemclin/angular-acl AclService
  * @requires https://angular-translate.github.io/docs/#/api/pascalprecht.translate.$translate $translate
@@ -716,8 +719,8 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
  * @requires https://vitalets.github.io/angular-xeditable/#ref-options editableOptions
  * @requires TypeaheadRequest
  */
-dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory', 'AclService', '$translate', 'amMoment', 'editableOptions', 'TypeaheadRequest',
-	function($rootScope, $state, $previousState, AuthenticationFactory, AclService, $translate, amMoment, editableOptions, TypeaheadRequest) {
+dokuvisApp.run(['$rootScope', '$state', 'AuthenticationFactory', 'AclService', '$translate', 'amMoment', 'editableOptions', 'TypeaheadRequest',
+	function($rootScope, $state, AuthenticationFactory, AclService, $translate, amMoment, editableOptions, TypeaheadRequest) {
 
 		// ACL data
 		var aclData = {
@@ -734,6 +737,7 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 
 		$rootScope.can = AclService.can;
 
+
 		$rootScope.$on('$translatePartialLoaderStructureChanged', function () {
 			$translate.refresh();
 		});
@@ -747,15 +751,16 @@ dokuvisApp.run(['$rootScope', '$state', '$previousState', 'AuthenticationFactory
 		editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
 
 
-		// localization
+		// translate / localization
 		$rootScope.availableLanguages = [
 			{ key: 'en-US', shortKey: 'en', label: 'English' },
 			{ key: 'de-DE', shortKey: 'de', label: 'Deutsch' }
 		];
 
 		$translate.onReady(function () {
+			var key = $translate.proposedLanguage() || $translate.use();
 			$rootScope.currentLanguage = $rootScope.availableLanguages.find(function (lang) {
-				return lang.key === $translate.proposedLanguage() || $translate.use();
+				return lang.key === key;
 			});
 			amMoment.changeLocale($rootScope.currentLanguage.shortKey);
 		});

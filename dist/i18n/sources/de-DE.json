@@ -3,6 +3,10 @@
   "sources_plans": "Pläne",
   "sources_pics": "Bilder",
   "sources_texts": "Texte",
-  "source_insert": "Quellen einfügen",
-  "source_detail": "Details ansehen"
+  "sources_sort_title": "Titel",
+  "sources_sort_author": "Autor",
+  "sources_sort_date": "Datierung",
+  "sources_upload_insert": "Quellen einfügen",
+  "sources_upload_click_or_drop": "Klicken oder Dateien ablegen",
+  "sources_show_details": "Details ansehen"
 }

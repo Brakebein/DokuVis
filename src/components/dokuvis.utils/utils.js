@@ -242,7 +242,7 @@ angular.module('dokuvis.utils', [
  * @param uiSref {string=} On click, it doesn't open the file dialog, but it transitions to given state. After adding file via file drop, it transitions to given state.
  * @param multiple {boolean=} If set, multiple files are sele
  * @param column {boolean=} Show labels and plus sign on top of each other
- * @param plusSize {string=} Control the size of the plus sign, e.g. "large" -> 60px, unset -> 40px
+ * @param fontSize {string=} Control the size of the font, e.g. "small" -> 14px, unset -> 16px
  * @restrict AE
  * @scope
   */

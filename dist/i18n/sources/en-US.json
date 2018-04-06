@@ -3,6 +3,10 @@
   "sources_plans": "Plans",
   "sources_pics": "Pictures",
   "sources_texts": "Texts",
-  "source_insert": "Insert Sources",
-  "source_detail": "Show Details"
+  "sources_sort_title": "Title",
+  "sources_sort_author": "Author",
+  "sources_sort_date": "Date",
+  "sources_upload_insert": "Insert sources",
+  "sources_upload_click_or_drop": "Click or drop files",
+  "sources_show_details": "Show Details"
 }

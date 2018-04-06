@@ -33,22 +33,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			activeSide: 'versions'
 		};
 
-		
-		// Einstellungen für Quellenanzeige
-		// $scope.sourcesSettings = {};
-		// $scope.sourcesSettings.listSize = 'normal';
-		// $scope.sourcesSettings.orderBy = 'title';
-		// $scope.sourcesSettings.reverse = false;
-		// $scope.sourcesSettings.filterBy = '';
-		// $scope.sourcesSettings.filterSelected = false;
-		// $scope.sourcesSettings.activeTab = '';
-		
-		//$scope.sourceResults = [];
-		
-		// Liste mit Objekten (Outliner)
-		$scope.listTabs = 'objects';
-		//$scope.listSettings = 'layers';
-		$scope.listSettings = 'hierarchy';
+
 		
 		// Screenshots
 		$scope.screenshots = [];
@@ -177,73 +162,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			$rootScope.$broadcast('snapshotViewClose');
 		}
 
-		// $scope.openScreenshotDetail = function(data) {
-		// 	$scope.modalParams = {
-		// 		modalType: 'xlarge',
-		// 		data: data
-		// 	};
-		// 	$modal({
-		// 		//title: 'Source Detail',
-		// 		templateUrl: 'partials/modals/_modalTpl.html',
-		// 		contentTemplate: 'partials/modals/screenshotDetailModal.html',
-		// 		controller: 'screenshotCtrl',
-		// 		scope: $scope,
-		// 		show: true
-		// 	});
-		// };
-		// $scope.openIndexEdit = function() {
-		// 	$scope.modalParams = {
-		// 		modalType: 'large'
-		// 	};
-		// 	$modal({
-		// 		title: 'Index editieren',
-		// 		templateUrl: 'partials/modals/_modalTpl.html',
-		// 		contentTemplate: 'partials/modals/indexEditModal.html',
-		// 		controller: 'indexEditCtrl',
-		// 		scope: $scope,
-		// 		show: true
-		// 	});
-		// };
-
-
 		/**
-		 * close modal
-		 * @param update
+		 * lädt alle Screenshots in Liste
 		 * @deprecated
 		 */
-		// $scope.closeModal = function(update) {
-		// 	if(update === 'screenshot')
-		// 		$scope.getScreenshots();
-		//
-		// 	$scope.overlayParams.params = {};
-		// 	$scope.overlayParams.url = '';
-		// 	$scope.sourcesUploader.clearQueue();
-		// };
-
-		/**
-		 * get all sources/documents
-		 */
-		// $scope.queryDocuments = function() {
-		// 	return Source.query().$promise.then(function (data) {
-		// 		$scope.sourceResults = data;
-		// 		for(var i=0; i<$scope.sourceResults.length; i++) {
-		// 			$scope.sourceResults[i].selected = false;
-		// 		}
-		// 		console.log('Dokuments:', $scope.sourceResults);
-		// 	}, function (err) {
-		// 		Utilities.throwApiException('on Source.query()', err);
-		// 	})
-		// };
-		//
-		// $scope.$watch('filteredSourceResults', function (newVal) {
-		// 	console.log('filteredSourceResults', newVal);
-		// 	if($state.includes('project.explorer.source')) {
-		// 		$state.go('.', { selection: newVal });
-		// 	}
-		//
-		// });
-		
-		// lädt alle Screenshots in Liste
 		$scope.getScreenshots = function() {
 			neo4jRequest.getScreenshotsWithMarkers($scope.project).then(function(response){
 				if(response.data.exception) { Utilities.throwNeo4jException('on getScreenshots()', response); return; }
@@ -252,7 +174,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			});
 		};
 
-		// lädt alle Kommentare
+		/**
+		 * lädt alle Kommentare
+		 * @deprecated
+		 */
 		$scope.queryComments = function () {
 			Comment.query().$promise.then(function (data) {
 				// target reference
@@ -273,11 +198,18 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 				Utilities.throwApiException('on Comment.query()', err);
 			});
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		webglInterface.callFunc.updateComments = function () {
 			$scope.queryComments();
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param data
+		 */
 		$scope.receiveScreenshot = function(data) {
 			var tid = Utilities.getUniqueId();
 			data.path = $stateParams.project + '/screenshots/';
@@ -287,7 +219,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			
 			$scope.openScreenshotDetail(data);
 		};
-		
+
+		/**
+		 * @deprecated
+		 */
 		$scope.togglePins = function() {
 			if($scope.screenshotPins.isVisible) {
 				for(var i=0; i<$scope.screenshots.length; i++) {
@@ -298,7 +233,13 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			else
 				webglInterface.callFunc.removePins();
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param id
+		 * @param pinObj
+		 * @param event
+		 */
 		$scope.addPin = function (id, pinObj, event) {
 			//console.log(pinObj, event);
 			var targetHeight = $(event.delegateTarget).height();
@@ -326,6 +267,10 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			];
 			$scope.path = d.join(' ');
 		};
+		/**
+		 * @deprecated
+		 * @param id
+		 */
 		$scope.removePin = function (id) {
 			$scope.line = null;
 			$scope.path = null;
@@ -371,6 +316,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 		/**
 		 * highlight all objects linked to the plan
 		 * @param plan
+		 * @deprecated
          */
 		$scope.highlightObj = function(plan) {
 			console.log(plan);
@@ -386,6 +332,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 		/**
 		 * check, which objects are intersected by plan and connect them within the database
 		 * @param plan
+		 * @deprecated
          */
 		$scope.connectPlanToObj = function(plan) {
 			var res = webglInterface.callFunc.getObjForPlans(plan.plan3d.meshId);
@@ -397,7 +344,11 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			});
 			// TODO: #Source $getLinks() value.push is not a function
 		};
-		
+
+		/**
+		 * @deprecated
+		 * @param obj
+		 */
 		webglInterface.callFunc.highlightSources = function (obj) {
 			Model.getConnections(obj.name).then(function (response) {
 				console.log(response);
@@ -416,69 +367,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			});
 		};
 
-		// $scope.loadModelsWithChildren = function() {
-		// 	Model.getModels().then(function(response) {
-		// 		//console.log(response.data);
-		// 		//var root = Utilities.createHierarchy(response.data, ['file','obj','material','categories'], true)[0];
-		//
-		// 		var root = response.data[0];
-		// 		console.log(root);
-		//
-		// 		function getNodes(nodes, parent, promise) {
-		// 			var cdefer = $q.defer();
-		// 			nodes.reduce(function(cur, next) {
-		// 				return cur.then(function() {
-		// 					var p = webglInterface.callFunc.loadCTMIntoScene(next, parent);
-		// 					return getNodes(next.children, next.obj.content, p);
-		// 				});
-		// 			}, promise).then(function(){ cdefer.resolve(); });
-		// 			return cdefer.promise;
-		// 		}
-		//
-		// 	if(root)
-		// 			getNodes(root.children, 0, $q.resolve());
-		//
-		// 	}, function(err) {
-		// 		Utilities.throwApiException('on getModels()', err);
-		// 	});
-		// };
-
-
-
-		// $scope.loadAllImages = function () {
-		// 	for(var i=0; i<$scope.sourceResults.length; i++) {
-		// 		var source = $scope.sourceResults[i];
-		// 		if(source.type === 'picture' && source.spatial)
-		// 			$scope.loadImage(source);
-		// 	}
-		// };
-		//
-		// $scope.load3DPlan = function (plan) {
-		// 	Source.getSpatial({ id: plan.eid, type: 'plan' }).$promise.then(function (result) {
-		// 		result.source = plan;
-		// 		webglInterface.callFunc.load3DPlan(result);
-		// 	}, function (err) {
-		// 		Utilities.throwApiException('on Source.getSpatial()', err);
-		// 	});
-		// };
-		//
-		// $scope.loadAll3DPlans = function () {
-		// 	for(var i=0; i<$scope.sourceResults.length; i++) {
-		// 		var source = $scope.sourceResults[i];
-		// 		if(source.type === 'plan' && source.plan3d)
-		// 			$scope.load3DPlan(source);
-		// 	}
-		// };
-		
-		// $scope.reloadModels = function () {
-		// 	webglInterface.callFunc.resetScene();
-		// 	$scope.loadModelsWithChildren();
-		// };
-		//
-		// $scope.logModels = function() {
-		// 	console.log(webglInterface.hierarchList);
-		// 	console.log(webglInterface.layerList);
-		// };
 
 		// deprecated
 		$scope.callDirFunc = {};
@@ -516,7 +404,11 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 		//
 		// 	}
 		// };
-		
+
+		/**
+		 * @deprecated
+		 * @param event
+		 */
 		$scope.addSlider = function(event){
 			//console.log(event);
 							
@@ -530,88 +422,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 				color: "rgb(" + newR + "," + newG + "," + newB + ")"
 			});
 		};
-		
-		// $scope.tooltip = function(event) {
-		// 	console.log(event);
-		// };
 
-		//old
-		/*$scope.selectResultItem = function(event, item) {
-			//console.log(event, item);
-			var btnbar = event.currentTarget.children[0].children[2];
-			if(event.target.parentElement == btnbar || event.target.parentElement.parentElement == btnbar)
-				return;
-			
-			if(webglInterface.snapshot.active) {
-				if(webglInterface.snapshot.refSrc.indexOf(item) === -1)
-					webglInterface.snapshot.refSrc.push(item);
-				console.log(webglInterface.snapshot.refSrc);
-				return;
-			}
-			
-			if(event.ctrlKey) {
-				if(event.currentTarget != event.target)
-					item.selected = !item.selected;
-			}
-			else {
-				for(var i=0, l=$scope.sourceResults.length; i<l; i++) {
-					$scope.sourceResults[i].selected = false;
-				}
-				if(event.currentTarget != event.target)
-					item.selected = true;
-			}
-			$scope.sourcesSettings.filterSelected = false;
-		};*/
-		
-		// $scope.filterSelected = function (value) {
-		// 	if($scope.sourcesSettings.filterSelected)
-		// 		return value.selected;
-		// 	else
-		// 		return true;
-		// };
-		
-		//$scope.$watch('selected', function(value) {
-			
-			/*if(value) {
-				console.log('watch', value);
-				if($.isEmptyObject(value)) return;
-				$('.sideContent').scrollTo('500px');
-				//document.getElementById(value.name).scrollIntoView();
-			}*/
-		//});
-		
-
-		
-		// $scope.validateCoord = function(coord, value, event) {
-		// 	console.log('validate');
-		//
-		// 	event = event || 0;
-		// 	if(event) {
-		// 		if(event.keyCode !== 13)
-		// 			return;
-		// 	}
-		//
-		// 	if(!value || value == '')
-		// 		value = 0;
-		// 	else
-		// 		value = value.replace(',', '.');
-		//
-		// 	var error = false;
-		// 	if(!isNaN(value))
-		// 		value = parseFloat(value).toFixed(2);
-		// 	else
-		// 		error = true;
-		//
-		// 	switch(coord) {
-		// 		case 'x': $scope.coords.x = value; $scope.coords.xError = error; break;
-		// 		case 'y': $scope.coords.y = value; $scope.coords.yError = error; break;
-		// 		case 'z': $scope.coords.z = value; $scope.coords.zError = error; break;
-		// 	}
-		// 	if(!error)
-		// 		$scope.callDirFunc.setCoordsFromInput($scope.coords);
-		//
-		// 	console.log($scope.coords);
-		// };
 
 
 		///// CATEGORIES
@@ -705,19 +516,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 		// }, true);
 
 
-		/**
-		 * @deprecated
-		 * @param list
-		 * @returns {Array}
-		 */
-		// $scope.toRepeatArray = function (list) {
-		// 	var array = [];
-		// 	angular.forEach(list, function (val) {
-		// 		array.push(val);
-		// 	});
-		// 	return array;
-		// };
-		
 		// oninit Funktionsaufrufe
 		// $timeout(function() {
 			// $scope.queryDocuments().then(function () {
@@ -727,15 +525,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			//$scope.loadModelsWithChildren();
 		// }, 500);
 
-		// // nach Upload aktualisieren
-		// $scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
-		// 	//console.log('stateChange', fromState, fromParams);
-		// 	if(fromState.name === 'project.explorer.upload.type' && fromParams.uploadType === 'source')
-		// 		//$scope.queryDocuments();
-		// 	else if(fromState.name === 'project.explorer.categoryedit')
-		// 		getAllCategories();
-		// });
-		
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function() {
 			//webglInterface.clearLists();

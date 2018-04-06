@@ -15,22 +15,8 @@
 			</div>
 			<div ng-hide="uploader.queue.length">
 				<file-drop-area uploader="uploader"
-								label-after="source_upload_filedrop"
-								plus-size="large"
+								label-after="filedrop_file"
 								column></file-drop-area>
-				<!--<div class="dropArea"-->
-					 <!--data-uploader="uploader"-->
-					 <!--nv-file-drop-->
-					 <!--nv-file-over-->
-					 <!--ng-click="openFileDialog($event)">-->
-					<!--<input type="file"-->
-						   <!--ng-hide="1"-->
-						   <!--nv-file-select-->
-						   <!--data-uploader="uploader"-->
-						   <!--ng-click="$event.stopPropagation()"/>-->
-					<!--<div class="plus" ng-include="'img/plus-sign.9b6a70e1.svg'"></div>-->
-					<!--<div>{{'source_upload_filedrop' | translate}}</div>-->
-				<!--</div>-->
 			</div>
 			<div class="progressArea" ng-show="uploader.isHTML5 && uploader.queue.length && uploader.queue[0]">
 				<div class="progress">
@@ -44,14 +30,9 @@
 
 		<form class="form-horizontal">
 			<div class="form-group">
-				<label for="sType" class="control-label col-sm-3">{{'source_type' | translate}}</label>
+				<label class="control-label col-sm-3">{{'source_type' | translate}}</label>
 				<div class="col-sm-3 fixedProperty" bs-tooltip="'source_tt_type' | translate">
 					{{'source_type_' + item.type | translate}}
-					<!--<select id="sType" class="form-control input-sm" ng-model="item.type">-->
-						<!--<option value="plan">Plan</option>-->
-						<!--<option value="picture">Bild/Fotografie</option>-->
-						<!--<option value="text">Text</option>-->
-					<!--</select>-->
 				</div>
 				<label ng-show="item.type == 'text'" for="sLang" class="control-label col-sm-2">{{'source_language' | translate}}</label>
 				<div ng-show="item.type == 'text'" class="col-sm-3">

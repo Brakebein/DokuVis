@@ -8,9 +8,9 @@
 		<div class="ctrlGroup sources-ctrl-group form-inline">
 			<span>{{ 'sort_by' | translate }}</span>
 			<select title="{{ 'sort_by' | translate }}" class="form-control input-sm" data-ng-model="options.orderBy">
-				<option value="title">Titel</option>
-				<option value="date">Jahr</option>
-				<option value="author">Autor</option>
+				<option value="title" translate>sources_sort_title</option>
+				<option value="date" translate>sources_sort_date</option>
+				<option value="author" translate>sources_sort_author</option>
 			</select>
 		</div>
 
@@ -21,17 +21,17 @@
 
 		<div class="ctrlGroup sources-ctrl-group">
 			<a title="Große Kacheln" class="icon-btn" ng-class="{ active: options.listSize === 'large' }" ng-click="options.listSize = 'large'"><span class="glyphicon glyphicon-th-large"></span></a>
-			<a title="Kleine Kacheln" class="icon-btn" ng-class="{ active: options.listSize == 'normal' }" ng-click="options.listSize = 'normal'"><span class="glyphicon glyphicon-th"></span></a>
-			<a title="Liste" class="icon-btn" ng-class="{ active: options.listSize == 'list' }" ng-click="options.listSize = 'list'"><span class="glyphicon glyphicon-th-list"></span></a>
+			<a title="Kleine Kacheln" class="icon-btn" ng-class="{ active: options.listSize === 'normal' }" ng-click="options.listSize = 'normal'"><span class="glyphicon glyphicon-th"></span></a>
+			<a title="Liste" class="icon-btn" ng-class="{ active: options.listSize === 'list' }" ng-click="options.listSize = 'list'"><span class="glyphicon glyphicon-th-list"></span></a>
 		</div>
 
 	</div>
 
 	<ul class="nav nav-tabs nav-tabs-sm">
-		<li ng-class="{ active: options.activeTab === '' }" ng-click="options.activeTab = ''"><a>Alle</a></li>
-		<li ng-class="{ active: options.activeTab === 'plan' }" ng-click="options.activeTab = 'plan'"><a>Pläne</a></li>
-		<li ng-class="{ active: options.activeTab === 'picture' }" ng-click="options.activeTab = 'picture'"><a>Bilder</a></li>
-		<li ng-class="{ active: options.activeTab === 'text' }" ng-click="options.activeTab = 'text'"><a>Texte</a></li>
+		<li ng-class="{ active: options.activeTab === '' }" ng-click="options.activeTab = ''"><a translate>sources_all</a></li>
+		<li ng-class="{ active: options.activeTab === 'plan' }" ng-click="options.activeTab = 'plan'"><a translate>sources_plans</a></li>
+		<li ng-class="{ active: options.activeTab === 'picture' }" ng-click="options.activeTab = 'picture'"><a translate>sources_pics</a></li>
+		<li ng-class="{ active: options.activeTab === 'text' }" ng-click="options.activeTab = 'text'"><a translate>sources_texts</a></li>
 	</ul>
 </div>
 
@@ -40,16 +40,12 @@
 	<div class="blindsource" ng-show="showUpload">
 		<div class="source-item">
 			<div class="thumbnail">
-				<div class="dropArea"
-					 ng-if="sourceUploader"
-					 data-uploader="sourceUploader"
-					 nv-file-over
-					 nv-file-drop
-					 ui-sref=".upload.source">
-					<div>Quellen einfügen</div>
-					<div class="plus" ng-include="'img/plus-sign.svg'"></div>
-					<div>Klicken oder hier ablegen</div>
-				</div>
+				<file-drop-area uploader="sourceUploader"
+								ui-sref=".upload.source"
+								label-before="sources_upload_insert"
+								label-after="sources_upload_click_or_drop"
+								font-size="small"
+								column></file-drop-area>
 			</div>
 		</div>
 	</div>
@@ -70,7 +66,7 @@
 				<div class="commentIndicator"><i class="fa fa-comments-o"></i> {{p.commentLength}}</div>
 
 				<div class="btn-bar" ng-hide="snapshotMode">
-					<a title="Details ansehen" ui-sref=".source.id({ sourceId: p.id })"><i class="glyphicon glyphicon-zoom-in"></i></a>
+					<a title="{{'sources_show_details' | translate}}" ui-sref=".source.id({ sourceId: p.id })"><i class="glyphicon glyphicon-zoom-in"></i></a>
 					<!--<a ng-if="p.type == 'plan' && p.plan3d && !p.plan3d.meshId" title="In 3D-View laden" ng-click="load3DPlan(p)"><i class="glyphicon glyphicon-open"></i></a>-->
 					<!--<a ng-if="p.type == 'plan' && !p.plan3d" title="3D-Plan importieren" ng-click="openInsertForm('zip', p)"><i class="glyphicon glyphicon-import"></i></a>-->
 					<!--<a ng-if="p.type == 'plan' && p.plan3d && p.plan3d.meshId" title="3D-Plan verknüpfen" ng-click="connectPlanToObj(p)"><i class="fa fa-link"></i></a>-->

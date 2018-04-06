@@ -83,19 +83,8 @@ sources-list {
       flex: 0 0 auto; }
       sources-list > .sources-body > .blindsource > .source-item > .thumbnail {
         height: 163px; }
-        sources-list > .sources-body > .blindsource > .source-item > .thumbnail > .dropArea {
-          height: 153px;
-          width: 100%;
-          font-size: 14px;
-          flex-direction: column; }
-          sources-list > .sources-body > .blindsource > .source-item > .thumbnail > .dropArea > div {
-            width: 100%;
-            white-space: normal; }
-          sources-list > .sources-body > .blindsource > .source-item > .thumbnail > .dropArea > .plus {
-            flex: 0 0 60px;
-            padding: 10px 0; }
-            sources-list > .sources-body > .blindsource > .source-item > .thumbnail > .dropArea > .plus > svg {
-              width: 40px; }
+        sources-list > .sources-body > .blindsource > .source-item > .thumbnail > file-drop-area {
+          height: 153px; }
     sources-list > .sources-body > .list {
       flex: 1 1 auto;
       overflow-x: scroll;
@@ -130,16 +119,6 @@ sources-list {
       height: 80px; }
     .source-upload-form .upload-file > div {
       padding: 10px 20px; }
-  .source-upload-form .dropArea {
-    height: 80px;
-    width: 300px;
-    font-size: 16px; }
-    .source-upload-form .dropArea .plus {
-      flex: 0 0 60px;
-      height: 40px;
-      padding: 0 10px; }
-    .source-upload-form .dropArea svg {
-      width: 40px; }
   .source-upload-form .queue-header {
     margin-top: 10px; }
     .source-upload-form .queue-header > table {
