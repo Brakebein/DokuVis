@@ -566,39 +566,6 @@ angular.module('dokuvis.viewport',[
 			}
 
 
-			/**
-			 * set material for object
-			 * @param {THREE.Mesh} obj - object
-			 * @param {boolean} setAmbient
-			 * @param {boolean} disableColor
-			 * @param {boolean} disableSpecular
-			 * @param {boolean} [unsafe=false]
-			 * @deprecated
-			 */
-			function setObjectMaterial(obj, setAmbient, disableColor, disableSpecular, unsafe) {
-				if(obj.material.name in materials) {
-					obj.material = materials[obj.material.name];
-					obj.userData.originalMat = obj.material.name;
-					return;
-				}
-				//obj.material.color.convertGammaToLinear();
-				obj.material.color.convertLinearToGamma();
-				if(setAmbient)
-					obj.material.ambient = obj.material.color.clone();
-				if(disableColor)
-					obj.material.color.setHex(0x000000);
-				if(disableSpecular && obj.material instanceof THREE.MeshPhongMaterial)
-					obj.material.specular.setHex(0x000000);
-				if(unsafe) {
-					obj.material.transparent = true;
-					obj.material.opacity = 0.5;
-				}
-				obj.material.side = THREE.DoubleSide;
-				materials[obj.material.name] = obj.material;
-				obj.userData.originalMat = obj.material.name;
-			}
-
-
 			///// SELECTION / RAYCASTING
 
 			/**
@@ -2613,8 +2580,10 @@ angular.module('dokuvis.viewport',[
 				}
 				else if (typeof m.diffuse === 'string') {
 					textureLoader.load('data/' + m.path + m.diffuse, function (map) {
+						map.anisotropy = 2;
 						material.map = map;
 						material.needsUpdate = true;
+						animateThrottle500();
 					}, null, function (xhr) {
 						$log.warn('Couldn\'t load texture', xhr.path[0].src);
 					});
@@ -2626,10 +2595,10 @@ angular.module('dokuvis.viewport',[
 						material.alphaMap = map;
 						material.transparent = true;
 						material.needsUpdate = true;
+						animateThrottle500();
 					}, null, function (xhr) {
 						$log.warn('Couldn\'t load texture', xhr.path[0].src);
 					});
-
 				}
 
 				material.side = THREE.DoubleSide;
@@ -2673,6 +2642,8 @@ angular.module('dokuvis.viewport',[
 
 			// clear scene and dispose geometries and materials
 			function resetScene() {
+				setSelected(null);
+
 				// remove from scene and collection
 				[].concat(objects.list).forEach(function (obj) {
 					obj.object.parent.remove(obj.object);
@@ -2701,47 +2672,8 @@ angular.module('dokuvis.viewport',[
 				}
 
 				animate();
-				//webglInterface.clearLists(); // deprecated
 			}
 
-			/**
-			 * @deprecated
-			 */
-			webglInterface.callFunc.resetScene = function () {
-				for(var key in objects) {
-					if(!objects.hasOwnProperty(key)) continue;
-					var obj = objects[key];
-					var p = obj.mesh.parent;
-					p.remove(obj.mesh);
-					//if(obj.mesh.geometry) obj.mesh.geometry.dispose();
-					if(obj.edges) {
-						scene.remove(obj.edges);
-						//obj.edges.geometry.dispose();
-					}
-					delete objects[key];
-				}
-				for(var key in geometries) {
-					if(!geometries.hasOwnProperty(key)) continue;
-					if(geometries[key].meshGeo) geometries[key].meshGeo.dispose();
-					if(geometries[key].edgesGeo) geometries[key].edgesGeo.dispose();
-					delete geometries[key];
-				}
-				animate();
-				webglInterface.clearLists();
-			};
-
-			// function removeObject(obj) {
-			// 		var p = obj.mesh.parent;
-			// 		p.remove(obj.mesh);
-			// 		if(obj.edges) scene.remove(obj.edges);
-			// 		obj.mesh.geometry.dispose();
-			// 		obj.edges.geometry.dispose();
-			// 		delete objects[obj.mesh.id];
-			// 		for(var i=0; i<obj.mesh.children.length; i++) {
-			// 			removeObject()
-			// 		}
-			// 	}
-			// }
 
 			///// OBJECT EVENTS
 
@@ -2794,68 +2726,6 @@ angular.module('dokuvis.viewport',[
 				setSelected(event.target, event.originalEvent.ctrlKey);
 			}
 
-			/**
-			 * @deprecated
-			 * @param id
-			 * @param ctrlKey
-			 * @param deselect
-			 */
-			webglInterface.callFunc.selectObject = function(id, ctrlKey, deselect) {
-				if(objects[id].visible)
-					setSelected(objects[id].mesh, ctrlKey, deselect);
-				animate();
-			};
-
-
-
-			/**
-			 * get object by id and add or remove mesh and edges
-			 * @param item
-			 * @param {boolean} visible
-			 * @deprecated
-			 */
-			webglInterface.callFunc.toggleObject = function(item, visible) {
-				var p;
-				if(item.parent)
-					p = objects[item.parent.id].mesh;
-				else
-					p = scene;
-
-				var obj = p.getObjectById(item.id);
-				if(visible && !obj) {
-					p.add(objects[item.id].mesh);
-					scene.add(objects[item.id].edges);
-					objects[item.id].visible = true;
-					addChildren(item.children);
-
-				}
-				else if(!visible) {
-					p.remove(objects[item.id].mesh);
-					scene.remove(objects[item.id].edges);
-					objects[item.id].visible = false;
-					removeChildren(item.children);
-				}
-
-				animate();
-			};
-
-			function addChildren(children) {
-				for(var i=0; i<children.length; i++) {
-					var cid = children[i].id;
-					scene.add(objects[cid].edges);
-					objects[cid].visible = true;
-					addChildren(children[i].children);
-				}
-			}
-
-			function removeChildren(children) {
-				for(var i=0; i<children.length; i++) {
-					var cid = children[i].id;
-					scene.remove(objects[cid].edges);
-					objects[cid].visible = false;
-					removeChildren(children[i].children);
-				}
-			}
 
 			///// CATEGORIES
 
@@ -3092,6 +2962,7 @@ angular.module('dokuvis.viewport',[
 				collectChildren(objs);
 				focusObjects(cc);
 			};
+
 
 			///// FOCUS OBJECTS
 
