@@ -293,9 +293,30 @@ Converter for compressing 3D models to `.ctm` files.
 Download: http://openctm.sourceforge.net/
 
 #### ImageMagick
-Command line tools for converting and processing images.
+Command line tools for converting and processing images.<br>
+Use version lower than **7**.
 
 Download: http://www.imagemagick.org/script/download.php#windows
+
+#### Ghostscript
+Tool to interprete and render Postscript and PDF.
+
+Download: https://www.ghostscript.com/download/gsdnld.html
+
+#### Assimp
+Command line tool to load a variety of 3D file format and perform several cleaning operation (i.a. triangulation).
+
+Download latest (4.1.0) version: https://github.com/assimp/assimp/releases
+
+**Compilation needs to be done manually:**
+
+Create project files (use VS version as available, already there if you installed *windows-build-tools*):
+
+    > cmake CMakelist.txt -G "Visual Studio 14 2015 Win64"
+
+Compile project:
+
+    > MSBuild.exe Assimp.sln /property:Configuration=Release
 
 #### Other
 More to come, later on:
