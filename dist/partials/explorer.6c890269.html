@@ -26,7 +26,7 @@
 				 data-ng-disabled="enableSnapshotForm"
 				 ng-click="views.activeSide = 'sceneobjects'"
 				 ng-include="'img/icons/tree.dd3838c0.svg'"></div>
-			<div title="Kommentare"
+			<div title="{{'comments'|translate}}"
 				 class="smBtn"
 				 ng-class="{'active': views.activeSide === 'comments'}"
 				 ng-click="views.activeSide = 'comments'"
@@ -39,7 +39,7 @@
 
 		<div class="sideContainer" ng-show="views.activeSide === 'sceneobjects'" ng-include="'partials/explorer.sceneobjects.8d885fab.html'"></div>
 
-		<div class="sideContainer" ng-show="views.activeSide === 'comments'" ng-include="'partials/explorer.comments.ad22de7f.html'"></div>
+		<div class="sideContainer" ng-show="views.activeSide === 'comments'" ng-include="'partials/explorer.comments.ac9e1aa4.html'"></div>
 
 		<!--<div class="sideContainer" ng-show="views.activeSide === 'objproperties'" ng-include="'partials/explorer.properties.9c4e8fa5.html'"></div>-->
 

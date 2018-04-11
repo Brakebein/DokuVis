@@ -25,6 +25,13 @@
 				<li>
 					<button class="btn btn-default btn-sm navbar-btn" ng-click="logout()"><i class="glyphicon glyphicon-log-out"></i> {{'logout' | translate}}</button>
 				</li>
+				<li>
+					<a href="#" title="Sprache"
+					   bs-popover
+					   data-template-url="partials/popovers/languageConfig.79c50210.html"
+					   data-placement="bottom"
+					   data-auto-close="1">{{ $root.currentLanguage.shortKey | uppercase }}</a>
+				</li>
 			</ul>
 
 			<ul class="nav navbar-nav navbar-right" ng-hide="isLogged">
@@ -41,6 +48,13 @@
 				</li>
 				<li>
 					<button class="btn btn-default btn-sm navbar-btn" ui-sref="root.register">{{'register' | translate}}</button>
+				</li>
+				<li>
+					<a href="#" title="Sprache"
+					   bs-popover
+					   data-template-url="partials/popovers/languageConfig.79c50210.html"
+					   data-placement="bottom"
+					   data-auto-close="1">{{ $root.currentLanguage.shortKey | uppercase }}</a>
 				</li>
 			</ul>
 

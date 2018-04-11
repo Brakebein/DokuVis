@@ -162,63 +162,6 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 			$rootScope.$broadcast('snapshotViewClose');
 		}
 
-		/**
-		 * lädt alle Screenshots in Liste
-		 * @deprecated
-		 */
-		$scope.getScreenshots = function() {
-			neo4jRequest.getScreenshotsWithMarkers($scope.project).then(function(response){
-				if(response.data.exception) { Utilities.throwNeo4jException('on getScreenshots()', response); return; }
-				if(response.data) $scope.screenshots = Utilities.cleanNeo4jData(response.data);
-				console.log('Screenshots:', $scope.screenshots);
-			});
-		};
-
-		/**
-		 * lädt alle Kommentare
-		 * @deprecated
-		 */
-		$scope.queryComments = function () {
-			Comment.query().$promise.then(function (data) {
-				// target reference
-				for(var i=0; i<data.length; i++) {
-					if(data[i].type !== 'commentSource') continue;
-					for(var j=0; j<data[i].targets.length; j++) {
-						for(var k=0; k<$scope.sourceResults.length; k++) {
-							if(data[i].targets[j] === $scope.sourceResults[k].eid) {
-								data[i].targets[j] = $scope.sourceResults[k];
-								break;
-							}
-						}
-					}
-				}
-				$scope.comments = data;
-				console.log('Comments:', $scope.comments);
-			}, function (err) {
-				Utilities.throwApiException('on Comment.query()', err);
-			});
-		};
-
-		/**
-		 * @deprecated
-		 */
-		webglInterface.callFunc.updateComments = function () {
-			$scope.queryComments();
-		};
-
-		/**
-		 * @deprecated
-		 * @param data
-		 */
-		$scope.receiveScreenshot = function(data) {
-			var tid = Utilities.getUniqueId();
-			data.path = $stateParams.project + '/screenshots/';
-			data.filename = tid + '_screenshot.jpg';
-			
-			//var data = $scope.callDirFunc.getScreenshot();
-			
-			$scope.openScreenshotDetail(data);
-		};
 
 		/**
 		 * @deprecated
@@ -528,7 +471,7 @@ angular.module('dokuvisApp').controller('explorerCtrl', ['$scope', '$rootScope',
 		// wenn Controller zerstört wird
 		$scope.$on('$destroy', function() {
 			//webglInterface.clearLists();
-			webglInterface.callFunc.removePins();
+			// webglInterface.callFunc.removePins();
 			console.log('destroy explorerCtrl');
 		});
 		

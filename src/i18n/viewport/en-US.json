@@ -22,5 +22,8 @@
   "viewport_spatialimages": "Spatial images",
   "viewport_selection_0": "No objects selected",
   "viewport_selection_one": "object selected",
-  "viewport_selection_other": "objects selected"
+  "viewport_selection_other": "objects selected",
+  "viewport_snapshot_linewidth": "Line width",
+  "viewport_snapshot_paint": "Paint",
+  "viewport_snapshot_pin": "Pin objects"
 }

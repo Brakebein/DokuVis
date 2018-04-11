@@ -304,11 +304,11 @@ angular.module('dokuvis.viewport')
 	}
 ])
 
-.directive('viewportSnapshot', ['$rootScope',
-	function ($rootScope) {
+.directive('viewportSnapshot', ['$rootScope', '$timeout',
+	function ($rootScope, $timeout) {
 
 		return {
-			templateUrl: 'components/dokuvis.viewport/viewportSnapshot.html',
+			templateUrl: 'components/dokuvis.viewport/viewportSnapshot.tpl.html',
 			restrict: 'E',
 			link: function (scope, element) {
 
@@ -334,14 +334,25 @@ angular.module('dokuvis.viewport')
 						scope.abortPinning();
 					}
 				};
-				
-				scope.$on('snapshotPrepareSave', function () {
-					snapshotPainting(element.find('#pwCanvasMain')[0].toDataURL("image/png"));
-				});
-				
-				function snapshotPainting(paintData) {
-					$rootScope.$broadcast('snapshotPainting', paintData);
+
+				// get the image data of the canvas element
+				function getPainting() {
+					return element.find('#pwCanvasMain')[0].toDataURL("image/png");
 				}
+
+				// pass relevant methods to snapshotForm
+				function snapshotSyncViewport () {
+					$rootScope.$broadcast('snapshotSyncViewport', {
+						getPainting: getPainting,
+						getScreenshot: scope.getScreenshot,
+						removeObjectFromMarked: scope.removeObjectFromMarked
+					});
+				}
+
+				// init
+				$timeout(function () {
+					snapshotSyncViewport();
+				}, 1000);
 
 				element.on('$destroy', function () {
 					scope.$destroy();

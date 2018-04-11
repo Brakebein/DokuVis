@@ -358,6 +358,17 @@ angular.module('dokuvis.comments', [
 				scope.refObj = [];
 				scope.refSrc = [];
 
+				scope.isSaving = false;
+
+				var viewportAPI;
+
+				// waiting for initializing sync event from viewportSnapshot
+				scope.$on('snapshotSyncViewport', function (event, args) {
+					console.log(args);
+					viewportAPI = args;
+					scope.screenshot = viewportAPI.getScreenshot();
+				});
+
 				scope.$on('snapshotPinSuccess', function (event, object, pinMatrix) {
 					if (!scope.refObj.find(function (obj) { return obj.object === object; }))
 						scope.refObj.push({
@@ -371,18 +382,9 @@ angular.module('dokuvis.comments', [
 						scope.refSrc.push(ref);
 				});
 
-				scope.$on('snapshotScreenshot', function (event, screenshot) {
-					scope.screenshot = screenshot;
-				});
-
-				scope.$on('snapshotPainting', function (event, paintData) {
-					scope.screenshot.pData = paintData;
-					finalize();
-				});
-
 				scope.removeObject = function (obj) {
 					scope.refObj.splice(scope.refObj.indexOf(obj), 1);
-					snapshotPinRemove(obj.object);
+					viewportAPI.removeObjectFromMarked(obj.object);
 				};
 
 				scope.removeSource = function (src) {
@@ -397,17 +399,16 @@ angular.module('dokuvis.comments', [
 						Utilities.dangerAlert('Markiere mindestens ein Objekt, über das dieser Kommentar handelt.');
 						return;
 					}
+					if (!scope.screenshot) {
+						Utilities.dangerAlert('No screenshot available!');
+						return;
+					}
 
-					snapshotPrepareSave();
-				};
+					scope.screenshot.pData = viewportAPI.getPainting();
 
-				scope.abort = function () {
-					snapshotEnd();
-				};
+					$log.debug(scope.comment, scope.refObj, scope.refSrc, scope.screenshot);
+					scope.isSaving = true;
 
-				function finalize() {
-					console.log(scope.comment, scope.refObj, scope.refSrc, scope.screenshot);
-					// return;
 					Comment.save({
 						type: 'model',
 						text: scope.comment,
@@ -421,17 +422,14 @@ angular.module('dokuvis.comments', [
 							commentsUpdate(result);
 						})
 						.catch(function (reason) {
-							Utilities.throwApiException('Comment.create', reason);
+							Utilities.throwApiException('Comment.save', reason);
+							scope.isSaving = false;
 						});
-				}
+				};
 
-				function snapshotPinRemove(object) {
-					$rootScope.$broadcast('snapshotPinRemove', object);
-				}
-
-				function snapshotPrepareSave() {
-					$rootScope.$broadcast('snapshotPrepareSave');
-				}
+				scope.abort = function () {
+					snapshotEnd();
+				};
 
 				function snapshotEnd() {
 					$rootScope.$broadcast('snapshotEnd');

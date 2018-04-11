@@ -1,6 +1,4 @@
-<p ng-hide="target" class="bs-callout bs-callout-default bs-callout-sm">
-	No target specified!
-</p>
+<p ng-hide="target" class="bs-callout bs-callout-default bs-callout-sm" translate>comment_no_target</p>
 
 <div ng-show="target">
 	<div class="comment" ng-repeat="comment in comments | orderBy: 'created.date':true">
@@ -16,9 +14,9 @@
 			<textarea ng-show="comment.answering" title="Comment input" class="form-control" data-ng-model="comment.newAnswerInput"></textarea>
 
 			<div class="actions text-right">
-				<a href="" ng-hide="comment.answering" ng-click="comment.answering = true">Antworten</a>
-				<a href="" ng-show="comment.answering" ng-click="postAnswer(comment)">Posten</a>
-				<a href="" ng-show="comment.answering" ng-click="comment.answering = false">Abbrechen</a>
+				<a href="" ng-hide="comment.answering" ng-click="comment.answering = true">{{'comment_answer_do'|translate}}</a>
+				<a href="" ng-show="comment.answering" ng-click="postAnswer(comment)">{{'comment_answer_post'|translate}}</a>
+				<a href="" ng-show="comment.answering" ng-click="comment.answering = false">{{'abort'|translate}}</a>
 			</div>
 		</div>
 	</div>
@@ -27,6 +25,6 @@
 <div ng-show="target" class="post-section">
 	<textarea title="Answer input" class="form-control" data-ng-model="newCommentInput"></textarea>
 	<p class="text-right">
-		<button class="btn btn-primary btn-xs" ng-click="postComment()" data-ng-disabled="!newCommentInput.length"><i class="fa fa-paper-plane"></i> Senden</button>
+		<button class="btn btn-primary btn-xs" ng-click="postComment()" data-ng-disabled="!newCommentInput.length"><i class="fa fa-paper-plane"></i> {{'comment_answer_post'|translate}}</button>
 	</p>
 </div>

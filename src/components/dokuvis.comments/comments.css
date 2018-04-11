@@ -147,4 +147,7 @@ comment-detail .answer-section {
       margin-left: 10px;
       text-transform: uppercase; }
 
+snapshot-form > form {
+  position: relative; }
+
 /*# sourceMappingURL=comments.css.map */

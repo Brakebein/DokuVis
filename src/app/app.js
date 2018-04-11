@@ -4,7 +4,7 @@
 /**
  * Dokuvis base module.
  *
- * @version 0.1.4
+ * @version 0.1.5
  * @ngdoc module
  * @name dokuvisApp
  * @module dokuvisApp
@@ -350,6 +350,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					$translatePartialLoader.addPart('sources');
 					$translatePartialLoader.addPart('model');
 					$translatePartialLoader.addPart('viewport');
+					$translatePartialLoader.addPart('comment');
 					$translatePartialLoader.addPart('category');
 				}],
 				params: {

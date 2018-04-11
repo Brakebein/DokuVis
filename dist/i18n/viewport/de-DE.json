@@ -22,5 +22,8 @@
   "viewport_spatialimages": "Verortete Bilder",
   "viewport_selection_0": "Keine Objekte ausgewählt",
   "viewport_selection_one": "Objekt ausgewählt",
-  "viewport_selection_other": "Objekte ausgewählt"
+  "viewport_selection_other": "Objekte ausgewählt",
+  "viewport_snapshot_linewidth": "Linienstärke",
+  "viewport_snapshot_paint": "Malen",
+  "viewport_snapshot_pin": "Pinnen"
 }

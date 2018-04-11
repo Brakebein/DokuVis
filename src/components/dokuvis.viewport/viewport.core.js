@@ -1728,7 +1728,7 @@ angular.module('dokuvis.viewport',[
 
 			///// SNAPSHOT
 
-			// listen to snapshotStart event
+			// listen to snapshotStart event and initialize viewport-snapshot
 			scope.$on('snapshotStart', function () {
 				if (angular.element(element).find('viewport-snapshot').length)
 					return;
@@ -1738,18 +1738,83 @@ angular.module('dokuvis.viewport',[
 					width: SCREEN_WIDTH,
 					height: SCREEN_HEIGHT
 				};
+				elScope.getScreenshot = getScreenshot;
+
+				// start pinning/highlighting
+				elScope.startPinning = function () {
+					setNavigationMode();
+					pin = new DV3D.Pin(3, 0.5);
+					scene.add(pin);
+					isPinning = true;
+				};
+
+				// abort pinning
+				elScope.abortPinning = function () {
+					isPinning = false;
+					setNavigationMode();
+				};
+
+				// mousemove handler on snapshot pin layer
+				elScope.mousemovePinLayer = function (event) {
+					if (isPinning && pin) {
+						var mouse = mouseToViewportCoords(event);
+						var testObjects = [];
+						objects.forEach(function (obj) {
+							if (obj.type === 'object')
+								testObjects.push(obj.object);
+						}, true);
+
+						var intersection = raycast(mouse, testObjects);
+
+						if (intersection) {
+							pin.set(intersection);
+							highlightObject(intersection.object);
+						}
+						else {
+							pin.set();
+							highlightObject();
+						}
+
+						animateThrottle20();
+					}
+				};
+
+				elScope.mouseleavePinLayer = function () {
+					if (isPinning && pin) {
+						pin.set();
+						highlightObject();
+						animateAsync();
+					}
+				};
+
+				// mouseup handler on snaphot pin layer (called from child scope)
+				elScope.mouseupPinLayer = function (event) {
+					event.preventDefault();
+					if (isPinning && pin && event.button === 0) {
+						if (highlighted[0]) {
+							var obj = highlighted[0];
+							if (marked.indexOf(obj) === -1) {
+								markObject(obj);
+								snapshotPinSuccess(objects.get(obj.id), pin.matrixWorld.toArray());
+
+								animateThrottle20();
+							}
+						}
+					}
+				};
+
+				elScope.removeObjectFromMarked = function (obj) {
+					markObject(obj.object, true);
+					animateAsync();
+				};
 
 				snapshotElement = $compile('<viewport-snapshot></viewport-snapshot>')(elScope);
 				$animate.enter(snapshotElement, element);
 
 				angular.element(element).find('viewport-navigation').attr('disabled', true);
-
-				$timeout(function () {
-					snapshotScreenshot(getScreenshot());
-				}, 1000);
 			});
 
-			// listen to snapshotEnd event
+			// listen to snapshotEnd event and remove snapshotElement
 			scope.$on('snapshotEnd', function () {
 				if (snapshotElement) $animate.leave(snapshotElement);
 				snapshotElement = null;
@@ -1758,78 +1823,9 @@ angular.module('dokuvis.viewport',[
 				animateAsync();
 			});
 
-			// in snapshot mode, start pinning/highlighting (called from child scope)
-			scope.startPinning = function () {
-				setNavigationMode();
-				pin = new DV3D.Pin(3, 0.5);
-				// pin.addEventListener('change', animateThrottle20);
-				scene.add(pin);
-				isPinning = true;
-			};
-
-			// abort pinning (called from child scope)
-			scope.abortPinning = function () {
-				isPinning = false;
-				setNavigationMode();
-			};
-
-			// mousemove handler on snapshot pin layer (called from child scope)
-			scope.mousemovePinLayer = function (event) {
-				if (isPinning && pin) {
-					var mouse = mouseToViewportCoords(event);
-					var testObjects = [];
-					objects.forEach(function (obj) {
-						if (obj.type === 'object')
-							testObjects.push(obj.object);
-					}, true);
-
-					var intersection = raycast(mouse, testObjects);
-
-					if (intersection) {
-						pin.set(intersection);
-						highlightObject(intersection.object);
-					}
-					else {
-						pin.set();
-						highlightObject();
-					}
-
-					animateThrottle20();
-				}
-			};
-
-			scope.mouseleavePinLayer = function () {
-				if (isPinning && pin) {
-					pin.set();
-					highlightObject();
-					animateAsync();
-				}
-			};
-
-			// mouseup handler on snaphot pin layer (called from child scope)
-			scope.mouseupPinLayer = function (event) {
-				event.preventDefault();
-				if (isPinning && pin && event.button === 0) {
-					if (highlighted[0]) {
-						var obj = highlighted[0];
-						if (marked.indexOf(obj) === -1) {
-							markObject(obj);
-							snapshotPinSuccess(objects.get(obj.id), pin.matrixWorld.toArray());
-
-							animateThrottle20();
-						}
-					}
-				}
-			};
-
-			scope.$on('snapshotPinRemove', function (event, obj) {
-				markObject(obj.object, true);
-				animateAsync();
-			});
-
 			/**
 			 * Retrieve viewport image and camera data
-			 * @return {{sData: string, cameraMatrix: *, cameraFOV: *, cameraCenter: *, width: *, height: *}}
+			 * @return {{sData: string, cameraMatrix: Array<number>, cameraFOV: number, cameraCenter: Array<number>, width: number, height: number}}
 			 */
 			function getScreenshot() {
 				return {
@@ -1842,13 +1838,10 @@ angular.module('dokuvis.viewport',[
 				};
 			}
 
-			function snapshotScreenshot(screenshot) {
-				$rootScope.$broadcast('snapshotScreenshot', screenshot);
-			}
-
 			function snapshotPinSuccess(object, pinMatrix) {
 				$rootScope.$broadcast('snapshotPinSuccess', object, pinMatrix);
 			}
+
 
 			scope.$on('snapshotViewStart', function (event, screenData) {
 				setSnapshotView(screenData);

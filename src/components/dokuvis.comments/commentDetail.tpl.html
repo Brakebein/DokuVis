@@ -1,50 +1,51 @@
 <div ng-switch="comment.type">
 	<div ng-switch-when="commentModel">
 		<img ng-src="data/{{comment.screenshots[0].path + comment.screenshots[0].thumb}}"/>
-		<h4><span class="commentModel"></span> Modellkommentar</h4>
+		<h4><span class="commentModel"></span> {{'comment_model_c' | translate}}</h4>
 	</div>
 	<div ng-switch-when="commentSource">
 		<img ng-src="data/{{comment.targets[0].file.path + comment.targets[0].file.thumb}}"/>
-		<h4><span class="commentSource"></span> Quellenkommentar</h4>
+		<h4><span class="commentSource"></span> {{'comment_source_c' | translate}}</h4>
 	</div>
 	<div ng-switch-when="commentTask">
 		<div ng-include="'img/icons/task.svg'"></div>
-		<h4><span class="commentTask"></span> Aufgabenkommentar</h4>
+		<h4><span class="commentTask"></span> {{'comment_task_c' | translate}}</h4>
 	</div>
 </div>
 
 <p>
 	<button class="btn btn-default btn-xs"
-			title="Ansicht einnehmen"
+			title="{{'comment_view_takeup' | translate}}"
 			ng-show="comment.type === 'commentModel'"
 			ng-click="setScreenshotView()">
-		<i class="glyphicon glyphicon-eye-open"></i> Ansicht</button>
+		<i class="glyphicon glyphicon-eye-open"></i> {{'comment_view' | translate}}</button>
 	<button class="btn btn-default btn-xs"
+			title="{{'comment_drawings_show' | translate}}"
 			ng-show="comment.type === 'commentModel'"
 			ng-click="showSnapshot()">
-		<i class="glyphicon glyphicon-picture"></i> User drawings</button>
+		<i class="glyphicon glyphicon-picture"></i> {{'comment_drawings' | translate}}</button>
 	<button class="btn btn-default btn-xs"
-			title="Quelle öffnen"
+			title="{{'comment_source_open' | translate}}"
 			ng-show="comment.type === 'commentSource'"
 			ui-sref=".source.id({ sourceId: comment.targets[0].id })">
-		<i class="glyphicon glyphicon-file"></i> Quelle</button>
+		<i class="glyphicon glyphicon-file"></i> {{'comment_source' | translate}}</button>
 	<button class="btn btn-default btn-xs"
-			title="Aufgabe öffnen"
+			title="{{'comment_task_open' | translate}}"
 			ng-show="comment.type === 'commentTask'"
 			ui-sref="project.tasks({ initialTask: comment.targets[0].id })">
-		<i class="fa fa-check-square-o"></i> Aufgabe</button>
+		<i class="fa fa-check-square-o"></i> {{'comment_task' | translate}}</button>
 </p>
 
 
 <p><small>{{comment.created.name}} - {{comment.created.date | amCalendar}}</small></p>
 
 <dl>
-	<dt>Kommentar/Argumentation</dt>
+	<dt>{{'comment'|translate}}/{{'comment_argumentation'|translate}}</dt>
 	<dd>{{comment.value}}</dd>
 </dl>
 
 <dl>
-	<dt>Objekte</dt>
+	<dt translate>comment_objects</dt>
 	<dd>
 		<span ng-repeat="t in comment.targets | orderBy:'label'">
 			<span class="tag-item" ng-show="comment.type === 'commentModel'"><i class="fa fa-cube"></i> {{ t.label }}</span>
@@ -56,29 +57,29 @@
 	</dd>
 </dl>
 <dl>
-	<dt>Referenzierte Quellen</dt>
+	<dt translate>comment_ref_sources</dt>
 	<dd>
-		<span ng-hide="comment.refs.length">Keine Referenzen angegeben.</span>
+		<span ng-hide="comment.refs.length" translate>comment_ref_no</span>
 		<div class="src-item" ng-repeat="ref in comment.refs | orderBy:'label'" ui-sref=".source.id({ sourceId: ref.id })">
 			<img ng-src="data/{{ref.file.path + ref.file.thumb}}" title="{{ref.label}}" />
 		</div>
 	</dd>
 </dl>
 <dl>
-	<dt>Antworten</dt>
+	<dt translate>comment_answers</dt>
 	<dd class="answer-section">
-		<span ng-hide="comment.answers.length">Keine Antworten vorhanden.</span>
+		<span ng-hide="comment.answers.length" translate>comment_answer_no</span>
 		<div class="answer" ng-repeat="answer in comment.answers | orderBy: 'created.date':false">
 			<div class="author-date text-right">{{answer.created.name}} - {{answer.created.date | amCalendar}}</div>
 			{{answer.value}}
 		</div>
 
-		<textarea ng-show="isAnswering" title="Comment input" class="form-control" data-ng-model="newAnswerInput"></textarea>
+		<textarea ng-show="isAnswering" title="Comment input" class="form-control ng-hide" data-ng-model="newAnswerInput"></textarea>
 
 		<div class="actions text-right">
-			<a href="" ng-hide="isAnswering" ng-click="isAnswering = true">Antworten</a>
-			<a href="" ng-show="isAnswering" ng-click="postAnswer()">Posten</a>
-			<a href="" ng-show="isAnswering" ng-click="isAnswering = false">Abbrechen</a>
+			<a href="" ng-hide="isAnswering" ng-click="isAnswering = true">{{'comment_answer_do'|translate}}</a>
+			<a href="" ng-show="isAnswering" ng-click="postAnswer()">{{'comment_answer_post'|translate}}</a>
+			<a href="" ng-show="isAnswering" ng-click="isAnswering = false">{{'abort'|translate}}</a>
 		</div>
 	</dd>
 </dl>
