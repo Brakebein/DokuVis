@@ -5,6 +5,7 @@
   "model_version_new": "Neue Version hinzufügen",
   "model_version_none": "Keine Version ausgwählt.",
   "model_version_root": "Dies ist die <b>root</b>-Version und enthält keine Objekte. Wähle eine Version aus oder füge eine neue hinzu.",
+  "model_version_edit": "Version bearbeiten",
   "model_upload_heading": "Modell hochladen",
   "model_upload_hint": "Zur Zeit werden nur <b>DAE</b>-Dateien oder DAE + Texturen als <b>ZIP</b> verpackt verarbeitet.",
   "model_upload_parent": "Die neue Version wird als Nachfolgeversion von <b>{{parent}}</b> gespeichert.",

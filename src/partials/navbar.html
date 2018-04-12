@@ -14,7 +14,7 @@
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse" id="bs-navbar-collapse">
 			<ul class="nav navbar-nav">
-				<li ui-sref-active="active"><a ui-sref="root.projectlist">Projekte</a></li>
+				<li ui-sref-active="active"><a ui-sref="root.projectlist" translate>menu_projects</a></li>
 				<!--<li><a href="#/explorer">Explorer</a></li>-->
 			</ul>
 
@@ -26,7 +26,7 @@
 					<button class="btn btn-default btn-sm navbar-btn" ng-click="logout()"><i class="glyphicon glyphicon-log-out"></i> {{'logout' | translate}}</button>
 				</li>
 				<li>
-					<a href="#" title="Sprache"
+					<a href="#" title="{{'menu_language'|translate}}"
 					   bs-popover
 					   data-template-url="partials/popovers/languageConfig.html"
 					   data-placement="bottom"
@@ -50,7 +50,7 @@
 					<button class="btn btn-default btn-sm navbar-btn" ui-sref="root.register">{{'register' | translate}}</button>
 				</li>
 				<li>
-					<a href="#" title="Sprache"
+					<a href="#" title="{{'menu_language'|translate}}"
 					   bs-popover
 					   data-template-url="partials/popovers/languageConfig.html"
 					   data-placement="bottom"

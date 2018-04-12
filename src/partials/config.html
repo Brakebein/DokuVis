@@ -19,9 +19,7 @@
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h4 class="panel-title">
-					{{'config_staff_title' | translate}}
-				</h4>
+				<h4 class="panel-title" translate>config_staff_title</h4>
 			</div>
 
 			<div class="panel-body">
@@ -29,7 +27,7 @@
 				<staff-list></staff-list>
 
 				<p>
-					<button class="btn btn-primary" ng-show="can('edit_staff')" ui-sref="project.config.staffedit"><i class="fa fa-plus"></i> {{'config_staff_button_add' | translate}}</button>
+					<button class="btn btn-primary" ng-show="can('staff_edit')" ui-sref="project.config.staffedit"><i class="fa fa-plus"></i> {{'config_staff_button_add' | translate}}</button>
 				</p>
 
 			</div>

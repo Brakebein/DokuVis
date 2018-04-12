@@ -18,7 +18,7 @@
 								label-after="filedrop_file"
 								column></file-drop-area>
 			</div>
-			<div class="progressArea" ng-show="uploader.isHTML5 && uploader.queue.length && uploader.queue[0]">
+			<div class="file-progress" ng-show="uploader.isHTML5 && uploader.queue.length && uploader.queue[0]">
 				<div class="progress">
 					<div class="progress-bar" role="progressbar" ng-style="{ 'width': uploader.queue[0].progress + '%' }"></div>
 				</div>
@@ -164,10 +164,17 @@
 			</div>
 		</form>
 
+		<div class="progress-overlay" ng-show="isSaving">
+			<div>
+				<h4>{{'saving' | translate}}...</h4>
+				<div><img src="img/db_write.gif"/></div>
+			</div>
+		</div>
+
 	</div>
 
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" ng-click="save()">{{'save' | translate}}</button>
+		<button type="button" class="btn btn-primary" ng-click="save()" data-ng-disabled="isSaving">{{'save' | translate}}</button>
 		<button type="button" class="btn btn-default" ng-click="close()">{{'abort' | translate}}</button>
 	</div>
 

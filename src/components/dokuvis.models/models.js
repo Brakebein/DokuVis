@@ -565,7 +565,7 @@ angular.module('dokuvis.models', [
 					var tmpData = [].concat(data);
 
 					// add blind version / only in subproject
-					if ($rootScope.globalSubproject)
+					if ($rootScope.globalSubproject && $rootScope.can('model_upload'))
 						tmpData.push({
 							id: 'blind',
 							predecessor: activeVersion ? activeVersion.id : tmpData[tmpData.length - 1].id,
@@ -793,6 +793,7 @@ angular.module('dokuvis.models', [
 .controller('versionModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'ModelVersion', 'Software', 'ConfirmDialog', 'Utilities', '$log',
 	function ($scope, $rootScope, $state, $stateParams, ModelVersion, Software, ConfirmDialog, Utilities, $log) {
 
+		$scope.isSaving = false;
 		$scope.commit = null;
 
 		function getVersion() {
@@ -820,6 +821,9 @@ angular.module('dokuvis.models', [
 			$scope.commit.software = $scope.commit.software.map(function (sw) {
 				return sw.name;
 			});
+
+			$scope.isSaving = true;
+
 			$scope.commit.$update()
 				.then(function (result) {
 					modelVersionUpdate(result);
@@ -827,6 +831,7 @@ angular.module('dokuvis.models', [
 				})
 				.catch(function (reason) {
 					Utilities.throwApiException('ModelVersion.update', reason);
+					$scope.isSaving = false;
 				})
 		};
 

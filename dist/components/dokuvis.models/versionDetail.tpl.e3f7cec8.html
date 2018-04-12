@@ -19,6 +19,6 @@
 	<p ng-hide="version.id === 'root'">
 		<button class="btn btn-default" ng-click="load()"><i class="fa fa-refresh"></i> {{'load'|translate}}</button>
 		<button class="btn btn-default" ng-click="load(true)"><i class="fa fa-refresh"></i> {{'load'|translate}} (keep scene)</button>
-		<button class="btn btn-default" ui-sref=".version({versionId: version.id})"><i class="fa fa-pencil"></i> {{'edit'|translate}}</button>
+		<button class="btn btn-default" ng-show="$root.can('model_edit')" ui-sref=".version({versionId: version.id})"><i class="fa fa-pencil"></i> {{'edit'|translate}}</button>
 	</p>
 </div>

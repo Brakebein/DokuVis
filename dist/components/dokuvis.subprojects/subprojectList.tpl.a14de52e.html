@@ -1,13 +1,13 @@
 <div ng-show="!subprojects.length">
-	<p>Keine Unterprojekte vorhanden.</p>
-	<p>Unterprojekte können helfen, das Projekt zu strukturieren, z.B. wenn das Projekt mehrere Zeitschnitte aufweist.</p>
+	<p translate>subprojects_empty</p>
+	<p translate>subprojects_hint</p>
 </div>
 
 <table class="table table-striped" ng-show="subprojects.length">
 	<thead>
 	<tr>
-		<th width="300">{{'name' | translate}}</th>
-		<th>{{'description' | translate}}</th>
+		<th width="300" translate>name</th>
+		<th translate>description</th>
 		<th width="200"></th>
 	</tr>
 	</thead>
@@ -17,7 +17,7 @@
 		<td>{{sp.description}}</td>
 		<td>
 			<button class="btn btn-primary btn-xs" ui-sref="project.home({ subproject: sp.id })"><i class="fa fa-folder-open"></i> {{'open' | translate}}</button>
-			<button class="btn btn-default btn-xs" ng-show="can('edit_subproject')" ui-sref=".subproject({ subprojectId: sp.id })"><i class="fa fa-pencil"></i> {{'edit' | translate}}</button>
+			<button class="btn btn-default btn-xs" ng-show="can('subproject_edit')" ui-sref=".subproject({ subprojectId: sp.id })"><i class="fa fa-pencil"></i> {{'edit' | translate}}</button>
 			<!--<button class="btn btn-danger btn-xs" ng-show="can('edit_subproject')"><i class="fa fa-trash"></i> {{'delete' | translate}}</button>-->
 		</td>
 	</tr>

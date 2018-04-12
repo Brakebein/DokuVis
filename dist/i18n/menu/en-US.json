@@ -9,5 +9,6 @@
   "menu_language": "Language",
   "menu_help": "Help",
   "menu_projectlist": "Project list",
-  "menu_logout": "Log out"
+  "menu_logout": "Logout",
+  "menu_projects": "Projects"
 }

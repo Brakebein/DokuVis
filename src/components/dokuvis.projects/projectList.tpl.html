@@ -1,11 +1,11 @@
-<span ng-show="!projects.length">Keine Projekte vorhanden</span>
+<span ng-show="!projects.length" translate>projects_empty</span>
 
 <table ng-show="projects.length" class="table table-striped">
 	<thead>
 	<tr>
-		<th width="200">{{'name' | translate}}</th>
-		<th>{{'description' | translate}}</th>
-		<th width="100">{{'rights' | translate}}</th>
+		<th width="200" translate>name</th>
+		<th translate>description</th>
+		<th width="100" translate>rights</th>
 		<th width="300"></th>
 	</tr>
 	</thead>

@@ -302,18 +302,21 @@ angular.module('dokuvis.projects', [
 					$rootScope.userRole = result.role;
 
 					AclService.attachRole('visitor');
-					if (result.role === 'superadmin') {
-						AclService.attachRole('superadmin');
-						AclService.attachRole('admin');
-						AclService.attachRole('historian');
-						AclService.attachRole('modeler');
+
+					switch (result.role) {
+						case 'superadmin':
+							AclService.attachRole('superadmin');
+						case 'admin':
+							AclService.attachRole('admin');
+							AclService.attachRole('historian');
+							AclService.attachRole('modeler');
+							break;
+						case 'historian':
+							AclService.attachRole('historian');
+							break;
+						case 'modeler':
+							AclService.attachRole('modeler');
 					}
-					else if (result.role === 'admin')
-						AclService.attachRole('admin');
-					else if (result.role === 'historian')
-						AclService.attachRole('historian');
-					else if (result.role === 'modeler')
-						AclService.attachRole('modeler');
 
 					$log.debug(AclService.getRoles());
 				})

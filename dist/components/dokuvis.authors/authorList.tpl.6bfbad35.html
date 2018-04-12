@@ -1,10 +1,10 @@
 <div class="panel panel-default">
-	<div class="panel-heading">{{'author_title' | translate}}</div>
+	<div class="panel-heading" translate>author_title</div>
 	<div class="panel-body">
 		<table class="table">
 			<thead>
 			<tr>
-				<th>{{'name' | translate}}</th>
+				<th translate>name</th>
 				<th><i class="fa fa-link"></i></th>
 				<th></th>
 			</tr>
@@ -14,7 +14,7 @@
 				<td>{{ a.name }}</td>
 				<td>{{ a.linkStats.documents }}</td>
 				<td><!--<a ui-sref="project.graph.node({ startNode: a.nodeId })">Graphensuche</a>-->
-					<button class="btn btn-default btn-xs" ui-sref=".author({ authorId: a.id })">{{'edit' | translate}}</button>
+					<button class="btn btn-default btn-xs" ng-show="$root.can('author_edit')" ui-sref=".author({ authorId: a.id })">{{'edit' | translate}}</button>
 				</td>
 			</tr>
 			</tbody>
@@ -22,6 +22,6 @@
 
 	</div>
 	<div class="panel-footer">
-		<button class="btn btn-default" ui-sref=".author">{{'author_btn_add' | translate}}</button>
+		<button class="btn btn-default" ng-show="$root.can('author_edit')" ui-sref=".author">{{'author_btn_add' | translate}}</button>
 	</div>
 </div>

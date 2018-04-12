@@ -1,7 +1,7 @@
 <div class="modal-content">
 
 	<div class="modal-header">
-		<h4 class="modal-title">Version bearbeiten</h4>
+		<h4 class="modal-title" translate>model_version_edit</h4>
 	</div>
 
 	<div class="modal-body">
@@ -28,6 +28,13 @@
 			</div>
 		</form>
 
+		<div class="progress-overlay" ng-show="isSaving">
+			<div>
+				<h4>{{'saving' | translate}}...</h4>
+				<div><img src="img/db_write.gif"/></div>
+			</div>
+		</div>
+
 	</div>
 
 	<div class="modal-footer spread">
@@ -36,7 +43,7 @@
 			<div ng-show="commit.modified && commit.modified.id">{{'modified_by' | translate}} {{commit.modified.name}} - {{commit.modified.date | amCalendar}}</div>
 		</div>
 		<div>
-			<button class="btn btn-primary" ng-click="save()">{{'save' | translate}}</button>
+			<button class="btn btn-primary" ng-click="save()" data-ng-disabled="isSaving">{{'save' | translate}}</button>
 			<button class="btn btn-default" ng-click="close()">{{'abort' | translate}}</button>
 			<button class="btn btn-danger" ng-show="!commit.successor.length" ng-click="delete()">{{'delete' | translate}}</button>
 		</div>

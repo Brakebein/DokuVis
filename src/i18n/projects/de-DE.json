@@ -1,10 +1,13 @@
 {
   "projects_title": "Projekte",
+  "projects_empty": "Keine Projekte vorhanden.",
   "project_new": "Neues Projekt",
   "project_edit": "Projekt editieren",
   "project_delete": "Projekt löschen",
   "project_delete_question": "Soll das Projekt <strong>{{ proj_name }}</strong> wirklich gelöscht werden? Sämtliche Daten gehen dabei verloren!",
   "subprojects_title": "Unterprojekte",
+  "subprojects_empty": "Keine Unterprojekte vorhanden.",
+  "subprojects_hint": "Unterprojekte können helfen, das Projekt zu strukturieren, z.B. wenn das Projekt mehrere Zeitschnitte aufweist.<br/>Zur Zeit können 3D-Modelle und Quellen nur in Unterprojekten hochgeladen werden.",
   "subproject_new": "Neues Unterprojekt",
   "subproject_edit": "Unterprojekt editieren"
 }

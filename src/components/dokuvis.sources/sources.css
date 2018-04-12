@@ -267,7 +267,7 @@ sources-list {
     max-height: 100%; }
   .source-edit-modal .image-section file-drop-area {
     height: 100%; }
-  .source-edit-modal .image-section .progressArea {
+  .source-edit-modal .image-section .file-progress {
     display: flex;
     flex-direction: column;
     justify-content: center; }

@@ -870,6 +870,8 @@ angular.module('dokuvis.sources', [
 .controller('sourceEditModalCtrl', ['$scope', '$rootScope', '$window', '$state', '$stateParams', '$timeout', 'FileUploader', 'moment', 'Source', 'Archive', 'ApiSource', 'ApiParams', 'TypeaheadRequest', 'Utilities', '$log',
 	function ($scope, $rootScope, $window, $state, $stateParams, $timeout, FileUploader, moment, Source, Archive, ApiSource, ApiParams, TypeaheadRequest, Utilities, $log) {
 
+		$scope.isSaving = false;
+
 		var imageTypes = ['jpg','JPG','png','PNG','jpeg','bmp','gif','tiff'];
 		var textTypes = ['pdf'];
 
@@ -951,6 +953,8 @@ angular.module('dokuvis.sources', [
 				return t.text;
 			});
 
+			$scope.isSaving = true;
+
 			$scope.item.$update()
 				.then(function (source) {
 					sourcesUpdate(source);
@@ -958,6 +962,7 @@ angular.module('dokuvis.sources', [
 				})
 				.catch(function (reason) {
 					Utilities.throwApiException('#Source.update', reason);
+					$scope.isSaving = false;
 				});
 		};
 

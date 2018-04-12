@@ -9,8 +9,8 @@
  * @name dokuvisApp
  * @module dokuvisApp
  * @requires https://ui-router.github.io/ ui.router
- * @requires https://code.angularjs.org/1.4.6/docs/api/ngResource ngResource
- * @requires https://code.angularjs.org/1.4.6/docs/api/ngSanitize ngSanitize
+ * @requires https://docs.angularjs.org/api/ngResource ngResource
+ * @requires https://docs.angularjs.org/api/ngSanitize ngSanitize
  * @requires http://mgcrea.github.io/angular-strap/ AngularStrap
  * @requires https://github.com/nervgh/angular-file-upload angularFileUpload
  */
@@ -104,7 +104,6 @@ dokuvisApp.factory('ApiParams', ['$stateParams', function ($stateParams) {
 	}
 }]);
 
-// dokuvisApp.constant('ComponentsPath', 'components');
 
 /**
  * Configures ui.router states, state resolve functions, and some defaults.
@@ -285,9 +284,6 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 						return SubprojectResolve($stateParams);
 					}]
 				},
-				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
-					$translatePartialLoader.addPart('menu');
-				}],
 				abstract: true
 			})
 			.state('project.home', {
@@ -546,6 +542,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 				url: '/tasks',
 				templateUrl: 'partials/tasks.html',
 				controller: 'tasksCtrl',
+				onEnter: ['$translatePartialLoader', function ($translatePartialLoader) {
+					$translatePartialLoader.addPart('comment');
+				}],
 				params: {
 					initialTask: null
 				}
@@ -677,7 +676,9 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 			.determinePreferredLanguage()
 			.useLocalStorage()
 			.fallbackLanguage('de-DE');
+
 		$translatePartialLoaderProvider.addPart('general');
+		$translatePartialLoaderProvider.addPart('menu');
 
 		// defaults
 		angular.extend($modalProvider.defaults, {
@@ -711,7 +712,7 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
  * @ngdoc object
  * @name run
  * @module dokuvisApp
- * @requires https://code.angularjs.org/1.4.6/docs/api/ng/service/$rootScope $rootScope
+ * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
  * @requires https://ui-router.github.io/ng1/docs/0.3.1/index.html#/api/ui.router.state.$state $state
  * @requires AuthenticationFactory
  * @requires https://github.com/mikemclin/angular-acl AclService
@@ -726,12 +727,12 @@ dokuvisApp.run(['$rootScope', '$state', 'AuthenticationFactory', 'AclService', '
 		// ACL data
 		var aclData = {
 			guest: ['login', 'register'],
-			member: ['logout', 'create_project'],
+			member: ['logout', 'project_create'],
 			visitor: [],
-			historian: ['upload_source'],
-			modeler: ['upload_model'],
-			admin: ['manage_content', 'edit_subproject', 'edit_staff'],
-			superadmin: ['edit_project']
+			historian: ['source_upload', 'source_edit', 'source_delete', 'info_edit', 'archive_edit', 'author_edit'],
+			modeler: ['model_upload', 'model_edit'],
+			admin: ['manage_content', 'subproject_edit', 'staff_edit'],
+			superadmin: ['project_edit']
 		};
 		AclService.setAbilities(aclData);
 		AclService.attachRole('guest');

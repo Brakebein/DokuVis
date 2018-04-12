@@ -1,10 +1,13 @@
 {
   "projects_title": "Projects",
+  "projects_empty": "No projects available.",
   "project_new": "New Project",
   "project_edit": "Edit Project",
   "project_delete": "Delete Project",
-  "project_delete_question": "Do you really want to delete project <strong>{{ proj_name }}</strong>? All data is going to be lost!",
+  "project_delete_question": "Do you really want to delete project <strong>{{ proj_name }}</strong>? All data will be lost!",
   "subprojects_title": "Subprojects",
+  "subprojects_empty": "No subprojects available.",
+  "subprojects_hint": "Subprojects can help to structure the project, e.g. having several periods.<br/>Currently, 3D models and sources can only be uploaded within subprojects",
   "subproject_new": "New Subproject",
   "subproject_edit": "Edit Subproject"
 }

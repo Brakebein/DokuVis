@@ -9,7 +9,7 @@
 
 		<hr/>
 		<p>
-			<button class="btn btn-primary" ui-sref=".projinfo"><i class="fa fa-plus"></i> Info hinzufügen</button>
+			<button class="btn btn-primary" ng-show="can('info_edit')" ui-sref=".projinfo"><i class="fa fa-plus"></i> Info hinzufügen</button>
 		</p>
 
 	</div>
@@ -28,7 +28,7 @@
 			</div>
 		</div>
 
-		<button class="btn btn-primary" ng-show="can('edit_subproject')" ui-sref=".subproject"><i class="fa fa-plus"></i> {{'subproject_new' | translate}}</button>
+		<button class="btn btn-primary" ng-show="can('subproject_edit')" ui-sref=".subproject"><i class="fa fa-plus"></i> {{'subproject_new' | translate}}</button>
 
 	</div>
 

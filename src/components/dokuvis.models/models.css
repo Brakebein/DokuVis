@@ -14,15 +14,6 @@
       padding: 0 10px; }
   .model-upload-form .file-metadata strong {
     word-break: break-all; }
-  .model-upload-form .progress-overlay > div {
-    background-color: rgba(240, 240, 240, 0.5); }
-
-version-list > file-drop-area {
-  margin-bottom: 18px; }
-version-list > .panel > .panel-body {
-  padding: 10px 15px; }
-version-list > .panel > .panel-footer {
-  font-size: 12px; }
 
 version-graph .vgraph .vgraph-row {
   cursor: pointer;
