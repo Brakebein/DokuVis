@@ -216,7 +216,6 @@ module.exports = function (grunt) {
 		// wire bower dependencies to index.html
 		wiredep: {
 			target: {
-				cwd: 'src',
 				src: ['src/index.html']
 			}
 		}
