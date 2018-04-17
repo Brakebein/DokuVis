@@ -229,7 +229,7 @@ Before you install Neo4j, you need to install the **Java Runtime Environment 8 x
 
 Download zip package (x64) from [Neo4j Download page](https://neo4j.com/download/other-releases/).
 
-Unpack the package. Set environment variable `NEO4J_HOME` to the unpacked folder. 
+Unpack the package. Set environment variable `NEO4J_HOME` to the unpacked folder.
 
 Install as service:
 
@@ -245,6 +245,14 @@ In the config file `conf/neo4j.conf`, you can specify the name of the database (
 
     dbms.active_database=dokuvis.db
 
+#### APOC (Awesome Procedures On Cypher)
+Some cypher queries are using procedures of APOC library.
+
+Download from [neo4j-apoc-procedures](https://github.com/neo4j-contrib/neo4j-apoc-procedures) the `jar` file (choose an appropriate version to your Neo4j instance) and copy it into the `plugins` folder.
+
+Add following lines in `conf/neo4j.conf` and restart Neo4j:
+
+    dbms.security.procedures.unrestricted=apoc.when,apoc.do.when
 
 ## git
 

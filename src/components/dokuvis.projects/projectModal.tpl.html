@@ -17,10 +17,17 @@
 				<textarea id="descInput" class="form-control" ng-model="project.description"></textarea>
 			</div>
 		</div>
+
+		<div class="progress-overlay" ng-show="isSaving">
+			<div>
+				<h4>{{'saving' | translate}}...</h4>
+				<div><img src="img/db_write.gif"/></div>
+			</div>
+		</div>
 	</div>
 
 	<div class="modal-footer">
-		<button class="btn btn-primary" ng-click="save()">{{'save' | translate}}</button>
+		<button class="btn btn-primary" ng-click="save()" data-ng-disabled="isSaving">{{'save' | translate}}</button>
 		<button class="btn btn-default" ng-click="close()">{{'abort' | translate}}</button>
 	</div>
 

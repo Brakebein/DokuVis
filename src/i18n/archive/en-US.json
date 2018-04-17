@@ -3,6 +3,8 @@
   "archive_modal_title": "Add Archive",
   "archive_new": "New archive",
   "archive_edit": "Edit archive",
+  "archive_delete": "Delete archive",
+  "archive_delete_question": "Should the archive/collection really be deleted? Links to other sources will be deleted as well. The institution will be deleted as well, if it is not linked to other collections.",
   "archive_institution": "Institution",
   "archive_preferred": "Preferred Name/Abbr.",
   "archive_collection": "Collection",

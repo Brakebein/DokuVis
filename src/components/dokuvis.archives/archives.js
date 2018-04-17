@@ -130,6 +130,8 @@ angular.module('dokuvis.archives', [
 .controller('archiveModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'Archive', 'Utilities', 'ConfirmDialog', '$log',
 	function ($scope, $rootScope, $state, $stateParams, Archive, Utilities, ConfirmDialog, $log) {
 
+		$scope.isSaving = false;
+
 		$scope.archive = {
 			institution: '',
 			abbr: '',
@@ -178,6 +180,8 @@ angular.module('dokuvis.archives', [
 				return;
 			}
 
+			$scope.isSaving = true;
+
 			if ($stateParams.archiveId !== 'new') {
 				archive.institution.name = $scope.archive.institution;
 				archive.institution.abbr = $scope.archive.abbr;
@@ -190,6 +194,7 @@ angular.module('dokuvis.archives', [
 					})
 					.catch(function (reason) {
 						Utilities.throwApiException('#Archive.update', reason);
+						$scope.isSaving = false;
 					});
 			}
 			else {
@@ -200,15 +205,17 @@ angular.module('dokuvis.archives', [
 					})
 					.catch(function (err) {
 						Utilities.throwApiException('#Archive.save', err);
+						$scope.isSaving = false;
 					});
 			}
 		};
 
 		$scope.delete = function () {
 			ConfirmDialog({
-				headerText: 'Archiv löschen',
-				bodyText: 'Soll das Archiv wirklich gelöscht werden? Verknüpfungen zu anderen Quellen werden ebenfalls gelöscht. Die Institution wird ebenfalls gelöscht, sollten es keine weiteren Kollektionen damit verknüpft sein.'
+				headerText: 'archive_delete',
+				bodyText: 'archive_delete_question'
 			}).then(function () {
+				$scope.isSaving = true;
 				archive.$delete()
 					.then(function (response) {
 						$log.debug(response);
@@ -217,6 +224,7 @@ angular.module('dokuvis.archives', [
 					})
 					.catch(function (reason) {
 						Utilities.throwApiException('#Archive.delete', reason);
+						$scope.isSaving = false;
 					});
 			});
 		};

@@ -146,6 +146,7 @@ angular.module('dokuvis.authors', [
 .controller('authorModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'Author', 'Utilities', 'ConfirmDialog',
 	function ($scope, $rootScope, $state, $stateParams, Author, Utilities, ConfirmDialog) {
 
+		$scope.isSaving = false;
 		$scope.name = '';
 
 		var author = null;
@@ -183,6 +184,8 @@ angular.module('dokuvis.authors', [
 				return;
 			}
 
+			$scope.isSaving = true;
+
 			if (!$scope.new) {
 				author.name = $scope.name;
 				author.$update()
@@ -192,6 +195,7 @@ angular.module('dokuvis.authors', [
 					})
 					.catch(function (reason) {
 						Utilities.throwApiException('#Author.update', reason);
+						$scope.isSaving = false;
 					});
 			}
 			else {
@@ -202,6 +206,7 @@ angular.module('dokuvis.authors', [
 					})
 					.catch(function (reason) {
 						Utilities.throwApiException('#Author.save', reason);
+						$scope.isSaving = false;
 					});
 			}
 		};
@@ -219,6 +224,7 @@ angular.module('dokuvis.authors', [
 					name: author.name
 				}
 			}).then(function () {
+				$scope.isSaving = true;
 				author.$delete()
 					.then(function (response) {
 						console.log(response);
@@ -227,6 +233,7 @@ angular.module('dokuvis.authors', [
 					})
 					.catch(function (reason) {
 						Utilities.throwApiException('#Author.delete', reason);
+						$scope.isSaving = false;
 					});
 			})
 		};

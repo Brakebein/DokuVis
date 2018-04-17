@@ -191,6 +191,8 @@ angular.module('dokuvis.projects', [
 .controller('projectModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'Project', 'Utilities', '$log',
 	function ($scope, $rootScope, $state, $stateParams, Project, Utilities, $log) {
 
+		$scope.isSaving = false;
+
 		$scope.project = {
 			name: '',
 			description: ''
@@ -224,6 +226,8 @@ angular.module('dokuvis.projects', [
 				return;
 			}
 
+			$scope.isSaving = true;
+
 			if ($stateParams.projectId !== 'new') {
 				$scope.project.$update()
 					.then(function () {
@@ -232,6 +236,7 @@ angular.module('dokuvis.projects', [
 					})
 					.catch(function (err) {
 						Utilities.throwApiException('#Project.update', err);
+						$scope.isSaving = false;
 					});
 			}
 			else {
@@ -243,6 +248,7 @@ angular.module('dokuvis.projects', [
 					})
 					.catch(function(err) {
 						Utilities.throwApiException('#Project.save', err);
+						$scope.isSaving = false;
 					});
 			}
 		};

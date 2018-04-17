@@ -147,6 +147,8 @@ angular.module('dokuvis.subprojects', [
 .controller('subprojectModalCtrl', ['$scope', '$rootScope', '$state', '$stateParams', 'Subproject', 'Utilities',
 	function ($scope, $rootScope, $state, $stateParams, Subproject, Utilities) {
 
+		$scope.isSaving = false;
+
 		$scope.subproject = {
 			name: '',
 			description: ''
@@ -181,6 +183,8 @@ angular.module('dokuvis.subprojects', [
 				return;
 			}
 
+			$scope.isSaving = true;
+
 			if ($stateParams.subprojectId !== 'new') {
 				$scope.subproject.$update()
 					.then(function (result) {
@@ -189,6 +193,7 @@ angular.module('dokuvis.subprojects', [
 					})
 					.catch(function (err) {
 						Utilities.throwApiException('#Subproject.update', err);
+						$scope.isSaving = false;
 					});
 			}
 			else {
@@ -199,6 +204,7 @@ angular.module('dokuvis.subprojects', [
 					})
 					.catch(function (err) {
 						Utilities.throwApiException('#Subproject.save', err);
+						$scope.isSaving = false;
 					});
 			}
 		};

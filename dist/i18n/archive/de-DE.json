@@ -3,6 +3,8 @@
   "archive_modal_title": "Archiv hinzufügen",
   "archive_new": "Neues Archiv",
   "archive_edit": "Archiv bearbeiten",
+  "archive_delete": "Archiv löschen",
+  "archive_delete_question": "Soll das Archiv wirklich gelöscht werden? Verknüpfungen zu anderen Quellen werden ebenfalls gelöscht. Die Institution wird ebenfalls gelöscht, sollten es keine weiteren Kollektionen damit verknüpft sein.",
   "archive_institution": "Institut",
   "archive_preferred": "Bevorzugter Name/Abk.",
   "archive_collection": "Sammlung",

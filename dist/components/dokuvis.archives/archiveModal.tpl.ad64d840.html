@@ -8,7 +8,7 @@
 		
 		<form class="form-horizontal">
 			<div class="form-group">
-				<label for="aInstitution" class="control-label col-sm-3">{{'archive_institution' | translate}}</label>
+				<label for="aInstitution" class="control-label col-sm-3" translate>archive_institution</label>
 				<div class="col-sm-8">
 					<input id="aInstitution"
 						   class="form-control"
@@ -20,7 +20,7 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="aAbbr" class="control-label col-sm-3">{{'archive_preferred' | translate}}</label>
+				<label for="aAbbr" class="control-label col-sm-3" translate>archive_preferred</label>
 				<div class="col-sm-8">
 					<input id="aAbbr"
 						   class="form-control"
@@ -32,7 +32,7 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="aCollection" class="control-label col-sm-3">{{'archive_collection' | translate}}</label>
+				<label for="aCollection" class="control-label col-sm-3" translate>archive_collection</label>
 				<div class="col-sm-8">
 					<input id="aCollection"
 						   class="form-control"
@@ -44,12 +44,19 @@
 				</div>
 			</div>
 		</form>
+
+		<div class="progress-overlay" ng-show="isSaving">
+			<div>
+				<h4>{{'saving' | translate}}...</h4>
+				<div><img src="img/db_write.8f5290a8.gif"/></div>
+			</div>
+		</div>
 	
 	</div>
 	
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" ng-click="save()">{{'save' | translate}}</button>
-		<button type="button" class="btn btn-danger" ng-hide="new" ng-click="delete()">{{'delete' | translate}}</button>
+		<button type="button" class="btn btn-primary" ng-click="save()" data-ng-disabled="isSaving">{{'save' | translate}}</button>
+		<button type="button" class="btn btn-danger" ng-hide="new" ng-click="delete()" data-ng-disabled="isSaving">{{'delete' | translate}}</button>
 		<button type="button" class="btn btn-default" ng-click="close()">{{'abort' | translate}}</button>
 	</div>
 	
