@@ -201,6 +201,26 @@ dokuvisApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$tr
 					}]
 				}
 			})
+			.state('root.datenschutz', {
+				url: '/datenschutz',
+				views: {
+					"": {
+						templateUrl: 'partials/datenschutz.html'
+					},
+					header: {
+						templateUrl: 'partials/navbar.html',
+						controller: 'navCtrl'
+					},
+					footer: {
+						templateUrl: 'partials/footer.html'
+					}
+				},
+				resolve: {
+					validate: ['ValidateResolve', function (ValidateResolve) {
+						return ValidateResolve();
+					}]
+				}
+			})
 			.state('root.register', {
 				url: '/register',
 				views: {
