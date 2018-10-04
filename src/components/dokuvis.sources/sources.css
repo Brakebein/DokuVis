@@ -34,7 +34,7 @@ sources-list {
         margin-bottom: 0;
         overflow: hidden; }
         sources-list > .sources-body .source-item > .thumbnail.selected {
-          background-color: #fc4e2a; }
+          border-color: #fc4e2a; }
         sources-list > .sources-body .source-item > .thumbnail > img {
           width: 100%; }
         sources-list > .sources-body .source-item > .thumbnail > .caption {

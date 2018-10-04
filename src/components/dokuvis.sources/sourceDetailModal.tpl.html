@@ -112,9 +112,9 @@
 		</div>
 
 		<div>
-			<button class="btn btn-default" ng-show="can('source_edit')" ui-sref=".edit">{{'edit' | translate}}</button>
-			<button class="btn btn-default" ng-show="item.type === 'picture' && can('source_edit')" ng-click="startSpatialize()">Verorten</button>
-			<button class="btn btn-danger" ng-show="can('source_delete')" ng-click="delete()">{{'delete' | translate}}</button>
+			<button class="btn btn-default" ng-show="$root.can('source_edit')" ui-sref=".edit">{{'edit' | translate}}</button>
+			<button class="btn btn-default" ng-show="item.type === 'picture' && $root.can('source_edit')" ng-click="startSpatialize()">Verorten</button>
+			<button class="btn btn-danger" ng-show="$root.can('source_delete')" ng-click="delete()">{{'delete' | translate}}</button>
 		</div>
 
 		<div>
