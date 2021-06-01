@@ -95,6 +95,50 @@ DV3D.ObjectEntry.prototype = Object.assign( Object.create(DV3D.Entry.prototype),
 	},
 
 	/**
+	 * Set the opacity of the object (and its children if any).
+	 * @param [value] {boolean} New opacity value. If not set, an `opacity` event will be dispatched with the old value.
+	 */
+	setOpacity: function (value) {
+		if (typeof value !== 'undefined') this.opacity = value;
+		value = this.opacity;
+		this.traverse(function (child) {
+			child.opacity = value;
+			if (child.object instanceof THREE.Mesh) {
+				var mesh = child.object;
+				var edges = child.edges;
+				if (value === 1.0) {
+					// TODO: consider opacity
+					if(!child.active) {
+						mesh.material = THREE.DokuVisTray.materials[mesh.userData.originalMat];
+						if (edges) edges.material = THREE.DokuVisTray.materials['edgesMat'] ;
+					}
+					else {
+						mesh.material = THREE.DokuVisTray.materials['selectionMat'];
+						if (edges) edges.material = THREE.DokuVisTray.materials['edgesSelectionMat'] ;
+					}
+					mesh.userData.modifiedMat = false;
+				}
+				else if(!mesh.userData.modifiedMat) {
+					mesh.material = mesh.material.clone();
+					mesh.material.transparent = true;
+					mesh.material.depthWrite = false;
+					mesh.material.needsUpdate = true;
+					if(edges) {
+						edges.material = edges.material.clone();
+						edges.material.transparent = true;
+						edges.material.depthWrite = false;
+						edges.material.needsUpdate = true;
+					}
+					mesh.userData.modifiedMat = true;
+				}
+				mesh.material.opacity = value;
+				if(edges) edges.material.opacity = value;
+			}
+		});
+		this.dispatchEvent({ type: 'change' });
+	},
+
+	/**
 	 * Remove any references to meshes, other 3D objects, and other entries, so this entry is ready for GC.
 	 * @override
 	 */
