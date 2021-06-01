@@ -28,7 +28,7 @@
 			<div>
 				<div class="dvSlider-container dvSlider-slim">
 					Opacity
-					<input class="dvSlider dvSlider-dark" type="range" style="width: 100px" min="0.1" max="1" step="0.1"/>
+					<input class="dvSlider dvSlider-dark" type="range" style="width: 100px" min="0.1" max="1" step="0.1" ng-model="objects.opacity" ng-change="objects.setOpacity()"/>
 					1.0
 				</div>
 			</div>
@@ -43,7 +43,7 @@
 	<div ng-if="showHierarchy">
 		<div ng-repeat="data in hierarchy | orderBy: 'label'"
 			 ng-init="depth = 0"
-			 ng-include="'components/dokuvis.viewport/treeItem.tpl.659750d5.html'"></div>
+			 ng-include="'components/dokuvis.viewport/treeItem.tpl.de1aa7bd.html'"></div>
 	</div>
 
 	<div ng-if="showLayers">
@@ -72,6 +72,9 @@
 							 style="flex-basis: 35px;"></div>
 						<span class="list-label" ng-click="item.visible && item.select($event)">{{ item.label }}</span>
 						<div class="list-ctrls">
+							<div class="dvSlider-container dvSlider-slim">
+								<input class="dvSlider dvSlider-dark" type="range" style="width: 50px" min="0.1" max="1" step="0.1" ng-model="item.opacity" ng-change="item.setOpacity()">
+							</div>
 							<i class="glyphicon glyphicon-search" title="{{'viewport_list_focus'|translate}}" ng-click="item.focus()"></i>
 						</div>
 					</div>
