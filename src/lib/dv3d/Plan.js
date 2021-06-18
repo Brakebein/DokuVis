@@ -4,20 +4,23 @@
  * @param fileUrl {string} path to mesh (.ctm file)
  * @param imageUrl {string} path to texture
  * @param [scale=0.01] {number} scale of the mesh
- * @param [ctmloader] {THREE.CTMLoader} CTMLoader
  * @extends THREE.Object3D
  * @constructor
  */
-DV3D.Plan = function ( fileUrl, imageUrl, scale, ctmloader ) {
+DV3D.Plan = function ( fileUrl, imageUrl, scale ) {
 	
 	THREE.Object3D.call( this );
 
 	var scope = this;
 
 	scale = scale || 0.01;
-	ctmloader = ctmloader || new THREE.CTMLoader();
+	// ctmloader = ctmloader || new THREE.CTMLoader();
+	var objloader = new THREE.OBJLoader();
 	
-	ctmloader.load(fileUrl, function (geo) {
+	objloader.load(fileUrl, function (obj) {
+
+		var mesh = obj.children[0];
+		var geo = mesh.geometry;
 
 		geo.computeBoundingSphere();
 
@@ -62,7 +65,8 @@ DV3D.Plan = function ( fileUrl, imageUrl, scale, ctmloader ) {
 		else
 			material = THREE.DokuVisTray.materials['defaultDoublesideMat'].clone();
 
-		var mesh = new THREE.Mesh(geo, material);
+		// var mesh = new THREE.Mesh(geo, material);
+		mesh.material = material;
 		var edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 24.0), THREE.DokuVisTray.materials['edgesMat'].clone());
 
 		scope.add( mesh );
@@ -79,7 +83,7 @@ DV3D.Plan = function ( fileUrl, imageUrl, scale, ctmloader ) {
 		scope.updateMatrix();
 		scope.userData.initMatrix = scope.matrix.clone();
 
-	}, { useWorker: false });
+	});
 
 	scope.onComplete = undefined;
 	

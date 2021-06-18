@@ -109,11 +109,12 @@ Object.assign(DV3D.Entry.prototype, THREE.EventDispatcher.prototype, {
 /**
  * Extended DV3D.Entry class for plans.
  * @param obj {DV3D.Plan} Instance of a Plan object
+ * @param [label] {string} How the entry should be displayed in lists. (Default: `obj.name`)
  * @extends DV3D.Entry
  * @constructor
  */
-DV3D.PlanEntry = function (obj) {
-	DV3D.Entry.call( this, obj );
+DV3D.PlanEntry = function (obj, label) {
+	DV3D.Entry.call( this, obj, label );
 };
 DV3D.PlanEntry.prototype = Object.assign( Object.create( DV3D.Entry.prototype ), {
 

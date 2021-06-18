@@ -488,6 +488,8 @@ angular.module('dokuvis.sources', [
 			},
 			link: function (scope) {
 
+				scope.canLoadPlans = $rootScope.globalProject.proj === 'Proj_rkdajUQ5Q';
+
 				scope.options = {
 					orderBy: 'title',
 					filterBy: '',
@@ -544,6 +546,10 @@ angular.module('dokuvis.sources', [
 
 				scope.load3DImage = function (source) {
 					spatialImageLoad(source);
+				};
+
+				scope.load3DPlan = function (source) {
+					$rootScope.$broadcast('planLoad', source);
 				};
 
 				function spatialImageLoad(images) {

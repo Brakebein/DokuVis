@@ -2062,29 +2062,40 @@ angular.module('dokuvis.viewport',[
 
 			///// PLANS
 
+			scope.$on('planLoad', function (event, plan) {
+				load3DPlan(plan);
+			});
+
 			/**
 			 * Load spatialized plan into the scene.
 			 * @param obj
 			 */
-			webglInterface.callFunc.load3DPlan = function (obj) {
-				if(plans.getByName(obj.info.content)) return;
+			function load3DPlan (obj) {
+				if(plans.getByName(obj.id)) return;
 
-				var plan = new DV3D.Plan('data/' + obj.file.path + obj.file.content, 'data/' + obj.info.materialMapPath + obj.info.materialMap, obj.info.scale);
+				var plan = new DV3D.Plan('data/' + obj.file.path + 'plan.obj', 'data/' + obj.file.path + obj.file.preview, 0.01);
 				plan.onComplete = function () {
 					animate();
 				};
 				scene.add(plan);
 
-				plan.name = obj.info.content;
-				plan.userData.name = obj.info.materialName;
-				plan.userData.source = obj.source;
+				// plan.name = obj.info.content;
+				plan.name = obj.id;
+				// plan.userData.name = obj.info.materialName;
+				// plan.userData.source = obj.source;
+				plan.userData.source = obj;
 				plan.userData.type = 'plan';
 
-				var entry = new DV3D.PlanEntry(plan);
+				var entry = new DV3D.PlanEntry(plan, obj.title);
 				plan.entry = entry;
 				plans.add(entry);
 				console.log('Plan', plan);
-			};
+
+				entry.addEventListener('change', animateAsync);
+				entry.addEventListener('toggle', toggleSourceHandler);
+				entry.addEventListener('select', selectHandler);
+			}
+			webglInterface.callFunc[cfId].load3DPlan = load3DPlan;
 
 			/**
 			 * set camera to orthogonal view to fit plan to viewport
