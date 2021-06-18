@@ -21,14 +21,17 @@
 	<p ng-hide="plans.length" translate>viewport_list_noplans</p>
 
 	<div ng-repeat="plan in plans.list | orderBy: 'label'">
-		<div class="list-item" ng-class="{'not-visible': !plan.visible}">
+		<div class="list-item" ng-class="{active: plan.active, 'not-visible': !plan.visible}">
 				<span class="toggle glyphicon"
 					  title="{{'viewport_list_toggle'|translate}}"
 					  ng-class="{'glyphicon-eye-open': plan.visible, 'glyphicon-eye-close': !plan.visible}"
 					  ng-click="plan.toggle()"></span>
 			<div class="list-expand"></div>
-			<span class="list-label">{{ plan.name }}</span>
+			<span class="list-label" ng-click="plan.visible && plan.select($event)">{{ plan.label }}</span>
 			<div class="list-ctrls">
+				<div class="dvSlider-container dvSlider-slim">
+					<input class="dvSlider dvSlider-dark" type="range" style="width: 50px" min="0.1" max="1" step="0.1" ng-model="plan.opacity" ng-change="plan.setOpacity()">
+				</div>
 				<i class="glyphicon glyphicon-search" title="{{'viewport_list_focus'|translate}}" ng-click="plan.focus()"></i>
 			</div>
 		</div>
